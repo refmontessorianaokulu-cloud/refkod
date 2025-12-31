@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
@@ -97,6 +97,9 @@ export default function AdminDashboard() {
           email: userForm.email,
           full_name: userForm.full_name,
           role: userForm.role,
+          approved: true,
+          approved_at: new Date().toISOString(),
+          approved_by: profile?.id
         });
         if (profileError) throw profileError;
       }
@@ -142,6 +145,42 @@ export default function AdminDashboard() {
     try {
       const { error } = await supabase.from('children').delete().eq('id', id);
       if (error) throw error;
+      loadData();
+    } catch (error) {
+      alert('Hata oluştu: ' + (error as Error).message);
+    }
+  };
+
+  const handleApproveUser = async (userId: string) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          approved: true,
+          approved_at: new Date().toISOString(),
+          approved_by: profile?.id
+        })
+        .eq('id', userId);
+
+      if (error) throw error;
+      loadData();
+    } catch (error) {
+      alert('Hata oluştu: ' + (error as Error).message);
+    }
+  };
+
+  const handleRejectUser = async (userId: string) => {
+    if (!confirm('Bu kullanıcıyı reddetmek istediğinize emin misiniz? Kullanıcı silinecektir.')) return;
+    try {
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      if (authError) throw authError;
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (profileError) throw profileError;
       loadData();
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
@@ -306,51 +345,142 @@ export default function AdminDashboard() {
                     Henüz kullanıcı yok
                   </div>
                 ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full">
-                      <thead className="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Ad Soyad
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            E-posta
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            Rol
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {users.map((user) => (
-                          <tr key={user.id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                              {user.full_name}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                              {user.email}
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span
-                                className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                  user.role === 'admin'
-                                    ? 'bg-red-100 text-red-800'
-                                    : user.role === 'teacher'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : 'bg-green-100 text-green-800'
-                                }`}
-                              >
-                                {user.role === 'admin'
-                                  ? 'Yönetici'
-                                  : user.role === 'teacher'
-                                  ? 'Öğretmen'
-                                  : 'Veli'}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
+                  <div className="space-y-6">
+                    {users.filter(u => !u.approved && u.role !== 'admin').length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                          <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm mr-2">
+                            {users.filter(u => !u.approved && u.role !== 'admin').length}
+                          </span>
+                          Onay Bekleyen Kullanıcılar
+                        </h3>
+                        <div className="overflow-x-auto bg-yellow-50 rounded-lg border border-yellow-200">
+                          <table className="w-full">
+                            <thead className="bg-yellow-100 border-b border-yellow-200">
+                              <tr>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                  Ad Soyad
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                  E-posta
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                  Rol
+                                </th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                                  İşlemler
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody className="bg-white divide-y divide-yellow-200">
+                              {users.filter(u => !u.approved && u.role !== 'admin').map((user) => (
+                                <tr key={user.id} className="hover:bg-yellow-50">
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {user.full_name}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {user.email}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                        user.role === 'teacher'
+                                          ? 'bg-blue-100 text-blue-800'
+                                          : 'bg-green-100 text-green-800'
+                                      }`}
+                                    >
+                                      {user.role === 'teacher' ? 'Öğretmen' : 'Veli'}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    <div className="flex space-x-2">
+                                      <button
+                                        onClick={() => handleApproveUser(user.id)}
+                                        className="flex items-center space-x-1 px-3 py-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                                      >
+                                        <CheckCircle className="w-4 h-4" />
+                                        <span>Onayla</span>
+                                      </button>
+                                      <button
+                                        onClick={() => handleRejectUser(user.id)}
+                                        className="flex items-center space-x-1 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                      >
+                                        <XCircle className="w-4 h-4" />
+                                        <span>Reddet</span>
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4">Tüm Kullanıcılar</h3>
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead className="bg-gray-50 border-b border-gray-200">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Ad Soyad
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                E-posta
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Rol
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Durum
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {users.map((user) => (
+                              <tr key={user.id} className="hover:bg-gray-50">
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                  {user.full_name}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                  {user.email}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span
+                                    className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                      user.role === 'admin'
+                                        ? 'bg-red-100 text-red-800'
+                                        : user.role === 'teacher'
+                                        ? 'bg-blue-100 text-blue-800'
+                                        : 'bg-green-100 text-green-800'
+                                    }`}
+                                  >
+                                    {user.role === 'admin'
+                                      ? 'Yönetici'
+                                      : user.role === 'teacher'
+                                      ? 'Öğretmen'
+                                      : 'Veli'}
+                                  </span>
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <span
+                                    className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                      user.approved || user.role === 'admin'
+                                        ? 'bg-green-100 text-green-800'
+                                        : 'bg-yellow-100 text-yellow-800'
+                                    }`}
+                                  >
+                                    {user.approved || user.role === 'admin' ? 'Onaylı' : 'Bekliyor'}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>

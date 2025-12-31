@@ -34,7 +34,7 @@ export default function Signup({ onBackToLogin }: SignupProps) {
 
     try {
       await signUp(email, password, fullName, role);
-      alert('Kayıt başarılı! Giriş yapabilirsiniz.');
+      alert('Kaydınız oluşturuldu. Yönetici onayı sonrasında giriş yapabileceksiniz.');
       setFullName('');
       setEmail('');
       setPassword('');

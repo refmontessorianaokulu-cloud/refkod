@@ -11,6 +11,9 @@ export type Profile = {
   full_name: string;
   role: 'admin' | 'teacher' | 'parent';
   created_at: string;
+  approved: boolean;
+  approved_at: string | null;
+  approved_by: string | null;
 };
 
 export type Child = {

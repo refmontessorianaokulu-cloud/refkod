@@ -19,7 +19,12 @@ export default function Login() {
     try {
       await signIn(email, password);
     } catch (err) {
-      setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
+      const error = err as any;
+      if (error.message?.includes('onaylanmamış')) {
+        setError('Hesabınız henüz yönetici tarafından onaylanmamış. Lütfen onay için bekleyin.');
+      } else {
+        setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
+      }
     } finally {
       setLoading(false);
     }

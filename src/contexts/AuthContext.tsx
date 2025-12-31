@@ -69,8 +69,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) throw error;
+
+    if (data.user) {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('approved, role')
+        .eq('id', data.user.id)
+        .maybeSingle();
+
+      if (profileError) throw profileError;
+
+      if (profileData && !profileData.approved && profileData.role !== 'admin') {
+        await supabase.auth.signOut();
+        throw new Error('Hesabınız henüz yönetici tarafından onaylanmamış. Lütfen onay için bekleyin.');
+      }
+    }
   };
 
   const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent') => {
@@ -78,9 +93,17 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (error) throw error;
 
     if (data.user) {
+      const approved = role === 'admin';
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({ id: data.user.id, email, full_name: fullName, role });
+        .insert({
+          id: data.user.id,
+          email,
+          full_name: fullName,
+          role,
+          approved,
+          approved_at: approved ? new Date().toISOString() : null
+        });
 
       if (profileError) throw profileError;
     }
