@@ -472,7 +472,7 @@ export default function ParentDashboard() {
                         className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-shadow"
                       >
                         <Car className="w-5 h-5" />
-                        <span>Alışa Geliyorum</span>
+                        <span>Çocuğumu Almaya Geliyorum</span>
                       </button>
                     </div>
                   </div>
@@ -695,7 +695,7 @@ export default function ParentDashboard() {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-2xl p-8 max-w-md w-full">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-2xl font-bold text-gray-800">Alışa Geliyorum</h3>
+                <h3 className="text-2xl font-bold text-gray-800">Çocuğumu Almaya Geliyorum</h3>
                 <button
                   onClick={() => {
                     setShowPickupModal(false);
