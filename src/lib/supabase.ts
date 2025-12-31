@@ -63,7 +63,13 @@ export type DailyReport = {
   teacher_id: string;
   child_id: string;
   report_date: string;
-  title: string;
-  content: string;
+  practical_life: string;
+  sensorial: string;
+  mathematics: string;
+  language: string;
+  culture: string;
+  general_notes: string;
+  mood: string;
+  social_interaction: string;
   created_at: string;
 };

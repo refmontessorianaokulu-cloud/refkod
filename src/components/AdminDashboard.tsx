@@ -359,7 +359,7 @@ export default function AdminDashboard() {
             {activeTab === 'reports' && (
               <div>
                 <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">Günlük Raporlar</h2>
+                  <h2 className="text-2xl font-bold text-gray-800">Montessori Günlük Raporları</h2>
                 </div>
 
                 {loading ? (
@@ -369,22 +369,82 @@ export default function AdminDashboard() {
                     Henüz rapor yok
                   </div>
                 ) : (
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     {dailyReports.map((report) => (
                       <div
                         key={report.id}
-                        className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-6 border border-amber-100 hover:shadow-md transition-shadow"
+                        className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow"
                       >
-                        <div className="flex justify-between items-start mb-3">
+                        <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-200">
                           <div>
-                            <h3 className="text-lg font-semibold text-gray-800">{report.title}</h3>
-                            <p className="text-sm text-gray-600">
+                            <h3 className="text-xl font-semibold text-gray-800">
                               Tarih: {new Date(report.report_date).toLocaleDateString('tr-TR')}
-                            </p>
+                            </h3>
                           </div>
                         </div>
-                        <p className="text-gray-700 mb-3">{report.content}</p>
-                        <div className="text-xs text-gray-500 pt-3 border-t border-amber-200">
+
+                        {(report.mood || report.social_interaction) && (
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-blue-50 rounded-lg">
+                            {report.mood && (
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-700 mb-2">Ruh Hali</h4>
+                                <p className="text-gray-700 text-sm">{report.mood}</p>
+                              </div>
+                            )}
+                            {report.social_interaction && (
+                              <div>
+                                <h4 className="text-sm font-semibold text-gray-700 mb-2">Sosyal Etkileşim</h4>
+                                <p className="text-gray-700 text-sm">{report.social_interaction}</p>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="space-y-4">
+                          {report.practical_life && (
+                            <div className="p-4 bg-green-50 rounded-lg">
+                              <h4 className="text-sm font-semibold text-green-900 mb-2">Pratik Yaşam</h4>
+                              <p className="text-gray-700 text-sm">{report.practical_life}</p>
+                            </div>
+                          )}
+
+                          {report.sensorial && (
+                            <div className="p-4 bg-purple-50 rounded-lg">
+                              <h4 className="text-sm font-semibold text-purple-900 mb-2">Duyusal Gelişim</h4>
+                              <p className="text-gray-700 text-sm">{report.sensorial}</p>
+                            </div>
+                          )}
+
+                          {report.mathematics && (
+                            <div className="p-4 bg-blue-50 rounded-lg">
+                              <h4 className="text-sm font-semibold text-blue-900 mb-2">Matematik</h4>
+                              <p className="text-gray-700 text-sm">{report.mathematics}</p>
+                            </div>
+                          )}
+
+                          {report.language && (
+                            <div className="p-4 bg-amber-50 rounded-lg">
+                              <h4 className="text-sm font-semibold text-amber-900 mb-2">Dil</h4>
+                              <p className="text-gray-700 text-sm">{report.language}</p>
+                            </div>
+                          )}
+
+                          {report.culture && (
+                            <div className="p-4 bg-rose-50 rounded-lg">
+                              <h4 className="text-sm font-semibold text-rose-900 mb-2">Kültür</h4>
+                              <p className="text-gray-700 text-sm">{report.culture}</p>
+                            </div>
+                          )}
+
+                          {report.general_notes && (
+                            <div className="p-4 bg-gray-50 rounded-lg">
+                              <h4 className="text-sm font-semibold text-gray-900 mb-2">Genel Notlar</h4>
+                              <p className="text-gray-700 text-sm">{report.general_notes}</p>
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="text-xs text-gray-500 pt-4 mt-4 border-t border-gray-200">
                           Oluşturulma: {new Date(report.created_at).toLocaleString('tr-TR')}
                         </div>
                       </div>

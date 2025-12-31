@@ -26,8 +26,14 @@ export default function TeacherDashboard() {
   });
 
   const [reportForm, setReportForm] = useState({
-    title: '',
-    content: '',
+    practical_life: '',
+    sensorial: '',
+    mathematics: '',
+    language: '',
+    culture: '',
+    general_notes: '',
+    mood: '',
+    social_interaction: '',
   });
 
   useEffect(() => {
@@ -123,20 +129,35 @@ export default function TeacherDashboard() {
 
   const handleAddReport = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profile || !selectedChild || !reportForm.title.trim() || !reportForm.content.trim()) return;
+    if (!profile || !selectedChild) return;
 
     try {
       const { error } = await supabase.from('daily_reports').insert({
         teacher_id: profile.id,
         child_id: selectedChild,
-        title: reportForm.title,
-        content: reportForm.content,
+        practical_life: reportForm.practical_life,
+        sensorial: reportForm.sensorial,
+        mathematics: reportForm.mathematics,
+        language: reportForm.language,
+        culture: reportForm.culture,
+        general_notes: reportForm.general_notes,
+        mood: reportForm.mood,
+        social_interaction: reportForm.social_interaction,
       });
       if (error) throw error;
 
       setShowReportModal(false);
       setSelectedChild('');
-      setReportForm({ title: '', content: '' });
+      setReportForm({
+        practical_life: '',
+        sensorial: '',
+        mathematics: '',
+        language: '',
+        culture: '',
+        general_notes: '',
+        mood: '',
+        social_interaction: '',
+      });
       loadReports();
       alert('Günlük rapor eklendi!');
     } catch (error) {
@@ -393,9 +414,9 @@ export default function TeacherDashboard() {
 
       {showReportModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Günlük Rapor Ekle</h3>
-            <form onSubmit={handleAddReport} className="space-y-4">
+          <div className="bg-white rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">Montessori Günlük Rapor</h3>
+            <form onSubmit={handleAddReport} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Çocuk</label>
                 <select
@@ -412,38 +433,131 @@ export default function TeacherDashboard() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rapor Başlığı</label>
-                <input
-                  type="text"
-                  required
-                  value={reportForm.title}
-                  onChange={(e) => setReportForm({ ...reportForm, title: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                  placeholder="Başlık (örn: Bugünün Etkinlikleri)"
-                  maxLength={100}
-                />
-                <p className="text-xs text-gray-500 mt-1">{reportForm.title.length}/100</p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ruh Hali</label>
+                  <textarea
+                    value={reportForm.mood}
+                    onChange={(e) => setReportForm({ ...reportForm, mood: e.target.value })}
+                    rows={2}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                    placeholder="Çocuğun günlük ruh hali ve genel durumu..."
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Sosyal Etkileşim</label>
+                  <textarea
+                    value={reportForm.social_interaction}
+                    onChange={(e) => setReportForm({ ...reportForm, social_interaction: e.target.value })}
+                    rows={2}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                    placeholder="Arkadaşlarıyla etkileşimi, sosyal davranışları..."
+                  />
+                </div>
               </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">Montessori Alanları</h4>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Pratik Yaşam
+                      <span className="text-xs text-gray-500 ml-2">(Günlük yaşam becerileri, öz bakım, çevre bakımı)</span>
+                    </label>
+                    <textarea
+                      value={reportForm.practical_life}
+                      onChange={(e) => setReportForm({ ...reportForm, practical_life: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                      placeholder="Örn: El yıkama, giysilerini asma, masayı hazırlama..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Duyusal Gelişim
+                      <span className="text-xs text-gray-500 ml-2">(Beş duyu geliştirme çalışmaları)</span>
+                    </label>
+                    <textarea
+                      value={reportForm.sensorial}
+                      onChange={(e) => setReportForm({ ...reportForm, sensorial: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                      placeholder="Örn: Renk eşleştirme, dokunma tabletleri, ses kutuları..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Matematik
+                      <span className="text-xs text-gray-500 ml-2">(Sayılar, geometri, matematiksel kavramlar)</span>
+                    </label>
+                    <textarea
+                      value={reportForm.mathematics}
+                      onChange={(e) => setReportForm({ ...reportForm, mathematics: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                      placeholder="Örn: Sayı çubukları, geometrik şekiller, sayma alıştırmaları..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Dil
+                      <span className="text-xs text-gray-500 ml-2">(Konuşma, okuma hazırlığı, yazma)</span>
+                    </label>
+                    <textarea
+                      value={reportForm.language}
+                      onChange={(e) => setReportForm({ ...reportForm, language: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                      placeholder="Örn: Harf tanıma, hikaye dinleme, kelime oyunları..."
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Kültür
+                      <span className="text-xs text-gray-500 ml-2">(Coğrafya, Bilim, Sanat, Müzik)</span>
+                    </label>
+                    <textarea
+                      value={reportForm.culture}
+                      onChange={(e) => setReportForm({ ...reportForm, culture: e.target.value })}
+                      rows={3}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
+                      placeholder="Örn: Dünya haritası çalışması, doğa gözlemi, resim yapma, müzik dinleme..."
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Rapor İçeriği</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Genel Notlar</label>
                 <textarea
-                  required
-                  value={reportForm.content}
-                  onChange={(e) => setReportForm({ ...reportForm, content: e.target.value })}
-                  rows={8}
+                  value={reportForm.general_notes}
+                  onChange={(e) => setReportForm({ ...reportForm, general_notes: e.target.value })}
+                  rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none"
-                  placeholder="Günün detaylı raporu..."
-                  maxLength={2000}
+                  placeholder="Günle ilgili özel notlar, gözlemler veya veliye iletilmesi gereken bilgiler..."
                 />
-                <p className="text-xs text-gray-500 mt-1">{reportForm.content.length}/2000</p>
               </div>
+
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowReportModal(false);
-                    setReportForm({ title: '', content: '' });
+                    setReportForm({
+                      practical_life: '',
+                      sensorial: '',
+                      mathematics: '',
+                      language: '',
+                      culture: '',
+                      general_notes: '',
+                      mood: '',
+                      social_interaction: '',
+                    });
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
