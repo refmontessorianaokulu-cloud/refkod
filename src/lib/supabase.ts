@@ -24,6 +24,9 @@ export type Child = {
   class_name: string;
   photo_url: string | null;
   created_at: string;
+  teacher?: {
+    full_name: string;
+  };
 };
 
 export type MealLog = {

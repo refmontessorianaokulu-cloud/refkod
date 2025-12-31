@@ -37,12 +37,15 @@ export default function ParentDashboard() {
       const childIds = parentChildren.map((pc) => pc.child_id);
       const { data: childrenData } = await supabase
         .from('children')
-        .select('*')
+        .select(`
+          *,
+          teacher:teacher_children(teacher_id(full_name))
+        `)
         .in('id', childIds);
 
       if (childrenData) {
         const childrenWithLogs = await Promise.all(
-          childrenData.map(async (child) => {
+          childrenData.map(async (child: any) => {
             const { data: mealLogs } = await supabase
               .from('meal_logs')
               .select('*')
@@ -64,8 +67,13 @@ export default function ParentDashboard() {
               .order('report_date', { ascending: false })
               .limit(10);
 
+            const teacherData = child.teacher && child.teacher.length > 0
+              ? { full_name: child.teacher[0].teacher_id.full_name }
+              : undefined;
+
             return {
               ...child,
+              teacher: teacherData,
               meal_logs: mealLogs || [],
               sleep_logs: sleepLogs || [],
               daily_reports: dailyReports || [],
@@ -199,6 +207,11 @@ export default function ParentDashboard() {
                         </div>
                         <div className={`text-sm ${selectedChild === child.id ? 'text-green-50' : 'text-gray-500'}`}>
                           {child.class_name}
+                          {child.teacher && (
+                            <span className={`block text-xs ${selectedChild === child.id ? 'text-green-100' : 'text-gray-400'}`}>
+                              Öğretmen: {child.teacher.full_name}
+                            </span>
+                          )}
                         </div>
                       </div>
                     </button>
@@ -228,6 +241,11 @@ export default function ParentDashboard() {
                           {selectedChildData.first_name} {selectedChildData.last_name}
                         </h2>
                         <p className="text-gray-600">{selectedChildData.class_name}</p>
+                        {selectedChildData.teacher && (
+                          <p className="text-sm text-green-600 font-medium">
+                            Öğretmen: {selectedChildData.teacher.full_name}
+                          </p>
+                        )}
                         <p className="text-sm text-gray-500">
                           Doğum: {new Date(selectedChildData.birth_date).toLocaleDateString('tr-TR')}
                         </p>
