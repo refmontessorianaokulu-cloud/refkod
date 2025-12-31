@@ -129,9 +129,11 @@ export default function ParentDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-xl">
-                <Baby className="w-6 h-6 text-white" />
-              </div>
+              <img
+                src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+                alt="REF Logo"
+                className="w-10 h-10 object-contain"
+              />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Veli Paneli</h1>
                 <p className="text-sm text-gray-500">{profile?.full_name}</p>
@@ -151,7 +153,7 @@ export default function ParentDashboard() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
           <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
             <p className="mt-4 text-gray-500">Yükleniyor...</p>
           </div>
         ) : children.length === 0 ? (
@@ -172,14 +174,14 @@ export default function ParentDashboard() {
                       onClick={() => setSelectedChild(child.id)}
                       className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
                         selectedChild === child.id
-                          ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
+                          ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md'
                           : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                       }`}
                     >
                       <div className="font-medium">
                         {child.first_name} {child.last_name}
                       </div>
-                      <div className={`text-sm ${selectedChild === child.id ? 'text-blue-50' : 'text-gray-500'}`}>
+                      <div className={`text-sm ${selectedChild === child.id ? 'text-green-50' : 'text-gray-500'}`}>
                         {child.class_name}
                       </div>
                     </button>
@@ -193,8 +195,8 @@ export default function ParentDashboard() {
                 <div className="space-y-6">
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center space-x-4 mb-6">
-                      <div className="bg-gradient-to-br from-blue-100 to-cyan-100 p-4 rounded-2xl">
-                        <Baby className="w-8 h-8 text-blue-600" />
+                      <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-2xl">
+                        <Baby className="w-8 h-8 text-green-600" />
                       </div>
                       <div>
                         <h2 className="text-2xl font-bold text-gray-800">
@@ -210,7 +212,7 @@ export default function ParentDashboard() {
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center space-x-2 mb-4">
-                      <UtensilsCrossed className="w-6 h-6 text-blue-600" />
+                      <UtensilsCrossed className="w-6 h-6 text-green-600" />
                       <h3 className="text-xl font-bold text-gray-800">Yemek Kayıtları</h3>
                     </div>
                     {selectedChildData.meal_logs.length === 0 ? (
@@ -220,7 +222,7 @@ export default function ParentDashboard() {
                         {selectedChildData.meal_logs.map((log) => (
                           <div
                             key={log.id}
-                            className="bg-gradient-to-r from-blue-50 to-cyan-50 rounded-lg p-4 border border-blue-100"
+                            className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg p-4 border border-green-100"
                           >
                             <div className="flex justify-between items-start mb-2">
                               <div>
@@ -248,7 +250,7 @@ export default function ParentDashboard() {
 
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center space-x-2 mb-4">
-                      <Moon className="w-6 h-6 text-cyan-600" />
+                      <Moon className="w-6 h-6 text-emerald-600" />
                       <h3 className="text-xl font-bold text-gray-800">Uyku Kayıtları</h3>
                     </div>
                     {selectedChildData.sleep_logs.length === 0 ? (
@@ -258,7 +260,7 @@ export default function ParentDashboard() {
                         {selectedChildData.sleep_logs.map((log) => (
                           <div
                             key={log.id}
-                            className="bg-gradient-to-r from-cyan-50 to-blue-50 rounded-lg p-4 border border-cyan-100"
+                            className="bg-gradient-to-r from-emerald-50 to-green-50 rounded-lg p-4 border border-emerald-100"
                           >
                             <div className="flex justify-between items-start mb-2">
                               <div>
@@ -314,7 +316,7 @@ export default function ParentDashboard() {
                             </div>
 
                             {(report.mood || report.social_interaction) && (
-                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 p-3 bg-blue-50 rounded-lg">
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 p-3 bg-green-50 rounded-lg">
                                 {report.mood && (
                                   <div>
                                     <h5 className="text-xs font-semibold text-gray-700 mb-1">Ruh Hali</h5>
@@ -346,8 +348,8 @@ export default function ParentDashboard() {
                               )}
 
                               {report.mathematics && (
-                                <div className="p-3 bg-blue-50 rounded-lg">
-                                  <h5 className="text-xs font-semibold text-blue-900 mb-1">Matematik</h5>
+                                <div className="p-3 bg-slate-50 rounded-lg">
+                                  <h5 className="text-xs font-semibold text-slate-900 mb-1">Matematik</h5>
                                   <p className="text-gray-700 text-sm">{report.mathematics}</p>
                                 </div>
                               )}

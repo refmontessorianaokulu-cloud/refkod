@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Baby } from 'lucide-react';
 import Signup from './Signup';
 
 export default function Login() {
@@ -35,12 +34,14 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
         <div className="flex items-center justify-center mb-8">
-          <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-3 rounded-2xl">
-            <Baby className="w-10 h-10 text-white" />
-          </div>
+          <img
+            src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+            alt="REF Logo"
+            className="w-32 h-32 object-contain"
+          />
         </div>
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
           REF
@@ -64,7 +65,7 @@ export default function Login() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               placeholder="ornek@email.com"
             />
           </div>
@@ -79,7 +80,7 @@ export default function Login() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               placeholder="••••••••"
             />
           </div>
@@ -87,7 +88,7 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-gradient-to-r from-blue-500 to-cyan-500 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-cyan-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
           >
             {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
           </button>
@@ -97,7 +98,7 @@ export default function Login() {
           Henüz hesabınız yok mu?{' '}
           <button
             onClick={() => setIsLogin(false)}
-            className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+            className="text-green-600 hover:text-green-700 font-medium transition-colors"
           >
             Kayıt Ol
           </button>
