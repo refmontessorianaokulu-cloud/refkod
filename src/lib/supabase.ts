@@ -51,6 +51,13 @@ export type ParentChild = {
   created_at: string;
 };
 
+export type TeacherChild = {
+  id: string;
+  teacher_id: string;
+  child_id: string;
+  created_at: string;
+};
+
 export type DailyReport = {
   id: string;
   teacher_id: string;

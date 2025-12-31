@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
@@ -12,8 +12,10 @@ export default function AdminDashboard() {
   const [showChildModal, setShowChildModal] = useState(false);
   const [showUserModal, setShowUserModal] = useState(false);
   const [showParentLinkModal, setShowParentLinkModal] = useState(false);
+  const [showTeacherLinkModal, setShowTeacherLinkModal] = useState(false);
   const [selectedChild, setSelectedChild] = useState<string>('');
   const [parents, setParents] = useState<Profile[]>([]);
+  const [teachers, setTeachers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [childForm, setChildForm] = useState({
@@ -50,7 +52,9 @@ export default function AdminDashboard() {
           .order('created_at', { ascending: false });
         setUsers(data || []);
         const parentData = data?.filter(u => u.role === 'parent') || [];
+        const teacherData = data?.filter(u => u.role === 'teacher') || [];
         setParents(parentData);
+        setTeachers(teacherData);
       } else if (activeTab === 'reports') {
         const { data } = await supabase
           .from('daily_reports')
@@ -113,6 +117,20 @@ export default function AdminDashboard() {
       });
       if (error) throw error;
       setShowParentLinkModal(false);
+      setSelectedChild('');
+    } catch (error) {
+      alert('Hata oluştu: ' + (error as Error).message);
+    }
+  };
+
+  const handleLinkTeacher = async (teacherId: string) => {
+    try {
+      const { error } = await supabase.from('teacher_children').insert({
+        teacher_id: teacherId,
+        child_id: selectedChild,
+      });
+      if (error) throw error;
+      setShowTeacherLinkModal(false);
       setSelectedChild('');
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
@@ -239,6 +257,16 @@ export default function AdminDashboard() {
                               title="Veli Bağla"
                             >
                               <UserPlus className="w-4 h-4 text-blue-600" />
+                            </button>
+                            <button
+                              onClick={() => {
+                                setSelectedChild(child.id);
+                                setShowTeacherLinkModal(true);
+                              }}
+                              className="p-2 hover:bg-white rounded-lg transition-colors"
+                              title="Öğretmen Bağla"
+                            >
+                              <GraduationCap className="w-4 h-4 text-green-600" />
                             </button>
                             <button
                               onClick={() => handleDeleteChild(child.id)}
@@ -521,6 +549,32 @@ export default function AdminDashboard() {
             </div>
             <button
               onClick={() => setShowParentLinkModal(false)}
+              className="w-full mt-4 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              İptal
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showTeacherLinkModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">Öğretmen Bağla</h3>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {teachers.map((teacher) => (
+                <button
+                  key={teacher.id}
+                  onClick={() => handleLinkTeacher(teacher.id)}
+                  className="w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors"
+                >
+                  <div className="font-medium text-gray-800">{teacher.full_name}</div>
+                  <div className="text-sm text-gray-500">{teacher.email}</div>
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowTeacherLinkModal(false)}
               className="w-full mt-4 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               İptal

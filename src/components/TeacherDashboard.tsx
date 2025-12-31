@@ -31,16 +31,33 @@ export default function TeacherDashboard() {
   });
 
   useEffect(() => {
-    loadChildren();
-    loadReports();
-  }, []);
+    if (profile) {
+      loadChildren();
+      loadReports();
+    }
+  }, [profile]);
 
   const loadChildren = async () => {
     setLoading(true);
     try {
+      if (!profile) return;
+
+      const { data: teacherChildrenData } = await supabase
+        .from('teacher_children')
+        .select('child_id')
+        .eq('teacher_id', profile.id);
+
+      if (!teacherChildrenData || teacherChildrenData.length === 0) {
+        setChildren([]);
+        setLoading(false);
+        return;
+      }
+
+      const childIds = teacherChildrenData.map((tc) => tc.child_id);
       const { data } = await supabase
         .from('children')
         .select('*')
+        .in('id', childIds)
         .order('first_name', { ascending: true });
       setChildren(data || []);
     } catch (error) {
