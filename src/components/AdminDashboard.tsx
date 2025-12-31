@@ -42,7 +42,7 @@ export default function AdminDashboard() {
     email: '',
     password: '',
     full_name: '',
-    role: 'parent' as 'admin' | 'teacher' | 'parent',
+    role: 'parent' as 'admin' | 'teacher' | 'parent' | 'guidance_counselor',
   });
 
   useEffect(() => {
@@ -1079,13 +1079,14 @@ export default function AdminDashboard() {
                 <select
                   value={userForm.role}
                   onChange={(e) =>
-                    setUserForm({ ...userForm, role: e.target.value as 'admin' | 'teacher' | 'parent' })
+                    setUserForm({ ...userForm, role: e.target.value as 'admin' | 'teacher' | 'parent' | 'guidance_counselor' })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value="parent">Veli</option>
                   <option value="teacher">Öğretmen</option>
                   <option value="admin">Yönetici</option>
+                  <option value="guidance_counselor">Rehberlik Servisi</option>
                 </select>
               </div>
               <div className="flex space-x-3 pt-4">
