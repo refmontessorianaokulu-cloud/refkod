@@ -138,6 +138,20 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
     }
   };
 
+  const handleReply = (message: Message) => {
+    const replyToId = message.sender_id === userId ? message.receiver_id : message.sender_id;
+    const replySubject = message.subject.startsWith('Re: ') ? message.subject : `Re: ${message.subject}`;
+
+    setForm({
+      receiver_id: replyToId,
+      subject: replySubject,
+      content: '',
+    });
+
+    setSelectedMessage(null);
+    setShowComposeModal(true);
+  };
+
   const getContactName = async (contactId: string) => {
     const { data } = await supabase
       .from('profiles')
@@ -258,12 +272,21 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
                 <p className="text-gray-700 whitespace-pre-wrap">{selectedMessage.content}</p>
               </div>
 
-              <button
-                onClick={() => setSelectedMessage(null)}
-                className="w-full px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Kapat
-              </button>
+              <div className="flex space-x-3">
+                <button
+                  onClick={() => handleReply(selectedMessage)}
+                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg hover:from-teal-600 hover:to-cyan-600 transition-all"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Cevapla</span>
+                </button>
+                <button
+                  onClick={() => setSelectedMessage(null)}
+                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                >
+                  Kapat
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -273,9 +296,14 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-800">Yeni Mesaj</h3>
+              <h3 className="text-2xl font-bold text-gray-800">
+                {form.subject.startsWith('Re: ') ? 'Mesaj Cevapla' : 'Yeni Mesaj'}
+              </h3>
               <button
-                onClick={() => setShowComposeModal(false)}
+                onClick={() => {
+                  setShowComposeModal(false);
+                  setForm({ receiver_id: '', subject: '', content: '' });
+                }}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -290,6 +318,7 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
                   value={form.receiver_id}
                   onChange={(e) => setForm({ ...form, receiver_id: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  disabled={form.subject.startsWith('Re: ')}
                 >
                   <option value="">Alıcı seçin...</option>
                   {contacts.map((contact) => (
@@ -327,7 +356,10 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowComposeModal(false)}
+                  onClick={() => {
+                    setShowComposeModal(false);
+                    setForm({ receiver_id: '', subject: '', content: '' });
+                  }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   İptal
