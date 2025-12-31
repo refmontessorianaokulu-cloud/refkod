@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck, Car, X } from 'lucide-react';
+import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -15,7 +15,7 @@ type ChildWithLogs = Child & {
 
 export default function ParentDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments'>('main');
   const [children, setChildren] = useState<ChildWithLogs[]>([]);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -23,9 +23,22 @@ export default function ParentDashboard() {
   const [showPickupModal, setShowPickupModal] = useState(false);
   const [pickupMessage, setPickupMessage] = useState('');
   const [arrivalTime, setArrivalTime] = useState('');
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [showAppointmentModal, setShowAppointmentModal] = useState(false);
+  const [targetUsers, setTargetUsers] = useState<any[]>([]);
+  const [appointmentForm, setAppointmentForm] = useState({
+    target_id: '',
+    child_id: '',
+    subject: '',
+    message: '',
+  });
 
   useEffect(() => {
     loadChildren();
+    if (profile) {
+      loadAppointments();
+      loadTargetUsers();
+    }
   }, [profile]);
 
   const loadChildren = async () => {
@@ -121,6 +134,99 @@ export default function ParentDashboard() {
       setAttendances(data || []);
     } catch (error) {
       console.error('Error loading attendances:', error);
+    }
+  };
+
+  const loadAppointments = async () => {
+    if (!profile) return;
+    try {
+      const { data: appointmentsData } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('parent_id', profile.id)
+        .order('created_at', { ascending: false });
+
+      if (appointmentsData) {
+        const enrichedAppointments = await Promise.all(
+          appointmentsData.map(async (apt) => {
+            const { data: targetData } = await supabase
+              .from('profiles')
+              .select('full_name, role')
+              .eq('id', apt.target_id)
+              .single();
+
+            let childName = '';
+            if (apt.child_id) {
+              const { data: childData } = await supabase
+                .from('children')
+                .select('first_name, last_name')
+                .eq('id', apt.child_id)
+                .single();
+              if (childData) {
+                childName = `${childData.first_name} ${childData.last_name}`;
+              }
+            }
+
+            return {
+              ...apt,
+              target_name: targetData?.full_name || 'Bilinmeyen',
+              target_role: targetData?.role || '',
+              child_name: childName,
+            };
+          })
+        );
+
+        setAppointments(enrichedAppointments);
+      }
+    } catch (error) {
+      console.error('Error loading appointments:', error);
+    }
+  };
+
+  const loadTargetUsers = async () => {
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, role')
+        .in('role', ['teacher', 'admin', 'guidance_counselor'])
+        .eq('approved', true);
+      setTargetUsers(data || []);
+    } catch (error) {
+      console.error('Error loading target users:', error);
+    }
+  };
+
+  const handleCreateAppointment = async () => {
+    if (!appointmentForm.target_id || !appointmentForm.subject || !appointmentForm.message) {
+      alert('Lütfen tüm gerekli alanları doldurun');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('appointments').insert([
+        {
+          parent_id: profile?.id,
+          target_id: appointmentForm.target_id,
+          child_id: appointmentForm.child_id || null,
+          subject: appointmentForm.subject,
+          message: appointmentForm.message,
+        },
+      ]);
+
+      if (error) throw error;
+
+      setShowAppointmentModal(false);
+      setAppointmentForm({
+        target_id: '',
+        child_id: '',
+        subject: '',
+        message: '',
+      });
+      loadAppointments();
+      alert('Randevu talebiniz başarıyla gönderildi');
+    } catch (error) {
+      console.error('Error creating appointment:', error);
+      alert('Randevu talebi oluşturulurken bir hata oluştu');
     }
   };
 
@@ -308,6 +414,17 @@ export default function ParentDashboard() {
                 <span className="text-lg font-bold">₺</span>
                 <span>Okul Ödemeleri</span>
               </button>
+              <button
+                onClick={() => setActiveTab('appointments')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'appointments'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <CalendarPlus className="w-5 h-5" />
+                <span>Randevular</span>
+              </button>
             </div>
           </div>
         </div>
@@ -371,6 +488,78 @@ export default function ParentDashboard() {
         {activeTab === 'fees' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <FeesSection userId={profile?.id || ''} userRole="parent" />
+          </div>
+        )}
+
+        {activeTab === 'appointments' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Randevular</h2>
+              <button
+                onClick={() => setShowAppointmentModal(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <CalendarPlus className="w-5 h-5" />
+                <span>Yeni Randevu Talebi</span>
+              </button>
+            </div>
+            <div className="space-y-4">
+              {appointments.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">Henüz randevu talebiniz bulunmuyor</p>
+              ) : (
+                appointments.map((apt: any) => (
+                  <div key={apt.id} className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                    <div className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <h3 className="text-lg font-semibold text-gray-800">{apt.subject}</h3>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                            apt.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            apt.status === 'approved' ? 'bg-green-100 text-green-800' :
+                            apt.status === 'rejected' ? 'bg-red-100 text-red-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
+                            {apt.status === 'pending' ? 'Beklemede' :
+                             apt.status === 'approved' ? 'Onaylandı' :
+                             apt.status === 'rejected' ? 'Reddedildi' :
+                             'Tamamlandı'}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          <strong>Randevu Kişisi:</strong> {apt.target_name} ({
+                            apt.target_role === 'teacher' ? 'Öğretmen' :
+                            apt.target_role === 'admin' ? 'Yönetici' :
+                            'Rehberlik Servisi'
+                          })
+                          {apt.child_name && (
+                            <>
+                              {' '}| <strong>Çocuk:</strong> {apt.child_name}
+                            </>
+                          )}
+                        </p>
+                        <p className="text-gray-700 mb-2">{apt.message}</p>
+                        {apt.appointment_date && (
+                          <p className="text-sm text-green-600 mb-2">
+                            <strong>Randevu Tarihi:</strong>{' '}
+                            {new Date(apt.appointment_date).toLocaleString('tr-TR')}
+                          </p>
+                        )}
+                        {apt.response_message && (
+                          <div className="mt-2 p-3 bg-gray-50 rounded-lg">
+                            <p className="text-sm text-gray-700">
+                              <strong>Cevap:</strong> {apt.response_message}
+                            </p>
+                          </div>
+                        )}
+                        <p className="text-xs text-gray-500 mt-2">
+                          {new Date(apt.created_at).toLocaleString('tr-TR')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
 
@@ -687,6 +876,123 @@ export default function ParentDashboard() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {showAppointmentModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-800">Yeni Randevu Talebi</h3>
+                <button
+                  onClick={() => {
+                    setShowAppointmentModal(false);
+                    setAppointmentForm({
+                      target_id: '',
+                      child_id: '',
+                      subject: '',
+                      message: '',
+                    });
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Randevu Kişisi *
+                  </label>
+                  <select
+                    value={appointmentForm.target_id}
+                    onChange={(e) => setAppointmentForm({ ...appointmentForm, target_id: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="">Seçiniz...</option>
+                    {targetUsers.map((user) => (
+                      <option key={user.id} value={user.id}>
+                        {user.full_name} ({
+                          user.role === 'teacher' ? 'Öğretmen' :
+                          user.role === 'admin' ? 'Yönetici' :
+                          'Rehberlik Servisi'
+                        })
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Çocuk (İsteğe Bağlı)
+                  </label>
+                  <select
+                    value={appointmentForm.child_id}
+                    onChange={(e) => setAppointmentForm({ ...appointmentForm, child_id: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="">Genel (Çocuk seçmeyin)</option>
+                    {children.map((child) => (
+                      <option key={child.id} value={child.id}>
+                        {child.first_name} {child.last_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Konu *
+                  </label>
+                  <input
+                    type="text"
+                    value={appointmentForm.subject}
+                    onChange={(e) => setAppointmentForm({ ...appointmentForm, subject: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    placeholder="Randevu konusu..."
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mesaj *
+                  </label>
+                  <textarea
+                    value={appointmentForm.message}
+                    onChange={(e) => setAppointmentForm({ ...appointmentForm, message: e.target.value })}
+                    rows={4}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                    placeholder="Randevu talebinizin detaylarını yazın..."
+                  />
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAppointmentModal(false);
+                      setAppointmentForm({
+                        target_id: '',
+                        child_id: '',
+                        subject: '',
+                        message: '',
+                      });
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCreateAppointment}
+                    className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    Gönder
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}

@@ -3,6 +3,7 @@ import Login from './components/Login';
 import AdminDashboard from './components/AdminDashboard';
 import TeacherDashboard from './components/TeacherDashboard';
 import ParentDashboard from './components/ParentDashboard';
+import GuidanceCounselorDashboard from './components/GuidanceCounselorDashboard';
 
 function App() {
   const { user, profile, loading } = useAuth();
@@ -29,6 +30,8 @@ function App() {
       return <TeacherDashboard />;
     case 'parent':
       return <ParentDashboard />;
+    case 'guidance_counselor':
+      return <GuidanceCounselorDashboard />;
     default:
       return <Login />;
   }

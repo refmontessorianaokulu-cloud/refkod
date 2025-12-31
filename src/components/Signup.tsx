@@ -11,7 +11,7 @@ export default function Signup({ onBackToLogin }: SignupProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'parent' | 'teacher'>('parent');
+  const [role, setRole] = useState<'parent' | 'teacher' | 'guidance_counselor'>('parent');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
@@ -115,7 +115,7 @@ export default function Signup({ onBackToLogin }: SignupProps) {
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
               Rol
             </label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-3 gap-3">
               <button
                 type="button"
                 onClick={() => setRole('parent')}
@@ -137,6 +137,17 @@ export default function Signup({ onBackToLogin }: SignupProps) {
                 }`}
               >
                 Öğretmen
+              </button>
+              <button
+                type="button"
+                onClick={() => setRole('guidance_counselor')}
+                className={`px-4 py-3 rounded-lg font-medium transition-all border-2 ${
+                  role === 'guidance_counselor'
+                    ? 'bg-teal-600 text-white border-teal-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-teal-500'
+                }`}
+              >
+                Rehberlik
               </button>
             </div>
           </div>
