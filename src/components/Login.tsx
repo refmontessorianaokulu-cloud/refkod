@@ -36,7 +36,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-        <div className="flex items-center justify-center mb-8">
+        <div className="flex items-center justify-center mb-12 mt-4">
           <img
             src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
             alt="REF Logo"
@@ -46,7 +46,7 @@ export default function Login() {
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
           REF
         </h1>
-        <p className="text-center text-gray-600 mb-8">Hesabınıza giriş yapın</p>
+        <p className="text-center text-gray-600 mb-8">Öğrenci Takip Sistemi</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (

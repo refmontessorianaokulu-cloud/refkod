@@ -63,7 +63,7 @@ export default function Signup({ onBackToLogin }: SignupProps) {
           <span>Geri Dön</span>
         </button>
 
-        <div className="flex items-center justify-center mb-8">
+        <div className="flex items-center justify-center mb-12 mt-4">
           <img
             src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
             alt="REF Logo"
@@ -72,7 +72,7 @@ export default function Signup({ onBackToLogin }: SignupProps) {
         </div>
 
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">Kayıt Ol</h1>
-        <p className="text-center text-gray-600 mb-8">REF sistemi için hesap oluşturun</p>
+        <p className="text-center text-gray-600 mb-8">Öğrenci Takip Sistemi</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (
