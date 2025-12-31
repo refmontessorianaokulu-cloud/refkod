@@ -209,14 +209,27 @@ export default function TeacherDashboard() {
                   key={child.id}
                   className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 hover:shadow-md transition-shadow"
                 >
-                  <div className="mb-4">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-1">
-                      {child.first_name} {child.last_name}
-                    </h3>
-                    <p className="text-sm text-gray-600">{child.class_name}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {new Date(child.birth_date).toLocaleDateString('tr-TR')}
-                    </p>
+                  <div className="flex items-center space-x-4 mb-4">
+                    {child.photo_url ? (
+                      <img
+                        src={child.photo_url}
+                        alt={`${child.first_name} ${child.last_name}`}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-200 to-emerald-200 flex items-center justify-center border-2 border-white shadow-sm">
+                        <Baby className="w-8 h-8 text-green-700" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                        {child.first_name} {child.last_name}
+                      </h3>
+                      <p className="text-sm text-gray-600">{child.class_name}</p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {new Date(child.birth_date).toLocaleDateString('tr-TR')}
+                      </p>
+                    </div>
                   </div>
                   <div className="flex space-x-2">
                     <button

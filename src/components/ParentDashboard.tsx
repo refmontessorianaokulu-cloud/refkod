@@ -172,17 +172,34 @@ export default function ParentDashboard() {
                     <button
                       key={child.id}
                       onClick={() => setSelectedChild(child.id)}
-                      className={`w-full text-left px-4 py-3 rounded-lg transition-all ${
+                      className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center space-x-3 ${
                         selectedChild === child.id
                           ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md'
                           : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
                       }`}
                     >
-                      <div className="font-medium">
-                        {child.first_name} {child.last_name}
-                      </div>
-                      <div className={`text-sm ${selectedChild === child.id ? 'text-green-50' : 'text-gray-500'}`}>
-                        {child.class_name}
+                      {child.photo_url ? (
+                        <img
+                          src={child.photo_url}
+                          alt={`${child.first_name} ${child.last_name}`}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
+                      ) : (
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm ${
+                          selectedChild === child.id
+                            ? 'bg-green-700'
+                            : 'bg-gradient-to-br from-green-200 to-emerald-200'
+                        }`}>
+                          <Baby className={`w-6 h-6 ${selectedChild === child.id ? 'text-white' : 'text-green-700'}`} />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {child.first_name} {child.last_name}
+                        </div>
+                        <div className={`text-sm ${selectedChild === child.id ? 'text-green-50' : 'text-gray-500'}`}>
+                          {child.class_name}
+                        </div>
                       </div>
                     </button>
                   ))}
@@ -195,9 +212,17 @@ export default function ParentDashboard() {
                 <div className="space-y-6">
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center space-x-4 mb-6">
-                      <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-4 rounded-2xl">
-                        <Baby className="w-8 h-8 text-green-600" />
-                      </div>
+                      {selectedChildData.photo_url ? (
+                        <img
+                          src={selectedChildData.photo_url}
+                          alt={`${selectedChildData.first_name} ${selectedChildData.last_name}`}
+                          className="w-20 h-20 rounded-full object-cover border-4 border-green-100 shadow-lg"
+                        />
+                      ) : (
+                        <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-full border-4 border-white shadow-lg">
+                          <Baby className="w-8 h-8 text-green-600" />
+                        </div>
+                      )}
                       <div>
                         <h2 className="text-2xl font-bold text-gray-800">
                           {selectedChildData.first_name} {selectedChildData.last_name}

@@ -23,6 +23,9 @@ export default function AdminDashboard() {
     last_name: '',
     birth_date: '',
     class_name: '',
+    photo_url: '',
+    parent_id: '',
+    teacher_id: '',
   });
 
   const [userForm, setUserForm] = useState({
@@ -34,7 +37,24 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     loadData();
+    loadParentsAndTeachers();
   }, [activeTab]);
+
+  const loadParentsAndTeachers = async () => {
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('role', ['parent', 'teacher'])
+        .eq('approved', true);
+      const parentData = data?.filter(u => u.role === 'parent') || [];
+      const teacherData = data?.filter(u => u.role === 'teacher') || [];
+      setParents(parentData);
+      setTeachers(teacherData);
+    } catch (error) {
+      console.error('Error loading parents and teachers:', error);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
@@ -72,11 +92,52 @@ export default function AdminDashboard() {
   const handleAddChild = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from('children').insert(childForm);
+      const { data: newChild, error } = await supabase
+        .from('children')
+        .insert({
+          first_name: childForm.first_name,
+          last_name: childForm.last_name,
+          birth_date: childForm.birth_date,
+          class_name: childForm.class_name,
+          photo_url: childForm.photo_url,
+        })
+        .select()
+        .single();
+
       if (error) throw error;
+
+      if (newChild && childForm.parent_id) {
+        const { error: parentError } = await supabase
+          .from('parent_children')
+          .insert({
+            parent_id: childForm.parent_id,
+            child_id: newChild.id,
+          });
+        if (parentError) console.error('Parent link error:', parentError);
+      }
+
+      if (newChild && childForm.teacher_id) {
+        const { error: teacherError } = await supabase
+          .from('teacher_children')
+          .insert({
+            teacher_id: childForm.teacher_id,
+            child_id: newChild.id,
+          });
+        if (teacherError) console.error('Teacher link error:', teacherError);
+      }
+
       setShowChildModal(false);
-      setChildForm({ first_name: '', last_name: '', birth_date: '', class_name: '' });
+      setChildForm({
+        first_name: '',
+        last_name: '',
+        birth_date: '',
+        class_name: '',
+        photo_url: '',
+        parent_id: '',
+        teacher_id: ''
+      });
       loadData();
+      alert('Çocuk başarıyla eklendi!');
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
     }
@@ -281,12 +342,26 @@ export default function AdminDashboard() {
                         key={child.id}
                         className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 hover:shadow-md transition-shadow"
                       >
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
+                        <div className="flex items-start space-x-4 mb-4">
+                          {child.photo_url ? (
+                            <img
+                              src={child.photo_url}
+                              alt={`${child.first_name} ${child.last_name}`}
+                              className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-green-200 to-emerald-200 flex items-center justify-center border-2 border-white shadow-sm">
+                              <Baby className="w-8 h-8 text-green-700" />
+                            </div>
+                          )}
+                          <div className="flex-1">
                             <h3 className="text-lg font-semibold text-gray-800">
                               {child.first_name} {child.last_name}
                             </h3>
                             <p className="text-sm text-gray-600">{child.class_name}</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {new Date(child.birth_date).toLocaleDateString('tr-TR')}
+                            </p>
                           </div>
                           <div className="flex space-x-2">
                             <button
@@ -317,9 +392,6 @@ export default function AdminDashboard() {
                             </button>
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600">
-                          Doğum: {new Date(child.birth_date).toLocaleDateString('tr-TR')}
-                        </p>
                       </div>
                     ))}
                   </div>
@@ -591,7 +663,7 @@ export default function AdminDashboard() {
 
       {showChildModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+          <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-2xl font-bold text-gray-800 mb-6">Yeni Çocuk Ekle</h3>
             <form onSubmit={handleAddChild} className="space-y-4">
               <div>
@@ -626,12 +698,57 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Sınıf</label>
-                <input
-                  type="text"
+                <select
                   required
                   value={childForm.class_name}
                   onChange={(e) => setChildForm({ ...childForm, class_name: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="">Sınıf seçin...</option>
+                  <option value="5 Yaş Sınıfı">5 Yaş Sınıfı</option>
+                  <option value="4 Yaş Sınıfı">4 Yaş Sınıfı</option>
+                  <option value="3 Yaş Sınıfı">3 Yaş Sınıfı</option>
+                  <option value="2 Yaş Sınıfı">2 Yaş Sınıfı</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Veli</label>
+                <select
+                  value={childForm.parent_id}
+                  onChange={(e) => setChildForm({ ...childForm, parent_id: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="">Veli seçin (isteğe bağlı)...</option>
+                  {parents.map((parent) => (
+                    <option key={parent.id} value={parent.id}>
+                      {parent.full_name} ({parent.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Öğretmen</label>
+                <select
+                  value={childForm.teacher_id}
+                  onChange={(e) => setChildForm({ ...childForm, teacher_id: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="">Öğretmen seçin (isteğe bağlı)...</option>
+                  {teachers.map((teacher) => (
+                    <option key={teacher.id} value={teacher.id}>
+                      {teacher.full_name} ({teacher.email})
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Fotoğraf URL</label>
+                <input
+                  type="url"
+                  value={childForm.photo_url}
+                  onChange={(e) => setChildForm({ ...childForm, photo_url: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="https://örnek.com/foto.jpg"
                 />
               </div>
               <div className="flex space-x-3 pt-4">
