@@ -171,9 +171,11 @@ export default function TeacherDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-xl">
-                <Baby className="w-6 h-6 text-white" />
-              </div>
+              <img
+                src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+                alt="REF Logo"
+                className="w-10 h-10 object-contain"
+              />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Öğretmen Paneli</h1>
                 <p className="text-sm text-gray-500">{profile?.full_name}</p>
@@ -205,7 +207,7 @@ export default function TeacherDashboard() {
               {children.map((child) => (
                 <div
                   key={child.id}
-                  className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100 hover:shadow-md transition-shadow"
+                  className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 hover:shadow-md transition-shadow"
                 >
                   <div className="mb-4">
                     <h3 className="text-lg font-semibold text-gray-800 mb-1">
@@ -222,7 +224,7 @@ export default function TeacherDashboard() {
                         setSelectedChild(child.id);
                         setShowMealModal(true);
                       }}
-                      className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-white text-blue-600 rounded-lg hover:bg-blue-50 transition-colors border border-blue-200"
+                      className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-white text-green-600 rounded-lg hover:bg-green-50 transition-colors border border-green-200"
                     >
                       <UtensilsCrossed className="w-4 h-4" />
                       <span className="text-sm font-medium">Yemek</span>
@@ -232,7 +234,7 @@ export default function TeacherDashboard() {
                         setSelectedChild(child.id);
                         setShowSleepModal(true);
                       }}
-                      className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-white text-cyan-600 rounded-lg hover:bg-cyan-50 transition-colors border border-cyan-200"
+                      className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-white text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors border border-emerald-200"
                     >
                       <Moon className="w-4 h-4" />
                       <span className="text-sm font-medium">Uyku</span>
@@ -299,7 +301,7 @@ export default function TeacherDashboard() {
                   onChange={(e) =>
                     setMealForm({ ...mealForm, meal_type: e.target.value as 'breakfast' | 'lunch' | 'snack' })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value="breakfast">Kahvaltı</option>
                   <option value="lunch">Öğle Yemeği</option>
@@ -313,7 +315,7 @@ export default function TeacherDashboard() {
                   onChange={(e) =>
                     setMealForm({ ...mealForm, amount_eaten: e.target.value as 'all' | 'most' | 'some' | 'none' })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value="all">Hepsini</option>
                   <option value="most">Çoğunu</option>
@@ -327,7 +329,7 @@ export default function TeacherDashboard() {
                   value={mealForm.notes}
                   onChange={(e) => setMealForm({ ...mealForm, notes: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="İsteğe bağlı notlar..."
                 />
               </div>
@@ -344,7 +346,7 @@ export default function TeacherDashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
                 >
                   Kaydet
                 </button>
@@ -366,7 +368,7 @@ export default function TeacherDashboard() {
                   required
                   value={sleepForm.start_time}
                   onChange={(e) => setSleepForm({ ...sleepForm, start_time: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -376,7 +378,7 @@ export default function TeacherDashboard() {
                   required
                   value={sleepForm.end_time}
                   onChange={(e) => setSleepForm({ ...sleepForm, end_time: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -385,7 +387,7 @@ export default function TeacherDashboard() {
                   value={sleepForm.notes}
                   onChange={(e) => setSleepForm({ ...sleepForm, notes: e.target.value })}
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="İsteğe bağlı notlar..."
                 />
               </div>
@@ -402,7 +404,7 @@ export default function TeacherDashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
                 >
                   Kaydet
                 </button>

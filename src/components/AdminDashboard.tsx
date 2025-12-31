@@ -193,9 +193,11 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-xl">
-                <Baby className="w-6 h-6 text-white" />
-              </div>
+              <img
+                src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+                alt="REF Logo"
+                className="w-10 h-10 object-contain"
+              />
               <div>
                 <h1 className="text-xl font-bold text-gray-800">Yönetici Paneli</h1>
                 <p className="text-sm text-gray-500">{profile?.full_name}</p>
@@ -220,7 +222,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab('children')}
                 className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
                   activeTab === 'children'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-green-500 text-green-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -231,7 +233,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab('users')}
                 className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
                   activeTab === 'users'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-green-500 text-green-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -242,7 +244,7 @@ export default function AdminDashboard() {
                 onClick={() => setActiveTab('reports')}
                 className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
                   activeTab === 'reports'
-                    ? 'border-blue-500 text-blue-600'
+                    ? 'border-green-500 text-green-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
@@ -259,7 +261,7 @@ export default function AdminDashboard() {
                   <h2 className="text-2xl font-bold text-gray-800">Çocuklar</h2>
                   <button
                     onClick={() => setShowChildModal(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg"
+                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
                   >
                     <Plus className="w-5 h-5" />
                     <span>Çocuk Ekle</span>
@@ -277,7 +279,7 @@ export default function AdminDashboard() {
                     {children.map((child) => (
                       <div
                         key={child.id}
-                        className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-100 hover:shadow-md transition-shadow"
+                        className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 hover:shadow-md transition-shadow"
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div>
@@ -295,7 +297,7 @@ export default function AdminDashboard() {
                               className="p-2 hover:bg-white rounded-lg transition-colors"
                               title="Veli Bağla"
                             >
-                              <UserPlus className="w-4 h-4 text-blue-600" />
+                              <UserPlus className="w-4 h-4 text-green-600" />
                             </button>
                             <button
                               onClick={() => {
@@ -331,7 +333,7 @@ export default function AdminDashboard() {
                   <h2 className="text-2xl font-bold text-gray-800">Kullanıcılar</h2>
                   <button
                     onClick={() => setShowUserModal(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg"
+                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
                   >
                     <Plus className="w-5 h-5" />
                     <span>Kullanıcı Ekle</span>
@@ -385,7 +387,7 @@ export default function AdminDashboard() {
                                     <span
                                       className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                                         user.role === 'teacher'
-                                          ? 'bg-blue-100 text-blue-800'
+                                          ? 'bg-green-100 text-green-800'
                                           : 'bg-green-100 text-green-800'
                                       }`}
                                     >
@@ -514,7 +516,7 @@ export default function AdminDashboard() {
                         </div>
 
                         {(report.mood || report.social_interaction) && (
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-blue-50 rounded-lg">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-green-50 rounded-lg">
                             {report.mood && (
                               <div>
                                 <h4 className="text-sm font-semibold text-gray-700 mb-2">Ruh Hali</h4>
@@ -546,8 +548,8 @@ export default function AdminDashboard() {
                           )}
 
                           {report.mathematics && (
-                            <div className="p-4 bg-blue-50 rounded-lg">
-                              <h4 className="text-sm font-semibold text-blue-900 mb-2">Matematik</h4>
+                            <div className="p-4 bg-slate-50 rounded-lg">
+                              <h4 className="text-sm font-semibold text-slate-900 mb-2">Matematik</h4>
                               <p className="text-gray-700 text-sm">{report.mathematics}</p>
                             </div>
                           )}
@@ -599,7 +601,7 @@ export default function AdminDashboard() {
                   required
                   value={childForm.first_name}
                   onChange={(e) => setChildForm({ ...childForm, first_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -609,7 +611,7 @@ export default function AdminDashboard() {
                   required
                   value={childForm.last_name}
                   onChange={(e) => setChildForm({ ...childForm, last_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -619,7 +621,7 @@ export default function AdminDashboard() {
                   required
                   value={childForm.birth_date}
                   onChange={(e) => setChildForm({ ...childForm, birth_date: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -629,7 +631,7 @@ export default function AdminDashboard() {
                   required
                   value={childForm.class_name}
                   onChange={(e) => setChildForm({ ...childForm, class_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div className="flex space-x-3 pt-4">
@@ -642,7 +644,7 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
                 >
                   Ekle
                 </button>
@@ -664,7 +666,7 @@ export default function AdminDashboard() {
                   required
                   value={userForm.full_name}
                   onChange={(e) => setUserForm({ ...userForm, full_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -674,7 +676,7 @@ export default function AdminDashboard() {
                   required
                   value={userForm.email}
                   onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -684,7 +686,7 @@ export default function AdminDashboard() {
                   required
                   value={userForm.password}
                   onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
               <div>
@@ -694,7 +696,7 @@ export default function AdminDashboard() {
                   onChange={(e) =>
                     setUserForm({ ...userForm, role: e.target.value as 'admin' | 'teacher' | 'parent' })
                   }
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value="parent">Veli</option>
                   <option value="teacher">Öğretmen</option>
@@ -711,7 +713,7 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-lg hover:from-blue-600 hover:to-cyan-600 transition-all"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
                 >
                   Ekle
                 </button>
@@ -730,7 +732,7 @@ export default function AdminDashboard() {
                 <button
                   key={parent.id}
                   onClick={() => handleLinkParent(parent.id)}
-                  className="w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 transition-colors"
+                  className="w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors"
                 >
                   <div className="font-medium text-gray-800">{parent.full_name}</div>
                   <div className="text-sm text-gray-500">{parent.email}</div>
