@@ -462,8 +462,8 @@ export default function TeacherDashboard() {
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Pratik Yaşam
-                      <span className="text-xs text-gray-500 ml-2">(Günlük yaşam becerileri, öz bakım, çevre bakımı)</span>
+                      Günlük Yaşam Becerileri
+                      <span className="text-xs text-gray-500 ml-2">(Öz bakım, çevre bakımı, nezaket kuralları)</span>
                     </label>
                     <textarea
                       value={reportForm.practical_life}
@@ -476,7 +476,7 @@ export default function TeacherDashboard() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Duyusal Gelişim
+                      Duyu Alanı
                       <span className="text-xs text-gray-500 ml-2">(Beş duyu geliştirme çalışmaları)</span>
                     </label>
                     <textarea
@@ -518,7 +518,7 @@ export default function TeacherDashboard() {
 
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Kültür
+                      Kozmik Alan
                       <span className="text-xs text-gray-500 ml-2">(Coğrafya, Bilim, Sanat, Müzik)</span>
                     </label>
                     <textarea

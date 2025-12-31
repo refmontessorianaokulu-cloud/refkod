@@ -333,14 +333,14 @@ export default function ParentDashboard() {
                             <div className="space-y-3">
                               {report.practical_life && (
                                 <div className="p-3 bg-green-50 rounded-lg">
-                                  <h5 className="text-xs font-semibold text-green-900 mb-1">Pratik Yaşam</h5>
+                                  <h5 className="text-xs font-semibold text-green-900 mb-1">Günlük Yaşam Becerileri</h5>
                                   <p className="text-gray-700 text-sm">{report.practical_life}</p>
                                 </div>
                               )}
 
                               {report.sensorial && (
                                 <div className="p-3 bg-purple-50 rounded-lg">
-                                  <h5 className="text-xs font-semibold text-purple-900 mb-1">Duyusal Gelişim</h5>
+                                  <h5 className="text-xs font-semibold text-purple-900 mb-1">Duyu Alanı</h5>
                                   <p className="text-gray-700 text-sm">{report.sensorial}</p>
                                 </div>
                               )}
@@ -361,7 +361,7 @@ export default function ParentDashboard() {
 
                               {report.culture && (
                                 <div className="p-3 bg-rose-50 rounded-lg">
-                                  <h5 className="text-xs font-semibold text-rose-900 mb-1">Kültür</h5>
+                                  <h5 className="text-xs font-semibold text-rose-900 mb-1">Kozmik Alan</h5>
                                   <p className="text-gray-700 text-sm">{report.culture}</p>
                                 </div>
                               )}

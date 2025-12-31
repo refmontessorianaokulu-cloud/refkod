@@ -403,14 +403,14 @@ export default function AdminDashboard() {
                         <div className="space-y-4">
                           {report.practical_life && (
                             <div className="p-4 bg-green-50 rounded-lg">
-                              <h4 className="text-sm font-semibold text-green-900 mb-2">Pratik Yaşam</h4>
+                              <h4 className="text-sm font-semibold text-green-900 mb-2">Günlük Yaşam Becerileri</h4>
                               <p className="text-gray-700 text-sm">{report.practical_life}</p>
                             </div>
                           )}
 
                           {report.sensorial && (
                             <div className="p-4 bg-purple-50 rounded-lg">
-                              <h4 className="text-sm font-semibold text-purple-900 mb-2">Duyusal Gelişim</h4>
+                              <h4 className="text-sm font-semibold text-purple-900 mb-2">Duyu Alanı</h4>
                               <p className="text-gray-700 text-sm">{report.sensorial}</p>
                             </div>
                           )}
@@ -431,7 +431,7 @@ export default function AdminDashboard() {
 
                           {report.culture && (
                             <div className="p-4 bg-rose-50 rounded-lg">
-                              <h4 className="text-sm font-semibold text-rose-900 mb-2">Kültür</h4>
+                              <h4 className="text-sm font-semibold text-rose-900 mb-2">Kozmik Alan</h4>
                               <p className="text-gray-700 text-sm">{report.culture}</p>
                             </div>
                           )}
