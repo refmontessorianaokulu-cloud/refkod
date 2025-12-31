@@ -28,6 +28,9 @@ export default function AdminDashboard() {
     teacher_id: '',
   });
 
+  const [selectedPhotoFile, setSelectedPhotoFile] = useState<File | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+
   const [userForm, setUserForm] = useState({
     email: '',
     password: '',
@@ -91,7 +94,33 @@ export default function AdminDashboard() {
 
   const handleAddChild = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploadingPhoto(true);
     try {
+      let photoUrl = childForm.photo_url;
+
+      if (selectedPhotoFile) {
+        const fileExt = selectedPhotoFile.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('child-photos')
+          .upload(filePath, selectedPhotoFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) {
+          throw new Error('Fotoğraf yükleme hatası: ' + uploadError.message);
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('child-photos')
+          .getPublicUrl(filePath);
+
+        photoUrl = publicUrlData.publicUrl;
+      }
+
       const { data: newChild, error } = await supabase
         .from('children')
         .insert({
@@ -99,7 +128,7 @@ export default function AdminDashboard() {
           last_name: childForm.last_name,
           birth_date: childForm.birth_date,
           class_name: childForm.class_name,
-          photo_url: childForm.photo_url,
+          photo_url: photoUrl,
         })
         .select()
         .single();
@@ -136,10 +165,13 @@ export default function AdminDashboard() {
         parent_id: '',
         teacher_id: ''
       });
+      setSelectedPhotoFile(null);
       loadData();
       alert('Çocuk başarıyla eklendi!');
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -742,28 +774,56 @@ export default function AdminDashboard() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Fotoğraf URL</label>
-                <input
-                  type="url"
-                  value={childForm.photo_url}
-                  onChange={(e) => setChildForm({ ...childForm, photo_url: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  placeholder="https://örnek.com/foto.jpg"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">Fotoğraf</label>
+                <div className="space-y-3">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        if (file.size > 5 * 1024 * 1024) {
+                          alert('Fotoğraf boyutu 5MB\'dan küçük olmalıdır');
+                          e.target.value = '';
+                          return;
+                        }
+                        setSelectedPhotoFile(file);
+                      }
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  />
+                  {selectedPhotoFile && (
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 bg-green-50 px-3 py-2 rounded-lg">
+                      <span className="font-medium">Seçili:</span>
+                      <span>{selectedPhotoFile.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedPhotoFile(null)}
+                        className="ml-auto text-red-600 hover:text-red-700"
+                      >
+                        Kaldır
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowChildModal(false)}
+                  onClick={() => {
+                    setShowChildModal(false);
+                    setSelectedPhotoFile(null);
+                  }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   İptal
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
+                  disabled={uploadingPhoto}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Ekle
+                  {uploadingPhoto ? 'Yükleniyor...' : 'Ekle'}
                 </button>
               </div>
             </form>
