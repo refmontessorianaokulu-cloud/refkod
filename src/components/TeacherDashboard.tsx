@@ -357,7 +357,7 @@ export default function TeacherDashboard() {
                           <p className="text-sm text-gray-600 mt-1">
                             Veli: {notification.parent?.full_name}
                           </p>
-                          {notification.arrival_time && (
+                          {notification.arrival_time && !isNaN(new Date(notification.arrival_time).getTime()) && (
                             <p className="text-sm text-blue-600 font-medium mt-1">
                               Tahmini Varış: {new Date(notification.arrival_time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
                             </p>

@@ -185,11 +185,19 @@ export default function ParentDashboard() {
     if (!selectedChild || !profile) return;
 
     try {
+      let arrivalDateTime = null;
+      if (arrivalTime) {
+        const today = new Date();
+        const [hours, minutes] = arrivalTime.split(':');
+        today.setHours(parseInt(hours), parseInt(minutes), 0, 0);
+        arrivalDateTime = today.toISOString();
+      }
+
       const { error } = await supabase.from('pickup_notifications').insert({
         parent_id: profile.id,
         child_id: selectedChild,
         message: pickupMessage,
-        arrival_time: arrivalTime ? new Date(arrivalTime).toISOString() : null,
+        arrival_time: arrivalDateTime,
       });
 
       if (error) throw error;
