@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { LogOut, Calendar, Send, Users, MessageSquare, User } from 'lucide-react';
+import { LogOut, Calendar, Send, Users, MessageSquare, User, ClipboardList } from 'lucide-react';
 import MessagesSection from './MessagesSection';
+import TaskResponseSection from './TaskResponseSection';
 
 interface Appointment {
   id: string;
@@ -31,7 +32,7 @@ interface GroupMessage {
 
 export default function GuidanceCounselorDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'appointments' | 'group-messages' | 'individual-messages'>('appointments');
+  const [activeTab, setActiveTab] = useState<'appointments' | 'group-messages' | 'individual-messages' | 'tasks'>('appointments');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [groupMessages, setGroupMessages] = useState<GroupMessage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -279,6 +280,17 @@ export default function GuidanceCounselorDashboard() {
               <MessageSquare className="w-5 h-5 inline mr-2" />
               Bireysel Mesajlar
             </button>
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`pb-4 px-6 font-semibold transition-colors ${
+                activeTab === 'tasks'
+                  ? 'text-teal-600 border-b-2 border-teal-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <ClipboardList className="w-5 h-5 inline mr-2" />
+              Görevlerim
+            </button>
           </div>
 
           {activeTab === 'appointments' && (
@@ -378,6 +390,12 @@ export default function GuidanceCounselorDashboard() {
           {activeTab === 'individual-messages' && (
             <div className="mt-6">
               <MessagesSection />
+            </div>
+          )}
+
+          {activeTab === 'tasks' && (
+            <div className="mt-6">
+              <TaskResponseSection userId={profile?.id || ''} userRole="guidance_counselor" />
             </div>
           )}
         </div>

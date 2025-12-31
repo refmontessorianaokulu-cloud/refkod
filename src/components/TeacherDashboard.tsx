@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck } from 'lucide-react';
+import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
 import AppointmentsSection from './AppointmentsSection';
+import TaskResponseSection from './TaskResponseSection';
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks'>('main');
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
@@ -336,6 +337,17 @@ export default function TeacherDashboard() {
                 <CalendarCheck className="w-5 h-5" />
                 <span>Randevular</span>
               </button>
+              <button
+                onClick={() => setActiveTab('tasks')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'tasks'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <ClipboardList className="w-5 h-5" />
+                <span>Görevlerim</span>
+              </button>
             </div>
           </div>
         </div>
@@ -539,6 +551,12 @@ export default function TeacherDashboard() {
         {activeTab === 'appointments' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <AppointmentsSection userId={profile?.id || ''} />
+          </div>
+        )}
+
+        {activeTab === 'tasks' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <TaskResponseSection userId={profile?.id || ''} userRole="teacher" />
           </div>
         )}
       </div>
