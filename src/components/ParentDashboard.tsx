@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
+import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck } from 'lucide-react';
+import AnnouncementsSection from './AnnouncementsSection';
+import MessagesSection from './MessagesSection';
 
 type ChildWithLogs = Child & {
   meal_logs: MealLog[];
@@ -11,9 +13,11 @@ type ChildWithLogs = Child & {
 
 export default function ParentDashboard() {
   const { signOut, profile } = useAuth();
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages'>('main');
   const [children, setChildren] = useState<ChildWithLogs[]>([]);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [attendances, setAttendances] = useState<any[]>([]);
 
   useEffect(() => {
     loadChildren();
@@ -94,6 +98,47 @@ export default function ParentDashboard() {
 
   const selectedChildData = children.find((c) => c.id === selectedChild);
 
+  useEffect(() => {
+    if (selectedChild) {
+      loadAttendances();
+    }
+  }, [selectedChild]);
+
+  const loadAttendances = async () => {
+    if (!selectedChild) return;
+    try {
+      const { data } = await supabase
+        .from('attendance')
+        .select('*')
+        .eq('child_id', selectedChild)
+        .order('date', { ascending: false })
+        .limit(30);
+      setAttendances(data || []);
+    } catch (error) {
+      console.error('Error loading attendances:', error);
+    }
+  };
+
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'present': return 'Geldi';
+      case 'absent': return 'Gelmedi';
+      case 'late': return 'Geç Geldi';
+      case 'excused': return 'Mazeret';
+      default: return status;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'present': return 'bg-green-100 text-green-800';
+      case 'absent': return 'bg-red-100 text-red-800';
+      case 'late': return 'bg-yellow-100 text-yellow-800';
+      case 'excused': return 'bg-blue-100 text-blue-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   const getMealTypeText = (type: string) => {
     switch (type) {
       case 'breakfast':
@@ -159,18 +204,119 @@ export default function ParentDashboard() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {loading ? (
+        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+          <div className="border-b border-gray-200">
+            <div className="flex overflow-x-auto">
+              <button
+                onClick={() => setActiveTab('main')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'main'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Baby className="w-5 h-5" />
+                <span>Ana Sayfa</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('attendance')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'attendance'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <CalendarCheck className="w-5 h-5" />
+                <span>Devamsızlık</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('announcements')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'announcements'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Megaphone className="w-5 h-5" />
+                <span>Duyurular</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('messages')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'messages'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <MessageSquare className="w-5 h-5" />
+                <span>Mesajlar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {activeTab === 'attendance' && selectedChild && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Devamsızlık Kayıtları</h2>
+            {attendances.length === 0 ? (
+              <p className="text-center py-12 text-gray-500">Henüz devamsızlık kaydı yok</p>
+            ) : (
+              <div className="space-y-3">
+                {attendances.map((attendance) => (
+                  <div
+                    key={attendance.id}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <Calendar className="w-5 h-5 text-gray-500" />
+                      <div>
+                        <p className="font-medium text-gray-800">
+                          {new Date(attendance.date).toLocaleDateString('tr-TR', {
+                            weekday: 'long',
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                          })}
+                        </p>
+                        {attendance.notes && (
+                          <p className="text-sm text-gray-600 mt-1">{attendance.notes}</p>
+                        )}
+                      </div>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(attendance.status)}`}>
+                      {getStatusText(attendance.status)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'announcements' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <AnnouncementsSection userId={profile?.id || ''} userRole="parent" />
+          </div>
+        )}
+
+        {activeTab === 'messages' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <MessagesSection userId={profile?.id || ''} userRole="parent" />
+          </div>
+        )}
+
+        {activeTab === 'main' && loading ? (
           <div className="text-center py-12">
             <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
             <p className="mt-4 text-gray-500">Yükleniyor...</p>
           </div>
-        ) : children.length === 0 ? (
+        ) : activeTab === 'main' && children.length === 0 ? (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
             <Baby className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-gray-800 mb-2">Henüz çocuğunuz eklenmemiş</h2>
             <p className="text-gray-500">Lütfen yönetici ile iletişime geçin.</p>
           </div>
-        ) : (
+        ) : activeTab === 'main' && (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="lg:col-span-1">
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
