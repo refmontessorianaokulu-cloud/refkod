@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare } from 'lucide-react';
+import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -43,11 +43,13 @@ export default function TeacherDashboard() {
 
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [pickupNotifications, setPickupNotifications] = useState<any[]>([]);
 
   useEffect(() => {
     if (profile) {
       loadChildren();
       loadReports();
+      loadPickupNotifications();
     }
   }, [profile]);
 
@@ -90,6 +92,43 @@ export default function TeacherDashboard() {
       setDailyReports(data || []);
     } catch (error) {
       console.error('Error loading reports:', error);
+    }
+  };
+
+  const loadPickupNotifications = async () => {
+    if (!profile) return;
+    try {
+      const { data } = await supabase
+        .from('pickup_notifications')
+        .select(`
+          *,
+          child:children(first_name, last_name),
+          parent:profiles!parent_id(full_name)
+        `)
+        .eq('is_acknowledged', false)
+        .order('created_at', { ascending: false });
+      setPickupNotifications(data || []);
+    } catch (error) {
+      console.error('Error loading pickup notifications:', error);
+    }
+  };
+
+  const handleAcknowledgePickup = async (notificationId: string) => {
+    if (!profile) return;
+    try {
+      const { error } = await supabase
+        .from('pickup_notifications')
+        .update({
+          is_acknowledged: true,
+          acknowledged_at: new Date().toISOString(),
+          acknowledged_by: profile.id,
+        })
+        .eq('id', notificationId);
+
+      if (error) throw error;
+      loadPickupNotifications();
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
     }
   };
 
@@ -290,10 +329,71 @@ export default function TeacherDashboard() {
         </div>
 
         {activeTab === 'main' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-6">Çocuklar</h2>
+        <>
+          {pickupNotifications.length > 0 && (
+            <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6 mb-6">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="bg-blue-500 p-2 rounded-lg">
+                  <Bell className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-800">Alış Bildirimleri</h3>
+                  <p className="text-sm text-gray-600">{pickupNotifications.length} yeni bildirim</p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                {pickupNotifications.map((notification: any) => (
+                  <div
+                    key={notification.id}
+                    className="bg-white rounded-lg p-4 border border-blue-200 shadow-sm"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start space-x-3 flex-1">
+                        <Car className="w-5 h-5 text-blue-600 mt-1" />
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-800">
+                            {notification.child?.first_name} {notification.child?.last_name}
+                          </p>
+                          <p className="text-sm text-gray-600 mt-1">
+                            Veli: {notification.parent?.full_name}
+                          </p>
+                          {notification.arrival_time && (
+                            <p className="text-sm text-blue-600 font-medium mt-1">
+                              Tahmini Varış: {new Date(notification.arrival_time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          )}
+                          {notification.message && (
+                            <p className="text-sm text-gray-700 mt-2 bg-gray-50 p-2 rounded">
+                              {notification.message}
+                            </p>
+                          )}
+                          <p className="text-xs text-gray-500 mt-2">
+                            {new Date(notification.created_at).toLocaleString('tr-TR', {
+                              day: 'numeric',
+                              month: 'long',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={() => handleAcknowledgePickup(notification.id)}
+                        className="ml-2 px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+                      >
+                        Gördüm
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h2 className="text-2xl font-bold text-gray-800 mb-6">Çocuklar</h2>
 
           {loading ? (
             <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
@@ -397,6 +497,7 @@ export default function TeacherDashboard() {
             </div>
           </div>
         </div>
+        </>
         )}
 
         {activeTab === 'attendance' && (

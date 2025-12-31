@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -22,6 +22,7 @@ export default function AdminDashboard() {
   const [parents, setParents] = useState<Profile[]>([]);
   const [teachers, setTeachers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pickupNotifications, setPickupNotifications] = useState<any[]>([]);
 
   const [childForm, setChildForm] = useState({
     first_name: '',
@@ -46,6 +47,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     loadData();
     loadParentsAndTeachers();
+    loadPickupNotifications();
   }, [activeTab]);
 
   const loadParentsAndTeachers = async () => {
@@ -61,6 +63,42 @@ export default function AdminDashboard() {
       setTeachers(teacherData);
     } catch (error) {
       console.error('Error loading parents and teachers:', error);
+    }
+  };
+
+  const loadPickupNotifications = async () => {
+    try {
+      const { data } = await supabase
+        .from('pickup_notifications')
+        .select(`
+          *,
+          child:children(first_name, last_name),
+          parent:profiles!parent_id(full_name)
+        `)
+        .eq('is_acknowledged', false)
+        .order('created_at', { ascending: false });
+      setPickupNotifications(data || []);
+    } catch (error) {
+      console.error('Error loading pickup notifications:', error);
+    }
+  };
+
+  const handleAcknowledgePickup = async (notificationId: string) => {
+    if (!profile) return;
+    try {
+      const { error } = await supabase
+        .from('pickup_notifications')
+        .update({
+          is_acknowledged: true,
+          acknowledged_at: new Date().toISOString(),
+          acknowledged_by: profile.id,
+        })
+        .eq('id', notificationId);
+
+      if (error) throw error;
+      loadPickupNotifications();
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
     }
   };
 
@@ -412,6 +450,66 @@ export default function AdminDashboard() {
           <div className="p-6">
             {activeTab === 'children' && (
               <div>
+                {pickupNotifications.length > 0 && (
+                  <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6 mb-6">
+                    <div className="flex items-center space-x-3 mb-4">
+                      <div className="bg-blue-500 p-2 rounded-lg">
+                        <Bell className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-800">Alış Bildirimleri</h3>
+                        <p className="text-sm text-gray-600">{pickupNotifications.length} yeni bildirim</p>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      {pickupNotifications.map((notification: any) => (
+                        <div
+                          key={notification.id}
+                          className="bg-white rounded-lg p-4 border border-blue-200 shadow-sm"
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start space-x-3 flex-1">
+                              <Car className="w-5 h-5 text-blue-600 mt-1" />
+                              <div className="flex-1">
+                                <p className="font-semibold text-gray-800">
+                                  {notification.child?.first_name} {notification.child?.last_name}
+                                </p>
+                                <p className="text-sm text-gray-600 mt-1">
+                                  Veli: {notification.parent?.full_name}
+                                </p>
+                                {notification.arrival_time && (
+                                  <p className="text-sm text-blue-600 font-medium mt-1">
+                                    Tahmini Varış: {new Date(notification.arrival_time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}
+                                  </p>
+                                )}
+                                {notification.message && (
+                                  <p className="text-sm text-gray-700 mt-2 bg-gray-50 p-2 rounded">
+                                    {notification.message}
+                                  </p>
+                                )}
+                                <p className="text-xs text-gray-500 mt-2">
+                                  {new Date(notification.created_at).toLocaleString('tr-TR', {
+                                    day: 'numeric',
+                                    month: 'long',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                  })}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => handleAcknowledgePickup(notification.id)}
+                              className="ml-2 px-3 py-1 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+                            >
+                              Gördüm
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="flex justify-between items-center mb-6">
                   <h2 className="text-2xl font-bold text-gray-800">Çocuklar</h2>
                   <button

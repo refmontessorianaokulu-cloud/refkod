@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck } from 'lucide-react';
+import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck, Car, X } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -20,6 +20,9 @@ export default function ParentDashboard() {
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [attendances, setAttendances] = useState<any[]>([]);
+  const [showPickupModal, setShowPickupModal] = useState(false);
+  const [pickupMessage, setPickupMessage] = useState('');
+  const [arrivalTime, setArrivalTime] = useState('');
 
   useEffect(() => {
     loadChildren();
@@ -176,6 +179,28 @@ export default function ParentDashboard() {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     return `${hours} saat ${minutes} dakika`;
+  };
+
+  const handleSendPickupNotification = async () => {
+    if (!selectedChild || !profile) return;
+
+    try {
+      const { error } = await supabase.from('pickup_notifications').insert({
+        parent_id: profile.id,
+        child_id: selectedChild,
+        message: pickupMessage,
+        arrival_time: arrivalTime ? new Date(arrivalTime).toISOString() : null,
+      });
+
+      if (error) throw error;
+
+      alert('Bildirim başarıyla gönderildi!');
+      setShowPickupModal(false);
+      setPickupMessage('');
+      setArrivalTime('');
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
+    }
   };
 
   return (
@@ -406,32 +431,41 @@ export default function ParentDashboard() {
               {selectedChildData && (
                 <div className="space-y-6">
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center space-x-4 mb-6">
-                      {selectedChildData.photo_url ? (
-                        <img
-                          src={selectedChildData.photo_url}
-                          alt={`${selectedChildData.first_name} ${selectedChildData.last_name}`}
-                          className="w-20 h-20 rounded-full object-cover border-4 border-green-100 shadow-lg"
-                        />
-                      ) : (
-                        <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-full border-4 border-white shadow-lg">
-                          <Baby className="w-8 h-8 text-green-600" />
-                        </div>
-                      )}
-                      <div>
-                        <h2 className="text-2xl font-bold text-gray-800">
-                          {selectedChildData.first_name} {selectedChildData.last_name}
-                        </h2>
-                        <p className="text-gray-600">{selectedChildData.class_name}</p>
-                        {selectedChildData.teacher && (
-                          <p className="text-sm text-green-600 font-medium">
-                            Öğretmen: {selectedChildData.teacher.full_name}
-                          </p>
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center space-x-4">
+                        {selectedChildData.photo_url ? (
+                          <img
+                            src={selectedChildData.photo_url}
+                            alt={`${selectedChildData.first_name} ${selectedChildData.last_name}`}
+                            className="w-20 h-20 rounded-full object-cover border-4 border-green-100 shadow-lg"
+                          />
+                        ) : (
+                          <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-full border-4 border-white shadow-lg">
+                            <Baby className="w-8 h-8 text-green-600" />
+                          </div>
                         )}
-                        <p className="text-sm text-gray-500">
-                          Doğum: {new Date(selectedChildData.birth_date).toLocaleDateString('tr-TR')}
-                        </p>
+                        <div>
+                          <h2 className="text-2xl font-bold text-gray-800">
+                            {selectedChildData.first_name} {selectedChildData.last_name}
+                          </h2>
+                          <p className="text-gray-600">{selectedChildData.class_name}</p>
+                          {selectedChildData.teacher && (
+                            <p className="text-sm text-green-600 font-medium">
+                              Öğretmen: {selectedChildData.teacher.full_name}
+                            </p>
+                          )}
+                          <p className="text-sm text-gray-500">
+                            Doğum: {new Date(selectedChildData.birth_date).toLocaleDateString('tr-TR')}
+                          </p>
+                        </div>
                       </div>
+                      <button
+                        onClick={() => setShowPickupModal(true)}
+                        className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-shadow"
+                      >
+                        <Car className="w-5 h-5" />
+                        <span>Alışa Geliyorum</span>
+                      </button>
                     </div>
                   </div>
 
@@ -645,6 +679,81 @@ export default function ParentDashboard() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {showPickupModal && selectedChildData && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-800">Alışa Geliyorum</h3>
+                <button
+                  onClick={() => {
+                    setShowPickupModal(false);
+                    setPickupMessage('');
+                    setArrivalTime('');
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="mb-4 p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-gray-700">
+                  <span className="font-semibold">{selectedChildData.first_name}</span> için öğretmene bildirim gönderilecek
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Tahmini Varış Saati
+                  </label>
+                  <input
+                    type="time"
+                    value={arrivalTime}
+                    onChange={(e) => setArrivalTime(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Mesaj (İsteğe Bağlı)
+                  </label>
+                  <textarea
+                    value={pickupMessage}
+                    onChange={(e) => setPickupMessage(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
+                    placeholder="Örn: 5 dakika içinde oradayım..."
+                  />
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowPickupModal(false);
+                      setPickupMessage('');
+                      setArrivalTime('');
+                    }}
+                    className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    İptal
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSendPickupNotification}
+                    className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center space-x-2"
+                  >
+                    <Car className="w-4 h-4" />
+                    <span>Bildir</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
