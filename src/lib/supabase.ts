@@ -78,5 +78,6 @@ export type DailyReport = {
   general_notes: string;
   mood: string;
   social_interaction: string;
+  media_urls?: string[];
   created_at: string;
 };

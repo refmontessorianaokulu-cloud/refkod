@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen } from 'lucide-react';
+import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
 
 type ChildWithLogs = Child & {
   meal_logs: MealLog[];
@@ -415,6 +415,44 @@ export default function ParentDashboard() {
                                 <div className="p-3 bg-gray-50 rounded-lg">
                                   <h5 className="text-xs font-semibold text-gray-900 mb-1">Genel Notlar</h5>
                                   <p className="text-gray-700 text-sm">{report.general_notes}</p>
+                                </div>
+                              )}
+
+                              {report.media_urls && report.media_urls.length > 0 && (
+                                <div className="p-3 bg-blue-50 rounded-lg">
+                                  <h5 className="text-xs font-semibold text-blue-900 mb-3 flex items-center space-x-2">
+                                    <ImageIcon className="w-4 h-4" />
+                                    <span>Fotoğraf ve Videolar</span>
+                                  </h5>
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {report.media_urls.map((url: string, idx: number) => {
+                                      const isVideo = url.match(/\.(mp4|mov|avi|webm|mkv)$/i);
+                                      return (
+                                        <div key={idx} className="relative group">
+                                          {isVideo ? (
+                                            <video
+                                              src={url}
+                                              controls
+                                              className="w-full h-32 object-cover rounded-lg border-2 border-white shadow-md"
+                                            />
+                                          ) : (
+                                            <a
+                                              href={url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="block"
+                                            >
+                                              <img
+                                                src={url}
+                                                alt={`Rapor medyası ${idx + 1}`}
+                                                className="w-full h-32 object-cover rounded-lg border-2 border-white shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                                              />
+                                            </a>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
                                 </div>
                               )}
                             </div>

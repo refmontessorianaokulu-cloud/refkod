@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen } from 'lucide-react';
+import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X } from 'lucide-react';
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
@@ -35,6 +35,9 @@ export default function TeacherDashboard() {
     mood: '',
     social_interaction: '',
   });
+
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -131,7 +134,29 @@ export default function TeacherDashboard() {
     e.preventDefault();
     if (!profile || !selectedChild) return;
 
+    setUploading(true);
     try {
+      const mediaUrls: string[] = [];
+
+      if (mediaFiles.length > 0) {
+        for (const file of mediaFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${selectedChild}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('report-media')
+            .upload(fileName, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('report-media')
+            .getPublicUrl(fileName);
+
+          mediaUrls.push(publicUrl);
+        }
+      }
+
       const { error } = await supabase.from('daily_reports').insert({
         teacher_id: profile.id,
         child_id: selectedChild,
@@ -143,11 +168,13 @@ export default function TeacherDashboard() {
         general_notes: reportForm.general_notes,
         mood: reportForm.mood,
         social_interaction: reportForm.social_interaction,
+        media_urls: mediaUrls,
       });
       if (error) throw error;
 
       setShowReportModal(false);
       setSelectedChild('');
+      setMediaFiles([]);
       setReportForm({
         practical_life: '',
         sensorial: '',
@@ -162,6 +189,8 @@ export default function TeacherDashboard() {
       alert('Günlük rapor eklendi!');
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -547,6 +576,64 @@ export default function TeacherDashboard() {
                 </div>
               </div>
 
+              <div className="border-t border-gray-200 pt-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Fotoğraf ve Video Ekle
+                  <span className="text-xs text-gray-500 ml-2">(İsteğe bağlı)</span>
+                </label>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-2">
+                    <label className="flex-1 cursor-pointer">
+                      <div className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-dashed border-blue-300 rounded-lg hover:border-blue-400 transition-colors">
+                        <Image className="w-5 h-5 text-blue-600" />
+                        <Video className="w-5 h-5 text-blue-600" />
+                        <span className="text-sm font-medium text-blue-700">Dosya Seç</span>
+                      </div>
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*,video/*"
+                        onChange={(e) => {
+                          if (e.target.files) {
+                            setMediaFiles([...mediaFiles, ...Array.from(e.target.files)]);
+                          }
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                  {mediaFiles.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {mediaFiles.map((file, index) => (
+                        <div key={index} className="relative group">
+                          <div className="bg-gray-100 rounded-lg p-3 border border-gray-200">
+                            <div className="flex items-center space-x-2">
+                              {file.type.startsWith('image/') ? (
+                                <Image className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                              ) : (
+                                <Video className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                              )}
+                              <span className="text-xs text-gray-700 truncate flex-1">
+                                {file.name}
+                              </span>
+                            </div>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setMediaFiles(mediaFiles.filter((_, i) => i !== index));
+                            }}
+                            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-md"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Genel Notlar</label>
                 <textarea
@@ -563,6 +650,7 @@ export default function TeacherDashboard() {
                   type="button"
                   onClick={() => {
                     setShowReportModal(false);
+                    setMediaFiles([]);
                     setReportForm({
                       practical_life: '',
                       sensorial: '',
@@ -575,14 +663,16 @@ export default function TeacherDashboard() {
                     });
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                  disabled={uploading}
                 >
                   İptal
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all"
+                  disabled={uploading}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Kaydet
+                  {uploading ? 'Yükleniyor...' : 'Kaydet'}
                 </button>
               </div>
             </form>
