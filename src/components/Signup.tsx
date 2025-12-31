@@ -70,7 +70,7 @@ export default function Signup({ onBackToLogin }: SignupProps) {
         </div>
 
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">Kayıt Ol</h1>
-        <p className="text-center text-gray-600 mb-8">Anaokulu sistemi için hesap oluşturun</p>
+        <p className="text-center text-gray-600 mb-8">REF sistemi için hesap oluşturun</p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {error && (

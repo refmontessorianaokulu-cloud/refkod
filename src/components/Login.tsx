@@ -43,7 +43,7 @@ export default function Login() {
           </div>
         </div>
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
-          Anaokulu Yönetim
+          REF
         </h1>
         <p className="text-center text-gray-600 mb-8">Hesabınıza giriş yapın</p>
 
