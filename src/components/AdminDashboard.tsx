@@ -5,10 +5,11 @@ import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, C
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
+import CalendarSection from './CalendarSection';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages'>('children');
+  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar'>('children');
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -382,6 +383,17 @@ export default function AdminDashboard() {
                 <MessageSquare className="w-5 h-5" />
                 <span>Mesajlar</span>
               </button>
+              <button
+                onClick={() => setActiveTab('calendar')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'calendar'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Calendar className="w-5 h-5" />
+                <span>Akademik Takvim</span>
+              </button>
             </div>
           </div>
 
@@ -743,6 +755,12 @@ export default function AdminDashboard() {
             {activeTab === 'messages' && (
               <div>
                 <MessagesSection userId={profile?.id || ''} userRole="admin" />
+              </div>
+            )}
+
+            {activeTab === 'calendar' && (
+              <div>
+                <CalendarSection userId={profile?.id || ''} userRole="admin" />
               </div>
             )}
           </div>

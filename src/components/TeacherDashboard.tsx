@@ -5,10 +5,11 @@ import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, C
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
+import CalendarSection from './CalendarSection';
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar'>('main');
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
@@ -273,6 +274,17 @@ export default function TeacherDashboard() {
                 <MessageSquare className="w-5 h-5" />
                 <span>Mesajlar</span>
               </button>
+              <button
+                onClick={() => setActiveTab('calendar')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'calendar'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Calendar className="w-5 h-5" />
+                <span>Akademik Takvim</span>
+              </button>
             </div>
           </div>
         </div>
@@ -402,6 +414,12 @@ export default function TeacherDashboard() {
         {activeTab === 'messages' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <MessagesSection userId={profile?.id || ''} userRole="teacher" />
+          </div>
+        )}
+
+        {activeTab === 'calendar' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <CalendarSection userId={profile?.id || ''} userRole="teacher" />
           </div>
         )}
       </div>
