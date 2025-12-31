@@ -10,7 +10,8 @@ interface TuitionFee {
   paid_date: string | null;
   status: 'pending' | 'paid' | 'overdue';
   academic_year: string;
-  month: string;
+  month: string | null;
+  payment_type: 'education' | 'stationery' | 'meal';
   notes: string;
   children?: {
     first_name: string;
@@ -54,6 +55,8 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
   const [loading, setLoading] = useState(false);
   const [selectedFee, setSelectedFee] = useState<TuitionFee | null>(null);
   const [sendToAll, setSendToAll] = useState(true);
+  const [bulkAdd, setBulkAdd] = useState(false);
+  const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
   const [form, setForm] = useState({
     child_id: '',
     amount: '',
@@ -61,6 +64,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
     status: 'pending',
     academic_year: '2024-2025',
     month: '',
+    payment_type: 'education',
     notes: '',
   });
   const [reminderForm, setReminderForm] = useState({
@@ -136,23 +140,48 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
           .update({
             ...form,
             amount: parseFloat(form.amount),
+            month: form.payment_type === 'stationery' ? 'Yıllık' : form.month,
             updated_at: new Date().toISOString(),
           })
           .eq('id', selectedFee.id);
         if (error) throw error;
         alert('Ödeme güncellendi!');
       } else {
-        const { error } = await supabase.from('tuition_fees').insert({
-          ...form,
-          amount: parseFloat(form.amount),
-          created_by: userId,
-        });
-        if (error) throw error;
-        alert('Ödeme eklendi!');
+        if (bulkAdd && selectedMonths.length > 0 && (form.payment_type === 'education' || form.payment_type === 'meal')) {
+          const payments = selectedMonths.map((month, index) => {
+            const dueDate = new Date(form.due_date);
+            dueDate.setMonth(dueDate.getMonth() + index);
+            return {
+              child_id: form.child_id,
+              amount: parseFloat(form.amount),
+              due_date: dueDate.toISOString().split('T')[0],
+              status: form.status,
+              academic_year: form.academic_year,
+              month: month,
+              payment_type: form.payment_type,
+              notes: form.notes,
+              created_by: userId,
+            };
+          });
+          const { error } = await supabase.from('tuition_fees').insert(payments);
+          if (error) throw error;
+          alert(`${selectedMonths.length} aylık ödeme başarıyla eklendi!`);
+        } else {
+          const { error } = await supabase.from('tuition_fees').insert({
+            ...form,
+            amount: parseFloat(form.amount),
+            month: form.payment_type === 'stationery' ? 'Yıllık' : form.month,
+            created_by: userId,
+          });
+          if (error) throw error;
+          alert('Ödeme eklendi!');
+        }
       }
       setShowFeeModal(false);
       setSelectedFee(null);
       resetForm();
+      setBulkAdd(false);
+      setSelectedMonths([]);
       loadFees();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
@@ -227,8 +256,35 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
       status: 'pending',
       academic_year: '2024-2025',
       month: '',
+      payment_type: 'education',
       notes: '',
     });
+  };
+
+  const toggleMonth = (month: string) => {
+    setSelectedMonths(prev =>
+      prev.includes(month) ? prev.filter(m => m !== month) : [...prev, month]
+    );
+  };
+
+  const allMonths = ['Eylül', 'Ekim', 'Kasım', 'Aralık', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran'];
+
+  const getPaymentTypeLabel = (type: string) => {
+    const labels = {
+      education: 'Eğitim Ödemesi',
+      stationery: 'Kırtasiye Ödemesi',
+      meal: 'Yemek Ödemesi',
+    };
+    return labels[type as keyof typeof labels] || type;
+  };
+
+  const getPaymentTypeColor = (type: string) => {
+    const colors = {
+      education: 'bg-blue-100 text-blue-800',
+      stationery: 'bg-purple-100 text-purple-800',
+      meal: 'bg-orange-100 text-orange-800',
+    };
+    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
 
   const getStatusColor = (status: string) => {
@@ -299,6 +355,8 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
               onClick={() => {
                 setSelectedFee(null);
                 resetForm();
+                setBulkAdd(false);
+                setSelectedMonths([]);
                 setShowFeeModal(true);
               }}
               className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-br from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transition-shadow"
@@ -365,11 +423,14 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                     </h4>
                   )}
                   <div className="flex items-center space-x-2 mb-2">
+                    <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs ${getPaymentTypeColor(fee.payment_type)}`}>
+                      <span>{getPaymentTypeLabel(fee.payment_type)}</span>
+                    </span>
                     <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs ${getStatusColor(fee.status)}`}>
                       {getStatusIcon(fee.status)}
                       <span>{getStatusLabel(fee.status)}</span>
                     </span>
-                    <span className="text-sm text-gray-600">{fee.month}</span>
+                    {fee.month && <span className="text-sm text-gray-600">{fee.month}</span>}
                     <span className="text-sm text-gray-500">({fee.academic_year})</span>
                   </div>
                   <div className="flex items-center space-x-4 text-sm text-gray-600">
@@ -424,6 +485,8 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                   setShowFeeModal(false);
                   setSelectedFee(null);
                   resetForm();
+                  setBulkAdd(false);
+                  setSelectedMonths([]);
                 }}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
@@ -432,6 +495,25 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
             </div>
 
             <form onSubmit={handleSubmitFee} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Ödeme Tipi</label>
+                <select
+                  required
+                  value={form.payment_type}
+                  onChange={(e) => {
+                    setForm({ ...form, payment_type: e.target.value as 'education' | 'stationery' | 'meal' });
+                    if (e.target.value === 'stationery') {
+                      setBulkAdd(false);
+                    }
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="education">Eğitim Ödemesi (Aylık)</option>
+                  <option value="meal">Yemek Ödemesi (Aylık)</option>
+                  <option value="stationery">Kırtasiye Ödemesi (Yıllık)</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Çocuk</label>
                 <select
@@ -449,6 +531,25 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                 </select>
               </div>
 
+              {!selectedFee && form.payment_type !== 'stationery' && (
+                <div>
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={bulkAdd}
+                      onChange={(e) => {
+                        setBulkAdd(e.target.checked);
+                        if (!e.target.checked) {
+                          setSelectedMonths([]);
+                        }
+                      }}
+                      className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Toplu Ay Ekleme</span>
+                  </label>
+                </div>
+              )}
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Tutar (TL)</label>
@@ -464,7 +565,9 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Son Ödeme Tarihi</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    {bulkAdd ? 'İlk Ödeme Tarihi' : 'Son Ödeme Tarihi'}
+                  </label>
                   <input
                     type="date"
                     required
@@ -475,42 +578,64 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {bulkAdd && form.payment_type !== 'stationery' ? (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ay</label>
-                  <select
-                    required
-                    value={form.month}
-                    onChange={(e) => setForm({ ...form, month: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="">Ay seçin...</option>
-                    <option value="Ocak">Ocak</option>
-                    <option value="Şubat">Şubat</option>
-                    <option value="Mart">Mart</option>
-                    <option value="Nisan">Nisan</option>
-                    <option value="Mayıs">Mayıs</option>
-                    <option value="Haziran">Haziran</option>
-                    <option value="Temmuz">Temmuz</option>
-                    <option value="Ağustos">Ağustos</option>
-                    <option value="Eylül">Eylül</option>
-                    <option value="Ekim">Ekim</option>
-                    <option value="Kasım">Kasım</option>
-                    <option value="Aralık">Aralık</option>
-                  </select>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Aylar Seçin</label>
+                  <div className="border border-gray-300 rounded-lg p-4 max-h-48 overflow-y-auto">
+                    <div className="grid grid-cols-2 gap-2">
+                      {allMonths.map((month) => (
+                        <label
+                          key={month}
+                          className="flex items-center space-x-2 p-2 hover:bg-gray-50 rounded cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedMonths.includes(month)}
+                            onChange={() => toggleMonth(month)}
+                            className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                          />
+                          <span className="text-sm text-gray-700">{month}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  {selectedMonths.length > 0 && (
+                    <p className="text-sm text-green-600 mt-2">
+                      {selectedMonths.length} ay seçildi
+                    </p>
+                  )}
                 </div>
+              ) : (
+                form.payment_type !== 'stationery' && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Ay</label>
+                    <select
+                      required={!bulkAdd && form.payment_type !== 'stationery'}
+                      value={form.month}
+                      onChange={(e) => setForm({ ...form, month: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      <option value="">Ay seçin...</option>
+                      {allMonths.map((month) => (
+                        <option key={month} value={month}>
+                          {month}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )
+              )}
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Akademik Yıl</label>
-                  <input
-                    type="text"
-                    required
-                    value={form.academic_year}
-                    onChange={(e) => setForm({ ...form, academic_year: e.target.value })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                    placeholder="2024-2025"
-                  />
-                </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Akademik Yıl</label>
+                <input
+                  type="text"
+                  required
+                  value={form.academic_year}
+                  onChange={(e) => setForm({ ...form, academic_year: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  placeholder="2024-2025"
+                />
               </div>
 
               <div>
@@ -531,6 +656,8 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                     setShowFeeModal(false);
                     setSelectedFee(null);
                     resetForm();
+                    setBulkAdd(false);
+                    setSelectedMonths([]);
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
