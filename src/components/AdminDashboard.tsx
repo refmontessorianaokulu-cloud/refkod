@@ -1086,7 +1086,7 @@ export default function AdminDashboard() {
                   <option value="parent">Veli</option>
                   <option value="teacher">Öğretmen</option>
                   <option value="admin">Yönetici</option>
-                  <option value="guidance_counselor">Rehberlik Servisi</option>
+                  <option value="guidance_counselor">Rehberlik Birimi</option>
                 </select>
               </div>
               <div className="flex space-x-3 pt-4">

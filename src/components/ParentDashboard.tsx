@@ -529,7 +529,7 @@ export default function ParentDashboard() {
                           <strong>Randevu Kişisi:</strong> {apt.target_name} ({
                             apt.target_role === 'teacher' ? 'Öğretmen' :
                             apt.target_role === 'admin' ? 'Yönetici' :
-                            'Rehberlik Servisi'
+                            'Rehberlik Birimi'
                           })
                           {apt.child_name && (
                             <>
@@ -917,7 +917,7 @@ export default function ParentDashboard() {
                         {user.full_name} ({
                           user.role === 'teacher' ? 'Öğretmen' :
                           user.role === 'admin' ? 'Yönetici' :
-                          'Rehberlik Servisi'
+                          'Rehberlik Birimi'
                         })
                       </option>
                     ))}

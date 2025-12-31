@@ -226,7 +226,7 @@ export default function GuidanceCounselorDashboard() {
             <div className="flex items-center">
               <User className="w-8 h-8 text-teal-600" />
               <div className="ml-3">
-                <h1 className="text-xl font-bold text-gray-800">Rehberlik Servisi Paneli</h1>
+                <h1 className="text-xl font-bold text-gray-800">Rehberlik Birimi Paneli</h1>
                 <p className="text-sm text-gray-600">{profile?.full_name}</p>
               </div>
             </div>
