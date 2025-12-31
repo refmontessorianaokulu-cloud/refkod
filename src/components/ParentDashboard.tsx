@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck } from 'lucide-react';
+import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck, DollarSign } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
+import FeesSection from './FeesSection';
 
 type ChildWithLogs = Child & {
   meal_logs: MealLog[];
@@ -14,7 +15,7 @@ type ChildWithLogs = Child & {
 
 export default function ParentDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees'>('main');
   const [children, setChildren] = useState<ChildWithLogs[]>([]);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -263,6 +264,17 @@ export default function ParentDashboard() {
                 <Calendar className="w-5 h-5" />
                 <span>Akademik Takvim</span>
               </button>
+              <button
+                onClick={() => setActiveTab('fees')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'fees'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <DollarSign className="w-5 h-5" />
+                <span>Taksitler</span>
+              </button>
             </div>
           </div>
         </div>
@@ -320,6 +332,12 @@ export default function ParentDashboard() {
         {activeTab === 'calendar' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <CalendarSection userId={profile?.id || ''} userRole="parent" />
+          </div>
+        )}
+
+        {activeTab === 'fees' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <FeesSection userId={profile?.id || ''} userRole="parent" />
           </div>
         )}
 

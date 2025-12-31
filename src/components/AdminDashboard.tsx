@@ -1,15 +1,16 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, DollarSign } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
+import FeesSection from './FeesSection';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar'>('children');
+  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees'>('children');
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -394,6 +395,17 @@ export default function AdminDashboard() {
                 <Calendar className="w-5 h-5" />
                 <span>Akademik Takvim</span>
               </button>
+              <button
+                onClick={() => setActiveTab('fees')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'fees'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <DollarSign className="w-5 h-5" />
+                <span>Taksitler</span>
+              </button>
             </div>
           </div>
 
@@ -761,6 +773,12 @@ export default function AdminDashboard() {
             {activeTab === 'calendar' && (
               <div>
                 <CalendarSection userId={profile?.id || ''} userRole="admin" />
+              </div>
+            )}
+
+            {activeTab === 'fees' && (
+              <div>
+                <FeesSection userId={profile?.id || ''} userRole="admin" />
               </div>
             )}
           </div>
