@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { DollarSign, Plus, X, Send, Check, Clock, AlertCircle, Bell } from 'lucide-react';
+import { Plus, X, Send, Check, Clock, AlertCircle, Bell } from 'lucide-react';
 
 interface TuitionFee {
   id: string;
@@ -33,6 +33,12 @@ interface Child {
   last_name: string;
 }
 
+interface Parent {
+  id: string;
+  full_name: string;
+  email: string;
+}
+
 interface FeesSectionProps {
   userId: string;
   userRole: 'admin' | 'parent';
@@ -42,10 +48,12 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
   const [fees, setFees] = useState<TuitionFee[]>([]);
   const [reminders, setReminders] = useState<PaymentReminder[]>([]);
   const [children, setChildren] = useState<Child[]>([]);
+  const [parents, setParents] = useState<Parent[]>([]);
   const [showFeeModal, setShowFeeModal] = useState(false);
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedFee, setSelectedFee] = useState<TuitionFee | null>(null);
+  const [sendToAll, setSendToAll] = useState(true);
   const [form, setForm] = useState({
     child_id: '',
     amount: '',
@@ -65,6 +73,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
     loadReminders();
     if (userRole === 'admin') {
       loadChildren();
+      loadParents();
     }
   }, [userId, userRole]);
 
@@ -104,6 +113,20 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
     }
   };
 
+  const loadParents = async () => {
+    try {
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, full_name, email')
+        .eq('role', 'parent')
+        .eq('approved', true)
+        .order('full_name');
+      setParents(data || []);
+    } catch (error) {
+      console.error('Error loading parents:', error);
+    }
+  };
+
   const handleSubmitFee = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -117,7 +140,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
           })
           .eq('id', selectedFee.id);
         if (error) throw error;
-        alert('Taksit güncellendi!');
+        alert('Ödeme güncellendi!');
       } else {
         const { error } = await supabase.from('tuition_fees').insert({
           ...form,
@@ -125,7 +148,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
           created_by: userId,
         });
         if (error) throw error;
-        alert('Taksit eklendi!');
+        alert('Ödeme eklendi!');
       }
       setShowFeeModal(false);
       setSelectedFee(null);
@@ -139,9 +162,9 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
   const handleSendReminder = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const parentIds = reminderForm.parent_ids.length > 0
-        ? reminderForm.parent_ids
-        : await getAllParentIds();
+      const parentIds = sendToAll
+        ? await getAllParentIds()
+        : reminderForm.parent_ids;
 
       const reminders = parentIds.map((parentId) => ({
         parent_id: parentId,
@@ -149,11 +172,17 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
         created_by: userId,
       }));
 
+      if (parentIds.length === 0) {
+        alert('Lütfen en az bir veli seçin!');
+        return;
+      }
+
       const { error } = await supabase.from('payment_reminders').insert(reminders);
       if (error) throw error;
-      alert('Hatırlatma gönderildi!');
+      alert(`Hatırlatma ${parentIds.length} veliye gönderildi!`);
       setShowReminderModal(false);
       setReminderForm({ message: '', parent_ids: [] });
+      setSendToAll(true);
       loadReminders();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
@@ -231,15 +260,27 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
 
   const unreadCount = reminders.filter((r) => !r.is_read).length;
 
+  const toggleParent = (parentId: string) => {
+    setReminderForm((prev) => {
+      const isSelected = prev.parent_ids.includes(parentId);
+      return {
+        ...prev,
+        parent_ids: isSelected
+          ? prev.parent_ids.filter((id) => id !== parentId)
+          : [...prev.parent_ids, parentId],
+      };
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="bg-gradient-to-br from-green-500 to-emerald-500 p-2 rounded-xl">
-            <DollarSign className="w-6 h-6 text-white" />
+            <span className="text-2xl font-bold text-white">₺</span>
           </div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Taksit Yönetimi</h2>
+            <h2 className="text-2xl font-bold text-gray-800">Okul Ödemeleri</h2>
             {userRole === 'parent' && unreadCount > 0 && (
               <span className="text-sm text-red-600">{unreadCount} okunmamış bildirim</span>
             )}
@@ -263,7 +304,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
               className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-br from-green-500 to-emerald-500 text-white rounded-lg hover:shadow-lg transition-shadow"
             >
               <Plus className="w-5 h-5" />
-              <span>Taksit Ekle</span>
+              <span>Ödeme Ekle</span>
             </button>
           </div>
         )}
@@ -311,7 +352,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
       {loading ? (
         <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
       ) : fees.length === 0 ? (
-        <div className="text-center py-12 text-gray-500">Henüz taksit kaydı yok</div>
+        <div className="text-center py-12 text-gray-500">Henüz ödeme kaydı yok</div>
       ) : (
         <div className="grid gap-4">
           {fees.map((fee) => (
@@ -376,7 +417,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-gray-800">
-                {selectedFee ? 'Taksit Düzenle' : 'Yeni Taksit Ekle'}
+                {selectedFee ? 'Ödeme Düzenle' : 'Yeni Ödeme Ekle'}
               </h3>
               <button
                 onClick={() => {
@@ -509,11 +550,15 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
 
       {showReminderModal && userRole === 'admin' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+          <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-2xl font-bold text-gray-800">Hatırlatma Gönder</h3>
               <button
-                onClick={() => setShowReminderModal(false)}
+                onClick={() => {
+                  setShowReminderModal(false);
+                  setReminderForm({ message: '', parent_ids: [] });
+                  setSendToAll(true);
+                }}
                 className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -533,12 +578,68 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                 />
               </div>
 
-              <p className="text-sm text-gray-600">Bu mesaj tüm velilere gönderilecektir.</p>
+              <div>
+                <label className="flex items-center space-x-2 mb-3">
+                  <input
+                    type="checkbox"
+                    checked={sendToAll}
+                    onChange={(e) => {
+                      setSendToAll(e.target.checked);
+                      if (e.target.checked) {
+                        setReminderForm({ ...reminderForm, parent_ids: [] });
+                      }
+                    }}
+                    className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Tüm velilere gönder</span>
+                </label>
+
+                {!sendToAll && (
+                  <div className="border border-gray-200 rounded-lg p-4 max-h-60 overflow-y-auto bg-gray-50">
+                    <p className="text-sm text-gray-600 mb-3">Velileri seçin:</p>
+                    <div className="space-y-2">
+                      {parents.map((parent) => (
+                        <label
+                          key={parent.id}
+                          className="flex items-center space-x-2 p-2 hover:bg-gray-100 rounded cursor-pointer"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={reminderForm.parent_ids.includes(parent.id)}
+                            onChange={() => toggleParent(parent.id)}
+                            className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                          />
+                          <div className="flex-1">
+                            <span className="text-sm font-medium text-gray-800">{parent.full_name}</span>
+                            <span className="text-xs text-gray-500 ml-2">({parent.email})</span>
+                          </div>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {sendToAll && (
+                  <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                    Bu mesaj <span className="font-semibold">{parents.length}</span> veliye gönderilecektir.
+                  </p>
+                )}
+
+                {!sendToAll && reminderForm.parent_ids.length > 0 && (
+                  <p className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg mt-2">
+                    <span className="font-semibold">{reminderForm.parent_ids.length}</span> veli seçildi.
+                  </p>
+                )}
+              </div>
 
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowReminderModal(false)}
+                  onClick={() => {
+                    setShowReminderModal(false);
+                    setReminderForm({ message: '', parent_ids: [] });
+                    setSendToAll(true);
+                  }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   İptal

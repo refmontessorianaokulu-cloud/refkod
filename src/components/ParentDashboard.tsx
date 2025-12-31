@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck, DollarSign } from 'lucide-react';
+import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -272,8 +272,8 @@ export default function ParentDashboard() {
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                <DollarSign className="w-5 h-5" />
-                <span>Taksitler</span>
+                <span className="text-lg font-bold">₺</span>
+                <span>Okul Ödemeleri</span>
               </button>
             </div>
           </div>

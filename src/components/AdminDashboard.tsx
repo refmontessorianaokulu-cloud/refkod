@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, DollarSign } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -403,8 +403,8 @@ export default function AdminDashboard() {
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
-                <DollarSign className="w-5 h-5" />
-                <span>Taksitler</span>
+                <span className="text-lg font-bold">₺</span>
+                <span>Okul Ödemeleri</span>
               </button>
             </div>
           </div>
