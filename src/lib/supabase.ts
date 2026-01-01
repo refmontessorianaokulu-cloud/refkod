@@ -106,3 +106,17 @@ export type ToiletNotification = {
   completed_at: string | null;
   created_at: string;
 };
+
+export type MaterialRequest = {
+  id: string;
+  requester_id: string;
+  request_type: 'supply' | 'material';
+  title: string;
+  description: string;
+  quantity: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: 'pending' | 'approved' | 'rejected' | 'completed';
+  admin_notes: string;
+  created_at: string;
+  updated_at: string;
+};

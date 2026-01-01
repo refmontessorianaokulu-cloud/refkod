@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles } from 'lucide-react';
+import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -13,10 +13,11 @@ import DutyScheduleSection from './DutyScheduleSection';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import AllServicesLocationSection from './AllServicesLocationSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
+import MaterialRequestsSection from './MaterialRequestsSection';
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning' | 'service' | 'branch_reports'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning' | 'service' | 'branch_reports' | 'material_requests'>('main');
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
@@ -423,6 +424,17 @@ export default function TeacherDashboard() {
                 <span>Branş Dersleri</span>
               </button>
               <button
+                onClick={() => setActiveTab('material_requests')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'material_requests'
+                    ? 'border-orange-500 text-orange-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Package className="w-5 h-5" />
+                <span>Materyal Talepleri</span>
+              </button>
+              <button
                 onClick={() => setActiveTab('announcements')}
                 className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'announcements'
@@ -826,6 +838,15 @@ export default function TeacherDashboard() {
             <BranchCourseReportsSection
               children={children}
               teacherId={profile?.id}
+              userRole="teacher"
+            />
+          </div>
+        )}
+
+        {activeTab === 'material_requests' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <MaterialRequestsSection
+              userId={profile?.id || ''}
               userRole="teacher"
             />
           </div>

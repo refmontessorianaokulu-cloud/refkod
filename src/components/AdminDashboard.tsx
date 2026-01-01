@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck, CreditCard as Edit, Sparkles } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck, CreditCard as Edit, Sparkles, Package } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -16,10 +16,11 @@ import CleaningRequestsSection from './CleaningRequestsSection';
 import AllServicesLocationSection from './AllServicesLocationSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import InquiryFormsSection from './InquiryFormsSection';
+import MaterialRequestsSection from './MaterialRequestsSection';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'montessori_reports' | 'branch_reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services' | 'cleaning' | 'inquiries'>('children');
+  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'montessori_reports' | 'branch_reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services' | 'cleaning' | 'inquiries' | 'material_requests'>('children');
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -653,6 +654,17 @@ export default function AdminDashboard() {
                 <Bell className="w-5 h-5" />
                 <span>Bilgi Talepleri</span>
               </button>
+              <button
+                onClick={() => setActiveTab('material_requests')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'material_requests'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Package className="w-5 h-5" />
+                <span>Malzeme Talepleri</span>
+              </button>
             </div>
           </div>
 
@@ -1241,6 +1253,15 @@ export default function AdminDashboard() {
             {activeTab === 'inquiries' && (
               <div>
                 <InquiryFormsSection />
+              </div>
+            )}
+
+            {activeTab === 'material_requests' && (
+              <div>
+                <MaterialRequestsSection
+                  userId={profile?.id || ''}
+                  userRole="admin"
+                />
               </div>
             )}
           </div>

@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, UtensilsCrossed, Sparkles, Car, Baby } from 'lucide-react';
+import { LogOut, UtensilsCrossed, Sparkles, Car, Baby, Package } from 'lucide-react';
 import MealMenuSection from './MealMenuSection';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import ToiletNotificationsSection from './ToiletNotificationsSection';
 import BusDriverServiceSection from './BusDriverServiceSection';
+import MaterialRequestsSection from './MaterialRequestsSection';
 
 export default function StaffDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'requests' | 'notifications' | 'menu' | 'service'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'requests' | 'notifications' | 'menu' | 'service' | 'material_requests'>('main');
 
   const getStaffTitle = () => {
     if (profile?.staff_role === 'cook') return 'Aşçı Paneli';
@@ -107,6 +108,17 @@ export default function StaffDashboard() {
                   <span>Servis Çocukları</span>
                 </button>
               )}
+              <button
+                onClick={() => setActiveTab('material_requests')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'material_requests'
+                    ? 'border-orange-500 text-orange-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Package className="w-5 h-5" />
+                <span>Malzeme Talepleri</span>
+              </button>
             </div>
           </div>
 
@@ -125,6 +137,14 @@ export default function StaffDashboard() {
 
             {activeTab === 'service' && showServiceTab && (
               <BusDriverServiceSection driverId={profile?.id || ''} />
+            )}
+
+            {activeTab === 'material_requests' && (
+              <MaterialRequestsSection
+                userId={profile?.id || ''}
+                userRole="staff"
+                staffRole={profile?.staff_role}
+              />
             )}
 
             {activeTab === 'main' && (
