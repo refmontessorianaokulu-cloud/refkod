@@ -385,7 +385,7 @@ export default function TeacherDashboard() {
                   <Bell className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-gray-800">Alış Bildirimleri</h3>
+                  <h3 className="text-xl font-bold text-gray-800">Çocuğumu Almaya Geliyorum Bildirimi</h3>
                   <p className="text-sm text-gray-600">{pickupNotifications.length} yeni bildirim</p>
                 </div>
               </div>
