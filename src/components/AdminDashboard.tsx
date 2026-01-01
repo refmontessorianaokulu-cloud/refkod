@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck, Edit } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -27,6 +27,7 @@ export default function AdminDashboard() {
   const [teachers, setTeachers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
   const [pickupNotifications, setPickupNotifications] = useState<any[]>([]);
+  const [editingChildId, setEditingChildId] = useState<string | null>(null);
 
   const [childForm, setChildForm] = useState({
     first_name: '',
@@ -290,6 +291,84 @@ export default function AdminDashboard() {
       loadData();
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
+    }
+  };
+
+  const handleEditChild = (child: Child) => {
+    setEditingChildId(child.id);
+    setChildForm({
+      first_name: child.first_name,
+      last_name: child.last_name,
+      birth_date: child.birth_date,
+      class_name: child.class_name,
+      photo_url: child.photo_url || '',
+      parent_id: '',
+      teacher_id: '',
+    });
+    setShowChildModal(true);
+  };
+
+  const handleUpdateChild = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingChildId) return;
+
+    setUploadingPhoto(true);
+    try {
+      let photoUrl = childForm.photo_url;
+
+      if (selectedPhotoFile) {
+        const fileExt = selectedPhotoFile.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('child-photos')
+          .upload(filePath, selectedPhotoFile, {
+            cacheControl: '3600',
+            upsert: false
+          });
+
+        if (uploadError) {
+          throw new Error('Fotoğraf yükleme hatası: ' + uploadError.message);
+        }
+
+        const { data: publicUrlData } = supabase.storage
+          .from('child-photos')
+          .getPublicUrl(filePath);
+
+        photoUrl = publicUrlData.publicUrl;
+      }
+
+      const { error } = await supabase
+        .from('children')
+        .update({
+          first_name: childForm.first_name,
+          last_name: childForm.last_name,
+          birth_date: childForm.birth_date,
+          class_name: childForm.class_name,
+          photo_url: photoUrl,
+        })
+        .eq('id', editingChildId);
+
+      if (error) throw error;
+
+      setShowChildModal(false);
+      setEditingChildId(null);
+      setChildForm({
+        first_name: '',
+        last_name: '',
+        birth_date: '',
+        class_name: '',
+        photo_url: '',
+        parent_id: '',
+        teacher_id: '',
+      });
+      setSelectedPhotoFile(null);
+      loadData();
+    } catch (error) {
+      alert('Hata oluştu: ' + (error as Error).message);
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -605,6 +684,13 @@ export default function AdminDashboard() {
                           </div>
                           <div className="flex space-x-2">
                             <button
+                              onClick={() => handleEditChild(child)}
+                              className="p-2 hover:bg-white rounded-lg transition-colors"
+                              title="Düzenle"
+                            >
+                              <Edit className="w-4 h-4 text-blue-600" />
+                            </button>
+                            <button
                               onClick={() => {
                                 setSelectedChild(child.id);
                                 setShowParentLinkModal(true);
@@ -627,6 +713,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => handleDeleteChild(child.id)}
                               className="p-2 hover:bg-white rounded-lg transition-colors"
+                              title="Sil"
                             >
                               <Trash2 className="w-4 h-4 text-red-600" />
                             </button>
@@ -963,8 +1050,10 @@ export default function AdminDashboard() {
       {showChildModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Yeni Çocuk Ekle</h3>
-            <form onSubmit={handleAddChild} className="space-y-4">
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">
+              {editingChildId ? 'Çocuk Bilgilerini Güncelle' : 'Yeni Çocuk Ekle'}
+            </h3>
+            <form onSubmit={editingChildId ? handleUpdateChild : handleAddChild} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Ad</label>
                 <input
@@ -1010,36 +1099,40 @@ export default function AdminDashboard() {
                   <option value="2 Yaş Sınıfı">2 Yaş Sınıfı</option>
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Veli</label>
-                <select
-                  value={childForm.parent_id}
-                  onChange={(e) => setChildForm({ ...childForm, parent_id: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="">Veli seçin (isteğe bağlı)...</option>
-                  {parents.map((parent) => (
-                    <option key={parent.id} value={parent.id}>
-                      {parent.full_name} ({parent.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Öğretmen</label>
-                <select
-                  value={childForm.teacher_id}
-                  onChange={(e) => setChildForm({ ...childForm, teacher_id: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                >
-                  <option value="">Öğretmen seçin (isteğe bağlı)...</option>
-                  {teachers.map((teacher) => (
-                    <option key={teacher.id} value={teacher.id}>
-                      {teacher.full_name} ({teacher.email})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {!editingChildId && (
+                <>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Veli</label>
+                    <select
+                      value={childForm.parent_id}
+                      onChange={(e) => setChildForm({ ...childForm, parent_id: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      <option value="">Veli seçin (isteğe bağlı)...</option>
+                      {parents.map((parent) => (
+                        <option key={parent.id} value={parent.id}>
+                          {parent.full_name} ({parent.email})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Öğretmen</label>
+                    <select
+                      value={childForm.teacher_id}
+                      onChange={(e) => setChildForm({ ...childForm, teacher_id: e.target.value })}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      <option value="">Öğretmen seçin (isteğe bağlı)...</option>
+                      {teachers.map((teacher) => (
+                        <option key={teacher.id} value={teacher.id}>
+                          {teacher.full_name} ({teacher.email})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </>
+              )}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Fotoğraf</label>
                 <div className="space-y-3">
@@ -1080,6 +1173,16 @@ export default function AdminDashboard() {
                   onClick={() => {
                     setShowChildModal(false);
                     setSelectedPhotoFile(null);
+                    setEditingChildId(null);
+                    setChildForm({
+                      first_name: '',
+                      last_name: '',
+                      birth_date: '',
+                      class_name: '',
+                      photo_url: '',
+                      parent_id: '',
+                      teacher_id: '',
+                    });
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
@@ -1090,7 +1193,7 @@ export default function AdminDashboard() {
                   disabled={uploadingPhoto}
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {uploadingPhoto ? 'Yükleniyor...' : 'Ekle'}
+                  {uploadingPhoto ? 'Yükleniyor...' : (editingChildId ? 'Güncelle' : 'Ekle')}
                 </button>
               </div>
             </form>
