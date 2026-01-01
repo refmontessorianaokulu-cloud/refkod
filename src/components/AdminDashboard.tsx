@@ -11,10 +11,11 @@ import AppointmentsSection from './AppointmentsSection';
 import TasksSection from './TasksSection';
 import MealMenuSection from './MealMenuSection';
 import DutyScheduleSection from './DutyScheduleSection';
+import AdminServiceManagement from './AdminServiceManagement';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty'>('children');
+  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services'>('children');
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -571,6 +572,17 @@ export default function AdminDashboard() {
                 <UserCheck className="w-5 h-5" />
                 <span>Nöbetçi Öğretmen</span>
               </button>
+              <button
+                onClick={() => setActiveTab('services')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'services'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Car className="w-5 h-5" />
+                <span>Servis Takibi</span>
+              </button>
             </div>
           </div>
 
@@ -1041,6 +1053,12 @@ export default function AdminDashboard() {
             {activeTab === 'duty' && (
               <div>
                 <DutyScheduleSection userId={profile?.id || ''} userRole="admin" />
+              </div>
+            )}
+
+            {activeTab === 'services' && (
+              <div>
+                <AdminServiceManagement />
               </div>
             )}
           </div>
