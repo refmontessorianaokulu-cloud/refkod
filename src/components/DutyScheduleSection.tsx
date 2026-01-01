@@ -56,9 +56,6 @@ export default function DutyScheduleSection({ userId, userRole }: DutyScheduleSe
   });
 
   const currentTime = new Date();
-  const currentHour = currentTime.getHours();
-  const currentMinutes = currentTime.getMinutes();
-  const isAfter1730 = currentHour > 17 || (currentHour === 17 && currentMinutes >= 30);
 
   const todaySchedule = schedules.find(
     s => s.duty_date === new Date().toISOString().split('T')[0]
@@ -319,7 +316,7 @@ export default function DutyScheduleSection({ userId, userRole }: DutyScheduleSe
   };
 
   const canManageSchedule = userRole === 'admin';
-  const canSendReminders = (userRole === 'admin' || isOnDutyToday) && isAfter1730;
+  const canSendReminders = userRole === 'admin' || isOnDutyToday;
 
   return (
     <div className="space-y-6">
