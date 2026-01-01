@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChefHat, Car, Sparkles, Shield, User } from 'lucide-react';
 
 type SignupProps = {
   onBackToLogin: () => void;
@@ -11,7 +11,8 @@ export default function Signup({ onBackToLogin }: SignupProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState<'parent' | 'teacher' | 'guidance_counselor'>('parent');
+  const [role, setRole] = useState<'parent' | 'teacher' | 'guidance_counselor' | 'staff'>('parent');
+  const [staffRole, setStaffRole] = useState<'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other'>('cook');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
@@ -33,7 +34,7 @@ export default function Signup({ onBackToLogin }: SignupProps) {
     setLoading(true);
 
     try {
-      await signUp(email, password, fullName, role);
+      await signUp(email, password, fullName, role, role === 'staff' ? staffRole : undefined);
       alert('Kaydınız oluşturuldu. Yönetici onayı sonrasında giriş yapabileceksiniz.');
       setFullName('');
       setEmail('');
@@ -115,7 +116,7 @@ export default function Signup({ onBackToLogin }: SignupProps) {
             <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-2">
               Rol
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => setRole('parent')}
@@ -149,8 +150,89 @@ export default function Signup({ onBackToLogin }: SignupProps) {
               >
                 Rehberlik
               </button>
+              <button
+                type="button"
+                onClick={() => setRole('staff')}
+                className={`px-4 py-3 rounded-lg font-medium transition-all border-2 ${
+                  role === 'staff'
+                    ? 'bg-amber-600 text-white border-amber-600'
+                    : 'bg-white text-gray-700 border-gray-300 hover:border-amber-500'
+                }`}
+              >
+                Personel
+              </button>
             </div>
           </div>
+
+          {role === 'staff' && (
+            <div>
+              <label htmlFor="staffRole" className="block text-sm font-medium text-gray-700 mb-2">
+                Personel Türü
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setStaffRole('cook')}
+                  className={`px-4 py-3 rounded-lg font-medium transition-all border-2 flex flex-col items-center space-y-2 ${
+                    staffRole === 'cook'
+                      ? 'bg-amber-600 text-white border-amber-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-amber-500'
+                  }`}
+                >
+                  <ChefHat className="w-5 h-5" />
+                  <span>Aşçı</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStaffRole('cleaning_staff')}
+                  className={`px-4 py-3 rounded-lg font-medium transition-all border-2 flex flex-col items-center space-y-2 ${
+                    staffRole === 'cleaning_staff'
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-blue-500'
+                  }`}
+                >
+                  <Sparkles className="w-5 h-5" />
+                  <span>Temizlik</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStaffRole('bus_driver')}
+                  className={`px-4 py-3 rounded-lg font-medium transition-all border-2 flex flex-col items-center space-y-2 ${
+                    staffRole === 'bus_driver'
+                      ? 'bg-green-600 text-white border-green-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-green-500'
+                  }`}
+                >
+                  <Car className="w-5 h-5" />
+                  <span>Servis Şoförü</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStaffRole('security_staff')}
+                  className={`px-4 py-3 rounded-lg font-medium transition-all border-2 flex flex-col items-center space-y-2 ${
+                    staffRole === 'security_staff'
+                      ? 'bg-red-600 text-white border-red-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-red-500'
+                  }`}
+                >
+                  <Shield className="w-5 h-5" />
+                  <span>Güvenlik</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStaffRole('other')}
+                  className={`px-4 py-3 rounded-lg font-medium transition-all border-2 flex flex-col items-center space-y-2 col-span-2 ${
+                    staffRole === 'other'
+                      ? 'bg-gray-600 text-white border-gray-600'
+                      : 'bg-white text-gray-700 border-gray-300 hover:border-gray-500'
+                  }`}
+                >
+                  <User className="w-5 h-5" />
+                  <span>Diğer</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">

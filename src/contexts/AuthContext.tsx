@@ -7,7 +7,7 @@ type AuthContextType = {
   profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent') => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -88,22 +88,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent') => {
+  const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
 
     if (data.user) {
       const approved = role === 'admin';
+      const profileData: any = {
+        id: data.user.id,
+        email,
+        full_name: fullName,
+        approved,
+        approved_at: approved ? new Date().toISOString() : null
+      };
+
+      if (role === 'staff' && staffRole) {
+        profileData.role = null;
+        profileData.staff_role = staffRole;
+      } else {
+        profileData.role = role;
+        profileData.staff_role = null;
+      }
+
       const { error: profileError } = await supabase
         .from('profiles')
-        .insert({
-          id: data.user.id,
-          email,
-          full_name: fullName,
-          role,
-          approved,
-          approved_at: approved ? new Date().toISOString() : null
-        });
+        .insert(profileData);
 
       if (profileError) throw profileError;
     }
