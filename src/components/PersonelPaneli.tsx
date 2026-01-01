@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Car, MapPin, Users, Clock, LogOut, Navigation } from 'lucide-react';
+import { Car, MapPin, Users, Clock, LogOut, Navigation, ChefHat, Sparkles, Shield, User } from 'lucide-react';
 
 interface Vehicle {
   id: string;
@@ -140,7 +140,9 @@ export default function PersonelPaneli() {
       case 'cleaning_staff':
         return 'Temizlik Personeli';
       case 'bus_driver':
-        return 'Servis Şöförü';
+        return 'Servis Şoförü';
+      case 'security_staff':
+        return 'Güvenlik Görevlisi';
       case 'other':
         return 'Diğer';
       default:
@@ -148,8 +150,40 @@ export default function PersonelPaneli() {
     }
   };
 
+  const getStaffIcon = () => {
+    switch (profile?.staff_role) {
+      case 'cook':
+        return <ChefHat className="w-10 h-10 text-amber-600" />;
+      case 'cleaning_staff':
+        return <Sparkles className="w-10 h-10 text-blue-600" />;
+      case 'bus_driver':
+        return <Car className="w-10 h-10 text-green-600" />;
+      case 'security_staff':
+        return <Shield className="w-10 h-10 text-red-600" />;
+      case 'other':
+        return <User className="w-10 h-10 text-gray-600" />;
+      default:
+        return <Clock className="w-10 h-10 text-blue-600" />;
+    }
+  };
+
+  const getStaffMessage = () => {
+    switch (profile?.staff_role) {
+      case 'cook':
+        return 'Aşçı olarak sisteme giriş yaptınız. Yemek menüsü ve mutfak işlemlerini yönetebilirsiniz.';
+      case 'cleaning_staff':
+        return 'Temizlik personeli olarak sisteme giriş yaptınız. Temizlik görev ve raporlarınızı takip edebilirsiniz.';
+      case 'security_staff':
+        return 'Güvenlik görevlisi olarak sisteme giriş yaptınız. Güvenlik görevlerinizi takip edebilirsiniz.';
+      case 'other':
+        return 'Personel olarak sisteme giriş yaptınız.';
+      default:
+        return 'Hoş geldiniz!';
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-amber-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex justify-between items-center mb-8">
           <div>
@@ -303,16 +337,14 @@ export default function PersonelPaneli() {
         ) : (
           <div className="bg-white rounded-xl shadow-lg p-8 text-center">
             <div className="max-w-md mx-auto">
-              <div className="bg-blue-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Clock className="w-10 h-10 text-blue-600" />
+              <div className="bg-gradient-to-br from-blue-100 to-amber-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                {getStaffIcon()}
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
                 {getStaffRoleDisplay(profile?.staff_role)} Paneli
               </h2>
               <p className="text-gray-600">
-                {profile?.staff_role === 'cook' && 'Aşçı olarak sisteme giriş yaptınız. Yemek menüsü yönetimi için yetkili olabilirsiniz.'}
-                {profile?.staff_role === 'cleaning_staff' && 'Temizlik personeli olarak sisteme giriş yaptınız.'}
-                {profile?.staff_role === 'other' && 'Personel olarak sisteme giriş yaptınız.'}
+                {getStaffMessage()}
               </p>
             </div>
           </div>
