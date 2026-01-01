@@ -48,6 +48,8 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     content: '',
     report_date: new Date().toISOString().split('T')[0],
   });
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     loadReports();
@@ -79,17 +81,51 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     }
   };
 
+  const uploadMediaFiles = async (): Promise<string[]> => {
+    if (mediaFiles.length === 0) return [];
+
+    const uploadedUrls: string[] = [];
+    setUploading(true);
+
+    try {
+      for (const file of mediaFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('report-media')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage.from('report-media').getPublicUrl(filePath);
+        uploadedUrls.push(data.publicUrl);
+      }
+
+      return uploadedUrls;
+    } catch (error) {
+      console.error('Error uploading media:', error);
+      throw error;
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!teacherId) return;
 
     try {
+      const mediaUrls = await uploadMediaFiles();
+
       const { error } = await supabase.from('branch_course_reports').insert({
         teacher_id: teacherId,
         child_id: form.child_id,
         course_type: form.course_type,
         content: form.content,
         report_date: form.report_date,
+        media_urls: mediaUrls,
       });
 
       if (error) throw error;
@@ -122,6 +158,17 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
       content: '',
       report_date: new Date().toISOString().split('T')[0],
     });
+    setMediaFiles([]);
+  };
+
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      setMediaFiles(Array.from(e.target.files));
+    }
+  };
+
+  const removeMediaFile = (index: number) => {
+    setMediaFiles(mediaFiles.filter((_, i) => i !== index));
   };
 
   const getCourseLabel = (type: string) => {
@@ -234,6 +281,31 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                   <p className="text-gray-700 whitespace-pre-wrap">{report.content}</p>
                 </div>
 
+                {report.media_urls && report.media_urls.length > 0 && (
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Medya:</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {report.media_urls.map((url: string, index: number) => (
+                        <div key={index} className="relative">
+                          {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                            <img
+                              src={url}
+                              alt={`Media ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <video
+                              src={url}
+                              controls
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="text-xs text-gray-500">
                   {new Date(report.created_at).toLocaleString('tr-TR')}
                 </div>
@@ -316,6 +388,45 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fotoğraf/Video Ekle (İsteğe Bağlı)
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleMediaChange}
+                    className="hidden"
+                    id="branch-media-upload"
+                  />
+                  <label
+                    htmlFor="branch-media-upload"
+                    className="flex items-center justify-center space-x-2 cursor-pointer text-purple-600 hover:text-purple-700"
+                  >
+                    <Upload className="w-5 h-5" />
+                    <span>Dosya Seç</span>
+                  </label>
+                  {mediaFiles.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {mediaFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between bg-purple-50 p-2 rounded">
+                          <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeMediaFile(index)}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
@@ -329,9 +440,10 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all"
+                  disabled={uploading}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Rapor Ekle
+                  {uploading ? 'Yükleniyor...' : 'Rapor Ekle'}
                 </button>
               </div>
             </form>

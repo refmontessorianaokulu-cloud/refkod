@@ -39,6 +39,11 @@ export default function TeacherDashboard() {
     notes: '',
   });
 
+  const [mealMediaFiles, setMealMediaFiles] = useState<File[]>([]);
+  const [sleepMediaFiles, setSleepMediaFiles] = useState<File[]>([]);
+  const [uploadingMeal, setUploadingMeal] = useState(false);
+  const [uploadingSleep, setUploadingSleep] = useState(false);
+
   const [reportForm, setReportForm] = useState({
     practical_life: '',
     sensorial: '',
@@ -155,24 +160,90 @@ export default function TeacherDashboard() {
     }
   };
 
+  const uploadMealMedia = async (): Promise<string[]> => {
+    if (mealMediaFiles.length === 0) return [];
+
+    const uploadedUrls: string[] = [];
+    setUploadingMeal(true);
+
+    try {
+      for (const file of mealMediaFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('report-media')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage.from('report-media').getPublicUrl(filePath);
+        uploadedUrls.push(data.publicUrl);
+      }
+
+      return uploadedUrls;
+    } catch (error) {
+      console.error('Error uploading media:', error);
+      throw error;
+    } finally {
+      setUploadingMeal(false);
+    }
+  };
+
   const handleAddMeal = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedChild || !profile) return;
 
     try {
+      const mediaUrls = await uploadMealMedia();
+
       const { error } = await supabase.from('meal_logs').insert({
         child_id: selectedChild,
         teacher_id: profile.id,
         ...mealForm,
+        media_urls: mediaUrls,
       });
       if (error) throw error;
 
       setShowMealModal(false);
       setSelectedChild('');
       setMealForm({ meal_type: 'lunch', amount_eaten: 'all', notes: '' });
+      setMealMediaFiles([]);
       alert('Yemek kaydı eklendi!');
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
+    }
+  };
+
+  const uploadSleepMedia = async (): Promise<string[]> => {
+    if (sleepMediaFiles.length === 0) return [];
+
+    const uploadedUrls: string[] = [];
+    setUploadingSleep(true);
+
+    try {
+      for (const file of sleepMediaFiles) {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('report-media')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data } = supabase.storage.from('report-media').getPublicUrl(filePath);
+        uploadedUrls.push(data.publicUrl);
+      }
+
+      return uploadedUrls;
+    } catch (error) {
+      console.error('Error uploading media:', error);
+      throw error;
+    } finally {
+      setUploadingSleep(false);
     }
   };
 
@@ -181,16 +252,20 @@ export default function TeacherDashboard() {
     if (!selectedChild || !profile) return;
 
     try {
+      const mediaUrls = await uploadSleepMedia();
+
       const { error } = await supabase.from('sleep_logs').insert({
         child_id: selectedChild,
         teacher_id: profile.id,
         ...sleepForm,
+        media_urls: mediaUrls,
       });
       if (error) throw error;
 
       setShowSleepModal(false);
       setSelectedChild('');
       setSleepForm({ start_time: '', end_time: '', notes: '' });
+      setSleepMediaFiles([]);
       alert('Uyku kaydı eklendi!');
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
@@ -855,6 +930,48 @@ export default function TeacherDashboard() {
                   placeholder="İsteğe bağlı notlar..."
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fotoğraf/Video (İsteğe Bağlı)
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        setMealMediaFiles(Array.from(e.target.files));
+                      }
+                    }}
+                    className="hidden"
+                    id="meal-media-upload"
+                  />
+                  <label
+                    htmlFor="meal-media-upload"
+                    className="flex items-center justify-center space-x-2 cursor-pointer text-green-600 hover:text-green-700"
+                  >
+                    <Upload className="w-5 h-5" />
+                    <span>Dosya Seç</span>
+                  </label>
+                  {mealMediaFiles.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {mealMediaFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between bg-green-50 p-2 rounded">
+                          <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setMealMediaFiles(mealMediaFiles.filter((_, i) => i !== index))}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
@@ -868,9 +985,10 @@ export default function TeacherDashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
+                  disabled={uploadingMeal}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Kaydet
+                  {uploadingMeal ? 'Yükleniyor...' : 'Kaydet'}
                 </button>
               </div>
             </form>
@@ -913,6 +1031,48 @@ export default function TeacherDashboard() {
                   placeholder="İsteğe bağlı notlar..."
                 />
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fotoğraf/Video (İsteğe Bağlı)
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={(e) => {
+                      if (e.target.files) {
+                        setSleepMediaFiles(Array.from(e.target.files));
+                      }
+                    }}
+                    className="hidden"
+                    id="sleep-media-upload"
+                  />
+                  <label
+                    htmlFor="sleep-media-upload"
+                    className="flex items-center justify-center space-x-2 cursor-pointer text-green-600 hover:text-green-700"
+                  >
+                    <Upload className="w-5 h-5" />
+                    <span>Dosya Seç</span>
+                  </label>
+                  {sleepMediaFiles.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {sleepMediaFiles.map((file, index) => (
+                        <div key={index} className="flex items-center justify-between bg-green-50 p-2 rounded">
+                          <span className="text-sm text-gray-700 truncate">{file.name}</span>
+                          <button
+                            type="button"
+                            onClick={() => setSleepMediaFiles(sleepMediaFiles.filter((_, i) => i !== index))}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
@@ -926,9 +1086,10 @@ export default function TeacherDashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all"
+                  disabled={uploadingSleep}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Kaydet
+                  {uploadingSleep ? 'Yükleniyor...' : 'Kaydet'}
                 </button>
               </div>
             </form>
