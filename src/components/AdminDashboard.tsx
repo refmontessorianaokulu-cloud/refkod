@@ -14,10 +14,12 @@ import DutyScheduleSection from './DutyScheduleSection';
 import AdminServiceManagement from './AdminServiceManagement';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import AllServicesLocationSection from './AllServicesLocationSection';
+import BranchCourseReportsSection from './BranchCourseReportsSection';
+import InquiryFormsSection from './InquiryFormsSection';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services' | 'cleaning'>('children');
+  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'montessori_reports' | 'branch_reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services' | 'cleaning' | 'inquiries'>('children');
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -132,7 +134,7 @@ export default function AdminDashboard() {
         const teacherData = data?.filter(u => u.role === 'teacher') || [];
         setParents(parentData);
         setTeachers(teacherData);
-      } else if (activeTab === 'reports') {
+      } else if (activeTab === 'montessori_reports') {
         const { data } = await supabase
           .from('daily_reports')
           .select('*')
@@ -475,15 +477,26 @@ export default function AdminDashboard() {
                 <span>Kullanıcılar</span>
               </button>
               <button
-                onClick={() => setActiveTab('reports')}
+                onClick={() => setActiveTab('montessori_reports')}
                 className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'reports'
+                  activeTab === 'montessori_reports'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Sparkles className="w-5 h-5" />
+                <span>Montessori Raporları</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('branch_reports')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'branch_reports'
                     ? 'border-green-500 text-green-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
                 <BookOpen className="w-5 h-5" />
-                <span>Günlük Raporlar</span>
+                <span>Branş Dersleri</span>
               </button>
               <button
                 onClick={() => setActiveTab('attendance')}
@@ -605,6 +618,17 @@ export default function AdminDashboard() {
               >
                 <Sparkles className="w-5 h-5" />
                 <span>Temizlik</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('inquiries')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'inquiries'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Bell className="w-5 h-5" />
+                <span>Bilgi Talepleri</span>
               </button>
             </div>
           </div>
@@ -954,7 +978,7 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {activeTab === 'reports' && (
+            {activeTab === 'montessori_reports' && (
               <div>
                 <div className="mb-6">
                   <h2 className="text-2xl font-bold text-gray-800">Montessori Günlük Raporları</h2>
@@ -1122,9 +1146,25 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {activeTab === 'branch_reports' && (
+              <div>
+                <BranchCourseReportsSection
+                  children={children}
+                  teacherId={profile?.id}
+                  userRole="admin"
+                />
+              </div>
+            )}
+
             {activeTab === 'cleaning' && (
               <div>
                 <CleaningRequestsSection userId={profile?.id || ''} userRole="admin" />
+              </div>
+            )}
+
+            {activeTab === 'inquiries' && (
+              <div>
+                <InquiryFormsSection />
               </div>
             )}
           </div>
