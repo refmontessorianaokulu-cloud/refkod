@@ -14,7 +14,7 @@ export type Profile = {
   approved: boolean;
   approved_at: string | null;
   approved_by: string | null;
-  staff_role: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other' | null;
+  staff_role: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'toilet_attendant' | 'other' | null;
 };
 
 export type Child = {
@@ -80,5 +80,29 @@ export type DailyReport = {
   mood: string;
   social_interaction: string;
   media_urls?: string[];
+  created_at: string;
+};
+
+export type CleaningRequest = {
+  id: string;
+  location: string;
+  description: string;
+  urgency: 'low' | 'medium' | 'high';
+  status: 'pending' | 'in_progress' | 'completed';
+  requested_by: string;
+  assigned_to: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ToiletNotification = {
+  id: string;
+  child_id: string;
+  sent_by: string;
+  notes: string | null;
+  status: 'pending' | 'acknowledged' | 'completed';
+  acknowledged_at: string | null;
+  completed_at: string | null;
   created_at: string;
 };

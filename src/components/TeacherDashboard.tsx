@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck } from 'lucide-react';
+import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -10,16 +10,19 @@ import AppointmentsSection from './AppointmentsSection';
 import TaskResponseSection from './TaskResponseSection';
 import MealMenuSection from './MealMenuSection';
 import DutyScheduleSection from './DutyScheduleSection';
+import CleaningRequestsSection from './CleaningRequestsSection';
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning'>('main');
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
   const [showSleepModal, setShowSleepModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showToiletModal, setShowToiletModal] = useState(false);
   const [selectedChild, setSelectedChild] = useState('');
+  const [toiletNotes, setToiletNotes] = useState('');
   const [loading, setLoading] = useState(true);
 
   const [mealForm, setMealForm] = useState({
@@ -242,6 +245,28 @@ export default function TeacherDashboard() {
     }
   };
 
+  const handleSendToiletNotification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedChild || !profile) return;
+
+    try {
+      const { error } = await supabase.from('toilet_notifications').insert({
+        child_id: selectedChild,
+        sent_by: profile.id,
+        notes: toiletNotes,
+        status: 'pending',
+      });
+      if (error) throw error;
+
+      setShowToiletModal(false);
+      setSelectedChild('');
+      setToiletNotes('');
+      alert('Tuvalet bildirimi gönderildi!');
+    } catch (error) {
+      alert('Hata oluştu: ' + (error as Error).message);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white shadow-sm border-b border-gray-200">
@@ -372,6 +397,17 @@ export default function TeacherDashboard() {
                 <UserCheck className="w-5 h-5" />
                 <span>Nöbetçi Öğretmen</span>
               </button>
+              <button
+                onClick={() => setActiveTab('cleaning')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'cleaning'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Sparkles className="w-5 h-5" />
+                <span>Temizlik</span>
+              </button>
             </div>
           </div>
         </div>
@@ -476,26 +512,38 @@ export default function TeacherDashboard() {
                       </p>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
+                  <div className="space-y-2">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setSelectedChild(child.id);
+                          setShowMealModal(true);
+                        }}
+                        className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-white text-green-600 rounded-lg hover:bg-green-50 transition-colors border border-green-200"
+                      >
+                        <UtensilsCrossed className="w-4 h-4" />
+                        <span className="text-sm font-medium">Yemek</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setSelectedChild(child.id);
+                          setShowSleepModal(true);
+                        }}
+                        className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-white text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors border border-emerald-200"
+                      >
+                        <Moon className="w-4 h-4" />
+                        <span className="text-sm font-medium">Uyku</span>
+                      </button>
+                    </div>
                     <button
                       onClick={() => {
                         setSelectedChild(child.id);
-                        setShowMealModal(true);
+                        setShowToiletModal(true);
                       }}
-                      className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-white text-green-600 rounded-lg hover:bg-green-50 transition-colors border border-green-200"
+                      className="w-full flex items-center justify-center space-x-2 px-3 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg hover:from-teal-600 hover:to-cyan-600 transition-all shadow-sm"
                     >
-                      <UtensilsCrossed className="w-4 h-4" />
-                      <span className="text-sm font-medium">Yemek</span>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSelectedChild(child.id);
-                        setShowSleepModal(true);
-                      }}
-                      className="flex-1 flex items-center justify-center space-x-2 px-3 py-2 bg-white text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors border border-emerald-200"
-                    >
-                      <Moon className="w-4 h-4" />
-                      <span className="text-sm font-medium">Uyku</span>
+                      <Baby className="w-4 h-4" />
+                      <span className="text-sm font-medium">Tuvalet</span>
                     </button>
                   </div>
                 </div>
@@ -598,6 +646,12 @@ export default function TeacherDashboard() {
         {activeTab === 'duty' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <DutyScheduleSection userId={profile?.id || ''} userRole="teacher" />
+          </div>
+        )}
+
+        {activeTab === 'cleaning' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <CleaningRequestsSection userId={profile?.id || ''} userRole="teacher" />
           </div>
         )}
       </div>
@@ -944,6 +998,65 @@ export default function TeacherDashboard() {
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {uploading ? 'Yükleniyor...' : 'Kaydet'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showToiletModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full">
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">Tuvalet Bildirimi Gönder</h3>
+            <form onSubmit={handleSendToiletNotification} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Çocuk Seçin
+                </label>
+                <select
+                  required
+                  value={selectedChild}
+                  onChange={(e) => setSelectedChild(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                >
+                  <option value="">Çocuk seçin...</option>
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id}>
+                      {child.first_name} {child.last_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Notlar (İsteğe Bağlı)
+                </label>
+                <textarea
+                  value={toiletNotes}
+                  onChange={(e) => setToiletNotes(e.target.value)}
+                  placeholder="Örn: Acil, özel dikkat gerekiyor..."
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex space-x-3 pt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowToiletModal(false);
+                    setSelectedChild('');
+                    setToiletNotes('');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  İptal
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all"
+                >
+                  Gönder
                 </button>
               </div>
             </form>

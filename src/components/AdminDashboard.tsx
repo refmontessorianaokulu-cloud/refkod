@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck, Edit } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck, Edit, Sparkles } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -12,10 +12,11 @@ import TasksSection from './TasksSection';
 import MealMenuSection from './MealMenuSection';
 import DutyScheduleSection from './DutyScheduleSection';
 import AdminServiceManagement from './AdminServiceManagement';
+import CleaningRequestsSection from './CleaningRequestsSection';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services'>('children');
+  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services' | 'cleaning'>('children');
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -48,7 +49,7 @@ export default function AdminDashboard() {
     password: '',
     full_name: '',
     role: 'parent' as 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff',
-    staff_role: undefined as 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other' | undefined,
+    staff_role: undefined as 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'toilet_attendant' | 'other' | undefined,
   });
 
   useEffect(() => {
@@ -593,6 +594,17 @@ export default function AdminDashboard() {
                 <Car className="w-5 h-5" />
                 <span>Servis Takibi</span>
               </button>
+              <button
+                onClick={() => setActiveTab('cleaning')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'cleaning'
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Sparkles className="w-5 h-5" />
+                <span>Temizlik</span>
+              </button>
             </div>
           </div>
 
@@ -805,6 +817,7 @@ export default function AdminDashboard() {
                                   if (user.staff_role === 'cleaning_staff') return 'Temizlik Personeli';
                                   if (user.staff_role === 'bus_driver') return 'Servis Şoförü';
                                   if (user.staff_role === 'security_staff') return 'Güvenlik';
+                                  if (user.staff_role === 'toilet_attendant') return 'Tuvalet Ablası';
                                   if (user.staff_role === 'other') return 'Diğer Personel';
                                   return 'Personel';
                                 };
@@ -890,6 +903,7 @@ export default function AdminDashboard() {
                                 if (user.staff_role === 'cleaning_staff') return 'Temizlik Personeli';
                                 if (user.staff_role === 'bus_driver') return 'Servis Şoförü';
                                 if (user.staff_role === 'security_staff') return 'Güvenlik';
+                                if (user.staff_role === 'toilet_attendant') return 'Tuvalet Ablası';
                                 if (user.staff_role === 'other') return 'Diğer Personel';
                                 return 'Bilinmiyor';
                               };
@@ -1099,6 +1113,12 @@ export default function AdminDashboard() {
             {activeTab === 'services' && (
               <div>
                 <AdminServiceManagement />
+              </div>
+            )}
+
+            {activeTab === 'cleaning' && (
+              <div>
+                <CleaningRequestsSection userId={profile?.id || ''} userRole="admin" />
               </div>
             )}
           </div>
@@ -1316,7 +1336,7 @@ export default function AdminDashboard() {
                   <select
                     value={userForm.staff_role || ''}
                     onChange={(e) =>
-                      setUserForm({ ...userForm, staff_role: e.target.value as 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other' })
+                      setUserForm({ ...userForm, staff_role: e.target.value as 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'toilet_attendant' | 'other' })
                     }
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                     required
@@ -1326,6 +1346,7 @@ export default function AdminDashboard() {
                     <option value="cleaning_staff">Temizlik Personeli</option>
                     <option value="bus_driver">Servis Şoförü</option>
                     <option value="security_staff">Güvenlik</option>
+                    <option value="toilet_attendant">Tuvalet Ablası</option>
                     <option value="other">Diğer</option>
                   </select>
                 </div>
