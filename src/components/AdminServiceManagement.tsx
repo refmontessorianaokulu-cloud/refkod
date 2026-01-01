@@ -8,6 +8,12 @@ interface Vehicle {
   license_plate: string;
   capacity: number;
   is_active: boolean;
+  driver_id?: string | null;
+  profiles?: {
+    id: string;
+    full_name: string;
+    email: string;
+  } | null;
 }
 
 interface Route {
@@ -41,6 +47,7 @@ export default function AdminServiceManagement() {
   const [routes, setRoutes] = useState<Route[]>([]);
   const [assignments, setAssignments] = useState<ServiceAssignment[]>([]);
   const [children, setChildren] = useState<any[]>([]);
+  const [drivers, setDrivers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeView, setActiveView] = useState<'assignments' | 'routes' | 'vehicles'>('assignments');
 
@@ -58,6 +65,7 @@ export default function AdminServiceManagement() {
     vehicle_name: '',
     license_plate: '',
     capacity: 0,
+    driver_id: '',
   });
 
   const [routeForm, setRouteForm] = useState({
@@ -74,8 +82,8 @@ export default function AdminServiceManagement() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [vehiclesRes, routesRes, assignmentsRes, childrenRes] = await Promise.all([
-        supabase.from('service_vehicles').select('*').order('created_at', { ascending: false }),
+      const [vehiclesRes, routesRes, assignmentsRes, childrenRes, driversRes] = await Promise.all([
+        supabase.from('service_vehicles').select('*, profiles(id, full_name, email)').order('created_at', { ascending: false }),
         supabase.from('service_routes').select('*, service_vehicles(*)').order('created_at', { ascending: false }),
         supabase.from('child_service_assignments').select(`
           *,
@@ -83,12 +91,14 @@ export default function AdminServiceManagement() {
           service_routes(*, service_vehicles(*))
         `).eq('uses_service', true).order('created_at', { ascending: false }),
         supabase.from('children').select('*').order('first_name', { ascending: true }),
+        supabase.from('profiles').select('*').eq('staff_role', 'bus_driver').order('full_name', { ascending: true }),
       ]);
 
       setVehicles(vehiclesRes.data || []);
       setRoutes(routesRes.data || []);
       setAssignments(assignmentsRes.data || []);
       setChildren(childrenRes.data || []);
+      setDrivers(driversRes.data || []);
     } catch (error) {
       console.error('Error loading data:', error);
     } finally {
@@ -103,13 +113,14 @@ export default function AdminServiceManagement() {
         vehicle_name: vehicleForm.vehicle_name,
         license_plate: vehicleForm.license_plate,
         capacity: vehicleForm.capacity,
+        driver_id: vehicleForm.driver_id || null,
         is_active: true,
       });
 
       if (error) throw error;
 
       setShowAddVehicleModal(false);
-      setVehicleForm({ vehicle_name: '', license_plate: '', capacity: 0 });
+      setVehicleForm({ vehicle_name: '', license_plate: '', capacity: 0, driver_id: '' });
       loadData();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
@@ -431,14 +442,27 @@ export default function AdminServiceManagement() {
                     </button>
                   </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">
-                      <span className="text-gray-600">Kapasite:</span>
-                      <span className="ml-2 font-semibold text-gray-900">{vehicle.capacity} kişi</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm">
+                        <span className="text-gray-600">Kapasite:</span>
+                        <span className="ml-2 font-semibold text-gray-900">{vehicle.capacity} kişi</span>
+                      </div>
+                      <div className={`text-sm font-medium ${vehicle.is_active ? 'text-green-600' : 'text-gray-500'}`}>
+                        {vehicle.is_active ? 'Aktif' : 'Pasif'}
+                      </div>
                     </div>
-                    <div className={`text-sm font-medium ${vehicle.is_active ? 'text-green-600' : 'text-gray-500'}`}>
-                      {vehicle.is_active ? 'Aktif' : 'Pasif'}
-                    </div>
+                    {vehicle.profiles && (
+                      <div className="text-sm pt-2 border-t">
+                        <span className="text-gray-600">Şöför:</span>
+                        <span className="ml-2 font-semibold text-blue-900">{vehicle.profiles.full_name}</span>
+                      </div>
+                    )}
+                    {!vehicle.profiles && (
+                      <div className="text-sm pt-2 border-t text-orange-600">
+                        Şöför atanmamış
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -563,12 +587,28 @@ export default function AdminServiceManagement() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Şöför</label>
+                <select
+                  value={vehicleForm.driver_id}
+                  onChange={(e) => setVehicleForm({ ...vehicleForm, driver_id: e.target.value })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Şöför seçin (isteğe bağlı)...</option>
+                  {drivers.map((driver) => (
+                    <option key={driver.id} value={driver.id}>
+                      {driver.full_name} - {driver.email}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowAddVehicleModal(false);
-                    setVehicleForm({ vehicle_name: '', license_plate: '', capacity: 0 });
+                    setVehicleForm({ vehicle_name: '', license_plate: '', capacity: 0, driver_id: '' });
                   }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
                 >
