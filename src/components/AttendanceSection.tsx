@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, Child } from '../lib/supabase';
-import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, LogOut } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, LogOut, Bell } from 'lucide-react';
 
 interface Attendance {
   id: string;
@@ -16,6 +16,8 @@ interface Attendance {
 interface AttendanceSectionProps {
   children: Child[];
   teacherId?: string;
+  userRole?: string;
+  userId?: string;
 }
 
 const statusConfig = {
@@ -25,10 +27,11 @@ const statusConfig = {
   excused: { label: 'Mazeret', icon: AlertCircle, color: 'text-blue-600', bg: 'bg-blue-50' },
 };
 
-export default function AttendanceSection({ children, teacherId }: AttendanceSectionProps) {
+export default function AttendanceSection({ children, teacherId, userRole, userId }: AttendanceSectionProps) {
   const [attendances, setAttendances] = useState<Attendance[]>([]);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
+  const [sendingReminder, setSendingReminder] = useState<string | null>(null);
 
   useEffect(() => {
     loadAttendances();
@@ -94,6 +97,53 @@ export default function AttendanceSection({ children, teacherId }: AttendanceSec
       loadAttendances();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const sendPickupReminder = async (childId: string) => {
+    if (!userId || !userRole) {
+      alert('Kullanıcı bilgisi bulunamadı');
+      return;
+    }
+
+    setSendingReminder(childId);
+    try {
+      const child = children.find(c => c.id === childId);
+      if (!child) {
+        alert('Çocuk bulunamadı');
+        return;
+      }
+
+      const { data: parentData } = await supabase
+        .from('parent_children')
+        .select('parent_id')
+        .eq('child_id', childId)
+        .limit(1)
+        .maybeSingle();
+
+      if (!parentData) {
+        alert('Veli bilgisi bulunamadı');
+        return;
+      }
+
+      const currentTime = new Date();
+      const message = `Sayın Veli, saat ${currentTime.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })} itibariyle çocuğunuz okuldan çıkış yaptı. Bilginize.`;
+
+      const { error } = await supabase
+        .from('pickup_reminders')
+        .insert({
+          child_id: childId,
+          parent_id: parentData.parent_id,
+          sent_by: userId,
+          message: message,
+        });
+
+      if (error) throw error;
+      alert('Hatırlatma gönderildi!');
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
+    } finally {
+      setSendingReminder(null);
     }
   };
 
@@ -177,7 +227,7 @@ export default function AttendanceSection({ children, teacherId }: AttendanceSec
                 </div>
 
                 {attendance && (currentStatus === 'present' || currentStatus === 'late') && (
-                  <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="mt-4 pt-4 border-t border-gray-200 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4 text-sm">
                         {attendance.arrival_time && (
@@ -209,6 +259,20 @@ export default function AttendanceSection({ children, teacherId }: AttendanceSec
                         </div>
                       )}
                     </div>
+                    {attendance.departure_time && (userRole === 'admin' || userRole === 'teacher') && (
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => sendPickupReminder(child.id)}
+                          disabled={sendingReminder === child.id}
+                          className="flex items-center space-x-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded-lg transition-colors shadow-sm"
+                        >
+                          <Bell className="w-4 h-4" />
+                          <span className="font-medium">
+                            {sendingReminder === child.id ? 'Gönderiliyor...' : 'Veliye Hatırlat'}
+                          </span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

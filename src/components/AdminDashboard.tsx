@@ -900,7 +900,12 @@ export default function AdminDashboard() {
 
             {activeTab === 'attendance' && (
               <div>
-                <AttendanceSection children={children} teacherId={profile?.id} />
+                <AttendanceSection
+                  children={children}
+                  teacherId={profile?.id}
+                  userRole={profile?.role}
+                  userId={profile?.id}
+                />
               </div>
             )}
 

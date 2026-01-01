@@ -550,7 +550,12 @@ export default function TeacherDashboard() {
 
         {activeTab === 'attendance' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <AttendanceSection children={children} teacherId={profile?.id} />
+            <AttendanceSection
+              children={children}
+              teacherId={profile?.id}
+              userRole={profile?.role}
+              userId={profile?.id}
+            />
           </div>
         )}
 
