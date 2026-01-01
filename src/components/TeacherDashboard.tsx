@@ -12,10 +12,11 @@ import MealMenuSection from './MealMenuSection';
 import DutyScheduleSection from './DutyScheduleSection';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import AllServicesLocationSection from './AllServicesLocationSection';
+import BranchCourseReportsSection from './BranchCourseReportsSection';
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning' | 'service'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning' | 'service' | 'branch_reports'>('main');
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
@@ -52,6 +53,7 @@ export default function TeacherDashboard() {
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
   const [pickupNotifications, setPickupNotifications] = useState<any[]>([]);
+  const [selectedClass, setSelectedClass] = useState<string>('all');
 
   useEffect(() => {
     if (profile) {
@@ -322,6 +324,17 @@ export default function TeacherDashboard() {
                 <span>Devamsızlık</span>
               </button>
               <button
+                onClick={() => setActiveTab('branch_reports')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'branch_reports'
+                    ? 'border-purple-500 text-purple-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <BookOpen className="w-5 h-5" />
+                <span>Branş Dersleri</span>
+              </button>
+              <button
                 onClick={() => setActiveTab('announcements')}
                 className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'announcements'
@@ -489,7 +502,21 @@ export default function TeacherDashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             <div className="lg:col-span-2">
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Çocuklar</h2>
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold text-gray-800">Çocuklar</h2>
+                  <select
+                    value={selectedClass}
+                    onChange={(e) => setSelectedClass(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  >
+                    <option value="all">Tüm Sınıflar</option>
+                    {Array.from(new Set(children.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+                      <option key={className} value={className}>
+                        {className}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
           {loading ? (
             <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
@@ -497,7 +524,9 @@ export default function TeacherDashboard() {
             <div className="text-center py-12 text-gray-500">Henüz çocuk yok</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {children.map((child) => (
+              {children
+                .filter(child => selectedClass === 'all' || child.class_name === selectedClass)
+                .map((child) => (
                 <div
                   key={child.id}
                   className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 hover:shadow-md transition-shadow"
@@ -615,6 +644,16 @@ export default function TeacherDashboard() {
               teacherId={profile?.id}
               userRole={profile?.role}
               userId={profile?.id}
+            />
+          </div>
+        )}
+
+        {activeTab === 'branch_reports' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <BranchCourseReportsSection
+              children={children}
+              teacherId={profile?.id}
+              userRole="teacher"
             />
           </div>
         )}

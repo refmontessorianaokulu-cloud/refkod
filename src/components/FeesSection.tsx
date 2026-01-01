@@ -11,7 +11,7 @@ interface TuitionFee {
   status: 'pending' | 'paid' | 'overdue';
   academic_year: string;
   month: string | null;
-  payment_type: 'education' | 'stationery' | 'meal';
+  payment_type: 'education' | 'stationery' | 'meal' | 'yearly_education' | 'yearly_meal';
   notes: string;
   children?: {
     first_name: string;
@@ -60,6 +60,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
   const [bulkAdd, setBulkAdd] = useState(false);
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
   const [selectedClass, setSelectedClass] = useState<string>('all');
+  const [expandedChildId, setExpandedChildId] = useState<string | null>(null);
   const [form, setForm] = useState({
     child_id: '',
     amount: '',
@@ -270,13 +271,15 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
     );
   };
 
-  const allMonths = ['Eylül', 'Ekim', 'Kasım', 'Aralık', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Yıllık'];
+  const allMonths = ['Eylül', 'Ekim', 'Kasım', 'Aralık', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran'];
 
   const getPaymentTypeLabel = (type: string) => {
     const labels = {
       education: 'Eğitim Ödemesi',
       stationery: 'Kırtasiye Ödemesi',
       meal: 'Yemek Ödemesi',
+      yearly_education: 'Yıllık Eğitim Ödemesi',
+      yearly_meal: 'Yıllık Yemek Ödemesi',
     };
     return labels[type as keyof typeof labels] || type;
   };
@@ -286,6 +289,8 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
       education: 'bg-blue-100 text-blue-800',
       stationery: 'bg-purple-100 text-purple-800',
       meal: 'bg-orange-100 text-orange-800',
+      yearly_education: 'bg-indigo-100 text-indigo-800',
+      yearly_meal: 'bg-amber-100 text-amber-800',
     };
     return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
@@ -435,8 +440,14 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
               <div className="flex items-start justify-between">
                 <div className="flex-1">
                   {fee.children && (
-                    <h4 className="font-semibold text-gray-800 mb-1">
+                    <h4
+                      className="font-semibold text-gray-800 mb-1 cursor-pointer hover:text-green-600 transition-colors"
+                      onClick={() => setExpandedChildId(expandedChildId === fee.child_id ? null : fee.child_id)}
+                    >
                       {fee.children.first_name} {fee.children.last_name}
+                      <span className="text-xs text-gray-500 ml-2">
+                        {expandedChildId === fee.child_id ? '▼' : '▶'}
+                      </span>
                     </h4>
                   )}
                   <div className="flex items-center space-x-2 mb-2">
@@ -485,6 +496,47 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                   </div>
                 )}
               </div>
+
+              {expandedChildId === fee.child_id && (
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <h5 className="font-semibold text-gray-700 mb-3">Tüm Ödemeler</h5>
+                  <div className="space-y-2">
+                    {fees
+                      .filter(f => f.child_id === fee.child_id)
+                      .sort((a, b) => new Date(b.due_date).getTime() - new Date(a.due_date).getTime())
+                      .map((childFee) => (
+                        <div
+                          key={childFee.id}
+                          className={`p-3 rounded-lg border ${
+                            childFee.id === fee.id ? 'bg-green-50 border-green-300' : 'bg-gray-50 border-gray-200'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center space-x-2">
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs ${getPaymentTypeColor(childFee.payment_type)}`}>
+                                {getPaymentTypeLabel(childFee.payment_type)}
+                              </span>
+                              <span className={`inline-flex items-center space-x-1 px-2 py-1 rounded-full text-xs ${getStatusColor(childFee.status)}`}>
+                                {getStatusIcon(childFee.status)}
+                                <span>{getStatusLabel(childFee.status)}</span>
+                              </span>
+                              {childFee.month && <span className="text-sm text-gray-600">{childFee.month}</span>}
+                            </div>
+                            <div className="flex items-center space-x-4">
+                              <span className="font-semibold text-green-600">{childFee.amount.toFixed(2)} TL</span>
+                              <span className="text-sm text-gray-600">
+                                {new Date(childFee.due_date).toLocaleDateString('tr-TR', {
+                                  day: 'numeric',
+                                  month: 'short',
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -518,8 +570,8 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                   required
                   value={form.payment_type}
                   onChange={(e) => {
-                    setForm({ ...form, payment_type: e.target.value as 'education' | 'stationery' | 'meal' });
-                    if (e.target.value === 'stationery') {
+                    setForm({ ...form, payment_type: e.target.value as 'education' | 'stationery' | 'meal' | 'yearly_education' | 'yearly_meal' });
+                    if (e.target.value === 'stationery' || e.target.value === 'yearly_education' || e.target.value === 'yearly_meal') {
                       setBulkAdd(false);
                     }
                   }}
@@ -527,6 +579,8 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
                 >
                   <option value="education">Eğitim Ödemesi (Aylık)</option>
                   <option value="meal">Yemek Ödemesi (Aylık)</option>
+                  <option value="yearly_education">Yıllık Eğitim Ödemesi</option>
+                  <option value="yearly_meal">Yıllık Yemek Ödemesi</option>
                   <option value="stationery">Kırtasiye Ödemesi (Yıllık)</option>
                 </select>
               </div>
