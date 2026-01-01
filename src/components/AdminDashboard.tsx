@@ -34,6 +34,8 @@ export default function AdminDashboard() {
   const [pickupNotifications, setPickupNotifications] = useState<any[]>([]);
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
   const [selectedClass, setSelectedClass] = useState<string>('all');
+  const [reportDateFilter, setReportDateFilter] = useState(new Date().toISOString().split('T')[0]);
+  const [reportChildFilter, setReportChildFilter] = useState<string>('all');
 
   const [childForm, setChildForm] = useState({
     first_name: '',
@@ -61,6 +63,12 @@ export default function AdminDashboard() {
     loadParentsAndTeachers();
     loadPickupNotifications();
   }, [activeTab]);
+
+  useEffect(() => {
+    if (activeTab === 'montessori_reports' && reportDateFilter) {
+      loadDailyReports();
+    }
+  }, [reportDateFilter, reportChildFilter, activeTab]);
 
   const loadParentsAndTeachers = async () => {
     try {
@@ -114,6 +122,24 @@ export default function AdminDashboard() {
     }
   };
 
+  const loadDailyReports = async () => {
+    try {
+      let query = supabase
+        .from('daily_reports')
+        .select('*, children(first_name, last_name, class_name)')
+        .eq('report_date', reportDateFilter);
+
+      if (reportChildFilter !== 'all') {
+        query = query.eq('child_id', reportChildFilter);
+      }
+
+      const { data } = await query.order('created_at', { ascending: false });
+      setDailyReports(data || []);
+    } catch (error) {
+      console.error('Error loading daily reports:', error);
+    }
+  };
+
   const loadData = async () => {
     setLoading(true);
     try {
@@ -136,11 +162,7 @@ export default function AdminDashboard() {
         setParents(parentData);
         setTeachers(teacherData);
       } else if (activeTab === 'montessori_reports') {
-        const { data } = await supabase
-          .from('daily_reports')
-          .select('*')
-          .order('report_date', { ascending: false });
-        setDailyReports(data || []);
+        await loadDailyReports();
       }
     } catch (error) {
       console.error('Error loading data:', error);
@@ -1001,24 +1023,61 @@ export default function AdminDashboard() {
                   <h2 className="text-2xl font-bold text-gray-800">Montessori Günlük Raporları</h2>
                 </div>
 
+                <div className="flex items-center space-x-3 mb-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Tarih</label>
+                    <input
+                      type="date"
+                      value={reportDateFilter}
+                      onChange={(e) => setReportDateFilter(e.target.value)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Öğrenci</label>
+                    <select
+                      value={reportChildFilter}
+                      onChange={(e) => setReportChildFilter(e.target.value)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    >
+                      <option value="all">Tüm Öğrenciler</option>
+                      {children.map((child) => (
+                        <option key={child.id} value={child.id}>
+                          {child.first_name} {child.last_name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 {loading ? (
                   <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
                 ) : dailyReports.length === 0 ? (
                   <div className="text-center py-12 text-gray-500">
-                    Henüz rapor yok
+                    Bu tarih için rapor yok
                   </div>
                 ) : (
                   <div className="space-y-6">
-                    {dailyReports.map((report) => (
+                    {dailyReports.map((report: any) => (
                       <div
                         key={report.id}
                         className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow"
                       >
                         <div className="flex justify-between items-start mb-4 pb-4 border-b border-gray-200">
                           <div>
-                            <h3 className="text-xl font-semibold text-gray-800">
-                              Tarih: {new Date(report.report_date).toLocaleDateString('tr-TR')}
-                            </h3>
+                            {report.children && (
+                              <h3 className="text-xl font-semibold text-gray-900 mb-1">
+                                {report.children.first_name} {report.children.last_name}
+                                {report.children.class_name && (
+                                  <span className="ml-2 text-sm text-gray-500 font-normal">
+                                    ({report.children.class_name})
+                                  </span>
+                                )}
+                              </h3>
+                            )}
+                            <span className="text-sm text-gray-600">
+                              {new Date(report.report_date).toLocaleDateString('tr-TR')}
+                            </span>
                           </div>
                         </div>
 

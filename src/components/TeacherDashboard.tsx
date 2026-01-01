@@ -54,14 +54,21 @@ export default function TeacherDashboard() {
   const [uploading, setUploading] = useState(false);
   const [pickupNotifications, setPickupNotifications] = useState<any[]>([]);
   const [selectedClass, setSelectedClass] = useState<string>('all');
+  const [reportDateFilter, setReportDateFilter] = useState(new Date().toISOString().split('T')[0]);
+  const [reportChildFilter, setReportChildFilter] = useState<string>('all');
 
   useEffect(() => {
     if (profile) {
       loadChildren();
-      loadReports();
       loadPickupNotifications();
     }
   }, [profile]);
+
+  useEffect(() => {
+    if (profile && reportDateFilter) {
+      loadReports();
+    }
+  }, [profile, reportDateFilter, reportChildFilter]);
 
   const loadChildren = async () => {
     setLoading(true);
@@ -95,10 +102,16 @@ export default function TeacherDashboard() {
 
   const loadReports = async () => {
     try {
-      const { data } = await supabase
+      let query = supabase
         .from('daily_reports')
-        .select('*')
-        .order('report_date', { ascending: false });
+        .select('*, children(first_name, last_name, class_name)')
+        .eq('report_date', reportDateFilter);
+
+      if (reportChildFilter !== 'all') {
+        query = query.eq('child_id', reportChildFilter);
+      }
+
+      const { data } = await query.order('created_at', { ascending: false });
       setDailyReports(data || []);
     } catch (error) {
       console.error('Error loading reports:', error);
@@ -610,24 +623,109 @@ export default function TeacherDashboard() {
               </button>
             </div>
 
+            <div className="flex items-center space-x-3 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tarih</label>
+                <input
+                  type="date"
+                  value={reportDateFilter}
+                  onChange={(e) => setReportDateFilter(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Öğrenci</label>
+                <select
+                  value={reportChildFilter}
+                  onChange={(e) => setReportChildFilter(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                >
+                  <option value="all">Tüm Öğrenciler</option>
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id}>
+                      {child.first_name} {child.last_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div className="space-y-4">
               {dailyReports.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
-                  <p className="text-sm">Henüz rapor yok</p>
+                  <p className="text-sm">Bu tarih için rapor yok</p>
                 </div>
               ) : (
-                dailyReports.map((report) => (
+                dailyReports.map((report: any) => (
                   <div
                     key={report.id}
                     className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-100 hover:shadow-md transition-shadow"
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <h3 className="font-semibold text-gray-800">{report.title}</h3>
-                      <span className="text-xs text-gray-500">
-                        {new Date(report.report_date).toLocaleDateString('tr-TR')}
-                      </span>
+                    <div className="flex items-start justify-between mb-3">
+                      <div>
+                        {report.children && (
+                          <h4 className="font-semibold text-gray-900 mb-1">
+                            {report.children.first_name} {report.children.last_name}
+                            {report.children.class_name && (
+                              <span className="ml-2 text-xs text-gray-500 font-normal">
+                                ({report.children.class_name})
+                              </span>
+                            )}
+                          </h4>
+                        )}
+                        <span className="text-xs text-gray-500">
+                          {new Date(report.report_date).toLocaleDateString('tr-TR')}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-700 line-clamp-3">{report.content}</p>
+                    {report.practical_life && (
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-gray-600">Pratik Yaşam:</span>
+                        <p className="text-sm text-gray-700">{report.practical_life}</p>
+                      </div>
+                    )}
+                    {report.sensorial && (
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-gray-600">Duyusal:</span>
+                        <p className="text-sm text-gray-700">{report.sensorial}</p>
+                      </div>
+                    )}
+                    {report.mathematics && (
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-gray-600">Matematik:</span>
+                        <p className="text-sm text-gray-700">{report.mathematics}</p>
+                      </div>
+                    )}
+                    {report.language && (
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-gray-600">Dil:</span>
+                        <p className="text-sm text-gray-700">{report.language}</p>
+                      </div>
+                    )}
+                    {report.culture && (
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-gray-600">Kültür:</span>
+                        <p className="text-sm text-gray-700">{report.culture}</p>
+                      </div>
+                    )}
+                    {report.general_notes && (
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-gray-600">Genel Notlar:</span>
+                        <p className="text-sm text-gray-700">{report.general_notes}</p>
+                      </div>
+                    )}
+                    {report.mood && (
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-gray-600">Ruh Hali:</span>
+                        <p className="text-sm text-gray-700">{report.mood}</p>
+                      </div>
+                    )}
+                    {report.social_interaction && (
+                      <div>
+                        <span className="text-xs font-medium text-gray-600">Sosyal Etkileşim:</span>
+                        <p className="text-sm text-gray-700">{report.social_interaction}</p>
+                      </div>
+                    )}
                   </div>
                 ))
               )}
