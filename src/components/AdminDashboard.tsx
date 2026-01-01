@@ -786,45 +786,63 @@ export default function AdminDashboard() {
                               </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-yellow-200">
-                              {users.filter(u => !u.approved && u.role !== 'admin').map((user) => (
-                                <tr key={user.id} className="hover:bg-yellow-50">
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                    {user.full_name}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {user.email}
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                        user.role === 'teacher'
-                                          ? 'bg-green-100 text-green-800'
-                                          : 'bg-green-100 text-green-800'
-                                      }`}
-                                    >
-                                      {user.role === 'teacher' ? 'Öğretmen' : 'Veli'}
-                                    </span>
-                                  </td>
-                                  <td className="px-6 py-4 whitespace-nowrap text-sm">
-                                    <div className="flex space-x-2">
-                                      <button
-                                        onClick={() => handleApproveUser(user.id)}
-                                        className="flex items-center space-x-1 px-3 py-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                              {users.filter(u => !u.approved && u.role !== 'admin').map((user) => {
+                                const getRoleLabel = () => {
+                                  if (user.role === 'teacher') return 'Öğretmen';
+                                  if (user.role === 'parent') return 'Veli';
+                                  if (user.role === 'guidance_counselor') return 'Rehberlik';
+                                  if (user.staff_role === 'cook') return 'Aşçı';
+                                  if (user.staff_role === 'cleaning_staff') return 'Temizlik Personeli';
+                                  if (user.staff_role === 'bus_driver') return 'Servis Şoförü';
+                                  if (user.staff_role === 'security_staff') return 'Güvenlik';
+                                  if (user.staff_role === 'other') return 'Diğer Personel';
+                                  return 'Personel';
+                                };
+
+                                return (
+                                  <tr key={user.id} className="hover:bg-yellow-50">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                      {user.full_name}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                      {user.email}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap">
+                                      <span
+                                        className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                          user.role === 'teacher'
+                                            ? 'bg-emerald-100 text-emerald-800'
+                                            : user.role === 'parent'
+                                            ? 'bg-green-100 text-green-800'
+                                            : user.role === 'guidance_counselor'
+                                            ? 'bg-teal-100 text-teal-800'
+                                            : 'bg-amber-100 text-amber-800'
+                                        }`}
                                       >
-                                        <CheckCircle className="w-4 h-4" />
-                                        <span>Onayla</span>
-                                      </button>
-                                      <button
-                                        onClick={() => handleRejectUser(user.id)}
-                                        className="flex items-center space-x-1 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
-                                      >
-                                        <XCircle className="w-4 h-4" />
-                                        <span>Reddet</span>
-                                      </button>
-                                    </div>
-                                  </td>
-                                </tr>
-                              ))}
+                                        {getRoleLabel()}
+                                      </span>
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                      <div className="flex space-x-2">
+                                        <button
+                                          onClick={() => handleApproveUser(user.id)}
+                                          className="flex items-center space-x-1 px-3 py-1.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors"
+                                        >
+                                          <CheckCircle className="w-4 h-4" />
+                                          <span>Onayla</span>
+                                        </button>
+                                        <button
+                                          onClick={() => handleRejectUser(user.id)}
+                                          className="flex items-center space-x-1 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                        >
+                                          <XCircle className="w-4 h-4" />
+                                          <span>Reddet</span>
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                );
+                              })}
                             </tbody>
                           </table>
                         </div>
@@ -852,44 +870,56 @@ export default function AdminDashboard() {
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
-                            {users.map((user) => (
-                              <tr key={user.id} className="hover:bg-gray-50">
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                  {user.full_name}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                  {user.email}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span
-                                    className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                      user.role === 'admin'
-                                        ? 'bg-red-100 text-red-800'
-                                        : user.role === 'teacher'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : 'bg-green-100 text-green-800'
-                                    }`}
-                                  >
-                                    {user.role === 'admin'
-                                      ? 'Yönetici'
-                                      : user.role === 'teacher'
-                                      ? 'Öğretmen'
-                                      : 'Veli'}
-                                  </span>
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap">
-                                  <span
-                                    className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                      user.approved || user.role === 'admin'
-                                        ? 'bg-green-100 text-green-800'
-                                        : 'bg-yellow-100 text-yellow-800'
-                                    }`}
-                                  >
-                                    {user.approved || user.role === 'admin' ? 'Onaylı' : 'Bekliyor'}
-                                  </span>
-                                </td>
-                              </tr>
-                            ))}
+                            {users.map((user) => {
+                              const getRoleLabel = () => {
+                                if (user.role === 'admin') return 'Yönetici';
+                                if (user.role === 'teacher') return 'Öğretmen';
+                                if (user.role === 'parent') return 'Veli';
+                                if (user.role === 'guidance_counselor') return 'Rehberlik';
+                                if (user.staff_role === 'cook') return 'Aşçı';
+                                if (user.staff_role === 'cleaning_staff') return 'Temizlik Personeli';
+                                if (user.staff_role === 'bus_driver') return 'Servis Şoförü';
+                                if (user.staff_role === 'security_staff') return 'Güvenlik';
+                                if (user.staff_role === 'other') return 'Diğer Personel';
+                                return 'Bilinmiyor';
+                              };
+
+                              const getRoleColor = () => {
+                                if (user.role === 'admin') return 'bg-red-100 text-red-800';
+                                if (user.role === 'teacher') return 'bg-emerald-100 text-emerald-800';
+                                if (user.role === 'parent') return 'bg-green-100 text-green-800';
+                                if (user.role === 'guidance_counselor') return 'bg-teal-100 text-teal-800';
+                                if (user.staff_role) return 'bg-amber-100 text-amber-800';
+                                return 'bg-gray-100 text-gray-800';
+                              };
+
+                              return (
+                                <tr key={user.id} className="hover:bg-gray-50">
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {user.full_name}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {user.email}
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getRoleColor()}`}>
+                                      {getRoleLabel()}
+                                    </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap">
+                                    <span
+                                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                        user.approved || user.role === 'admin'
+                                          ? 'bg-green-100 text-green-800'
+                                          : 'bg-yellow-100 text-yellow-800'
+                                      }`}
+                                    >
+                                      {user.approved || user.role === 'admin' ? 'Onaylı' : 'Bekliyor'}
+                                    </span>
+                                  </td>
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>

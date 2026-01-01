@@ -75,7 +75,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (data.user) {
       const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('approved, role')
+        .select('approved, role, staff_role')
         .eq('id', data.user.id)
         .maybeSingle();
 
