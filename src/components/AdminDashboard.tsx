@@ -47,7 +47,8 @@ export default function AdminDashboard() {
     email: '',
     password: '',
     full_name: '',
-    role: 'parent' as 'admin' | 'teacher' | 'parent' | 'guidance_counselor',
+    role: 'parent' as 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff',
+    staff_role: undefined as 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other' | undefined,
   });
 
   useEffect(() => {
@@ -236,20 +237,29 @@ export default function AdminDashboard() {
       if (error) throw error;
 
       if (data.user) {
-        const { error: profileError } = await supabase.from('profiles').insert({
+        const profileData: any = {
           id: data.user.id,
           email: userForm.email,
           full_name: userForm.full_name,
-          role: userForm.role,
           approved: true,
           approved_at: new Date().toISOString(),
           approved_by: profile?.id
-        });
+        };
+
+        if (userForm.role === 'staff' && userForm.staff_role) {
+          profileData.role = null;
+          profileData.staff_role = userForm.staff_role;
+        } else {
+          profileData.role = userForm.role;
+          profileData.staff_role = null;
+        }
+
+        const { error: profileError } = await supabase.from('profiles').insert(profileData);
         if (profileError) throw profileError;
       }
 
       setShowUserModal(false);
-      setUserForm({ email: '', password: '', full_name: '', role: 'parent' });
+      setUserForm({ email: '', password: '', full_name: '', role: 'parent', staff_role: undefined });
       loadData();
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
@@ -1289,7 +1299,7 @@ export default function AdminDashboard() {
                 <select
                   value={userForm.role}
                   onChange={(e) =>
-                    setUserForm({ ...userForm, role: e.target.value as 'admin' | 'teacher' | 'parent' | 'guidance_counselor' })
+                    setUserForm({ ...userForm, role: e.target.value as 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff' })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
@@ -1297,8 +1307,29 @@ export default function AdminDashboard() {
                   <option value="teacher">Öğretmen</option>
                   <option value="admin">Yönetici</option>
                   <option value="guidance_counselor">Rehberlik Birimi</option>
+                  <option value="staff">Personel</option>
                 </select>
               </div>
+              {userForm.role === 'staff' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Personel Türü</label>
+                  <select
+                    value={userForm.staff_role || ''}
+                    onChange={(e) =>
+                      setUserForm({ ...userForm, staff_role: e.target.value as 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other' })
+                    }
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    required
+                  >
+                    <option value="">Personel türü seçin...</option>
+                    <option value="cook">Aşçı</option>
+                    <option value="cleaning_staff">Temizlik Personeli</option>
+                    <option value="bus_driver">Servis Şoförü</option>
+                    <option value="security_staff">Güvenlik</option>
+                    <option value="other">Diğer</option>
+                  </select>
+                </div>
+              )}
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
