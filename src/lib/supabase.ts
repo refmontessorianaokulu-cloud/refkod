@@ -9,11 +9,12 @@ export type Profile = {
   id: string;
   email: string;
   full_name: string;
-  role: 'admin' | 'teacher' | 'parent';
+  role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor';
   created_at: string;
   approved: boolean;
   approved_at: string | null;
   approved_by: string | null;
+  staff_role?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'other' | null;
 };
 
 export type Child = {

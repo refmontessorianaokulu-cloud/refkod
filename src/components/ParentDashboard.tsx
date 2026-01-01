@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck } from 'lucide-react';
+import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Video as VideoIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
 import FeesSection from './FeesSection';
 import MealMenuSection from './MealMenuSection';
 import DutyScheduleSection from './DutyScheduleSection';
+import ServiceLocationSection from './ServiceLocationSection';
 
 type ChildWithLogs = Child & {
   meal_logs: MealLog[];
@@ -17,7 +18,7 @@ type ChildWithLogs = Child & {
 
 export default function ParentDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'menu' | 'duty'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'menu' | 'duty' | 'service'>('main');
   const [children, setChildren] = useState<ChildWithLogs[]>([]);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -449,6 +450,17 @@ export default function ParentDashboard() {
                 <UserCheck className="w-5 h-5" />
                 <span>Nöbetçi Öğretmen</span>
               </button>
+              <button
+                onClick={() => setActiveTab('service')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'service'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <MapPin className="w-5 h-5" />
+                <span>Servis Takibi</span>
+              </button>
             </div>
           </div>
         </div>
@@ -597,6 +609,10 @@ export default function ParentDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <DutyScheduleSection userId={profile?.id || ''} userRole="parent" />
           </div>
+        )}
+
+        {activeTab === 'service' && selectedChild && (
+          <ServiceLocationSection childId={selectedChild} />
         )}
 
         {activeTab === 'main' && loading ? (

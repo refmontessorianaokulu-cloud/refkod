@@ -4,6 +4,7 @@ import AdminDashboard from './components/AdminDashboard';
 import TeacherDashboard from './components/TeacherDashboard';
 import ParentDashboard from './components/ParentDashboard';
 import GuidanceCounselorDashboard from './components/GuidanceCounselorDashboard';
+import PersonelPaneli from './components/PersonelPaneli';
 
 function App() {
   const { user, profile, loading } = useAuth();
@@ -21,6 +22,10 @@ function App() {
 
   if (!user || !profile) {
     return <Login />;
+  }
+
+  if (profile.staff_role) {
+    return <PersonelPaneli />;
   }
 
   switch (profile.role) {
