@@ -11,10 +11,11 @@ import TaskResponseSection from './TaskResponseSection';
 import MealMenuSection from './MealMenuSection';
 import DutyScheduleSection from './DutyScheduleSection';
 import CleaningRequestsSection from './CleaningRequestsSection';
+import AllServicesLocationSection from './AllServicesLocationSection';
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning' | 'service'>('main');
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
@@ -408,6 +409,17 @@ export default function TeacherDashboard() {
                 <Sparkles className="w-5 h-5" />
                 <span>Temizlik</span>
               </button>
+              <button
+                onClick={() => setActiveTab('service')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'service'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Car className="w-5 h-5" />
+                <span>Servis</span>
+              </button>
             </div>
           </div>
         </div>
@@ -652,6 +664,12 @@ export default function TeacherDashboard() {
         {activeTab === 'cleaning' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <CleaningRequestsSection userId={profile?.id || ''} userRole="teacher" />
+          </div>
+        )}
+
+        {activeTab === 'service' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <AllServicesLocationSection />
           </div>
         )}
       </div>

@@ -13,6 +13,7 @@ import MealMenuSection from './MealMenuSection';
 import DutyScheduleSection from './DutyScheduleSection';
 import AdminServiceManagement from './AdminServiceManagement';
 import CleaningRequestsSection from './CleaningRequestsSection';
+import AllServicesLocationSection from './AllServicesLocationSection';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
@@ -1111,8 +1112,13 @@ export default function AdminDashboard() {
             )}
 
             {activeTab === 'services' && (
-              <div>
-                <AdminServiceManagement />
+              <div className="space-y-6">
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <AllServicesLocationSection />
+                </div>
+                <div>
+                  <AdminServiceManagement />
+                </div>
               </div>
             )}
 

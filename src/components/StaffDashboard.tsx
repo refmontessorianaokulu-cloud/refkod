@@ -4,7 +4,7 @@ import { LogOut, UtensilsCrossed, Sparkles, Car, Baby } from 'lucide-react';
 import MealMenuSection from './MealMenuSection';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import ToiletNotificationsSection from './ToiletNotificationsSection';
-import ServiceLocationSection from './ServiceLocationSection';
+import BusDriverServiceSection from './BusDriverServiceSection';
 
 export default function StaffDashboard() {
   const { signOut, profile } = useAuth();
@@ -124,7 +124,7 @@ export default function StaffDashboard() {
             )}
 
             {activeTab === 'service' && showServiceTab && (
-              <ServiceLocationSection driverId={profile?.id || ''} />
+              <BusDriverServiceSection driverId={profile?.id || ''} />
             )}
 
             {activeTab === 'main' && (
