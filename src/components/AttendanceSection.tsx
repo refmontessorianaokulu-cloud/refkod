@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, Child } from '../lib/supabase';
-import { Calendar, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react';
+import { Calendar, CheckCircle, XCircle, Clock, AlertCircle, LogOut } from 'lucide-react';
 
 interface Attendance {
   id: string;
@@ -8,6 +8,8 @@ interface Attendance {
   date: string;
   status: 'present' | 'absent' | 'late' | 'excused';
   notes: string;
+  arrival_time: string | null;
+  departure_time: string | null;
   created_at: string;
 }
 
@@ -64,10 +66,31 @@ export default function AttendanceSection({ children, teacherId }: AttendanceSec
           date: selectedDate,
           status,
           recorded_by: teacherId,
+          arrival_time: status === 'present' || status === 'late' ? new Date().toISOString() : null,
         });
         if (error) throw error;
       }
 
+      loadAttendances();
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const markDeparture = async (childId: string) => {
+    try {
+      const existing = attendances.find(a => a.child_id === childId);
+      if (!existing) {
+        alert('Önce öğrencinin geldiğini işaretleyin');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('attendance')
+        .update({ departure_time: new Date().toISOString() })
+        .eq('id', existing.id);
+
+      if (error) throw error;
       loadAttendances();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
@@ -152,6 +175,42 @@ export default function AttendanceSection({ children, teacherId }: AttendanceSec
                     );
                   })}
                 </div>
+
+                {attendance && (currentStatus === 'present' || currentStatus === 'late') && (
+                  <div className="mt-4 pt-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-4 text-sm">
+                        {attendance.arrival_time && (
+                          <div className="flex items-center space-x-2 text-gray-600">
+                            <Clock className="w-4 h-4" />
+                            <span>Geliş: {new Date(attendance.arrival_time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                        )}
+                        {attendance.departure_time && (
+                          <div className="flex items-center space-x-2 text-green-600">
+                            <LogOut className="w-4 h-4" />
+                            <span>Çıkış: {new Date(attendance.departure_time).toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' })}</span>
+                          </div>
+                        )}
+                      </div>
+                      {!attendance.departure_time && (
+                        <button
+                          onClick={() => markDeparture(child.id)}
+                          className="flex items-center space-x-2 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-lg transition-colors shadow-sm"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          <span className="font-medium">Çıktı</span>
+                        </button>
+                      )}
+                      {attendance.departure_time && (
+                        <div className="flex items-center space-x-2 px-4 py-2 bg-green-100 text-green-700 rounded-lg">
+                          <CheckCircle className="w-4 h-4" />
+                          <span className="font-medium">Çıkış Yapıldı</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
