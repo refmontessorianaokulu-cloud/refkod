@@ -8,10 +8,11 @@ import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
 import AppointmentsSection from './AppointmentsSection';
 import TaskResponseSection from './TaskResponseSection';
+import MealMenuSection from './MealMenuSection';
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu'>('main');
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
@@ -348,6 +349,17 @@ export default function TeacherDashboard() {
                 <ClipboardList className="w-5 h-5" />
                 <span>Görevlerim</span>
               </button>
+              <button
+                onClick={() => setActiveTab('menu')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'menu'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <UtensilsCrossed className="w-5 h-5" />
+                <span>Yemek Menüsü</span>
+              </button>
             </div>
           </div>
         </div>
@@ -557,6 +569,12 @@ export default function TeacherDashboard() {
         {activeTab === 'tasks' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <TaskResponseSection userId={profile?.id || ''} userRole="teacher" />
+          </div>
+        )}
+
+        {activeTab === 'menu' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <MealMenuSection userId={profile?.id || ''} userRole="teacher" />
           </div>
         )}
       </div>

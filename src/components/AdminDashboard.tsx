@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -9,10 +9,11 @@ import CalendarSection from './CalendarSection';
 import FeesSection from './FeesSection';
 import AppointmentsSection from './AppointmentsSection';
 import TasksSection from './TasksSection';
+import MealMenuSection from './MealMenuSection';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks'>('children');
+  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu'>('children');
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -468,6 +469,17 @@ export default function AdminDashboard() {
                 <ClipboardList className="w-5 h-5" />
                 <span>Görevlendirmeler</span>
               </button>
+              <button
+                onClick={() => setActiveTab('menu')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'menu'
+                    ? 'border-green-500 text-green-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <UtensilsCrossed className="w-5 h-5" />
+                <span>Yemek Menüsü</span>
+              </button>
             </div>
           </div>
 
@@ -913,6 +925,12 @@ export default function AdminDashboard() {
             {activeTab === 'tasks' && (
               <div>
                 <TasksSection userId={profile?.id || ''} userRole="admin" />
+              </div>
+            )}
+
+            {activeTab === 'menu' && (
+              <div>
+                <MealMenuSection userId={profile?.id || ''} userRole="admin" />
               </div>
             )}
           </div>
