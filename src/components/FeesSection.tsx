@@ -16,6 +16,7 @@ interface TuitionFee {
   children?: {
     first_name: string;
     last_name: string;
+    class_name: string;
   };
 }
 
@@ -32,6 +33,7 @@ interface Child {
   id: string;
   first_name: string;
   last_name: string;
+  class_name: string;
 }
 
 interface Parent {
@@ -57,6 +59,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
   const [sendToAll, setSendToAll] = useState(true);
   const [bulkAdd, setBulkAdd] = useState(false);
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
+  const [selectedClass, setSelectedClass] = useState<string>('all');
   const [form, setForm] = useState({
     child_id: '',
     amount: '',
@@ -86,7 +89,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
     try {
       const { data } = await supabase
         .from('tuition_fees')
-        .select('*, children(first_name, last_name)')
+        .select('*, children(first_name, last_name, class_name)')
         .order('due_date', { ascending: true });
       setFees(data || []);
     } catch (error) {
@@ -267,7 +270,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
     );
   };
 
-  const allMonths = ['Eylül', 'Ekim', 'Kasım', 'Aralık', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran'];
+  const allMonths = ['Eylül', 'Ekim', 'Kasım', 'Aralık', 'Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Yıllık'];
 
   const getPaymentTypeLabel = (type: string) => {
     const labels = {
@@ -330,7 +333,7 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center space-x-3">
           <div className="bg-gradient-to-br from-green-500 to-emerald-500 p-2 rounded-xl">
             <span className="text-2xl font-bold text-white">₺</span>
@@ -343,7 +346,19 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
           </div>
         </div>
         {userRole === 'admin' && (
-          <div className="flex space-x-2">
+          <div className="flex items-center space-x-2 flex-wrap gap-2">
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              <option value="all">Tüm Sınıflar</option>
+              {Array.from(new Set(children.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+                <option key={className} value={className}>
+                  {className}
+                </option>
+              ))}
+            </select>
             <button
               onClick={() => setShowReminderModal(true)}
               className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-br from-purple-500 to-pink-500 text-white rounded-lg hover:shadow-lg transition-shadow"
@@ -413,7 +428,9 @@ export default function FeesSection({ userId, userRole }: FeesSectionProps) {
         <div className="text-center py-12 text-gray-500">Henüz ödeme kaydı yok</div>
       ) : (
         <div className="grid gap-4">
-          {fees.map((fee) => (
+          {fees
+            .filter(fee => selectedClass === 'all' || fee.children?.class_name === selectedClass)
+            .map((fee) => (
             <div key={fee.id} className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
               <div className="flex items-start justify-between">
                 <div className="flex-1">

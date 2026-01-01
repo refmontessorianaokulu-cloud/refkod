@@ -32,6 +32,7 @@ export default function AttendanceSection({ children, teacherId, userRole, userI
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [loading, setLoading] = useState(false);
   const [sendingReminder, setSendingReminder] = useState<string | null>(null);
+  const [selectedClass, setSelectedClass] = useState<string>('all');
 
   useEffect(() => {
     loadAttendances();
@@ -149,19 +150,33 @@ export default function AttendanceSection({ children, teacherId, userRole, userI
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div className="flex items-center space-x-3">
           <div className="bg-gradient-to-br from-blue-500 to-cyan-500 p-2 rounded-xl">
             <Calendar className="w-6 h-6 text-white" />
           </div>
           <h2 className="text-2xl font-bold text-gray-800">Devamsızlık Takibi</h2>
         </div>
-        <input
-          type="date"
-          value={selectedDate}
-          onChange={(e) => setSelectedDate(e.target.value)}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        />
+        <div className="flex items-center space-x-3">
+          <select
+            value={selectedClass}
+            onChange={(e) => setSelectedClass(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          >
+            <option value="all">Tüm Sınıflar</option>
+            {Array.from(new Set(children.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+              <option key={className} value={className}>
+                {className}
+              </option>
+            ))}
+          </select>
+          <input
+            type="date"
+            value={selectedDate}
+            onChange={(e) => setSelectedDate(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+        </div>
       </div>
 
       {loading ? (
@@ -170,7 +185,9 @@ export default function AttendanceSection({ children, teacherId, userRole, userI
         <div className="text-center py-12 text-gray-500">Henüz çocuk yok</div>
       ) : (
         <div className="grid gap-4">
-          {children.map((child) => {
+          {children
+            .filter(child => selectedClass === 'all' || child.class_name === selectedClass)
+            .map((child) => {
             const attendance = attendances.find(a => a.child_id === child.id);
             const currentStatus = attendance?.status;
 

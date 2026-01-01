@@ -33,6 +33,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [pickupNotifications, setPickupNotifications] = useState<any[]>([]);
   const [editingChildId, setEditingChildId] = useState<string | null>(null);
+  const [selectedClass, setSelectedClass] = useState<string>('all');
 
   const [childForm, setChildForm] = useState({
     first_name: '',
@@ -696,15 +697,29 @@ export default function AdminDashboard() {
                   </div>
                 )}
 
-                <div className="flex justify-between items-center mb-6">
+                <div className="flex justify-between items-center mb-6 flex-wrap gap-4">
                   <h2 className="text-2xl font-bold text-gray-800">Çocuklar</h2>
-                  <button
-                    onClick={() => setShowChildModal(true)}
-                    className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
-                  >
-                    <Plus className="w-5 h-5" />
-                    <span>Çocuk Ekle</span>
-                  </button>
+                  <div className="flex items-center space-x-3">
+                    <select
+                      value={selectedClass}
+                      onChange={(e) => setSelectedClass(e.target.value)}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                    >
+                      <option value="all">Tüm Sınıflar</option>
+                      {Array.from(new Set(children.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+                        <option key={className} value={className}>
+                          {className}
+                        </option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => setShowChildModal(true)}
+                      className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg hover:from-green-700 hover:to-emerald-700 transition-all shadow-md hover:shadow-lg"
+                    >
+                      <Plus className="w-5 h-5" />
+                      <span>Çocuk Ekle</span>
+                    </button>
+                  </div>
                 </div>
 
                 {loading ? (
@@ -715,7 +730,9 @@ export default function AdminDashboard() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {children.map((child) => (
+                    {children
+                      .filter(child => selectedClass === 'all' || child.class_name === selectedClass)
+                      .map((child) => (
                       <div
                         key={child.id}
                         className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-6 border border-green-100 hover:shadow-md transition-shadow"
