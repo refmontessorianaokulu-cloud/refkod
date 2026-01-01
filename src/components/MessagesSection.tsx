@@ -29,6 +29,7 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [viewMode, setViewMode] = useState<'my' | 'all'>('my');
 
   const [form, setForm] = useState({
     receiver_id: '',
@@ -39,16 +40,30 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
   useEffect(() => {
     loadMessages();
     loadContacts();
-  }, [userId]);
+  }, [userId, viewMode]);
 
   const loadMessages = async () => {
     setLoading(true);
     try {
-      const { data } = await supabase
-        .from('messages')
-        .select('*')
-        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-        .order('created_at', { ascending: false });
+      let query = supabase.from('messages').select('*');
+
+      if (userRole === 'admin' && viewMode === 'all') {
+        const { data: teachers } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('role', 'teacher')
+          .eq('approved', true);
+
+        if (teachers && teachers.length > 0) {
+          const teacherIds = teachers.map(t => t.id);
+          const conditions = teacherIds.map(id => `sender_id.eq.${id},receiver_id.eq.${id}`).join(',');
+          query = query.or(conditions);
+        }
+      } else {
+        query = query.or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+      }
+
+      const { data } = await query.order('created_at', { ascending: false });
       setMessages(data || []);
     } catch (error) {
       console.error('Error loading messages:', error);
@@ -197,6 +212,31 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
         </button>
       </div>
 
+      {userRole === 'admin' && (
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => setViewMode('my')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              viewMode === 'my'
+                ? 'bg-gradient-to-br from-teal-500 to-cyan-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Kendi Mesajlarım
+          </button>
+          <button
+            onClick={() => setViewMode('all')}
+            className={`px-4 py-2 rounded-lg transition-colors ${
+              viewMode === 'all'
+                ? 'bg-gradient-to-br from-teal-500 to-cyan-500 text-white'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+            }`}
+          >
+            Tüm Öğretmen Mesajları
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
       ) : messages.length === 0 ? (
@@ -207,30 +247,46 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
             const isReceived = message.receiver_id === userId;
             const otherPersonId = isReceived ? message.sender_id : message.receiver_id;
             const otherPersonName = contactNames[otherPersonId] || 'Yükleniyor...';
+            const senderName = contactNames[message.sender_id] || 'Yükleniyor...';
+            const receiverName = contactNames[message.receiver_id] || 'Yükleniyor...';
+            const isViewingAll = userRole === 'admin' && viewMode === 'all';
 
             return (
               <div
                 key={message.id}
                 onClick={() => {
                   setSelectedMessage(message);
-                  if (isReceived && !message.read) {
+                  if (isReceived && !message.read && !isViewingAll) {
                     markAsRead(message.id);
                   }
                 }}
                 className={`bg-white rounded-xl p-4 border border-gray-200 hover:shadow-md transition-shadow cursor-pointer ${
-                  isReceived && !message.read ? 'bg-teal-50 border-teal-200' : ''
+                  isReceived && !message.read && !isViewingAll ? 'bg-teal-50 border-teal-200' : ''
                 }`}
               >
                 <div className="flex items-start justify-between mb-2">
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                      <span className="text-xs px-2 py-1 bg-gray-100 rounded text-gray-600">
-                        {isReceived ? 'Gönderen' : 'Alıcı'}: {otherPersonName}
-                      </span>
-                      {isReceived && !message.read && (
-                        <span className="text-xs px-2 py-1 bg-teal-500 text-white rounded font-medium">
-                          Yeni
-                        </span>
+                      {isViewingAll ? (
+                        <>
+                          <span className="text-xs px-2 py-1 bg-blue-100 rounded text-blue-600">
+                            Gönderen: {senderName}
+                          </span>
+                          <span className="text-xs px-2 py-1 bg-green-100 rounded text-green-600">
+                            Alıcı: {receiverName}
+                          </span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="text-xs px-2 py-1 bg-gray-100 rounded text-gray-600">
+                            {isReceived ? 'Gönderen' : 'Alıcı'}: {otherPersonName}
+                          </span>
+                          {isReceived && !message.read && (
+                            <span className="text-xs px-2 py-1 bg-teal-500 text-white rounded font-medium">
+                              Yeni
+                            </span>
+                          )}
+                        </>
                       )}
                     </div>
                     <h3 className="font-semibold text-gray-800">{message.subject}</h3>
@@ -260,29 +316,50 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
             </div>
 
             <div className="space-y-4">
-              <div className="flex items-center justify-between text-sm text-gray-600">
-                <span>
-                  {selectedMessage.sender_id === userId ? 'Alıcı' : 'Gönderen'}: {' '}
-                  {contactNames[selectedMessage.sender_id === userId ? selectedMessage.receiver_id : selectedMessage.sender_id]}
-                </span>
-                <span>{new Date(selectedMessage.created_at).toLocaleString('tr-TR')}</span>
-              </div>
+              {userRole === 'admin' && viewMode === 'all' ? (
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">Gönderen:</span>
+                    <span>{contactNames[selectedMessage.sender_id] || 'Yükleniyor...'}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">Alıcı:</span>
+                    <span>{contactNames[selectedMessage.receiver_id] || 'Yükleniyor...'}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">Tarih:</span>
+                    <span>{new Date(selectedMessage.created_at).toLocaleString('tr-TR')}</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between text-sm text-gray-600">
+                  <span>
+                    {selectedMessage.sender_id === userId ? 'Alıcı' : 'Gönderen'}: {' '}
+                    {contactNames[selectedMessage.sender_id === userId ? selectedMessage.receiver_id : selectedMessage.sender_id]}
+                  </span>
+                  <span>{new Date(selectedMessage.created_at).toLocaleString('tr-TR')}</span>
+                </div>
+              )}
 
               <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                 <p className="text-gray-700 whitespace-pre-wrap">{selectedMessage.content}</p>
               </div>
 
               <div className="flex space-x-3">
-                <button
-                  onClick={() => handleReply(selectedMessage)}
-                  className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg hover:from-teal-600 hover:to-cyan-600 transition-all"
-                >
-                  <Send className="w-4 h-4" />
-                  <span>Cevapla</span>
-                </button>
+                {!(userRole === 'admin' && viewMode === 'all') && (
+                  <button
+                    onClick={() => handleReply(selectedMessage)}
+                    className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg hover:from-teal-600 hover:to-cyan-600 transition-all"
+                  >
+                    <Send className="w-4 h-4" />
+                    <span>Cevapla</span>
+                  </button>
+                )}
                 <button
                   onClick={() => setSelectedMessage(null)}
-                  className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                  className={`px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+                    userRole === 'admin' && viewMode === 'all' ? 'flex-1' : ''
+                  }`}
                 >
                   Kapat
                 </button>
