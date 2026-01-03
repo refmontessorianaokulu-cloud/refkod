@@ -10,30 +10,14 @@ import PasswordReset from './components/PasswordReset';
 
 function App() {
   const { user, profile, loading } = useAuth();
-  const [isPasswordReset, setIsPasswordReset] = useState(() => {
-    const hashParams = new URLSearchParams(window.location.hash.substring(1));
-    return hashParams.get('type') === 'recovery';
-  });
 
-  useEffect(() => {
-    const checkHash = () => {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      if (hashParams.get('type') === 'recovery') {
-        setIsPasswordReset(true);
-      }
-    };
+  const hashParams = new URLSearchParams(window.location.hash.substring(1));
+  const isRecoveryMode = hashParams.get('type') === 'recovery';
 
-    checkHash();
-    window.addEventListener('hashchange', checkHash);
-
-    return () => window.removeEventListener('hashchange', checkHash);
-  }, []);
-
-  if (isPasswordReset) {
+  if (isRecoveryMode) {
     return <PasswordReset onSuccess={() => {
-      setIsPasswordReset(false);
       window.location.hash = '';
-      window.location.reload();
+      window.location.href = '/';
     }} />;
   }
 
