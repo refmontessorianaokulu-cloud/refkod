@@ -74,56 +74,22 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
 
   const loadContacts = async () => {
     try {
-      let query = supabase.from('profiles').select('id, full_name, role');
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, role')
+        .neq('id', userId)
+        .eq('approved', true);
 
-      if (userRole === 'parent') {
-        const { data: children } = await supabase
-          .from('parent_children')
-          .select('child_id')
-          .eq('parent_id', userId);
-
-        if (children && children.length > 0) {
-          const childIds = children.map(c => c.child_id);
-          const { data: teachers } = await supabase
-            .from('teacher_children')
-            .select('teacher_id')
-            .in('child_id', childIds);
-
-          if (teachers && teachers.length > 0) {
-            const teacherIds = teachers.map(t => t.teacher_id);
-            query = query.or(`id.in.(${teacherIds.join(',')}),role.eq.admin`);
-          }
-        }
-      } else if (userRole === 'teacher') {
-        const { data: children } = await supabase
-          .from('teacher_children')
-          .select('child_id')
-          .eq('teacher_id', userId);
-
-        let conditions = ['role.eq.teacher', 'role.eq.guidance_counselor', 'role.eq.staff', 'role.eq.admin'];
-
-        if (children && children.length > 0) {
-          const childIds = children.map(c => c.child_id);
-          const { data: parents } = await supabase
-            .from('parent_children')
-            .select('parent_id')
-            .in('child_id', childIds);
-
-          if (parents && parents.length > 0) {
-            const parentIds = parents.map(p => p.parent_id);
-            conditions.push(`id.in.(${parentIds.join(',')})`);
-          }
-        }
-
-        query = query.or(conditions.join(',')).neq('id', userId).eq('approved', true);
-      } else if (userRole === 'admin') {
-        query = query.neq('id', userId);
+      if (error) {
+        console.error('Error loading contacts:', error);
+        setContacts([]);
+        return;
       }
 
-      const { data } = await query;
       setContacts(data || []);
     } catch (error) {
       console.error('Error loading contacts:', error);
+      setContacts([]);
     }
   };
 
