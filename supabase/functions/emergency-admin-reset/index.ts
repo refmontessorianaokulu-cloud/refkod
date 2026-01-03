@@ -20,9 +20,11 @@ Deno.serve(async (req: Request) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    const newPassword = 'Admin123!';
+
     const { data, error } = await supabaseAdmin.auth.admin.updateUserById(
       '2d5a0cb5-ab7e-4bfb-9eca-a792662f9303',
-      { password: 'Refadmin1.' }
+      { password: newPassword }
     );
 
     if (error) {
@@ -36,9 +38,9 @@ Deno.serve(async (req: Request) => {
     }
 
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Admin password has been reset to: Refadmin1.',
+      JSON.stringify({
+        success: true,
+        message: `Admin password has been reset to: ${newPassword}`,
         email: 'ramazannyldzz@gmail.com'
       }),
       {

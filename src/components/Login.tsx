@@ -24,8 +24,13 @@ export default function Login() {
       await signIn(email, password);
     } catch (err) {
       const error = err as any;
+      console.error('Login error:', error);
       if (error.message?.includes('onaylanmamış')) {
         setError('Hesabınız henüz yönetici tarafından onaylanmamış. Lütfen onay için bekleyin.');
+      } else if (error.message?.includes('Invalid login credentials')) {
+        setError('E-posta veya şifre hatalı. Lütfen kontrol edin.');
+      } else if (error.message) {
+        setError(error.message);
       } else {
         setError('Giriş başarısız. Lütfen bilgilerinizi kontrol edin.');
       }
