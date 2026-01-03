@@ -1,13 +1,30 @@
 import { useAuth } from './contexts/AuthContext';
+import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import AdminDashboard from './components/AdminDashboard';
 import TeacherDashboard from './components/TeacherDashboard';
 import ParentDashboard from './components/ParentDashboard';
 import GuidanceCounselorDashboard from './components/GuidanceCounselorDashboard';
 import StaffDashboard from './components/StaffDashboard';
+import PasswordReset from './components/PasswordReset';
 
 function App() {
   const { user, profile, loading } = useAuth();
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
+
+  useEffect(() => {
+    const hashParams = new URLSearchParams(window.location.hash.substring(1));
+    if (hashParams.get('type') === 'recovery') {
+      setIsPasswordReset(true);
+    }
+  }, []);
+
+  if (isPasswordReset) {
+    return <PasswordReset onSuccess={() => {
+      setIsPasswordReset(false);
+      window.location.hash = '';
+    }} />;
+  }
 
   if (loading) {
     return (
