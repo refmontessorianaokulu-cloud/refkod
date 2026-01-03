@@ -100,6 +100,8 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
           .select('child_id')
           .eq('teacher_id', userId);
 
+        let conditions = ['role.eq.teacher', 'role.eq.guidance_counselor', 'role.eq.staff', 'role.eq.admin'];
+
         if (children && children.length > 0) {
           const childIds = children.map(c => c.child_id);
           const { data: parents } = await supabase
@@ -109,9 +111,11 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
 
           if (parents && parents.length > 0) {
             const parentIds = parents.map(p => p.parent_id);
-            query = query.or(`id.in.(${parentIds.join(',')}),role.eq.admin`);
+            conditions.push(`id.in.(${parentIds.join(',')})`);
           }
         }
+
+        query = query.or(conditions.join(',')).neq('id', userId).eq('approved', true);
       } else if (userRole === 'admin') {
         query = query.neq('id', userId);
       }
