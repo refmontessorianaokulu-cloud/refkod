@@ -73,15 +73,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     if (error) throw error;
 
     if (data.user) {
-      const { data: profileData, error: profileError } = await supabase
+      const { data: profileData } = await supabase
         .from('profiles')
         .select('approved, role, staff_role')
         .eq('id', data.user.id)
         .maybeSingle();
 
-      if (profileError) throw profileError;
+      if (!profileData) {
+        await supabase.auth.signOut();
+        throw new Error('Profil bulunamadı. Lütfen yönetici ile iletişime geçin.');
+      }
 
-      if (profileData && !profileData.approved && profileData.role !== 'admin') {
+      if (!profileData.approved && profileData.role !== 'admin') {
         await supabase.auth.signOut();
         throw new Error('Hesabınız henüz yönetici tarafından onaylanmamış. Lütfen onay için bekleyin.');
       }
