@@ -9,7 +9,7 @@ export type Profile = {
   id: string;
   email: string;
   full_name: string;
-  role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | null;
+  role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'chef' | null;
   created_at: string;
   approved: boolean;
   approved_at: string | null;
