@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, Profile } from '../lib/supabase';
-import { Plus, CheckCircle, Clock, Users, User, Calendar, Trash2 } from 'lucide-react';
+import { Plus, CheckCircle, Clock, Users, User, Calendar, Trash2, Edit2 } from 'lucide-react';
 
 interface TaskAssignment {
   id: string;
@@ -37,6 +37,7 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
   const [responses, setResponses] = useState<Record<string, TaskResponse[]>>({});
   const [loading, setLoading] = useState(true);
   const [showTaskModal, setShowTaskModal] = useState(false);
+  const [editingTask, setEditingTask] = useState<TaskAssignment | null>(null);
   const [users, setUsers] = useState<Profile[]>([]);
 
   const [taskForm, setTaskForm] = useState({
@@ -115,20 +116,40 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const { error } = await supabase.from('task_assignments').insert({
-        created_by: userId,
-        title: taskForm.title,
-        description: taskForm.description,
-        is_group_task: taskForm.is_group_task,
-        assigned_to: taskForm.is_group_task ? null : taskForm.assigned_to,
-        target_roles: taskForm.is_group_task ? taskForm.target_roles : [],
-        week_start: taskForm.week_start,
-        week_end: taskForm.week_end,
-      });
+      if (editingTask) {
+        const { error } = await supabase
+          .from('task_assignments')
+          .update({
+            title: taskForm.title,
+            description: taskForm.description,
+            is_group_task: taskForm.is_group_task,
+            assigned_to: taskForm.is_group_task ? null : taskForm.assigned_to,
+            target_roles: taskForm.is_group_task ? taskForm.target_roles : [],
+            week_start: taskForm.week_start,
+            week_end: taskForm.week_end,
+          })
+          .eq('id', editingTask.id);
 
-      if (error) throw error;
+        if (error) throw error;
+        alert('Görev başarıyla güncellendi!');
+      } else {
+        const { error } = await supabase.from('task_assignments').insert({
+          created_by: userId,
+          title: taskForm.title,
+          description: taskForm.description,
+          is_group_task: taskForm.is_group_task,
+          assigned_to: taskForm.is_group_task ? null : taskForm.assigned_to,
+          target_roles: taskForm.is_group_task ? taskForm.target_roles : [],
+          week_start: taskForm.week_start,
+          week_end: taskForm.week_end,
+        });
+
+        if (error) throw error;
+        alert('Görev başarıyla oluşturuldu!');
+      }
 
       setShowTaskModal(false);
+      setEditingTask(null);
       setTaskForm({
         title: '',
         description: '',
@@ -139,10 +160,23 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
         week_end: '',
       });
       loadTasks();
-      alert('Görev başarıyla oluşturuldu!');
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
     }
+  };
+
+  const handleEditTask = (task: TaskAssignment) => {
+    setEditingTask(task);
+    setTaskForm({
+      title: task.title,
+      description: task.description,
+      is_group_task: task.is_group_task,
+      assigned_to: task.assigned_to || '',
+      target_roles: task.target_roles,
+      week_start: task.week_start,
+      week_end: task.week_end,
+    });
+    setShowTaskModal(true);
   };
 
   const handleDeleteTask = async (taskId: string) => {
@@ -194,7 +228,19 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
           <p className="text-sm text-gray-600 mt-1">Öğretmenler ve rehberlik birimine görev atayın</p>
         </div>
         <button
-          onClick={() => setShowTaskModal(true)}
+          onClick={() => {
+            setEditingTask(null);
+            setTaskForm({
+              title: '',
+              description: '',
+              is_group_task: false,
+              assigned_to: '',
+              target_roles: [],
+              week_start: '',
+              week_end: '',
+            });
+            setShowTaskModal(true);
+          }}
           className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
         >
           <Plus className="w-5 h-5" />
@@ -254,13 +300,22 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
                       )}
                     </div>
                   </div>
-                  <button
-                    onClick={() => handleDeleteTask(task.id)}
-                    className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    title="Görevi Sil"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleEditTask(task)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      title="Görevi Düzenle"
+                    >
+                      <Edit2 className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteTask(task.id)}
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      title="Görevi Sil"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                    </button>
+                  </div>
                 </div>
 
                 {task.is_group_task && taskResponses.length > 0 && (
@@ -351,7 +406,9 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
       {showTaskModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Yeni Görev Oluştur</h3>
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">
+              {editingTask ? 'Görevi Düzenle' : 'Yeni Görev Oluştur'}
+            </h3>
             <form onSubmit={handleCreateTask} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Görev Başlığı</label>
@@ -465,6 +522,7 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
                   type="button"
                   onClick={() => {
                     setShowTaskModal(false);
+                    setEditingTask(null);
                     setTaskForm({
                       title: '',
                       description: '',
@@ -483,7 +541,7 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
                   type="submit"
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all"
                 >
-                  Oluştur
+                  {editingTask ? 'Güncelle' : 'Oluştur'}
                 </button>
               </div>
             </form>
