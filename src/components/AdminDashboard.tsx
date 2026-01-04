@@ -55,7 +55,7 @@ export default function AdminDashboard() {
     email: '',
     password: '',
     full_name: '',
-    role: 'parent' as 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'chef' | 'staff',
+    role: 'parent' as 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff',
     staff_role: undefined as 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'toilet_attendant' | 'other' | undefined,
   });
 
@@ -889,7 +889,6 @@ export default function AdminDashboard() {
                                   if (user.role === 'teacher') return 'Öğretmen';
                                   if (user.role === 'parent') return 'Veli';
                                   if (user.role === 'guidance_counselor') return 'Rehberlik';
-                                  if (user.role === 'chef') return 'Aşçı';
                                   if (user.staff_role === 'cook') return 'Aşçı';
                                   if (user.staff_role === 'cleaning_staff') return 'Temizlik Personeli';
                                   if (user.staff_role === 'bus_driver') return 'Servis Şoförü';
@@ -976,7 +975,6 @@ export default function AdminDashboard() {
                                 if (user.role === 'teacher') return 'Öğretmen';
                                 if (user.role === 'parent') return 'Veli';
                                 if (user.role === 'guidance_counselor') return 'Rehberlik';
-                                if (user.role === 'chef') return 'Aşçı';
                                 if (user.staff_role === 'cook') return 'Aşçı';
                                 if (user.staff_role === 'cleaning_staff') return 'Temizlik Personeli';
                                 if (user.staff_role === 'bus_driver') return 'Servis Şoförü';
@@ -991,7 +989,6 @@ export default function AdminDashboard() {
                                 if (user.role === 'teacher') return 'bg-emerald-100 text-emerald-800';
                                 if (user.role === 'parent') return 'bg-green-100 text-green-800';
                                 if (user.role === 'guidance_counselor') return 'bg-teal-100 text-teal-800';
-                                if (user.role === 'chef') return 'bg-orange-100 text-orange-800';
                                 if (user.staff_role) return 'bg-amber-100 text-amber-800';
                                 return 'bg-gray-100 text-gray-800';
                               };
@@ -1465,7 +1462,7 @@ export default function AdminDashboard() {
                 <select
                   value={userForm.role}
                   onChange={(e) =>
-                    setUserForm({ ...userForm, role: e.target.value as 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'chef' | 'staff' })
+                    setUserForm({ ...userForm, role: e.target.value as 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff' })
                   }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
@@ -1473,7 +1470,6 @@ export default function AdminDashboard() {
                   <option value="teacher">Öğretmen</option>
                   <option value="admin">Yönetici</option>
                   <option value="guidance_counselor">Rehberlik Birimi</option>
-                  <option value="chef">Aşçı</option>
                   <option value="staff">Personel</option>
                 </select>
               </div>

@@ -6,7 +6,6 @@ import TeacherDashboard from './components/TeacherDashboard';
 import ParentDashboard from './components/ParentDashboard';
 import GuidanceCounselorDashboard from './components/GuidanceCounselorDashboard';
 import StaffDashboard from './components/StaffDashboard';
-import ChefDashboard from './components/ChefDashboard';
 import PasswordReset from './components/PasswordReset';
 
 function App() {
@@ -50,8 +49,6 @@ function App() {
       return <ParentDashboard />;
     case 'guidance_counselor':
       return <GuidanceCounselorDashboard />;
-    case 'chef':
-      return <ChefDashboard />;
     default:
       return <Login />;
   }

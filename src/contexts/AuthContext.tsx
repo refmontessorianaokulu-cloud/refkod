@@ -7,7 +7,7 @@ type AuthContextType = {
   profile: Profile | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'chef' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'chef' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => {
+  const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
 

@@ -13,7 +13,7 @@ interface MealMenu {
 
 interface MealMenuSectionProps {
   userId: string;
-  userRole: 'admin' | 'teacher' | 'parent' | 'chef';
+  userRole: 'admin' | 'teacher' | 'parent' | 'staff';
 }
 
 export default function MealMenuSection({ userId, userRole }: MealMenuSectionProps) {
@@ -204,7 +204,7 @@ export default function MealMenuSection({ userId, userRole }: MealMenuSectionPro
             onChange={(e) => setSelectedMonth(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
           />
-          {(userRole === 'admin' || userRole === 'chef') && (
+          {(userRole === 'admin' || userRole === 'staff') && (
             <button
               onClick={() => {
                 setSelectedMenu(null);
@@ -273,7 +273,7 @@ export default function MealMenuSection({ userId, userRole }: MealMenuSectionPro
                                       </div>
                                     )}
                                   </div>
-                                  {(userRole === 'admin' || userRole === 'chef') && (
+                                  {(userRole === 'admin' || userRole === 'staff') && (
                                     <div className="flex space-x-1 ml-2">
                                       <button
                                         onClick={() => {
@@ -301,7 +301,7 @@ export default function MealMenuSection({ userId, userRole }: MealMenuSectionPro
                                 </div>
                               </div>
                             ) : (
-                              (userRole === 'admin' || userRole === 'chef') ? (
+                              (userRole === 'admin' || userRole === 'staff') ? (
                                 <button
                                   onClick={() => {
                                     setSelectedMenu(null);
@@ -333,7 +333,7 @@ export default function MealMenuSection({ userId, userRole }: MealMenuSectionPro
         </div>
       )}
 
-      {showModal && (userRole === 'admin' || userRole === 'chef') && (
+      {showModal && (userRole === 'admin' || userRole === 'staff') && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
