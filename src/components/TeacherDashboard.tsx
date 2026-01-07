@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package } from 'lucide-react';
+import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2 } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -62,6 +62,8 @@ export default function TeacherDashboard() {
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const [reportDateFilter, setReportDateFilter] = useState(new Date().toISOString().split('T')[0]);
   const [reportChildFilter, setReportChildFilter] = useState<string>('all');
+  const [editingReport, setEditingReport] = useState<DailyReport | null>(null);
+  const [existingMediaUrls, setExistingMediaUrls] = useState<string[]>([]);
 
   useEffect(() => {
     if (profile) {
@@ -330,6 +332,94 @@ export default function TeacherDashboard() {
       });
       loadReports();
       alert('Günlük rapor eklendi!');
+    } catch (error) {
+      alert('Hata oluştu: ' + (error as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleOpenEditModal = (report: any) => {
+    setEditingReport(report);
+    setSelectedChild(report.child_id);
+    setReportForm({
+      practical_life: report.practical_life || '',
+      sensorial: report.sensorial || '',
+      mathematics: report.mathematics || '',
+      language: report.language || '',
+      culture: report.culture || '',
+      general_notes: report.general_notes || '',
+      mood: report.mood || '',
+      social_interaction: report.social_interaction || '',
+    });
+    setExistingMediaUrls(report.media_urls || []);
+    setMediaFiles([]);
+    setShowReportModal(true);
+  };
+
+  const handleEditReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!profile || !editingReport) return;
+
+    setUploading(true);
+    try {
+      const newMediaUrls: string[] = [];
+
+      if (mediaFiles.length > 0) {
+        for (const file of mediaFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${editingReport.child_id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('report-media')
+            .upload(fileName, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: { publicUrl } } = supabase.storage
+            .from('report-media')
+            .getPublicUrl(fileName);
+
+          newMediaUrls.push(publicUrl);
+        }
+      }
+
+      const allMediaUrls = [...existingMediaUrls, ...newMediaUrls];
+
+      const { error } = await supabase
+        .from('daily_reports')
+        .update({
+          practical_life: reportForm.practical_life,
+          sensorial: reportForm.sensorial,
+          mathematics: reportForm.mathematics,
+          language: reportForm.language,
+          culture: reportForm.culture,
+          general_notes: reportForm.general_notes,
+          mood: reportForm.mood,
+          social_interaction: reportForm.social_interaction,
+          media_urls: allMediaUrls,
+        })
+        .eq('id', editingReport.id);
+
+      if (error) throw error;
+
+      setShowReportModal(false);
+      setEditingReport(null);
+      setSelectedChild('');
+      setMediaFiles([]);
+      setExistingMediaUrls([]);
+      setReportForm({
+        practical_life: '',
+        sensorial: '',
+        mathematics: '',
+        language: '',
+        culture: '',
+        general_notes: '',
+        mood: '',
+        social_interaction: '',
+      });
+      loadReports();
+      alert('Rapor başarıyla güncellendi!');
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
     } finally {
@@ -764,6 +854,13 @@ export default function TeacherDashboard() {
                           {new Date(report.report_date).toLocaleDateString('tr-TR')}
                         </span>
                       </div>
+                      <button
+                        onClick={() => handleOpenEditModal(report)}
+                        className="p-2 hover:bg-amber-100 rounded-lg transition-colors"
+                        title="Düzenle"
+                      >
+                        <Edit2 className="w-4 h-4 text-amber-600" />
+                      </button>
                     </div>
                     {report.practical_life && (
                       <div className="mb-2">
@@ -1121,8 +1218,10 @@ export default function TeacherDashboard() {
       {showReportModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Montessori Günlük Rapor</h3>
-            <form onSubmit={handleAddReport} className="space-y-6">
+            <h3 className="text-2xl font-bold text-gray-800 mb-6">
+              {editingReport ? 'Montessori Raporu Düzenle' : 'Montessori Günlük Rapor'}
+            </h3>
+            <form onSubmit={editingReport ? handleEditReport : handleAddReport} className="space-y-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Çocuk</label>
                 <select
@@ -1130,6 +1229,7 @@ export default function TeacherDashboard() {
                   value={selectedChild}
                   onChange={(e) => setSelectedChild(e.target.value)}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                  disabled={!!editingReport}
                 >
                   <option value="">Çocuk seçin...</option>
                   {children.map((child) => (
@@ -1244,12 +1344,39 @@ export default function TeacherDashboard() {
                   <span className="text-xs text-gray-500 ml-2">(İsteğe bağlı)</span>
                 </label>
                 <div className="space-y-3">
+                  {editingReport && existingMediaUrls.length > 0 && (
+                    <div>
+                      <h4 className="text-sm font-medium text-gray-700 mb-2">Mevcut Medyalar</h4>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+                        {existingMediaUrls.map((url, index) => (
+                          <div key={index} className="relative group">
+                            <div className="bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
+                              {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                                <img src={url} alt={`Media ${index + 1}`} className="w-full h-24 object-cover" />
+                              ) : (
+                                <video src={url} className="w-full h-24 object-cover" />
+                              )}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setExistingMediaUrls(existingMediaUrls.filter((_, i) => i !== index));
+                              }}
+                              className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-md"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center space-x-2">
                     <label className="flex-1 cursor-pointer">
                       <div className="flex items-center justify-center space-x-2 px-4 py-3 bg-gradient-to-r from-blue-50 to-cyan-50 border-2 border-dashed border-blue-300 rounded-lg hover:border-blue-400 transition-colors">
                         <Image className="w-5 h-5 text-blue-600" />
                         <Video className="w-5 h-5 text-blue-600" />
-                        <span className="text-sm font-medium text-blue-700">Dosya Seç</span>
+                        <span className="text-sm font-medium text-blue-700">{editingReport ? 'Yeni Dosya Ekle' : 'Dosya Seç'}</span>
                       </div>
                       <input
                         type="file"
@@ -1312,7 +1439,10 @@ export default function TeacherDashboard() {
                   type="button"
                   onClick={() => {
                     setShowReportModal(false);
+                    setEditingReport(null);
+                    setSelectedChild('');
                     setMediaFiles([]);
+                    setExistingMediaUrls([]);
                     setReportForm({
                       practical_life: '',
                       sensorial: '',
@@ -1334,7 +1464,7 @@ export default function TeacherDashboard() {
                   disabled={uploading}
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {uploading ? 'Yükleniyor...' : 'Kaydet'}
+                  {uploading ? 'Yükleniyor...' : (editingReport ? 'Güncelle' : 'Kaydet')}
                 </button>
               </div>
             </form>

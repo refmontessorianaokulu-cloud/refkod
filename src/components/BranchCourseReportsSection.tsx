@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { BookOpen, Plus, X, Upload, Trash2 } from 'lucide-react';
+import { BookOpen, Plus, X, Upload, Trash2, Edit2 } from 'lucide-react';
 
 interface BranchCourseReport {
   id: string;
@@ -50,6 +50,8 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   });
   const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [editingReport, setEditingReport] = useState<BranchCourseReport | null>(null);
+  const [existingMediaUrls, setExistingMediaUrls] = useState<string[]>([]);
 
   useEffect(() => {
     loadReports();
@@ -139,6 +141,50 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     }
   };
 
+  const handleOpenEditModal = (report: any) => {
+    setEditingReport(report);
+    setForm({
+      child_id: report.child_id,
+      course_type: report.course_type,
+      content: report.content,
+      report_date: report.report_date,
+    });
+    setExistingMediaUrls(report.media_urls || []);
+    setMediaFiles([]);
+    setShowModal(true);
+  };
+
+  const handleEditReport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!teacherId || !editingReport) return;
+
+    try {
+      const newMediaUrls = await uploadMediaFiles();
+      const allMediaUrls = [...existingMediaUrls, ...newMediaUrls];
+
+      const { error } = await supabase
+        .from('branch_course_reports')
+        .update({
+          child_id: form.child_id,
+          course_type: form.course_type,
+          content: form.content,
+          report_date: form.report_date,
+          media_urls: allMediaUrls,
+        })
+        .eq('id', editingReport.id);
+
+      if (error) throw error;
+
+      alert('Rapor başarıyla güncellendi!');
+      setShowModal(false);
+      setEditingReport(null);
+      resetForm();
+      loadReports();
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Bu raporu silmek istediğinizden emin misiniz?')) return;
 
@@ -159,6 +205,8 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
       report_date: new Date().toISOString().split('T')[0],
     });
     setMediaFiles([]);
+    setExistingMediaUrls([]);
+    setEditingReport(null);
   };
 
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -265,13 +313,22 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                   </div>
                 </div>
                 {userRole === 'teacher' && (
-                  <button
-                    onClick={() => handleDelete(report.id)}
-                    className="p-2 hover:bg-white rounded-lg transition-colors"
-                    title="Sil"
-                  >
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                  </button>
+                  <div className="flex space-x-2">
+                    <button
+                      onClick={() => handleOpenEditModal(report)}
+                      className="p-2 hover:bg-purple-100 rounded-lg transition-colors"
+                      title="Düzenle"
+                    >
+                      <Edit2 className="w-4 h-4 text-purple-600" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(report.id)}
+                      className="p-2 hover:bg-white rounded-lg transition-colors"
+                      title="Sil"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-600" />
+                    </button>
+                  </div>
                 )}
               </div>
 
@@ -319,7 +376,9 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-2xl font-bold text-gray-800">Branş Dersi Raporu Ekle</h3>
+              <h3 className="text-2xl font-bold text-gray-800">
+                {editingReport ? 'Branş Dersi Raporu Düzenle' : 'Branş Dersi Raporu Ekle'}
+              </h3>
               <button
                 onClick={() => {
                   setShowModal(false);
@@ -331,7 +390,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={editingReport ? handleEditReport : handleSubmit} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Çocuk</label>
                 <select
@@ -339,6 +398,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                   value={form.child_id}
                   onChange={(e) => setForm({ ...form, child_id: e.target.value })}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  disabled={!!editingReport}
                 >
                   <option value="">Çocuk seçin...</option>
                   {children.map((child) => (
@@ -392,6 +452,39 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Fotoğraf/Video Ekle (İsteğe Bağlı)
                 </label>
+                {editingReport && existingMediaUrls.length > 0 && (
+                  <div className="mb-3">
+                    <h4 className="text-sm font-medium text-gray-700 mb-2">Mevcut Medyalar</h4>
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      {existingMediaUrls.map((url, index) => (
+                        <div key={index} className="relative">
+                          {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                            <img
+                              src={url}
+                              alt={`Media ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <video
+                              src={url}
+                              controls
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setExistingMediaUrls(existingMediaUrls.filter((_, i) => i !== index));
+                            }}
+                            className="absolute -top-2 -right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors shadow-md"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
                 <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
                   <input
                     type="file"
@@ -406,7 +499,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                     className="flex items-center justify-center space-x-2 cursor-pointer text-purple-600 hover:text-purple-700"
                   >
                     <Upload className="w-5 h-5" />
-                    <span>Dosya Seç</span>
+                    <span>{editingReport ? 'Yeni Dosya Ekle' : 'Dosya Seç'}</span>
                   </label>
                   {mediaFiles.length > 0 && (
                     <div className="mt-3 space-y-2">
@@ -443,7 +536,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                   disabled={uploading}
                   className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {uploading ? 'Yükleniyor...' : 'Rapor Ekle'}
+                  {uploading ? 'Yükleniyor...' : (editingReport ? 'Güncelle' : 'Rapor Ekle')}
                 </button>
               </div>
             </form>
