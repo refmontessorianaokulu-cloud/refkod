@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import InquiryForm from './InquiryForm';
+import ReferenceTeacherForm from './ReferenceTeacherForm';
 import { supabase } from '../lib/supabase';
 
 export default function Login() {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
+  const [showReferenceTeacherForm, setShowReferenceTeacherForm] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -63,6 +65,10 @@ export default function Login() {
 
   if (showInquiryForm) {
     return <InquiryForm onBack={() => setShowInquiryForm(false)} />;
+  }
+
+  if (showReferenceTeacherForm) {
+    return <ReferenceTeacherForm />;
   }
 
   if (showForgotPassword) {
@@ -202,19 +208,33 @@ export default function Login() {
           </button>
         </div>
 
-        <div className="border-t border-gray-200 mt-6 pt-6">
-          <p className="text-center text-sm text-gray-600 mb-3">
-            Henüz hesabınız yok mu?
-          </p>
-          <button
-            onClick={() => setShowInquiryForm(true)}
-            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
-          >
-            Ön Bilgi Talep Formu
-          </button>
-          <p className="text-center text-xs text-gray-500 mt-2">
-            Formu doldurarak yönetici ile iletişime geçebilirsiniz
-          </p>
+        <div className="border-t border-gray-200 mt-6 pt-6 space-y-4">
+          <div>
+            <p className="text-center text-sm text-gray-600 mb-3">
+              Henüz hesabınız yok mu?
+            </p>
+            <button
+              onClick={() => setShowInquiryForm(true)}
+              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
+            >
+              Ön Bilgi Talep Formu
+            </button>
+            <p className="text-center text-xs text-gray-500 mt-2">
+              Formu doldurarak yönetici ile iletişime geçebilirsiniz
+            </p>
+          </div>
+
+          <div className="border-t border-gray-200 pt-4">
+            <button
+              onClick={() => setShowReferenceTeacherForm(true)}
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
+            >
+              Referans Öğretmen Programı Başvurusu
+            </button>
+            <p className="text-center text-xs text-gray-500 mt-2">
+              Son başvuru tarihi: 23 Ocak
+            </p>
+          </div>
         </div>
       </div>
     </div>
