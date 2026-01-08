@@ -37,6 +37,7 @@ export default function AdminDashboard() {
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const [reportDateFilter, setReportDateFilter] = useState(new Date().toISOString().split('T')[0]);
   const [reportChildFilter, setReportChildFilter] = useState<string>('all');
+  const [reportClassFilter, setReportClassFilter] = useState<string>('all');
 
   const [childForm, setChildForm] = useState({
     first_name: '',
@@ -69,7 +70,7 @@ export default function AdminDashboard() {
     if (activeTab === 'montessori_reports' && reportDateFilter) {
       loadDailyReports();
     }
-  }, [reportDateFilter, reportChildFilter, activeTab]);
+  }, [reportDateFilter, reportChildFilter, reportClassFilter, activeTab]);
 
   const loadParentsAndTeachers = async () => {
     try {
@@ -135,7 +136,15 @@ export default function AdminDashboard() {
       }
 
       const { data } = await query.order('created_at', { ascending: false });
-      setDailyReports(data || []);
+
+      let filteredData = data || [];
+      if (reportClassFilter !== 'all') {
+        filteredData = filteredData.filter((report: any) =>
+          report.children?.class_name === reportClassFilter
+        );
+      }
+
+      setDailyReports(filteredData);
     } catch (error) {
       console.error('Error loading daily reports:', error);
     }
@@ -1046,6 +1055,24 @@ export default function AdminDashboard() {
                     />
                   </div>
                   <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Sınıf</label>
+                    <select
+                      value={reportClassFilter}
+                      onChange={(e) => {
+                        setReportClassFilter(e.target.value);
+                        setReportChildFilter('all');
+                      }}
+                      className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
+                    >
+                      <option value="all">Tüm Sınıflar</option>
+                      {Array.from(new Set(children.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+                        <option key={className} value={className}>
+                          {className}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Öğrenci</label>
                     <select
                       value={reportChildFilter}
@@ -1053,11 +1080,13 @@ export default function AdminDashboard() {
                       className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                     >
                       <option value="all">Tüm Öğrenciler</option>
-                      {children.map((child) => (
-                        <option key={child.id} value={child.id}>
-                          {child.first_name} {child.last_name}
-                        </option>
-                      ))}
+                      {children
+                        .filter(child => reportClassFilter === 'all' || child.class_name === reportClassFilter)
+                        .map((child) => (
+                          <option key={child.id} value={child.id}>
+                            {child.first_name} {child.last_name} {child.class_name ? `(${child.class_name})` : ''}
+                          </option>
+                        ))}
                     </select>
                   </div>
                 </div>

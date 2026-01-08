@@ -41,6 +41,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedCourse, setSelectedCourse] = useState<string>('all');
+  const [selectedClass, setSelectedClass] = useState<string>('all');
   const [selectedStudent, setSelectedStudent] = useState<string>('all');
   const [form, setForm] = useState({
     child_id: '',
@@ -55,16 +56,20 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
 
   useEffect(() => {
     loadReports();
-  }, [selectedDate, selectedCourse, selectedStudent, children]);
+  }, [selectedDate, selectedCourse, selectedClass, selectedStudent, children]);
 
   const loadReports = async () => {
     setLoading(true);
     try {
+      const filteredChildren = selectedClass === 'all'
+        ? children
+        : children.filter(c => c.class_name === selectedClass);
+
       let query = supabase
         .from('branch_course_reports')
         .select('*, children(first_name, last_name, class_name)')
         .eq('report_date', selectedDate)
-        .in('child_id', children.map(c => c.id));
+        .in('child_id', filteredChildren.map(c => c.id));
 
       if (selectedCourse !== 'all') {
         query = query.eq('course_type', selectedCourse);
@@ -269,6 +274,24 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
           </select>
         </div>
         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Sınıf</label>
+          <select
+            value={selectedClass}
+            onChange={(e) => {
+              setSelectedClass(e.target.value);
+              setSelectedStudent('all');
+            }}
+            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          >
+            <option value="all">Tüm Sınıflar</option>
+            {Array.from(new Set(children.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+              <option key={className} value={className}>
+                {className}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Öğrenci</label>
           <select
             value={selectedStudent}
@@ -276,11 +299,13 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             <option value="all">Tüm Öğrenciler</option>
-            {children.map((child) => (
-              <option key={child.id} value={child.id}>
-                {child.first_name} {child.last_name}
-              </option>
-            ))}
+            {children
+              .filter(child => selectedClass === 'all' || child.class_name === selectedClass)
+              .map((child) => (
+                <option key={child.id} value={child.id}>
+                  {child.first_name} {child.last_name} {child.class_name ? `(${child.class_name})` : ''}
+                </option>
+              ))}
           </select>
         </div>
       </div>
