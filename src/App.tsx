@@ -1,5 +1,4 @@
 import { useAuth } from './contexts/AuthContext';
-import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import AdminDashboard from './components/AdminDashboard';
 import TeacherDashboard from './components/TeacherDashboard';

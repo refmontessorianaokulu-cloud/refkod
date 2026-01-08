@@ -24,7 +24,7 @@ interface ChildAssignment {
   children: {
     first_name: string;
     last_name: string;
-  };
+  }[];
 }
 
 export default function PersonelPaneli() {
@@ -189,7 +189,7 @@ export default function PersonelPaneli() {
           <div>
             <h1 className="text-4xl font-bold text-gray-900">Personel Paneli</h1>
             <p className="text-gray-600 mt-2">
-              Hoş geldiniz, {profile?.full_name} - {getStaffRoleDisplay(profile?.staff_role)}
+              Hoş geldiniz, {profile?.full_name} - {getStaffRoleDisplay(profile?.staff_role || undefined)}
             </p>
           </div>
           <button
@@ -341,7 +341,7 @@ export default function PersonelPaneli() {
                 {getStaffIcon()}
               </div>
               <h2 className="text-2xl font-bold text-gray-800 mb-2">
-                {getStaffRoleDisplay(profile?.staff_role)} Paneli
+                {getStaffRoleDisplay(profile?.staff_role || undefined)} Paneli
               </h2>
               <p className="text-gray-600">
                 {getStaffMessage()}

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, X, Edit2, Trash2, Calendar, Upload, Image as ImageIcon } from 'lucide-react';
+import { Plus, X, Edit2, Trash2, Calendar, Upload } from 'lucide-react';
 
 interface MealMenu {
   id: string;
@@ -155,23 +155,6 @@ export default function MealMenuSection({ userId, userRole }: MealMenuSectionPro
     });
   };
 
-  const getMealTypeLabel = (type: string) => {
-    const labels = {
-      breakfast: 'Sabah Kahvaltısı',
-      lunch: 'Öğlen Yemeği',
-      afternoon_snack: 'İkindi Kahvaltısı',
-    };
-    return labels[type as keyof typeof labels] || type;
-  };
-
-  const getMealTypeColor = (type: string) => {
-    const colors = {
-      breakfast: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-      lunch: 'bg-red-100 text-red-800 border-red-300',
-      afternoon_snack: 'bg-green-100 text-green-800 border-green-300',
-    };
-    return colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-800';
-  };
 
   const getDaysInMonth = () => {
     const year = parseInt(selectedMonth.split('-')[0]);

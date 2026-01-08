@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Calendar, Edit2, Trash2, Plus, X, Bell, AlertCircle, UserCheck } from 'lucide-react';
+import { Edit2, Trash2, Plus, X, Bell, AlertCircle, UserCheck } from 'lucide-react';
 
 interface DutySchedule {
   id: string;
@@ -44,7 +44,6 @@ export default function DutyScheduleSection({ userId, userRole }: DutyScheduleSe
   const [dutyDescription, setDutyDescription] = useState<DutyDescription | null>(null);
   const [showDescriptionModal, setShowDescriptionModal] = useState(false);
   const [showScheduleModal, setShowScheduleModal] = useState(false);
-  const [showReminderModal, setShowReminderModal] = useState(false);
   const [selectedSchedule, setSelectedSchedule] = useState<DutySchedule | null>(null);
   const [childrenAtSchool, setChildrenAtSchool] = useState<ChildAtSchool[]>([]);
   const [loading, setLoading] = useState(false);

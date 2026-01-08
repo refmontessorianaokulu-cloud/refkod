@@ -389,7 +389,7 @@ export default function GuidanceCounselorDashboard() {
 
           {activeTab === 'individual-messages' && (
             <div className="mt-6">
-              <MessagesSection />
+              <MessagesSection userId={profile?.id || ''} userRole="guidance_counselor" />
             </div>
           )}
 

@@ -2,11 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase, ToiletNotification, Child, Profile } from '../lib/supabase';
 import { Baby, CheckCircle, Clock } from 'lucide-react';
 
-interface Props {
-  userId: string;
-}
-
-export default function ToiletNotificationsSection({ userId }: Props) {
+export default function ToiletNotificationsSection() {
   const [notifications, setNotifications] = useState<(ToiletNotification & { child?: Child; sender?: Profile })[]>([]);
   const [loading, setLoading] = useState(true);
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase, MaterialRequest, Profile } from '../lib/supabase';
-import { Package, Plus, X, AlertCircle, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { supabase, MaterialRequest } from '../lib/supabase';
+import { Package, Plus, X, CheckCircle, XCircle, Clock } from 'lucide-react';
 
 interface MaterialRequestsSectionProps {
   userId: string;
@@ -8,7 +8,7 @@ interface MaterialRequestsSectionProps {
   staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'toilet_attendant' | 'other' | null;
 }
 
-export default function MaterialRequestsSection({ userId, userRole, staffRole }: MaterialRequestsSectionProps) {
+export default function MaterialRequestsSection({ userId, userRole }: MaterialRequestsSectionProps) {
   const [requests, setRequests] = useState<MaterialRequest[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);

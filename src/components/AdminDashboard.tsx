@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { supabase, Child, Profile, ParentChild, DailyReport } from '../lib/supabase';
+import { supabase, Child, Profile, DailyReport } from '../lib/supabase';
 import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck, CreditCard as Edit, Sparkles, Package } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
@@ -183,7 +183,7 @@ export default function AdminDashboard() {
         const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `${fileName}`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('child-photos')
           .upload(filePath, selectedPhotoFile, {
             cacheControl: '3600',
@@ -360,7 +360,7 @@ export default function AdminDashboard() {
         const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `${fileName}`;
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from('child-photos')
           .upload(filePath, selectedPhotoFile, {
             cacheControl: '3600',
@@ -1169,7 +1169,7 @@ export default function AdminDashboard() {
                 <AttendanceSection
                   children={children}
                   teacherId={profile?.id}
-                  userRole={profile?.role}
+                  userRole={profile?.role || undefined}
                   userId={profile?.id}
                 />
               </div>

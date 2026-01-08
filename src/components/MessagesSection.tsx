@@ -15,12 +15,12 @@ interface Message {
 interface Profile {
   id: string;
   full_name: string;
-  role: 'admin' | 'teacher' | 'parent';
+  role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor';
 }
 
 interface MessagesSectionProps {
   userId: string;
-  userRole: 'admin' | 'teacher' | 'parent';
+  userRole: 'admin' | 'teacher' | 'parent' | 'guidance_counselor';
 }
 
 export default function MessagesSection({ userId, userRole }: MessagesSectionProps) {

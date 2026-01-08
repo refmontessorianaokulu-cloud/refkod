@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, CleaningRequest, Profile } from '../lib/supabase';
-import { Sparkles, AlertCircle, CheckCircle, Clock, MapPin } from 'lucide-react';
+import { Sparkles, CheckCircle, Clock, MapPin } from 'lucide-react';
 
 interface Props {
   userId: string;

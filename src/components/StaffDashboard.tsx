@@ -132,7 +132,7 @@ export default function StaffDashboard() {
             )}
 
             {activeTab === 'notifications' && showToiletTab && (
-              <ToiletNotificationsSection userId={profile?.id || ''} />
+              <ToiletNotificationsSection />
             )}
 
             {activeTab === 'service' && showServiceTab && (

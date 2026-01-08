@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Car, Plus, Trash2, Edit, MapPin, Users, Clock } from 'lucide-react';
+import { Car, Plus, Trash2, MapPin, Users, Clock } from 'lucide-react';
 
 interface Vehicle {
   id: string;
