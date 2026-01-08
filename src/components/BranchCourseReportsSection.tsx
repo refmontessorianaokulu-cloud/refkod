@@ -23,7 +23,7 @@ interface Child {
 interface BranchCourseReportsSectionProps {
   children: Child[];
   teacherId?: string;
-  userRole: 'admin' | 'teacher';
+  userRole: 'admin' | 'teacher' | 'guidance_counselor';
 }
 
 const courseTypes = [
@@ -40,12 +40,12 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-  const [selectedCourse, setSelectedCourse] = useState<string>('all');
+  const [selectedCourse, setSelectedCourse] = useState<string>(userRole === 'guidance_counselor' ? 'guidance' : 'all');
   const [selectedClass, setSelectedClass] = useState<string>('all');
   const [selectedStudent, setSelectedStudent] = useState<string>('all');
   const [form, setForm] = useState({
     child_id: '',
-    course_type: 'english' as 'english' | 'quran' | 'moral_values' | 'etiquette' | 'art_music' | 'guidance',
+    course_type: (userRole === 'guidance_counselor' ? 'guidance' : 'english') as 'english' | 'quran' | 'moral_values' | 'etiquette' | 'art_music' | 'guidance',
     content: '',
     report_date: new Date().toISOString().split('T')[0],
   });
@@ -237,7 +237,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
           </div>
           <h2 className="text-2xl font-bold text-gray-800">Branş Dersleri Günlük Raporları</h2>
         </div>
-        {userRole === 'teacher' && (
+        {(userRole === 'teacher' || userRole === 'guidance_counselor') && (
           <button
             onClick={() => setShowModal(true)}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-shadow"
@@ -258,21 +258,23 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Ders</label>
-          <select
-            value={selectedCourse}
-            onChange={(e) => setSelectedCourse(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="all">Tüm Dersler</option>
-            {courseTypes.map((type) => (
-              <option key={type.value} value={type.value}>
-                {type.label}
-              </option>
-            ))}
-          </select>
-        </div>
+        {userRole !== 'guidance_counselor' && (
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Ders</label>
+            <select
+              value={selectedCourse}
+              onChange={(e) => setSelectedCourse(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+            >
+              <option value="all">Tüm Dersler</option>
+              {courseTypes.map((type) => (
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Sınıf</label>
           <select
@@ -434,21 +436,26 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                 </select>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Ders</label>
-                <select
-                  required
-                  value={form.course_type}
-                  onChange={(e) => setForm({ ...form, course_type: e.target.value as any })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                >
-                  {courseTypes.map((type) => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              {userRole !== 'guidance_counselor' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ders</label>
+                  <select
+                    required
+                    value={form.course_type}
+                    onChange={(e) => setForm({ ...form, course_type: e.target.value as any })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    {courseTypes.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {userRole === 'guidance_counselor' && (
+                <input type="hidden" name="course_type" value="guidance" />
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Tarih</label>

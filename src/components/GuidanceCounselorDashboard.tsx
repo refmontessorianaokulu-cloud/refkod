@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { LogOut, Calendar, Send, Users, MessageSquare, User, ClipboardList } from 'lucide-react';
+import { LogOut, Calendar, Send, Users, MessageSquare, User, ClipboardList, BookOpen } from 'lucide-react';
 import MessagesSection from './MessagesSection';
 import TaskResponseSection from './TaskResponseSection';
+import BranchCourseReportsSection from './BranchCourseReportsSection';
 
 interface Appointment {
   id: string;
@@ -30,11 +31,19 @@ interface GroupMessage {
   created_at: string;
 }
 
+interface Child {
+  id: string;
+  first_name: string;
+  last_name: string;
+  class_name: string;
+}
+
 export default function GuidanceCounselorDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'appointments' | 'group-messages' | 'individual-messages' | 'tasks'>('appointments');
+  const [activeTab, setActiveTab] = useState<'appointments' | 'group-messages' | 'individual-messages' | 'tasks' | 'reports'>('appointments');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [groupMessages, setGroupMessages] = useState<GroupMessage[]>([]);
+  const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [showResponseModal, setShowResponseModal] = useState(false);
@@ -54,8 +63,21 @@ export default function GuidanceCounselorDashboard() {
     if (profile) {
       loadAppointments();
       loadGroupMessages();
+      loadChildren();
     }
   }, [profile]);
+
+  const loadChildren = async () => {
+    try {
+      const { data } = await supabase
+        .from('children')
+        .select('*')
+        .order('first_name', { ascending: true });
+      setChildren(data || []);
+    } catch (error) {
+      console.error('Error loading children:', error);
+    }
+  };
 
   const loadAppointments = async () => {
     setLoading(true);
@@ -291,6 +313,17 @@ export default function GuidanceCounselorDashboard() {
               <ClipboardList className="w-5 h-5 inline mr-2" />
               Görevlerim
             </button>
+            <button
+              onClick={() => setActiveTab('reports')}
+              className={`pb-4 px-6 font-semibold transition-colors ${
+                activeTab === 'reports'
+                  ? 'text-teal-600 border-b-2 border-teal-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <BookOpen className="w-5 h-5 inline mr-2" />
+              Rehberlik Raporları
+            </button>
           </div>
 
           {activeTab === 'appointments' && (
@@ -396,6 +429,16 @@ export default function GuidanceCounselorDashboard() {
           {activeTab === 'tasks' && (
             <div className="mt-6">
               <TaskResponseSection userId={profile?.id || ''} userRole="guidance_counselor" />
+            </div>
+          )}
+
+          {activeTab === 'reports' && (
+            <div className="mt-6">
+              <BranchCourseReportsSection
+                children={children}
+                teacherId={profile?.id}
+                userRole="guidance_counselor"
+              />
             </div>
           )}
         </div>
