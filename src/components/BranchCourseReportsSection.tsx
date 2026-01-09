@@ -123,21 +123,44 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     e.preventDefault();
     if (!teacherId) return;
 
+    if (form.child_id === 'all') {
+      const courseLabel = courseTypes.find(c => c.value === form.course_type)?.label || form.course_type;
+      const confirmMessage = `${children.length} çocuk için ${courseLabel} raporu eklenecek. Devam etmek istiyor musunuz?`;
+      if (!confirm(confirmMessage)) return;
+    }
+
     try {
       const mediaUrls = await uploadMediaFiles();
 
-      const { error } = await supabase.from('branch_course_reports').insert({
-        teacher_id: teacherId,
-        child_id: form.child_id,
-        course_type: form.course_type,
-        content: form.content,
-        report_date: form.report_date,
-        media_urls: mediaUrls,
-      });
+      if (form.child_id === 'all') {
+        const reportsToInsert = children.map(child => ({
+          teacher_id: teacherId,
+          child_id: child.id,
+          course_type: form.course_type,
+          content: form.content,
+          report_date: form.report_date,
+          media_urls: mediaUrls,
+        }));
 
-      if (error) throw error;
+        const { error } = await supabase.from('branch_course_reports').insert(reportsToInsert);
+        if (error) throw error;
 
-      alert('Rapor başarıyla eklendi!');
+        const courseLabel = courseTypes.find(c => c.value === form.course_type)?.label || form.course_type;
+        alert(`${children.length} çocuk için ${courseLabel} raporu başarıyla eklendi!`);
+      } else {
+        const { error } = await supabase.from('branch_course_reports').insert({
+          teacher_id: teacherId,
+          child_id: form.child_id,
+          course_type: form.course_type,
+          content: form.content,
+          report_date: form.report_date,
+          media_urls: mediaUrls,
+        });
+
+        if (error) throw error;
+        alert('Rapor başarıyla eklendi!');
+      }
+
       setShowModal(false);
       resetForm();
       loadReports();
@@ -428,12 +451,22 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                   disabled={!!editingReport}
                 >
                   <option value="">Çocuk seçin...</option>
+                  {!editingReport && (
+                    <option value="all" className="font-bold">
+                      ✓ Tüm Çocuklar ({children.length})
+                    </option>
+                  )}
                   {children.map((child) => (
                     <option key={child.id} value={child.id}>
                       {child.first_name} {child.last_name} - {child.class_name}
                     </option>
                   ))}
                 </select>
+                {form.child_id === 'all' && !editingReport && (
+                  <p className="mt-2 text-sm text-purple-600 bg-purple-50 p-2 rounded-lg">
+                    ℹ Bu rapor tüm çocuklara ({children.length} çocuk) aynı içerikle kaydedilecektir.
+                  </p>
+                )}
               </div>
 
               {userRole !== 'guidance_counselor' && (

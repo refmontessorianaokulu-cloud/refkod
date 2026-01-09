@@ -279,6 +279,11 @@ export default function TeacherDashboard() {
     e.preventDefault();
     if (!profile || !selectedChild) return;
 
+    if (selectedChild === 'all') {
+      const confirmMessage = `${children.length} çocuk için rapor eklenecek. Devam etmek istiyor musunuz?`;
+      if (!confirm(confirmMessage)) return;
+    }
+
     setUploading(true);
     try {
       const mediaUrls: string[] = [];
@@ -286,7 +291,7 @@ export default function TeacherDashboard() {
       if (mediaFiles.length > 0) {
         for (const file of mediaFiles) {
           const fileExt = file.name.split('.').pop();
-          const fileName = `${selectedChild}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+          const fileName = `reports/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
 
           const { error: uploadError } = await supabase.storage
             .from('report-media')
@@ -302,20 +307,43 @@ export default function TeacherDashboard() {
         }
       }
 
-      const { error } = await supabase.from('daily_reports').insert({
-        teacher_id: profile.id,
-        child_id: selectedChild,
-        practical_life: reportForm.practical_life,
-        sensorial: reportForm.sensorial,
-        mathematics: reportForm.mathematics,
-        language: reportForm.language,
-        culture: reportForm.culture,
-        general_notes: reportForm.general_notes,
-        mood: reportForm.mood,
-        social_interaction: reportForm.social_interaction,
-        media_urls: mediaUrls,
-      });
-      if (error) throw error;
+      if (selectedChild === 'all') {
+        const reportsToInsert = children.map(child => ({
+          teacher_id: profile.id,
+          child_id: child.id,
+          practical_life: reportForm.practical_life,
+          sensorial: reportForm.sensorial,
+          mathematics: reportForm.mathematics,
+          language: reportForm.language,
+          culture: reportForm.culture,
+          general_notes: reportForm.general_notes,
+          mood: reportForm.mood,
+          social_interaction: reportForm.social_interaction,
+          media_urls: mediaUrls,
+        }));
+
+        const { error } = await supabase.from('daily_reports').insert(reportsToInsert);
+        if (error) throw error;
+
+        alert(`${children.length} çocuk için rapor başarıyla eklendi!`);
+      } else {
+        const { error } = await supabase.from('daily_reports').insert({
+          teacher_id: profile.id,
+          child_id: selectedChild,
+          practical_life: reportForm.practical_life,
+          sensorial: reportForm.sensorial,
+          mathematics: reportForm.mathematics,
+          language: reportForm.language,
+          culture: reportForm.culture,
+          general_notes: reportForm.general_notes,
+          mood: reportForm.mood,
+          social_interaction: reportForm.social_interaction,
+          media_urls: mediaUrls,
+        });
+        if (error) throw error;
+
+        alert('Günlük rapor eklendi!');
+      }
 
       setShowReportModal(false);
       setSelectedChild('');
@@ -331,7 +359,6 @@ export default function TeacherDashboard() {
         social_interaction: '',
       });
       loadReports();
-      alert('Günlük rapor eklendi!');
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
     } finally {
@@ -1232,12 +1259,22 @@ export default function TeacherDashboard() {
                   disabled={!!editingReport}
                 >
                   <option value="">Çocuk seçin...</option>
+                  {!editingReport && (
+                    <option value="all" className="font-bold">
+                      ✓ Tüm Çocuklar ({children.length})
+                    </option>
+                  )}
                   {children.map((child) => (
                     <option key={child.id} value={child.id}>
                       {child.first_name} {child.last_name}
                     </option>
                   ))}
                 </select>
+                {selectedChild === 'all' && !editingReport && (
+                  <p className="mt-2 text-sm text-amber-600 bg-amber-50 p-2 rounded-lg">
+                    ℹ Bu rapor tüm çocuklarınıza ({children.length} çocuk) aynı içerikle kaydedilecektir.
+                  </p>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
