@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, Child } from '../lib/supabase';
-import { Megaphone, Plus, X } from 'lucide-react';
+import { Megaphone, Plus, X, Image } from 'lucide-react';
 
 interface Announcement {
   id: string;
@@ -9,6 +9,7 @@ interface Announcement {
   created_by: string;
   target_audience: 'all' | 'parents' | 'teachers' | 'specific_children';
   target_children: string[];
+  media_urls?: string[];
   created_at: string;
 }
 
@@ -22,6 +23,8 @@ export default function AnnouncementsSection({ userId, userRole, children = [] }
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
 
   const [form, setForm] = useState({
     title: '',
@@ -51,10 +54,34 @@ export default function AnnouncementsSection({ userId, userRole, children = [] }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploadingFiles(true);
     try {
+      const mediaUrls: string[] = [];
+
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('announcement-media')
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: publicUrlData } = supabase.storage
+            .from('announcement-media')
+            .getPublicUrl(filePath);
+
+          mediaUrls.push(publicUrlData.publicUrl);
+        }
+      }
+
       const { error } = await supabase.from('announcements').insert({
         created_by: userId,
         ...form,
+        media_urls: mediaUrls,
       });
       if (error) throw error;
 
@@ -65,10 +92,13 @@ export default function AnnouncementsSection({ userId, userRole, children = [] }
         target_audience: 'specific_children',
         target_children: [],
       });
+      setSelectedFiles([]);
       loadAnnouncements();
       alert('Duyuru oluşturuldu!');
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
+    } finally {
+      setUploadingFiles(false);
     }
   };
 
@@ -112,6 +142,18 @@ export default function AnnouncementsSection({ userId, userRole, children = [] }
                 </span>
               </div>
               <p className="text-gray-700 whitespace-pre-wrap mb-3">{announcement.content}</p>
+              {announcement.media_urls && announcement.media_urls.length > 0 && (
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+                  {announcement.media_urls.map((url, index) => (
+                    <img
+                      key={index}
+                      src={url}
+                      alt={`Duyuru fotoğrafı ${index + 1}`}
+                      className="w-full h-32 object-cover rounded-lg border border-purple-200"
+                    />
+                  ))}
+                </div>
+              )}
               <div className="flex items-center space-x-2">
                 <span className="text-xs px-3 py-1 bg-white rounded-full text-purple-700 font-medium border border-purple-200">
                   {announcement.target_audience === 'all' && 'Tüm Kullanıcılar'}
@@ -208,19 +250,62 @@ export default function AnnouncementsSection({ userId, userRole, children = [] }
                 </div>
               )}
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fotoğraflar
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setSelectedFiles(Array.from(e.target.files));
+                    }
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                />
+                {selectedFiles.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="relative inline-block">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`Preview ${index + 1}`}
+                          className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => {
+                    setShowModal(false);
+                    setSelectedFiles([]);
+                  }}
                   className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   İptal
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all"
+                  disabled={uploadingFiles}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:from-purple-600 hover:to-pink-600 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Oluştur
+                  {uploadingFiles ? 'Yükleniyor...' : 'Oluştur'}
                 </button>
               </div>
             </form>

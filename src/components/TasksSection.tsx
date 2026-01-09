@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, Profile } from '../lib/supabase';
-import { Plus, CheckCircle, Clock, Users, User, Calendar, Trash2, Edit2 } from 'lucide-react';
+import { Plus, CheckCircle, Clock, Users, User, Calendar, Trash2, Edit2, Image, X } from 'lucide-react';
 
 interface TaskAssignment {
   id: string;
@@ -13,6 +13,7 @@ interface TaskAssignment {
   week_start: string;
   week_end: string;
   created_at: string;
+  media_urls?: string[];
   assignee?: Profile;
   creator?: Profile;
 }
@@ -39,6 +40,8 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
   const [showTaskModal, setShowTaskModal] = useState(false);
   const [editingTask, setEditingTask] = useState<TaskAssignment | null>(null);
   const [users, setUsers] = useState<Profile[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [uploadingFiles, setUploadingFiles] = useState(false);
 
   const [taskForm, setTaskForm] = useState({
     title: '',
@@ -115,7 +118,33 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
 
   const handleCreateTask = async (e: React.FormEvent) => {
     e.preventDefault();
+    setUploadingFiles(true);
     try {
+      const mediaUrls: string[] = [];
+
+      if (selectedFiles.length > 0) {
+        for (const file of selectedFiles) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${Math.random()}.${fileExt}`;
+          const filePath = `${fileName}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('task-media')
+            .upload(filePath, file);
+
+          if (uploadError) throw uploadError;
+
+          const { data: publicUrlData } = supabase.storage
+            .from('task-media')
+            .getPublicUrl(filePath);
+
+          mediaUrls.push(publicUrlData.publicUrl);
+        }
+      }
+
+      const existingMediaUrls = editingTask?.media_urls || [];
+      const allMediaUrls = [...existingMediaUrls, ...mediaUrls];
+
       if (editingTask) {
         const { error } = await supabase
           .from('task_assignments')
@@ -127,6 +156,7 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
             target_roles: taskForm.is_group_task ? taskForm.target_roles : [],
             week_start: taskForm.week_start,
             week_end: taskForm.week_end,
+            media_urls: allMediaUrls,
           })
           .eq('id', editingTask.id);
 
@@ -142,6 +172,7 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
           target_roles: taskForm.is_group_task ? taskForm.target_roles : [],
           week_start: taskForm.week_start,
           week_end: taskForm.week_end,
+          media_urls: mediaUrls,
         });
 
         if (error) throw error;
@@ -159,9 +190,12 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
         week_start: '',
         week_end: '',
       });
+      setSelectedFiles([]);
       loadTasks();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
+    } finally {
+      setUploadingFiles(false);
     }
   };
 
@@ -280,6 +314,18 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
                       )}
                     </div>
                     <p className="text-gray-600 text-sm mb-3">{task.description}</p>
+                    {task.media_urls && task.media_urls.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mb-3">
+                        {task.media_urls.map((url, index) => (
+                          <img
+                            key={index}
+                            src={url}
+                            alt={`Görev fotoğrafı ${index + 1}`}
+                            className="w-full h-32 object-cover rounded-lg border border-gray-200"
+                          />
+                        ))}
+                      </div>
+                    )}
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
                       <div className="flex items-center space-x-1">
                         <Calendar className="w-4 h-4" />
@@ -517,12 +563,67 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
                 </div>
               )}
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fotoğraflar
+                </label>
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => {
+                    if (e.target.files) {
+                      setSelectedFiles(Array.from(e.target.files));
+                    }
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                {selectedFiles.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {selectedFiles.map((file, index) => (
+                      <div key={index} className="relative inline-block">
+                        <img
+                          src={URL.createObjectURL(file)}
+                          alt={`Preview ${index + 1}`}
+                          className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedFiles(selectedFiles.filter((_, i) => i !== index));
+                          }}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {editingTask?.media_urls && editingTask.media_urls.length > 0 && (
+                  <div className="mt-2">
+                    <p className="text-xs text-gray-500 mb-2">Mevcut Fotoğraflar:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {editingTask.media_urls.map((url, index) => (
+                        <img
+                          key={index}
+                          src={url}
+                          alt={`Mevcut ${index + 1}`}
+                          className="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="flex space-x-3 pt-4">
                 <button
                   type="button"
                   onClick={() => {
                     setShowTaskModal(false);
                     setEditingTask(null);
+                    setSelectedFiles([]);
                     setTaskForm({
                       title: '',
                       description: '',
@@ -539,9 +640,10 @@ export default function TasksSection({ userId, userRole }: TasksSectionProps) {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all"
+                  disabled={uploadingFiles}
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingTask ? 'Güncelle' : 'Oluştur'}
+                  {uploadingFiles ? 'Yükleniyor...' : (editingTask ? 'Güncelle' : 'Oluştur')}
                 </button>
               </div>
             </form>
