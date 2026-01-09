@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { MessageSquare, Plus, X, Send } from 'lucide-react';
+import { MessageSquare, Plus, X, Send, Filter } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -29,7 +29,10 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [viewMode, setViewMode] = useState<'my' | 'all'>('my');
+  const [viewMode, setViewMode] = useState<'my' | 'all' | 'all_messages'>('my');
+  const [showFilters, setShowFilters] = useState(false);
+  const [dateFilter, setDateFilter] = useState('');
+  const [readFilter, setReadFilter] = useState<'all' | 'read' | 'unread'>('all');
 
   const [form, setForm] = useState({
     receiver_id: '',
@@ -40,14 +43,16 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
   useEffect(() => {
     loadMessages();
     loadContacts();
-  }, [userId, viewMode]);
+  }, [userId, viewMode, dateFilter, readFilter]);
 
   const loadMessages = async () => {
     setLoading(true);
     try {
       let query = supabase.from('messages').select('*');
 
-      if (userRole === 'admin' && viewMode === 'all') {
+      if (userRole === 'admin' && viewMode === 'all_messages') {
+
+      } else if (userRole === 'admin' && viewMode === 'all') {
         const { data: teachers } = await supabase
           .from('profiles')
           .select('id')
@@ -61,6 +66,20 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
         }
       } else {
         query = query.or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+      }
+
+      if (dateFilter) {
+        const startOfDay = new Date(dateFilter);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(dateFilter);
+        endOfDay.setHours(23, 59, 59, 999);
+        query = query.gte('created_at', startOfDay.toISOString()).lte('created_at', endOfDay.toISOString());
+      }
+
+      if (readFilter === 'read') {
+        query = query.eq('read', true);
+      } else if (readFilter === 'unread') {
+        query = query.eq('read', false);
       }
 
       const { data } = await query.order('created_at', { ascending: false });
@@ -183,27 +202,87 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
       </div>
 
       {userRole === 'admin' && (
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={() => setViewMode('my')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              viewMode === 'my'
-                ? 'bg-gradient-to-br from-teal-500 to-cyan-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Kendi Mesajlarım
-          </button>
-          <button
-            onClick={() => setViewMode('all')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              viewMode === 'all'
-                ? 'bg-gradient-to-br from-teal-500 to-cyan-500 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Tüm Öğretmen Mesajları
-          </button>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setViewMode('my')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  viewMode === 'my'
+                    ? 'bg-gradient-to-br from-teal-500 to-cyan-500 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Kendi Mesajlarım
+              </button>
+              <button
+                onClick={() => setViewMode('all')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  viewMode === 'all'
+                    ? 'bg-gradient-to-br from-teal-500 to-cyan-500 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Tüm Öğretmen Mesajları
+              </button>
+              <button
+                onClick={() => setViewMode('all_messages')}
+                className={`px-4 py-2 rounded-lg transition-colors ${
+                  viewMode === 'all_messages'
+                    ? 'bg-gradient-to-br from-teal-500 to-cyan-500 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Tüm Mesajlar
+              </button>
+            </div>
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="flex items-center space-x-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filtrele</span>
+            </button>
+          </div>
+
+          {showFilters && (
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Tarih</label>
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Durum</label>
+                  <select
+                    value={readFilter}
+                    onChange={(e) => setReadFilter(e.target.value as 'all' | 'read' | 'unread')}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  >
+                    <option value="all">Tümü</option>
+                    <option value="read">Okundu</option>
+                    <option value="unread">Okunmadı</option>
+                  </select>
+                </div>
+              </div>
+              {(dateFilter || readFilter !== 'all') && (
+                <button
+                  onClick={() => {
+                    setDateFilter('');
+                    setReadFilter('all');
+                  }}
+                  className="mt-3 text-sm text-teal-600 hover:text-teal-700 font-medium"
+                >
+                  Filtreleri Temizle
+                </button>
+              )}
+            </div>
+          )}
         </div>
       )}
 
@@ -219,7 +298,7 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
             const otherPersonName = contactNames[otherPersonId] || 'Yükleniyor...';
             const senderName = contactNames[message.sender_id] || 'Yükleniyor...';
             const receiverName = contactNames[message.receiver_id] || 'Yükleniyor...';
-            const isViewingAll = userRole === 'admin' && viewMode === 'all';
+            const isViewingAll = userRole === 'admin' && (viewMode === 'all' || viewMode === 'all_messages');
 
             return (
               <div
@@ -245,6 +324,11 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
                           <span className="text-xs px-2 py-1 bg-green-100 rounded text-green-600">
                             Alıcı: {receiverName}
                           </span>
+                          {!message.read && (
+                            <span className="text-xs px-2 py-1 bg-amber-500 text-white rounded font-medium">
+                              Okunmadı
+                            </span>
+                          )}
                         </>
                       ) : (
                         <>
@@ -286,7 +370,7 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
             </div>
 
             <div className="space-y-4">
-              {userRole === 'admin' && viewMode === 'all' ? (
+              {userRole === 'admin' && (viewMode === 'all' || viewMode === 'all_messages') ? (
                 <div className="space-y-2 text-sm text-gray-600">
                   <div className="flex items-center space-x-2">
                     <span className="font-medium">Gönderen:</span>
@@ -295,6 +379,12 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
                   <div className="flex items-center space-x-2">
                     <span className="font-medium">Alıcı:</span>
                     <span>{contactNames[selectedMessage.receiver_id] || 'Yükleniyor...'}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-medium">Durum:</span>
+                    <span className={selectedMessage.read ? 'text-green-600' : 'text-amber-600'}>
+                      {selectedMessage.read ? 'Okundu' : 'Okunmadı'}
+                    </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="font-medium">Tarih:</span>
@@ -316,7 +406,7 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
               </div>
 
               <div className="flex space-x-3">
-                {!(userRole === 'admin' && viewMode === 'all') && (
+                {!(userRole === 'admin' && (viewMode === 'all' || viewMode === 'all_messages')) && (
                   <button
                     onClick={() => handleReply(selectedMessage)}
                     className="flex-1 flex items-center justify-center space-x-2 px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg hover:from-teal-600 hover:to-cyan-600 transition-all"
@@ -328,7 +418,7 @@ export default function MessagesSection({ userId, userRole }: MessagesSectionPro
                 <button
                   onClick={() => setSelectedMessage(null)}
                   className={`px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-                    userRole === 'admin' && viewMode === 'all' ? 'flex-1' : ''
+                    userRole === 'admin' && (viewMode === 'all' || viewMode === 'all_messages') ? 'flex-1' : ''
                   }`}
                 >
                   Kapat

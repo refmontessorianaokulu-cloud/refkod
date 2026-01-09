@@ -1278,7 +1278,7 @@ export default function AdminDashboard() {
 
             {activeTab === 'appointments' && (
               <div>
-                <AppointmentsSection userId={profile?.id || ''} />
+                <AppointmentsSection userId={profile?.id || ''} userRole="admin" />
               </div>
             )}
 
