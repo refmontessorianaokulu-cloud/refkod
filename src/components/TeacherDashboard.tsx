@@ -764,7 +764,14 @@ export default function TeacherDashboard() {
                       <h3 className="text-lg font-semibold text-gray-800 mb-1">
                         {child.first_name} {child.last_name}
                       </h3>
-                      <p className="text-sm text-gray-600">{child.class_name}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-sm text-gray-600">{child.class_name}</p>
+                        {child.schedule_type === 'yarim_gun' && (
+                          <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                            Yarım Gün
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-500 mt-1">
                         {new Date(child.birth_date).toLocaleDateString('tr-TR')}
                       </p>

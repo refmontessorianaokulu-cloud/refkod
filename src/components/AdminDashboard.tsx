@@ -46,6 +46,7 @@ export default function AdminDashboard() {
     last_name: '',
     birth_date: '',
     class_name: '',
+    schedule_type: 'tam_gun' as 'tam_gun' | 'yarim_gun',
     photo_url: '',
     parent_id: '',
     teacher_id: '',
@@ -254,6 +255,7 @@ export default function AdminDashboard() {
           last_name: childForm.last_name,
           birth_date: childForm.birth_date,
           class_name: childForm.class_name,
+          schedule_type: childForm.schedule_type,
           photo_url: photoUrl,
         })
         .select()
@@ -287,6 +289,7 @@ export default function AdminDashboard() {
         last_name: '',
         birth_date: '',
         class_name: '',
+        schedule_type: 'tam_gun',
         photo_url: '',
         parent_id: '',
         teacher_id: ''
@@ -386,6 +389,7 @@ export default function AdminDashboard() {
       last_name: child.last_name,
       birth_date: child.birth_date,
       class_name: child.class_name,
+      schedule_type: child.schedule_type || 'tam_gun',
       photo_url: child.photo_url || '',
       parent_id: '',
       teacher_id: '',
@@ -431,6 +435,7 @@ export default function AdminDashboard() {
           last_name: childForm.last_name,
           birth_date: childForm.birth_date,
           class_name: childForm.class_name,
+          schedule_type: childForm.schedule_type,
           photo_url: photoUrl,
         })
         .eq('id', editingChildId);
@@ -444,6 +449,7 @@ export default function AdminDashboard() {
         last_name: '',
         birth_date: '',
         class_name: '',
+        schedule_type: 'tam_gun',
         photo_url: '',
         parent_id: '',
         teacher_id: '',
@@ -844,7 +850,14 @@ export default function AdminDashboard() {
                             <h3 className="text-lg font-semibold text-gray-800">
                               {child.first_name} {child.last_name}
                             </h3>
-                            <p className="text-sm text-gray-600">{child.class_name}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <p className="text-sm text-gray-600">{child.class_name}</p>
+                              {child.schedule_type === 'yarim_gun' && (
+                                <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                                  Yarım Gün
+                                </span>
+                              )}
+                            </div>
                             <p className="text-xs text-gray-500 mt-1">
                               {new Date(child.birth_date).toLocaleDateString('tr-TR')}
                             </p>
@@ -1459,6 +1472,18 @@ export default function AdminDashboard() {
                   <option value="2 Yaş Sınıfı">2 Yaş Sınıfı</option>
                 </select>
               </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Program Türü</label>
+                <select
+                  required
+                  value={childForm.schedule_type}
+                  onChange={(e) => setChildForm({ ...childForm, schedule_type: e.target.value as 'tam_gun' | 'yarim_gun' })}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                >
+                  <option value="tam_gun">Tam Gün</option>
+                  <option value="yarim_gun">Yarım Gün</option>
+                </select>
+              </div>
               {!editingChildId && (
                 <>
                   <div>
@@ -1539,6 +1564,7 @@ export default function AdminDashboard() {
                       last_name: '',
                       birth_date: '',
                       class_name: '',
+                      schedule_type: 'tam_gun',
                       photo_url: '',
                       parent_id: '',
                       teacher_id: '',

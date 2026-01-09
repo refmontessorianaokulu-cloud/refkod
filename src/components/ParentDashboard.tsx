@@ -662,7 +662,14 @@ export default function ParentDashboard() {
                           {child.first_name} {child.last_name}
                         </div>
                         <div className={`text-sm ${selectedChild === child.id ? 'text-green-50' : 'text-gray-500'}`}>
-                          {child.class_name}
+                          <div className="flex items-center gap-2">
+                            <span>{child.class_name}</span>
+                            {child.schedule_type === 'yarim_gun' && (
+                              <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                                Yarım Gün
+                              </span>
+                            )}
+                          </div>
                           {child.teacher && (
                             <span className={`block text-xs ${selectedChild === child.id ? 'text-green-100' : 'text-gray-400'}`}>
                               Öğretmen: {child.teacher.full_name}

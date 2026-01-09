@@ -23,6 +23,7 @@ export type Child = {
   last_name: string;
   birth_date: string;
   class_name: string;
+  schedule_type: 'tam_gun' | 'yarim_gun';
   photo_url: string | null;
   created_at: string;
   teacher?: {
