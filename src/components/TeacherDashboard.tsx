@@ -588,6 +588,24 @@ export default function TeacherDashboard() {
     }
   };
 
+  const handleDeleteReport = async (reportId: string) => {
+    if (!confirm('Bu raporu silmek istediğinizden emin misiniz?')) return;
+
+    try {
+      const { error } = await supabase
+        .from('daily_reports')
+        .delete()
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      alert('Rapor başarıyla silindi!');
+      loadReports();
+    } catch (error) {
+      alert('Hata oluştu: ' + (error as Error).message);
+    }
+  };
+
   const handleSendToiletNotification = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!selectedChild || !profile) return;
@@ -699,24 +717,22 @@ export default function TeacherDashboard() {
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">Çocuklar</h2>
-                  <select
-                    value={selectedClass}
-                    onChange={(e) => setSelectedClass(e.target.value)}
-                    className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                  >
-                    <option value="all">Tüm Sınıflar</option>
-                    {Array.from(new Set(children.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
-                      <option key={className} value={className}>
-                        {className}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Çocuk Takibi</h2>
+              <select
+                value={selectedClass}
+                onChange={(e) => setSelectedClass(e.target.value)}
+                className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+              >
+                <option value="all">Tüm Sınıflar</option>
+                {Array.from(new Set(children.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+                  <option key={className} value={className}>
+                    {className}
+                  </option>
+                ))}
+              </select>
+            </div>
 
           {loading ? (
             <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
@@ -798,141 +814,7 @@ export default function TeacherDashboard() {
               ))}
             </div>
           )}
-            </div>
           </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center space-x-3">
-                <div className="bg-gradient-to-br from-amber-500 to-orange-500 p-2 rounded-xl">
-                  <BookOpen className="w-6 h-6 text-white" />
-                </div>
-                <h2 className="text-2xl font-bold text-gray-800">Günlük Rapor</h2>
-              </div>
-              <button
-                onClick={() => setShowReportModal(true)}
-                className="p-2 bg-gradient-to-br from-amber-500 to-orange-500 text-white rounded-lg hover:shadow-lg transition-shadow"
-              >
-                <Plus className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="flex items-center space-x-3 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Tarih</label>
-                <input
-                  type="date"
-                  value={reportDateFilter}
-                  onChange={(e) => setReportDateFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Öğrenci</label>
-                <select
-                  value={reportChildFilter}
-                  onChange={(e) => setReportChildFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
-                >
-                  <option value="all">Tüm Öğrenciler</option>
-                  {children.map((child) => (
-                    <option key={child.id} value={child.id}>
-                      {child.first_name} {child.last_name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              {dailyReports.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <p className="text-sm">Bu tarih için rapor yok</p>
-                </div>
-              ) : (
-                dailyReports.map((report: any) => (
-                  <div
-                    key={report.id}
-                    className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-lg p-4 border border-amber-100 hover:shadow-md transition-shadow"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <div>
-                        {report.children && (
-                          <h4 className="font-semibold text-gray-900 mb-1">
-                            {report.children.first_name} {report.children.last_name}
-                            {report.children.class_name && (
-                              <span className="ml-2 text-xs text-gray-500 font-normal">
-                                ({report.children.class_name})
-                              </span>
-                            )}
-                          </h4>
-                        )}
-                        <span className="text-xs text-gray-500">
-                          {new Date(report.report_date).toLocaleDateString('tr-TR')}
-                        </span>
-                      </div>
-                      <button
-                        onClick={() => handleOpenEditModal(report)}
-                        className="p-2 hover:bg-amber-100 rounded-lg transition-colors"
-                        title="Düzenle"
-                      >
-                        <Edit2 className="w-4 h-4 text-amber-600" />
-                      </button>
-                    </div>
-                    {report.practical_life && (
-                      <div className="mb-2">
-                        <span className="text-xs font-medium text-gray-600">Pratik Yaşam:</span>
-                        <p className="text-sm text-gray-700">{report.practical_life}</p>
-                      </div>
-                    )}
-                    {report.sensorial && (
-                      <div className="mb-2">
-                        <span className="text-xs font-medium text-gray-600">Duyusal:</span>
-                        <p className="text-sm text-gray-700">{report.sensorial}</p>
-                      </div>
-                    )}
-                    {report.mathematics && (
-                      <div className="mb-2">
-                        <span className="text-xs font-medium text-gray-600">Matematik:</span>
-                        <p className="text-sm text-gray-700">{report.mathematics}</p>
-                      </div>
-                    )}
-                    {report.language && (
-                      <div className="mb-2">
-                        <span className="text-xs font-medium text-gray-600">Dil:</span>
-                        <p className="text-sm text-gray-700">{report.language}</p>
-                      </div>
-                    )}
-                    {report.culture && (
-                      <div className="mb-2">
-                        <span className="text-xs font-medium text-gray-600">Kültür:</span>
-                        <p className="text-sm text-gray-700">{report.culture}</p>
-                      </div>
-                    )}
-                    {report.general_notes && (
-                      <div className="mb-2">
-                        <span className="text-xs font-medium text-gray-600">Genel Notlar:</span>
-                        <p className="text-sm text-gray-700">{report.general_notes}</p>
-                      </div>
-                    )}
-                    {report.mood && (
-                      <div className="mb-2">
-                        <span className="text-xs font-medium text-gray-600">Ruh Hali:</span>
-                        <p className="text-sm text-gray-700">{report.mood}</p>
-                      </div>
-                    )}
-                    {report.social_interaction && (
-                      <div>
-                        <span className="text-xs font-medium text-gray-600">Sosyal Etkileşim:</span>
-                        <p className="text-sm text-gray-700">{report.social_interaction}</p>
-                      </div>
-                    )}
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
         </>
         )}
 
@@ -948,9 +830,21 @@ export default function TeacherDashboard() {
         )}
 
         {activeTab === 'montessori_reports' && (
-          <div>
-            <div className="mb-6">
-              <h2 className="text-2xl font-bold text-gray-800">Montessori Günlük Raporları</h2>
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center space-x-3">
+                <div className="bg-gradient-to-br from-amber-500 to-orange-500 p-2 rounded-xl">
+                  <Sparkles className="w-6 h-6 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-800">Montessori Günlük Raporları</h2>
+              </div>
+              <button
+                onClick={() => setShowReportModal(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:shadow-lg transition-shadow"
+              >
+                <Plus className="w-5 h-5" />
+                <span>Rapor Ekle</span>
+              </button>
             </div>
 
             <div className="flex items-center space-x-3 mb-6">
@@ -960,7 +854,7 @@ export default function TeacherDashboard() {
                   type="date"
                   value={reportDateFilter}
                   onChange={(e) => setReportDateFilter(e.target.value)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 />
               </div>
               <div className="flex-1">
@@ -968,7 +862,7 @@ export default function TeacherDashboard() {
                 <select
                   value={reportChildFilter}
                   onChange={(e) => setReportChildFilter(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent"
                 >
                   <option value="all">Tüm Çocuklar</option>
                   {children.map((child) => (
@@ -980,64 +874,118 @@ export default function TeacherDashboard() {
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4">
               {dailyReports.length === 0 ? (
                 <div className="text-center py-12 text-gray-500">
                   Seçilen tarihe ait rapor bulunamadı
                 </div>
               ) : (
                 dailyReports.map((report: any) => (
-                  <div key={report.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <div key={report.id} className="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-6 border border-amber-100">
                     <div className="flex justify-between items-start mb-4">
                       <div>
                         <h3 className="text-lg font-semibold text-gray-800">
                           {report.children?.first_name} {report.children?.last_name}
                         </h3>
                         <p className="text-sm text-gray-500">{report.children?.class_name}</p>
+                        <span className="text-xs text-gray-500">
+                          {new Date(report.report_date).toLocaleDateString('tr-TR')}
+                        </span>
                       </div>
-                      <span className="text-sm text-gray-600">
-                        {new Date(report.report_date).toLocaleDateString('tr-TR')}
-                      </span>
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleOpenEditModal(report)}
+                          className="p-2 hover:bg-amber-100 rounded-lg transition-colors"
+                          title="Düzenle"
+                        >
+                          <Edit2 className="w-4 h-4 text-amber-600" />
+                        </button>
+                        <button
+                          onClick={() => handleDeleteReport(report.id)}
+                          className="p-2 hover:bg-red-100 rounded-lg transition-colors"
+                          title="Sil"
+                        >
+                          <X className="w-4 h-4 text-red-600" />
+                        </button>
+                      </div>
                     </div>
 
-                    {report.activities && (
-                      <div className="mb-4">
-                        <h4 className="font-medium text-gray-700 mb-2">Aktiviteler</h4>
-                        <p className="text-gray-600">{report.activities}</p>
+                    {report.mood && (
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Ruh Hali</h4>
+                        <p className="text-sm text-gray-600">{report.mood}</p>
                       </div>
                     )}
 
-                    {report.notes && (
-                      <div className="mb-4">
-                        <h4 className="font-medium text-gray-700 mb-2">Notlar</h4>
-                        <p className="text-gray-600">{report.notes}</p>
+                    {report.social_interaction && (
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Sosyal Etkileşim</h4>
+                        <p className="text-sm text-gray-600">{report.social_interaction}</p>
                       </div>
                     )}
 
-                    {report.materials_used && report.materials_used.length > 0 && (
-                      <div className="mb-4">
-                        <h4 className="font-medium text-gray-700 mb-2">Kullanılan Materyaller</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {report.materials_used.map((material: string, idx: number) => (
-                            <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
-                              {material}
-                            </span>
-                          ))}
-                        </div>
+                    {report.practical_life && (
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Pratik Yaşam</h4>
+                        <p className="text-sm text-gray-600">{report.practical_life}</p>
+                      </div>
+                    )}
+
+                    {report.sensorial && (
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Duyusal</h4>
+                        <p className="text-sm text-gray-600">{report.sensorial}</p>
+                      </div>
+                    )}
+
+                    {report.mathematics && (
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Matematik</h4>
+                        <p className="text-sm text-gray-600">{report.mathematics}</p>
+                      </div>
+                    )}
+
+                    {report.language && (
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Dil</h4>
+                        <p className="text-sm text-gray-600">{report.language}</p>
+                      </div>
+                    )}
+
+                    {report.culture && (
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Kültür</h4>
+                        <p className="text-sm text-gray-600">{report.culture}</p>
+                      </div>
+                    )}
+
+                    {report.general_notes && (
+                      <div className="mb-3">
+                        <h4 className="text-sm font-medium text-gray-700 mb-1">Genel Notlar</h4>
+                        <p className="text-sm text-gray-600">{report.general_notes}</p>
                       </div>
                     )}
 
                     {report.media_urls && report.media_urls.length > 0 && (
                       <div className="mt-4">
-                        <h4 className="font-medium text-gray-700 mb-2">Medya</h4>
+                        <h4 className="text-sm font-medium text-gray-700 mb-2">Medya</h4>
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                           {report.media_urls.map((url: string, idx: number) => (
-                            <img
-                              key={idx}
-                              src={url}
-                              alt={`Report media ${idx + 1}`}
-                              className="w-full h-32 object-cover rounded-lg"
-                            />
+                            url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                              <img
+                                key={idx}
+                                src={url}
+                                alt={`Report media ${idx + 1}`}
+                                className="w-full h-32 object-cover rounded-lg"
+                              />
+                            ) : (
+                              <video
+                                key={idx}
+                                src={url}
+                                controls
+                                className="w-full h-32 object-cover rounded-lg"
+                              />
+                            )
                           ))}
                         </div>
                       </div>
