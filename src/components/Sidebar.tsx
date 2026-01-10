@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
+import LanguageToggle from './LanguageToggle';
 import {
   Baby,
   Users,
@@ -101,100 +103,100 @@ interface SidebarProps {
   panelTitle?: string;
 }
 
-const defaultAdminMenuCategories: MenuCategory[] = [
+const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory[] => [
   {
     id: 'homepage',
-    label: 'Ana Sayfa',
+    label: t('menu.homepage'),
     items: [
-      { id: 'home', label: 'Ana Sayfa', icon: Home },
-      { id: 'about', label: 'Hakkımızda', icon: Info },
+      { id: 'home', label: t('menu.home'), icon: Home },
+      { id: 'about', label: t('menu.about'), icon: Info },
     ],
   },
   {
     id: 'ref_sections',
-    label: 'Ref Ekosistemi',
+    label: t('menu.refEcosystem'),
     items: [
-      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
-      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
-      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
+      { id: 'ref_akademi', label: t('menu.refAkademi'), icon: GraduationCap },
+      { id: 'ref_danismanlik', label: t('menu.refDanismanlik'), icon: Briefcase },
+      { id: 'ref_atolye', label: t('menu.refAtolye'), icon: Palette },
     ],
   },
   {
     id: 'student_management',
-    label: 'Öğrenci Yönetimi',
+    label: t('menu.studentManagement'),
     items: [
-      { id: 'children', label: 'Çocuklar', icon: Baby },
-      { id: 'users', label: 'Kullanıcılar', icon: Users },
-      { id: 'attendance', label: 'Devamsızlık', icon: Calendar },
+      { id: 'children', label: t('menu.children'), icon: Baby },
+      { id: 'users', label: t('menu.users'), icon: Users },
+      { id: 'attendance', label: t('menu.attendance'), icon: Calendar },
     ],
   },
   {
     id: 'reports',
-    label: 'Raporlar ve Değerlendirme',
+    label: t('menu.reports'),
     items: [
-      { id: 'montessori_reports', label: 'Montessori Raporları', icon: Sparkles },
-      { id: 'branch_reports', label: 'Branş Dersleri', icon: BookOpen },
-      { id: 'teacher_assignments', label: 'Öğretmen Atamaları', icon: UserCheck },
-      { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
+      { id: 'montessori_reports', label: t('menu.montessoriReports'), icon: Sparkles },
+      { id: 'branch_reports', label: t('menu.branchReports'), icon: BookOpen },
+      { id: 'teacher_assignments', label: t('menu.teacherAssignments'), icon: UserCheck },
+      { id: 'behavior_incidents', label: t('menu.behaviorIncidents'), icon: AlertTriangle },
     ],
   },
   {
     id: 'communication',
-    label: 'İletişim',
+    label: t('menu.communication'),
     items: [
-      { id: 'announcements', label: 'Duyurular', icon: Megaphone },
-      { id: 'messages', label: 'Mesajlar', icon: MessageSquare },
-      { id: 'calendar', label: 'Akademik Takvim', icon: Calendar },
+      { id: 'announcements', label: t('menu.announcements'), icon: Megaphone },
+      { id: 'messages', label: t('menu.messages'), icon: MessageSquare },
+      { id: 'calendar', label: t('menu.calendar'), icon: Calendar },
     ],
   },
   {
     id: 'finance',
-    label: 'Finans ve Randevular',
+    label: t('menu.finance'),
     items: [
-      { id: 'fees', label: 'Okul Ödemeleri', icon: CreditCard },
-      { id: 'appointments', label: 'Randevular', icon: CalendarCheck },
+      { id: 'fees', label: t('menu.fees'), icon: CreditCard },
+      { id: 'appointments', label: t('menu.appointments'), icon: CalendarCheck },
     ],
   },
   {
     id: 'operations',
-    label: 'Operasyonel Yönetim',
+    label: t('menu.operations'),
     items: [
-      { id: 'tasks', label: 'Görevlendirmeler', icon: ClipboardList },
-      { id: 'menu', label: 'Yemek Menüsü', icon: UtensilsCrossed },
-      { id: 'duty', label: 'Nöbetçi Öğretmen', icon: UserCheck },
+      { id: 'tasks', label: t('menu.tasks'), icon: ClipboardList },
+      { id: 'menu', label: t('menu.menu'), icon: UtensilsCrossed },
+      { id: 'duty', label: t('menu.duty'), icon: UserCheck },
     ],
   },
   {
     id: 'services',
-    label: 'Hizmetler ve Talepler',
+    label: t('menu.services'),
     items: [
-      { id: 'services', label: 'Servis Takibi', icon: Car },
-      { id: 'cleaning', label: 'Temizlik', icon: Sparkles },
-      { id: 'material_requests', label: 'Malzeme Talepleri', icon: Package },
-      { id: 'inquiries', label: 'Bilgi Talepleri', icon: Bell },
+      { id: 'services', label: t('menu.servicesTracking'), icon: Car },
+      { id: 'cleaning', label: t('menu.cleaning'), icon: Sparkles },
+      { id: 'material_requests', label: t('menu.materialRequests'), icon: Package },
+      { id: 'inquiries', label: t('menu.inquiries'), icon: Bell },
     ],
   },
   {
     id: 'applications',
-    label: 'Başvurular',
+    label: t('menu.applications'),
     items: [
-      { id: 'reference_applications', label: 'Referans Öğretmen', icon: FileText },
+      { id: 'reference_applications', label: t('menu.referenceApplications'), icon: FileText },
     ],
   },
   {
     id: 'content',
-    label: 'İçerik Yönetimi',
+    label: t('menu.content'),
     items: [
-      { id: 'content_management', label: 'Hakkımızda İçeriği', icon: Edit },
-      { id: 'ref_management', label: 'Ref Ekosistemi Yönetimi', icon: Edit },
+      { id: 'content_management', label: t('menu.contentManagement'), icon: Edit },
+      { id: 'ref_management', label: t('menu.refManagement'), icon: Edit },
     ],
   },
   {
     id: 'settings',
-    label: 'Ayarlar',
+    label: t('menu.settings'),
     items: [
-      { id: 'settings_management', label: 'Instagram Ayarları', icon: Settings },
-      { id: 'video_settings', label: 'Login Video Ayarları', icon: Video },
+      { id: 'settings_management', label: t('menu.instagramSettings'), icon: Settings },
+      { id: 'video_settings', label: t('menu.videoSettings'), icon: Video },
     ],
   },
 ];
@@ -209,8 +211,9 @@ export default function Sidebar({
   menuCategories,
   panelTitle,
 }: SidebarProps) {
-  const categories = menuCategories || defaultAdminMenuCategories;
-  const title = panelTitle || 'Yönetici Paneli';
+  const { t } = useLanguage();
+  const categories = menuCategories || getDefaultAdminMenuCategories(t);
+  const title = panelTitle || t('sidebar.adminPanel');
 
   const STORAGE_VERSION = '1.0';
 
@@ -391,9 +394,13 @@ export default function Sidebar({
 
       <div className="border-t border-gray-700 p-4 space-y-3">
         {!isCollapsed && (
-          <div className="mb-3">
-            <p className="text-xs text-gray-400 mb-2 px-3">Bizi Takip Edin</p>
-            <div className="flex items-center justify-center space-x-2">
+          <>
+            <div className="flex justify-center mb-3">
+              <LanguageToggle />
+            </div>
+            <div className="mb-3">
+              <p className="text-xs text-gray-400 mb-2 px-3">{t('sidebar.followUs')}</p>
+              <div className="flex items-center justify-center space-x-2">
               <div
                 className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
                 title="Facebook (Yakında)"
@@ -429,11 +436,16 @@ export default function Sidebar({
                 <Mail className="w-5 h-5" />
               </a>
             </div>
-          </div>
+            </div>
+          </>
         )}
 
         {isCollapsed && (
-          <div className="flex flex-col items-center space-y-2 mb-3">
+          <>
+            <div className="flex justify-center mb-3">
+              <LanguageToggle className="scale-90" />
+            </div>
+            <div className="flex flex-col items-center space-y-2 mb-3">
             <div
               className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
               title="Facebook (Yakında)"
@@ -468,28 +480,29 @@ export default function Sidebar({
             >
               <Mail className="w-4 h-4" />
             </a>
-          </div>
+            </div>
+          </>
         )}
 
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="hidden lg:flex w-full items-center justify-center space-x-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors"
-          title={isCollapsed ? 'Genişlet' : 'Daralt'}
+          title={isCollapsed ? t('sidebar.expand') : t('sidebar.collapse')}
         >
           <ChevronLeft
             className={`w-5 h-5 transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
           />
-          {!isCollapsed && <span>Daralt</span>}
+          {!isCollapsed && <span>{t('sidebar.collapse')}</span>}
         </button>
         <button
           onClick={onSignOut}
           className={`w-full flex items-center space-x-2 px-3 py-2 text-sm text-gray-300 hover:bg-red-600 hover:text-white rounded-lg transition-colors ${
             isCollapsed ? 'justify-center' : ''
           }`}
-          title={isCollapsed ? 'Çıkış Yap' : ''}
+          title={isCollapsed ? t('sidebar.logout') : ''}
         >
           <LogOut className="w-5 h-5" />
-          {!isCollapsed && <span>Çıkış Yap</span>}
+          {!isCollapsed && <span>{t('sidebar.logout')}</span>}
         </button>
       </div>
     </div>

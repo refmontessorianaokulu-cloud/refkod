@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import InquiryForm from './InquiryForm';
 import ReferenceTeacherForm from './ReferenceTeacherForm';
 import ContactPage from './ContactPage';
 import { supabase } from '../lib/supabase';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Search as SearchIcon } from 'lucide-react';
+import LanguageToggle from './LanguageToggle';
+import SearchModal from './SearchModal';
 
 interface AboutSection {
   id: string;
@@ -32,7 +35,9 @@ export default function Login() {
   const [isContactCardOpen, setIsContactCardOpen] = useState(false);
   const [aboutSections, setAboutSections] = useState<AboutSection[]>([]);
   const [aboutLoading, setAboutLoading] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
+  const { t } = useLanguage();
 
   useEffect(() => {
     const loadVideoSettings = async () => {
@@ -158,6 +163,24 @@ export default function Login() {
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
         )}
+
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+          <button
+            onClick={() => setShowSearchModal(true)}
+            className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+            title={t('search.placeholder')}
+          >
+            <SearchIcon className="w-5 h-5 text-gray-700" />
+          </button>
+          <LanguageToggle />
+        </div>
+
+        <SearchModal
+          isOpen={showSearchModal}
+          onClose={() => setShowSearchModal(false)}
+          userRole="guest"
+        />
+
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative z-10">
           <div className="flex items-center justify-center mb-8 mt-4">
             <img
@@ -167,10 +190,10 @@ export default function Login() {
             />
           </div>
           <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-            Şifremi Unuttum
+            {t('login.forgotPasswordTitle')}
           </h1>
           <p className="text-center text-gray-600 mb-8">
-            E-posta adresinize şifre sıfırlama bağlantısı göndereceğiz
+            {t('login.forgotPasswordDesc')}
           </p>
 
           <form onSubmit={handleForgotPassword} className="space-y-6">
@@ -187,7 +210,7 @@ export default function Login() {
 
             <div>
               <label htmlFor="resetEmail" className="block text-sm font-medium text-gray-700 mb-2">
-                E-posta
+                {t('login.email')}
               </label>
               <input
                 id="resetEmail"
@@ -196,7 +219,7 @@ export default function Login() {
                 onChange={(e) => setResetEmail(e.target.value)}
                 required
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                placeholder="ornek@email.com"
+                placeholder={t('login.emailPlaceholder')}
               />
             </div>
 
@@ -205,7 +228,7 @@ export default function Login() {
               disabled={loading}
               className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
-              {loading ? 'Gönderiliyor...' : 'Şifre Sıfırlama Linki Gönder'}
+              {loading ? t('login.sending') : t('login.sendResetLink')}
             </button>
           </form>
 
@@ -214,7 +237,7 @@ export default function Login() {
               onClick={() => setShowForgotPassword(false)}
               className="text-green-600 hover:text-green-700 font-medium transition-colors"
             >
-              Giriş sayfasına dön
+              {t('login.backToLogin')}
             </button>
           </p>
         </div>
@@ -242,6 +265,23 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
       )}
 
+      <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+        <button
+          onClick={() => setShowSearchModal(true)}
+          className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+          title={t('search.placeholder')}
+        >
+          <SearchIcon className="w-5 h-5 text-gray-700" />
+        </button>
+        <LanguageToggle />
+      </div>
+
+      <SearchModal
+        isOpen={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        userRole="guest"
+      />
+
       {/* Logo en üstte - Tüm ekranlar */}
       <div className="flex justify-center pt-2 pb-6 relative z-10">
         <img
@@ -261,7 +301,7 @@ export default function Login() {
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <h2 className="text-lg font-bold text-center text-gray-800">
-              Giriş Yap
+              {t('login.title')}
             </h2>
             <ChevronDown
               className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
@@ -280,7 +320,7 @@ export default function Login() {
 
               <div>
                 <label htmlFor="email" className="block text-xs font-medium text-gray-800 mb-1">
-                  E-posta
+                  {t('login.email')}
                 </label>
                 <input
                   id="email"
@@ -289,13 +329,13 @@ export default function Login() {
                   onChange={(e) => setEmail(e.target.value)}
                   required
                   className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
-                  placeholder="ornek@email.com"
+                  placeholder={t('login.emailPlaceholder')}
                 />
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-xs font-medium text-gray-800 mb-1">
-                  Şifre
+                  {t('login.password')}
                 </label>
                 <input
                   id="password"
@@ -304,7 +344,7 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
-                  placeholder="••••••••"
+                  placeholder={t('login.passwordPlaceholder')}
                 />
               </div>
 
@@ -313,7 +353,7 @@ export default function Login() {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-sm"
               >
-                {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+                {loading ? t('login.loggingIn') : t('login.loginButton')}
               </button>
             </form>
 
@@ -322,7 +362,7 @@ export default function Login() {
                 onClick={() => setShowForgotPassword(true)}
                 className="text-green-600 hover:text-green-700 font-medium transition-colors"
               >
-                Şifremi Unuttum
+                {t('login.forgotPassword')}
               </button>
             </div>
 
@@ -331,10 +371,10 @@ export default function Login() {
                 onClick={signInAsGuest}
                 className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
               >
-                Misafir Olarak Giriş Yap
+                {t('login.guestLogin')}
               </button>
               <p className="text-center text-xs text-gray-700 mt-2">
-                Sadece ana sayfa ve hakkımızda bölümünü görüntüleyebilirsiniz
+                {t('login.guestLoginDesc')}
               </p>
             </div>
           </div>
@@ -347,7 +387,7 @@ export default function Login() {
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <h2 className="text-lg font-bold text-center text-gray-800">
-              Başvuru Formları
+              {t('login.applications')}
             </h2>
             <ChevronDown
               className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
@@ -362,10 +402,10 @@ export default function Login() {
                 onClick={() => setShowInquiryForm(true)}
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg text-sm"
               >
-                Ön Bilgi Talep Formu
+                {t('login.inquiryForm')}
               </button>
               <p className="text-center text-xs text-gray-700 mt-2">
-                Formu doldurarak yönetici ile iletişime geçebilirsiniz
+                {t('login.inquiryFormDesc')}
               </p>
             </div>
 
@@ -374,10 +414,10 @@ export default function Login() {
                 onClick={() => setShowReferenceTeacherForm(true)}
                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
               >
-                Referans Öğretmen Programı Başvurusu
+                {t('login.referenceTeacher')}
               </button>
               <p className="text-center text-xs text-gray-700 mt-2">
-                Son başvuru tarihi: 23 Ocak
+                {t('login.referenceTeacherDesc')}
               </p>
             </div>
           </div>
@@ -390,7 +430,7 @@ export default function Login() {
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <h2 className="text-lg font-bold text-center text-gray-800">
-              Hakkımızda
+              {t('login.about')}
             </h2>
             <ChevronDown
               className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
@@ -427,7 +467,7 @@ export default function Login() {
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
             <h2 className="text-lg font-bold text-center text-gray-800">
-              İletişim
+              {t('login.contact')}
             </h2>
             <ChevronDown
               className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
@@ -441,7 +481,7 @@ export default function Login() {
               onClick={() => setShowContactPage(true)}
               className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
             >
-              İletişim Bilgilerimiz
+              {t('login.contactInfo')}
             </button>
             <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 space-y-2 text-xs text-gray-700">
               <p className="font-medium">📍 Arnavutköy - İstanbul</p>
@@ -562,10 +602,10 @@ export default function Login() {
                 onClick={() => setShowInquiryForm(true)}
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg text-sm"
               >
-                Ön Bilgi Talep Formu
+                {t('login.inquiryForm')}
               </button>
               <p className="text-center text-xs text-gray-700 mt-2">
-                Formu doldurarak yönetici ile iletişime geçebilirsiniz
+                {t('login.inquiryFormDesc')}
               </p>
             </div>
 
@@ -574,10 +614,10 @@ export default function Login() {
                 onClick={() => setShowReferenceTeacherForm(true)}
                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
               >
-                Referans Öğretmen Programı Başvurusu
+                {t('login.referenceTeacher')}
               </button>
               <p className="text-center text-xs text-gray-700 mt-2">
-                Son başvuru tarihi: 23 Ocak
+                {t('login.referenceTeacherDesc')}
               </p>
             </div>
           </div>
@@ -641,7 +681,7 @@ export default function Login() {
               onClick={() => setShowContactPage(true)}
               className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
             >
-              İletişim Bilgilerimiz
+              {t('login.contactInfo')}
             </button>
             <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 space-y-2 text-xs text-gray-700">
               <p className="font-medium">📍 Arnavutköy - İstanbul</p>

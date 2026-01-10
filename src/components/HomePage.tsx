@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, Globe, Sparkles } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 import AnnouncementCarousel from './AnnouncementCarousel';
 import InstagramFeed from './InstagramFeed';
 
@@ -11,6 +12,7 @@ interface HomePageProps {
 
 export default function HomePage({ onNavigateToAbout }: HomePageProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     setIsVisible(true);
@@ -29,12 +31,12 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
               <div className="flex items-center justify-center space-x-2 mt-8 lg:mt-0">
                 <Globe className="w-6 h-6 lg:w-8 lg:h-8 text-emerald-600" />
                 <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-clip-text text-transparent">
-                  Montessori School
+                  {t('home.subtitle')}
                 </h1>
                 <span className="text-3xl">🇹🇷</span>
               </div>
               <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-emerald-800 leading-tight">
-                Ref Çocuk Akademisine HOŞGELDİNİZ!
+                {t('home.title')}
               </h2>
             </div>
           </div>
@@ -57,24 +59,19 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
                 <div className="flex items-center space-x-3 mb-6">
                   <Sparkles className="w-8 h-8 text-emerald-600" />
                   <h3 className="text-3xl lg:text-4xl font-bold text-emerald-800">
-                    Ref Çocuk Akademisi
+                    {t('home.heading')}
                   </h3>
                 </div>
 
                 <div className="space-y-4 text-gray-700 leading-relaxed">
                   <p className="text-lg">
-                    Ref Çocuk Akademisi olarak, Montessori eğitim felsefesini benimseyerek çocuklarımızın
-                    doğal öğrenme süreçlerini destekliyoruz. Her çocuğun benzersiz potansiyelini keşfetmesi
-                    ve geliştirmesi için güvenli, destekleyici ve zengin bir öğrenme ortamı sunuyoruz.
+                    {t('home.description1')}
                   </p>
                   <p className="text-lg hidden lg:block">
-                    Deneyimli eğitmenlerimiz ve özel olarak hazırlanmış Montessori materyallerimizle,
-                    çocuklarımız kendi hızlarında ilerleyerek pratik hayat becerileri, akademik temeller
-                    ve sosyal gelişim kazanırlar.
+                    {t('home.description2')}
                   </p>
                   <p className="text-lg hidden lg:block">
-                    Okul öncesi eğitimde deneyimimizle, her çocuğa değer veren, onların
-                    bireysel farklılıklarını destekleyen ve özgüven kazandıran bir eğitim anlayışına sahibiz.
+                    {t('home.description3')}
                   </p>
                 </div>
 
@@ -82,7 +79,7 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
                   onClick={onNavigateToAbout}
                   className="mt-8 group flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
                 >
-                  <span>Devamını Oku</span>
+                  <span>{t('home.readMore')}</span>
                   <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
                 </button>
               </div>
