@@ -5,6 +5,7 @@ import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import RefSectionsView from './RefSectionsView';
 import SearchModal from './SearchModal';
+import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 import { Home, Info, GraduationCap, Briefcase, Palette, Search as SearchIcon } from 'lucide-react';
 
@@ -55,13 +56,16 @@ export default function GuestDashboard() {
         panelTitle={t('sidebar.guestPanel')}
       />
 
-      <button
-        onClick={() => setShowSearchModal(true)}
-        className="fixed top-4 right-4 z-40 p-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-lg transition-all"
-        title={t('search.placeholder')}
-      >
-        <SearchIcon className="w-5 h-5" />
-      </button>
+      <div className="fixed top-4 right-4 z-40 flex items-center gap-3">
+        <button
+          onClick={() => setShowSearchModal(true)}
+          className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+          title={t('search.placeholder')}
+        >
+          <SearchIcon className="w-5 h-5 text-gray-700" />
+        </button>
+        <LanguageToggle />
+      </div>
 
       <SearchModal
         isOpen={showSearchModal}

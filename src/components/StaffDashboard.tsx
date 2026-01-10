@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { UtensilsCrossed, Sparkles, Car, Baby, Package, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
+import { UtensilsCrossed, Sparkles, Car, Baby, Package, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette, Search as SearchIcon } from 'lucide-react';
 import MealMenuSection from './MealMenuSection';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import ToiletNotificationsSection from './ToiletNotificationsSection';
@@ -10,11 +11,15 @@ import BehaviorIncidentSection from './BehaviorIncidentSection';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import RefSectionsView from './RefSectionsView';
+import SearchModal from './SearchModal';
+import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 export default function StaffDashboard() {
   const { signOut, profile } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<MenuTab>('home');
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
   const getStaffTitle = () => {
     if (profile?.staff_role === 'cook') return 'Aşçı Paneli';
@@ -97,6 +102,24 @@ export default function StaffDashboard() {
         userRole="staff"
         menuCategories={getStaffMenuCategories()}
         panelTitle={getStaffTitle()}
+      />
+
+      <div className="fixed top-4 right-4 z-40 flex items-center gap-3">
+        <button
+          onClick={() => setShowSearchModal(true)}
+          className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+          title={t('search.placeholder')}
+        >
+          <SearchIcon className="w-5 h-5 text-gray-700" />
+        </button>
+        <LanguageToggle />
+      </div>
+
+      <SearchModal
+        isOpen={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        onNavigate={setActiveTab}
+        userRole="staff"
       />
 
       <div className="flex-1 overflow-auto">

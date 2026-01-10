@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { supabase, Child, Profile, DailyReport } from '../lib/supabase';
-import { Plus, Trash2, UserPlus, GraduationCap, CheckCircle, XCircle, Car, Bell, CreditCard as Edit, Baby } from 'lucide-react';
+import { Plus, Trash2, UserPlus, GraduationCap, CheckCircle, XCircle, Car, Bell, CreditCard as Edit, Baby, Search as SearchIcon } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -26,11 +27,15 @@ import RefSectionsManagement from './RefSectionsManagement';
 import RefSectionsView from './RefSectionsView';
 import TeacherBranchAssignments from './TeacherBranchAssignments';
 import VideoUploadSection from './VideoUploadSection';
+import SearchModal from './SearchModal';
+import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab } from './Sidebar';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<MenuTab>('home');
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -519,6 +524,24 @@ export default function AdminDashboard() {
         onSignOut={signOut}
         userFullName={profile?.full_name}
         pendingUsersCount={pendingUsersCount}
+      />
+
+      <div className="fixed top-4 right-4 z-40 flex items-center gap-3">
+        <button
+          onClick={() => setShowSearchModal(true)}
+          className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+          title={t('search.placeholder')}
+        >
+          <SearchIcon className="w-5 h-5 text-gray-700" />
+        </button>
+        <LanguageToggle />
+      </div>
+
+      <SearchModal
+        isOpen={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        onNavigate={setActiveTab}
+        userRole="admin"
       />
 
       <main className="flex-1 overflow-x-hidden">

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import LanguageToggle from './LanguageToggle';
 import {
   Baby,
   Users,
@@ -395,9 +394,6 @@ export default function Sidebar({
       <div className="border-t border-gray-700 p-4 space-y-3">
         {!isCollapsed && (
           <>
-            <div className="flex justify-center mb-3">
-              <LanguageToggle />
-            </div>
             <div className="mb-3">
               <p className="text-xs text-gray-400 mb-2 px-3">{t('sidebar.followUs')}</p>
               <div className="flex items-center justify-center space-x-2">
@@ -442,9 +438,6 @@ export default function Sidebar({
 
         {isCollapsed && (
           <>
-            <div className="flex justify-center mb-3">
-              <LanguageToggle className="scale-90" />
-            </div>
             <div className="flex flex-col items-center space-y-2 mb-3">
             <div
               className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"

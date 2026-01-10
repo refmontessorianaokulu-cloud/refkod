@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useLanguage } from '../contexts/LanguageContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles, GraduationCap, Briefcase, Palette, AlertCircle } from 'lucide-react';
+import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles, GraduationCap, Briefcase, Palette, AlertCircle, Search as SearchIcon } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -12,6 +13,8 @@ import ServiceLocationSection from './ServiceLocationSection';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import RefSectionsView from './RefSectionsView';
+import SearchModal from './SearchModal';
+import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 type ChildWithLogs = Child & {
@@ -84,7 +87,9 @@ const parentMenuCategories: MenuCategory[] = [
 
 export default function ParentDashboard() {
   const { signOut, profile } = useAuth();
+  const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<MenuTab>('home');
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const [children, setChildren] = useState<ChildWithLogs[]>([]);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -474,6 +479,24 @@ export default function ParentDashboard() {
         userRole="parent"
         menuCategories={parentMenuCategories}
         panelTitle="Veli Paneli"
+      />
+
+      <div className="fixed top-4 right-4 z-40 flex items-center gap-3">
+        <button
+          onClick={() => setShowSearchModal(true)}
+          className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+          title={t('search.placeholder')}
+        >
+          <SearchIcon className="w-5 h-5 text-gray-700" />
+        </button>
+        <LanguageToggle />
+      </div>
+
+      <SearchModal
+        isOpen={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+        onNavigate={setActiveTab}
+        userRole="parent"
       />
 
       <div className="flex-1 overflow-auto">

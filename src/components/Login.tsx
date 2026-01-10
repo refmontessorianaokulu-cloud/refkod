@@ -178,6 +178,9 @@ export default function Login() {
         <SearchModal
           isOpen={showSearchModal}
           onClose={() => setShowSearchModal(false)}
+          onNavigate={(tab) => {
+            signInAsGuest(tab);
+          }}
           userRole="guest"
         />
 
@@ -279,6 +282,9 @@ export default function Login() {
       <SearchModal
         isOpen={showSearchModal}
         onClose={() => setShowSearchModal(false)}
+        onNavigate={(tab) => {
+          signInAsGuest(tab);
+        }}
         userRole="guest"
       />
 
