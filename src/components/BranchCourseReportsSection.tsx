@@ -55,6 +55,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   const [existingMediaUrls, setExistingMediaUrls] = useState<string[]>([]);
   const [teacherAssignments, setTeacherAssignments] = useState<{ class_name: string; course_type: string }[]>([]);
   const [loadingAssignments, setLoadingAssignments] = useState(true);
+  const [modalSelectedClass, setModalSelectedClass] = useState<string>('all');
 
   useEffect(() => {
     if (userRole === 'teacher' && teacherId) {
@@ -161,11 +162,13 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     e.preventDefault();
     if (!teacherId) return;
 
-    const targetChildren = filteredChildren;
+    const modalFilteredChildren = getModalFilteredChildren();
+    const targetChildren = modalFilteredChildren;
 
     if (form.child_id === 'all') {
       const courseLabel = courseTypes.find(c => c.value === form.course_type)?.label || form.course_type;
-      const confirmMessage = `${targetChildren.length} çocuk için ${courseLabel} raporu eklenecek. Devam etmek istiyor musunuz?`;
+      const classInfo = modalSelectedClass === 'all' ? 'tüm sınıflar' : modalSelectedClass;
+      const confirmMessage = `${targetChildren.length} çocuk için ${courseLabel} raporu eklenecek (${classInfo}). Devam etmek istiyor musunuz?`;
       if (!confirm(confirmMessage)) return;
     }
 
@@ -268,13 +271,14 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   const resetForm = () => {
     setForm({
       child_id: '',
-      course_type: 'english',
+      course_type: (userRole === 'guidance_counselor' ? 'guidance' : 'english') as 'english' | 'quran' | 'moral_values' | 'etiquette' | 'art_music' | 'guidance',
       content: '',
       report_date: new Date().toISOString().split('T')[0],
     });
     setMediaFiles([]);
     setExistingMediaUrls([]);
     setEditingReport(null);
+    setModalSelectedClass(selectedClass !== 'all' ? selectedClass : 'all');
   };
 
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -325,8 +329,17 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     return courseTypes.filter(c => assignedCourses.includes(c.value));
   };
 
+  const getModalFilteredChildren = () => {
+    const baseChildren = filteredChildren;
+    if (modalSelectedClass === 'all') {
+      return baseChildren;
+    }
+    return baseChildren.filter(child => child.class_name === modalSelectedClass);
+  };
+
   const filteredChildren = getFilteredChildren();
   const availableCourseTypes = getAvailableCourseTypes();
+  const modalFilteredChildren = getModalFilteredChildren();
 
   return (
     <div className="space-y-6">
@@ -339,7 +352,10 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
         </div>
         {(userRole === 'teacher' || userRole === 'guidance_counselor') && (
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              setModalSelectedClass(selectedClass !== 'all' ? selectedClass : 'all');
+              setShowModal(true);
+            }}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-shadow"
             disabled={userRole === 'teacher' && teacherAssignments.length === 0}
           >
@@ -527,6 +543,32 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
             </div>
 
             <form onSubmit={editingReport ? handleEditReport : handleSubmit} className="space-y-4">
+              {!editingReport && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Sınıf Seçin</label>
+                  <select
+                    value={modalSelectedClass}
+                    onChange={(e) => {
+                      setModalSelectedClass(e.target.value);
+                      setForm({ ...form, child_id: '' });
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    <option value="all">Tüm Sınıflar</option>
+                    {Array.from(new Set(filteredChildren.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+                      <option key={className} value={className}>
+                        {className}
+                      </option>
+                    ))}
+                  </select>
+                  {modalSelectedClass !== 'all' && (
+                    <p className="mt-1 text-xs text-gray-600">
+                      {modalFilteredChildren.length} çocuk bulundu
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Çocuk</label>
                 <select
@@ -537,12 +579,13 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                   disabled={!!editingReport}
                 >
                   <option value="">Çocuk seçin...</option>
-                  {!editingReport && (
+                  {!editingReport && modalFilteredChildren.length > 0 && (
                     <option value="all" className="font-bold">
-                      ✓ Tüm Çocuklar ({filteredChildren.length})
+                      ✓ Tüm Çocuklar ({modalFilteredChildren.length})
+                      {modalSelectedClass !== 'all' && ` - ${modalSelectedClass}`}
                     </option>
                   )}
-                  {filteredChildren.map((child) => (
+                  {modalFilteredChildren.map((child) => (
                     <option key={child.id} value={child.id}>
                       {child.first_name} {child.last_name} - {child.class_name}
                     </option>
@@ -550,7 +593,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                 </select>
                 {form.child_id === 'all' && !editingReport && (
                   <p className="mt-2 text-sm text-purple-600 bg-purple-50 p-2 rounded-lg">
-                    ℹ Bu rapor tüm çocuklara ({filteredChildren.length} çocuk) aynı içerikle kaydedilecektir.
+                    ℹ Bu rapor {modalSelectedClass !== 'all' ? `${modalSelectedClass} sınıfındaki` : ''} tüm çocuklara ({modalFilteredChildren.length} çocuk) aynı içerikle kaydedilecektir.
                   </p>
                 )}
               </div>
