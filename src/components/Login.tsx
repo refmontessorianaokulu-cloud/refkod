@@ -184,7 +184,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center p-4 md:p-8">
+    <div className="min-h-screen relative flex flex-col p-4 md:p-8 md:items-center md:justify-start md:pt-16">
       {videoEnabled && videoUrl ? (
         <>
           <video
@@ -203,10 +203,20 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
       )}
 
-      {/* Ana içerik: Sol kart - Logo - Sağ kart */}
-      <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 relative z-10 max-w-7xl mx-auto w-full">
+      {/* Mobil: Logo en üstte */}
+      <div className="flex justify-center pt-2 pb-0 relative z-10 md:hidden">
+        <img
+          src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+          alt="REF Logo"
+          className="w-32 h-32 object-contain drop-shadow-2xl"
+          style={{ mixBlendMode: 'multiply' }}
+        />
+      </div>
+
+      {/* Masaüstü: Ana içerik (Sol kart - Logo - Sağ kart) */}
+      <div className="hidden md:flex flex-row items-center justify-center gap-8 lg:gap-12 relative z-10 max-w-7xl mx-auto w-full">
         {/* Sol Kart - Giriş */}
-        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-full md:w-80 order-2 md:order-1">
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-80">
           <button
             onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
@@ -291,21 +301,153 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Ortada Logo */}
-        <div className="order-1 md:order-2">
+        {/* Ortada Logo - Sadece masaüstü */}
+        <div>
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
-            className="w-40 h-40 md:w-64 md:h-64 object-contain drop-shadow-2xl"
+            className="w-64 h-64 object-contain drop-shadow-2xl"
             style={{ mixBlendMode: 'multiply' }}
           />
         </div>
 
         {/* Sağ Kart - Başvuru Formları */}
-        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-full md:w-80 order-3">
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-80">
           <button
             onClick={() => setIsApplicationCardOpen(!isApplicationCardOpen)}
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800">
+              Başvuru Formları
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                isApplicationCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 space-y-4 ${isApplicationCardOpen ? 'block' : 'hidden'}`}>
+            <div>
+              <button
+                onClick={() => setShowInquiryForm(true)}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg text-sm"
+              >
+                Ön Bilgi Talep Formu
+              </button>
+              <p className="text-center text-xs text-gray-700 mt-2">
+                Formu doldurarak yönetici ile iletişime geçebilirsiniz
+              </p>
+            </div>
+
+            <div className="border-t border-white/30 pt-4">
+              <button
+                onClick={() => setShowReferenceTeacherForm(true)}
+                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
+              >
+                Referans Öğretmen Programı Başvurusu
+              </button>
+              <p className="text-center text-xs text-gray-700 mt-2">
+                Son başvuru tarihi: 23 Ocak
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobil: Alt kısımda kartlar */}
+      <div className="flex-1 flex flex-col items-center justify-end gap-6 relative z-10 max-w-7xl mx-auto w-full pb-4 md:hidden">
+        {/* Mobil Sol Kart - Giriş */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-64">
+          <button
+            onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800">
+              Giriş Yap
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                isLoginCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 ${isLoginCardOpen ? 'block' : 'hidden'}`}>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {error && (
+                <div className="bg-red-50/90 backdrop-blur-sm border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="email-mobile" className="block text-xs font-medium text-gray-800 mb-1">
+                  E-posta
+                </label>
+                <input
+                  id="email-mobile"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+                  placeholder="ornek@email.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password-mobile" className="block text-xs font-medium text-gray-800 mb-1">
+                  Şifre
+                </label>
+                <input
+                  id="password-mobile"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-sm"
+              >
+                {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+              </button>
+            </form>
+
+            <div className="text-center text-xs text-gray-800 mt-3">
+              <button
+                onClick={() => setShowForgotPassword(true)}
+                className="text-green-600 hover:text-green-700 font-medium transition-colors"
+              >
+                Şifremi Unuttum
+              </button>
+            </div>
+
+            <div className="mt-4 pt-4 border-t border-white/30">
+              <button
+                onClick={signInAsGuest}
+                className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
+              >
+                Misafir Olarak Giriş Yap
+              </button>
+              <p className="text-center text-xs text-gray-700 mt-2">
+                Sadece ana sayfa ve hakkımızda bölümünü görüntüleyebilirsiniz
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobil Sağ Kart - Başvuru Formları */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-64">
+          <button
+            onClick={() => setIsApplicationCardOpen(!isApplicationCardOpen)}
+            className="w-full flex items-center justify-center gap-2"
           >
             <h2 className="text-lg font-bold text-center text-gray-800">
               Başvuru Formları
