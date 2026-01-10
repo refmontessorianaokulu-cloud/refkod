@@ -16,21 +16,28 @@ export default function HomePage({ onNavigateToAbout, userFullName, onSignOut }:
     setIsVisible(true);
   }, []);
 
+  const capitalizeWords = (text: string) => {
+    return text
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-green-50 to-teal-50">
       {userFullName && onSignOut && (
-        <div className="lg:hidden fixed top-4 right-4 z-40 flex items-center space-x-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg px-4 py-3">
-          <div className="flex items-center space-x-2">
-            <User className="w-5 h-5 text-emerald-600" />
-            <span className="text-sm font-medium text-gray-700">{userFullName}</span>
+        <div className="lg:hidden sticky top-0 right-0 z-40 flex items-center justify-end space-x-2 bg-emerald-50/95 backdrop-blur-sm shadow-md px-3 py-2 border-b border-emerald-100">
+          <div className="flex items-center space-x-1.5">
+            <User className="w-4 h-4 text-emerald-700" />
+            <span className="text-xs font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
           </div>
           <button
             onClick={onSignOut}
-            className="flex items-center space-x-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-md transition-colors"
+            className="flex items-center space-x-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-md transition-colors"
             title="Çıkış Yap"
           >
-            <LogOut className="w-4 h-4" />
-            <span>Çıkış</span>
+            <LogOut className="w-3 h-3" />
+            <span className="text-xs">Çıkış</span>
           </button>
         </div>
       )}
