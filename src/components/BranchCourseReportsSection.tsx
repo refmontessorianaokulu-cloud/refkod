@@ -18,10 +18,10 @@ interface Child {
   first_name: string;
   last_name: string;
   class_name: string;
+  source?: 'montessori' | 'branch';
 }
 
 interface BranchCourseReportsSectionProps {
-  children: Child[];
   teacherId?: string;
   userRole: 'admin' | 'teacher' | 'guidance_counselor';
 }
@@ -35,10 +35,12 @@ const courseTypes = [
   { value: 'guidance', label: 'Rehberlik' },
 ];
 
-export default function BranchCourseReportsSection({ children, teacherId, userRole }: BranchCourseReportsSectionProps) {
+export default function BranchCourseReportsSection({ teacherId, userRole }: BranchCourseReportsSectionProps) {
+  const [children, setChildren] = useState<Child[]>([]);
   const [reports, setReports] = useState<BranchCourseReport[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [loadingChildren, setLoadingChildren] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedCourse, setSelectedCourse] = useState<string>(userRole === 'guidance_counselor' ? 'guidance' : 'all');
   const [selectedClass, setSelectedClass] = useState<string>('all');
@@ -58,6 +60,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   const [modalSelectedClass, setModalSelectedClass] = useState<string>('all');
 
   useEffect(() => {
+    loadBranchChildren();
     if (userRole === 'teacher' && teacherId) {
       loadTeacherAssignments();
     } else {
@@ -66,10 +69,10 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   }, [teacherId, userRole]);
 
   useEffect(() => {
-    if (!loadingAssignments) {
+    if (!loadingAssignments && !loadingChildren) {
       loadReports();
     }
-  }, [selectedDate, selectedCourse, selectedClass, selectedStudent, children, loadingAssignments]);
+  }, [selectedDate, selectedCourse, selectedClass, selectedStudent, children, loadingAssignments, loadingChildren]);
 
   useEffect(() => {
     if (showModal && userRole === 'teacher' && teacherAssignments.length > 0 && form.course_type) {
@@ -82,6 +85,75 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
       }
     }
   }, [form.course_type, showModal]);
+
+  const loadBranchChildren = async () => {
+    setLoadingChildren(true);
+    try {
+      if (userRole === 'admin') {
+        const { data: allChildren } = await supabase
+          .from('children')
+          .select('id, first_name, last_name, class_name')
+          .order('first_name', { ascending: true });
+
+        setChildren(allChildren || []);
+        return;
+      }
+
+      if (!teacherId) return;
+
+      const childrenMap = new Map<string, Child>();
+
+      const { data: montessoriChildren } = await supabase
+        .from('teacher_children')
+        .select('child_id, children(id, first_name, last_name, class_name)')
+        .eq('teacher_id', teacherId);
+
+      if (montessoriChildren) {
+        montessoriChildren.forEach((tc: any) => {
+          if (tc.children) {
+            childrenMap.set(tc.children.id, {
+              ...tc.children,
+              source: 'montessori' as const,
+            });
+          }
+        });
+      }
+
+      const { data: branchAssignments } = await supabase
+        .from('teacher_branch_assignments')
+        .select('class_name, course_type')
+        .eq('teacher_id', teacherId);
+
+      if (branchAssignments && branchAssignments.length > 0) {
+        const assignedClasses = Array.from(new Set(branchAssignments.map(a => a.class_name)));
+
+        const { data: branchChildren } = await supabase
+          .from('children')
+          .select('id, first_name, last_name, class_name')
+          .in('class_name', assignedClasses);
+
+        if (branchChildren) {
+          branchChildren.forEach((child: any) => {
+            if (!childrenMap.has(child.id)) {
+              childrenMap.set(child.id, {
+                ...child,
+                source: 'branch' as const,
+              });
+            }
+          });
+        }
+      }
+
+      const allChildren = Array.from(childrenMap.values()).sort((a, b) =>
+        a.first_name.localeCompare(b.first_name, 'tr')
+      );
+      setChildren(allChildren);
+    } catch (error) {
+      console.error('Error loading branch children:', error);
+    } finally {
+      setLoadingChildren(false);
+    }
+  };
 
   const loadTeacherAssignments = async () => {
     if (!teacherId) return;
@@ -471,7 +543,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
         </div>
       </div>
 
-      {loading ? (
+      {loading || loadingChildren ? (
         <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
       ) : reports.length === 0 ? (
         <div className="text-center py-12 text-gray-500">

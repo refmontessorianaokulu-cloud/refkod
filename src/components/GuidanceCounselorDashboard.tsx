@@ -561,7 +561,6 @@ export default function GuidanceCounselorDashboard() {
           {activeTab === 'branch_reports' && (
             <div className="bg-white rounded-2xl shadow-xl p-8">
               <BranchCourseReportsSection
-                children={children}
                 teacherId={profile?.id}
                 userRole="guidance_counselor"
               />

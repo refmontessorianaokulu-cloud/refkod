@@ -952,7 +952,6 @@ export default function TeacherDashboard() {
         {activeTab === 'branch_reports' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <BranchCourseReportsSection
-              children={children}
               teacherId={profile?.id}
               userRole="teacher"
             />

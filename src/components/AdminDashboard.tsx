@@ -1130,7 +1130,6 @@ export default function AdminDashboard() {
             {activeTab === 'branch_reports' && (
               <div>
                 <BranchCourseReportsSection
-                  children={children}
                   teacherId={profile?.id}
                   userRole="admin"
                 />
