@@ -201,11 +201,11 @@ export default function Login() {
       )}
 
       {/* Logo en üstte ortada */}
-      <div className="flex justify-center pt-8 pb-12 relative z-10">
+      <div className="flex justify-center pt-4 pb-6 relative z-10">
         <img
-          src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+          src="/whatsapp_image_2026-01-10_at_23.02.15.png"
           alt="REF Logo"
-          className="w-72 h-72 object-contain drop-shadow-2xl"
+          className="w-48 h-48 object-contain drop-shadow-2xl"
           style={{ mixBlendMode: 'multiply' }}
         />
       </div>
