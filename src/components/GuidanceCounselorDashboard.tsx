@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Calendar, Send, Users, MessageSquare, ClipboardList, BookOpen, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette } from 'lucide-react';
+import { Calendar, Send, Users, MessageSquare, ClipboardList, BookOpen, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette, Sparkles } from 'lucide-react';
 import MessagesSection from './MessagesSection';
 import TaskResponseSection from './TaskResponseSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
