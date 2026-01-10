@@ -296,23 +296,6 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   };
 
   const getFilteredChildren = () => {
-    if (userRole === 'admin') {
-      return children;
-    }
-
-    if (userRole === 'guidance_counselor') {
-      return children;
-    }
-
-    if (userRole === 'teacher') {
-      if (teacherAssignments.length === 0) {
-        return children;
-      }
-
-      const assignedClasses = Array.from(new Set(teacherAssignments.map(a => a.class_name)));
-      return children.filter(child => assignedClasses.includes(child.class_name));
-    }
-
     return children;
   };
 
@@ -330,7 +313,20 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   };
 
   const getModalFilteredChildren = () => {
-    const baseChildren = filteredChildren;
+    let baseChildren = filteredChildren;
+
+    if (userRole === 'teacher' && teacherAssignments.length > 0 && form.course_type) {
+      const assignedClassesForCourse = teacherAssignments
+        .filter(a => a.course_type === form.course_type)
+        .map(a => a.class_name);
+
+      if (assignedClassesForCourse.length > 0) {
+        baseChildren = baseChildren.filter(child =>
+          assignedClassesForCourse.includes(child.class_name)
+        );
+      }
+    }
+
     if (modalSelectedClass === 'all') {
       return baseChildren;
     }
@@ -604,7 +600,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                   <select
                     required
                     value={form.course_type}
-                    onChange={(e) => setForm({ ...form, course_type: e.target.value as any })}
+                    onChange={(e) => setForm({ ...form, course_type: e.target.value as any, child_id: '' })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
                     {availableCourseTypes.map((type) => (
