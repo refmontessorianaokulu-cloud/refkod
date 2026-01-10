@@ -20,7 +20,8 @@ export default function VideoUploadSection() {
       const { data, error } = await supabase
         .from('app_settings')
         .select('login_video_url, login_video_active, login_video_poster')
-        .single();
+        .limit(1)
+        .maybeSingle();
 
       if (!error && data) {
         setVideoUrl(data.login_video_url || '');
@@ -80,10 +81,20 @@ export default function VideoUploadSection() {
 
       const newVideoUrl = urlData.publicUrl;
 
+      const { data: settingsData } = await supabase
+        .from('app_settings')
+        .select('id')
+        .limit(1)
+        .maybeSingle();
+
+      if (!settingsData) {
+        throw new Error('Ayarlar bulunamadı');
+      }
+
       const { error: updateError } = await supabase
         .from('app_settings')
         .update({ login_video_url: newVideoUrl })
-        .eq('id', (await supabase.from('app_settings').select('id').single()).data?.id);
+        .eq('id', settingsData.id);
 
       if (updateError) throw updateError;
 
@@ -131,10 +142,20 @@ export default function VideoUploadSection() {
 
       const newPosterUrl = urlData.publicUrl;
 
+      const { data: settingsData } = await supabase
+        .from('app_settings')
+        .select('id')
+        .limit(1)
+        .maybeSingle();
+
+      if (!settingsData) {
+        throw new Error('Ayarlar bulunamadı');
+      }
+
       const { error: updateError } = await supabase
         .from('app_settings')
         .update({ login_video_poster: newPosterUrl })
-        .eq('id', (await supabase.from('app_settings').select('id').single()).data?.id);
+        .eq('id', settingsData.id);
 
       if (updateError) throw updateError;
 
@@ -155,10 +176,20 @@ export default function VideoUploadSection() {
     try {
       const newStatus = !videoEnabled;
 
+      const { data: settingsData } = await supabase
+        .from('app_settings')
+        .select('id')
+        .limit(1)
+        .maybeSingle();
+
+      if (!settingsData) {
+        throw new Error('Ayarlar bulunamadı');
+      }
+
       const { error: updateError } = await supabase
         .from('app_settings')
         .update({ login_video_active: newStatus })
-        .eq('id', (await supabase.from('app_settings').select('id').single()).data?.id);
+        .eq('id', settingsData.id);
 
       if (updateError) throw updateError;
 
@@ -179,13 +210,23 @@ export default function VideoUploadSection() {
     setSuccess('');
 
     try {
+      const { data: settingsData } = await supabase
+        .from('app_settings')
+        .select('id')
+        .limit(1)
+        .maybeSingle();
+
+      if (!settingsData) {
+        throw new Error('Ayarlar bulunamadı');
+      }
+
       const { error: updateError } = await supabase
         .from('app_settings')
         .update({
           login_video_url: '',
           login_video_active: false
         })
-        .eq('id', (await supabase.from('app_settings').select('id').single()).data?.id);
+        .eq('id', settingsData.id);
 
       if (updateError) throw updateError;
 

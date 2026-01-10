@@ -25,7 +25,8 @@ export default function Login() {
         const { data, error } = await supabase
           .from('app_settings')
           .select('login_video_url, login_video_active, login_video_poster')
-          .single();
+          .limit(1)
+          .maybeSingle();
 
         if (!error && data) {
           setVideoUrl(data.login_video_url || '');
