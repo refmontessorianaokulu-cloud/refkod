@@ -299,7 +299,15 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     return children;
   };
 
-  const getAvailableCourseTypes = () => {
+  const getAvailableCourseTypesForViewing = () => {
+    if (userRole === 'guidance_counselor') {
+      return courseTypes.filter(c => c.value === 'guidance');
+    }
+
+    return courseTypes;
+  };
+
+  const getAvailableCourseTypesForAdding = () => {
     if (userRole === 'guidance_counselor') {
       return courseTypes.filter(c => c.value === 'guidance');
     }
@@ -334,7 +342,8 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   };
 
   const filteredChildren = getFilteredChildren();
-  const availableCourseTypes = getAvailableCourseTypes();
+  const availableCourseTypesForViewing = getAvailableCourseTypesForViewing();
+  const availableCourseTypesForAdding = getAvailableCourseTypesForAdding();
   const modalFilteredChildren = getModalFilteredChildren();
 
   return (
@@ -388,7 +397,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="all">Tüm Dersler</option>
-              {availableCourseTypes.map((type) => (
+              {availableCourseTypesForViewing.map((type) => (
                 <option key={type.value} value={type.value}>
                   {type.label}
                 </option>
@@ -603,7 +612,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                     onChange={(e) => setForm({ ...form, course_type: e.target.value as any, child_id: '' })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
-                    {availableCourseTypes.map((type) => (
+                    {availableCourseTypesForAdding.map((type) => (
                       <option key={type.value} value={type.value}>
                         {type.label}
                       </option>
