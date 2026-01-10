@@ -184,7 +184,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen relative flex flex-col p-4 md:p-8">
+    <div className="min-h-screen relative flex items-center justify-center p-4 md:p-8">
       {videoEnabled && videoUrl ? (
         <>
           <video
@@ -203,36 +203,26 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
       )}
 
-      {/* Logo en üstte ortada */}
-      <div className="flex justify-center pt-2 pb-0 md:pt-4 md:pb-2 relative z-10">
-        <img
-          src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-          alt="REF Logo"
-          className="w-32 h-32 md:w-64 md:h-64 object-contain drop-shadow-2xl"
-          style={{ mixBlendMode: 'multiply' }}
-        />
-      </div>
+      {/* Ana içerik: Sol kart - Logo - Sağ kart */}
+      <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-12 relative z-10 max-w-7xl mx-auto w-full">
+        {/* Sol Kart - Giriş */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-full md:w-80 order-2 md:order-1">
+          <button
+            onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
+            className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800">
+              Giriş Yap
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                isLoginCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
 
-      {/* Alt kısımda kartlar */}
-      <div className="flex-1 flex flex-col md:flex-row items-center justify-end md:items-end md:justify-center gap-6 md:gap-12 relative z-10 max-w-7xl mx-auto w-full pb-4 md:pb-6">
-        {/* Sol Alt Kart - Giriş */}
-        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 md:h-[380px] flex flex-col justify-between">
-          <div>
-            <button
-              onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
-              className="w-full flex items-center justify-center gap-2 md:cursor-default"
-            >
-              <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
-                Giriş Yap
-              </h2>
-              <ChevronDown
-                className={`w-5 h-5 text-gray-800 transition-transform duration-300 mb-4 md:hidden ${
-                  isLoginCardOpen ? 'rotate-180' : ''
-                }`}
-              />
-            </button>
-
-            <form onSubmit={handleSubmit} className={`space-y-3 ${isLoginCardOpen ? 'block' : 'hidden'} md:block`}>
+          <div className={`mt-4 ${isLoginCardOpen ? 'block' : 'hidden'}`}>
+            <form onSubmit={handleSubmit} className="space-y-3">
               {error && (
                 <div className="bg-red-50/90 backdrop-blur-sm border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs">
                   {error}
@@ -278,7 +268,7 @@ export default function Login() {
               </button>
             </form>
 
-            <div className={`text-center text-xs text-gray-800 mt-3 ${isLoginCardOpen ? 'block' : 'hidden'} md:block`}>
+            <div className="text-center text-xs text-gray-800 mt-3">
               <button
                 onClick={() => setShowForgotPassword(true)}
                 className="text-green-600 hover:text-green-700 font-medium transition-colors"
@@ -286,38 +276,48 @@ export default function Login() {
                 Şifremi Unuttum
               </button>
             </div>
-          </div>
 
-          <div className={`mt-3 pt-3 border-t border-white/30 ${isLoginCardOpen ? 'block' : 'hidden'} md:block`}>
-            <button
-              onClick={signInAsGuest}
-              className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
-            >
-              Misafir Olarak Giriş Yap
-            </button>
-            <p className="text-center text-xs text-gray-700 mt-2">
-              Sadece ana sayfa ve hakkımızda bölümünü görüntüleyebilirsiniz
-            </p>
+            <div className="mt-4 pt-4 border-t border-white/30">
+              <button
+                onClick={signInAsGuest}
+                className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
+              >
+                Misafir Olarak Giriş Yap
+              </button>
+              <p className="text-center text-xs text-gray-700 mt-2">
+                Sadece ana sayfa ve hakkımızda bölümünü görüntüleyebilirsiniz
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Sağ Alt Kart - Başvuru Formları */}
-        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 md:h-[380px] flex flex-col justify-center">
+        {/* Ortada Logo */}
+        <div className="order-1 md:order-2">
+          <img
+            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+            alt="REF Logo"
+            className="w-40 h-40 md:w-64 md:h-64 object-contain drop-shadow-2xl"
+            style={{ mixBlendMode: 'multiply' }}
+          />
+        </div>
+
+        {/* Sağ Kart - Başvuru Formları */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-full md:w-80 order-3">
           <button
             onClick={() => setIsApplicationCardOpen(!isApplicationCardOpen)}
-            className="w-full flex items-center justify-center gap-2 md:cursor-default"
+            className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
+            <h2 className="text-lg font-bold text-center text-gray-800">
               Başvuru Formları
             </h2>
             <ChevronDown
-              className={`w-5 h-5 text-gray-800 transition-transform duration-300 mb-4 md:hidden ${
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
                 isApplicationCardOpen ? 'rotate-180' : ''
               }`}
             />
           </button>
 
-          <div className={`space-y-4 ${isApplicationCardOpen ? 'block' : 'hidden'} md:block`}>
+          <div className={`mt-4 space-y-4 ${isApplicationCardOpen ? 'block' : 'hidden'}`}>
             <div>
               <button
                 onClick={() => setShowInquiryForm(true)}
