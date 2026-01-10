@@ -242,7 +242,10 @@ export default function Sidebar({
   }, [isCollapsed]);
 
   useEffect(() => {
-    localStorage.setItem('sidebar-expanded-categories', JSON.stringify(expandedCategories));
+    const categoriesToSave = expandedCategories.includes('homepage')
+      ? expandedCategories
+      : [...expandedCategories, 'homepage'];
+    localStorage.setItem('sidebar-expanded-categories', JSON.stringify(categoriesToSave));
   }, [expandedCategories]);
 
   useEffect(() => {
@@ -255,6 +258,9 @@ export default function Sidebar({
   }, [activeTab]);
 
   const toggleCategory = (categoryId: string) => {
+    if (categoryId === 'homepage') {
+      return;
+    }
     setExpandedCategories(prev =>
       prev.includes(categoryId)
         ? prev.filter(id => id !== categoryId)
