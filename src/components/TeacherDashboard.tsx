@@ -48,8 +48,9 @@ const teacherMenuCategories: MenuCategory[] = [
   },
   {
     id: 'reports',
-    label: 'Raporlar',
+    label: 'Raporlar ve Değerlendirme',
     items: [
+      { id: 'montessori_reports', label: 'Montessori Raporları', icon: Sparkles },
       { id: 'branch_reports', label: 'Branş Dersleri', icon: BookOpen },
       { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
     ],
@@ -180,10 +181,25 @@ export default function TeacherDashboard() {
 
   const loadReports = async () => {
     try {
+      if (!profile) return;
+
+      const { data: teacherChildrenData } = await supabase
+        .from('teacher_children')
+        .select('child_id')
+        .eq('teacher_id', profile.id);
+
+      if (!teacherChildrenData || teacherChildrenData.length === 0) {
+        setDailyReports([]);
+        return;
+      }
+
+      const childIds = teacherChildrenData.map((tc) => tc.child_id);
+
       let query = supabase
         .from('daily_reports')
         .select('*, children(first_name, last_name, class_name)')
-        .eq('report_date', reportDateFilter);
+        .eq('report_date', reportDateFilter)
+        .in('child_id', childIds);
 
       if (reportChildFilter !== 'all') {
         query = query.eq('child_id', reportChildFilter);
@@ -880,6 +896,108 @@ export default function TeacherDashboard() {
               userRole={profile?.role || undefined}
               userId={profile?.id}
             />
+          </div>
+        )}
+
+        {activeTab === 'montessori_reports' && (
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">Montessori Günlük Raporları</h2>
+            </div>
+
+            <div className="flex items-center space-x-3 mb-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tarih</label>
+                <input
+                  type="date"
+                  value={reportDateFilter}
+                  onChange={(e) => setReportDateFilter(e.target.value)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Çocuk</label>
+                <select
+                  value={reportChildFilter}
+                  onChange={(e) => setReportChildFilter(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                >
+                  <option value="all">Tüm Çocuklar</option>
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id}>
+                      {child.first_name} {child.last_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {dailyReports.length === 0 ? (
+                <div className="text-center py-12 text-gray-500">
+                  Seçilen tarihe ait rapor bulunamadı
+                </div>
+              ) : (
+                dailyReports.map((report: any) => (
+                  <div key={report.id} className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-800">
+                          {report.children?.first_name} {report.children?.last_name}
+                        </h3>
+                        <p className="text-sm text-gray-500">{report.children?.class_name}</p>
+                      </div>
+                      <span className="text-sm text-gray-600">
+                        {new Date(report.report_date).toLocaleDateString('tr-TR')}
+                      </span>
+                    </div>
+
+                    {report.activities && (
+                      <div className="mb-4">
+                        <h4 className="font-medium text-gray-700 mb-2">Aktiviteler</h4>
+                        <p className="text-gray-600">{report.activities}</p>
+                      </div>
+                    )}
+
+                    {report.notes && (
+                      <div className="mb-4">
+                        <h4 className="font-medium text-gray-700 mb-2">Notlar</h4>
+                        <p className="text-gray-600">{report.notes}</p>
+                      </div>
+                    )}
+
+                    {report.materials_used && report.materials_used.length > 0 && (
+                      <div className="mb-4">
+                        <h4 className="font-medium text-gray-700 mb-2">Kullanılan Materyaller</h4>
+                        <div className="flex flex-wrap gap-2">
+                          {report.materials_used.map((material: string, idx: number) => (
+                            <span key={idx} className="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm">
+                              {material}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {report.media_urls && report.media_urls.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="font-medium text-gray-700 mb-2">Medya</h4>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                          {report.media_urls.map((url: string, idx: number) => (
+                            <img
+                              key={idx}
+                              src={url}
+                              alt={`Report media ${idx + 1}`}
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
 

@@ -43,7 +43,13 @@ const parentMenuCategories: MenuCategory[] = [
     label: 'Çocuğum',
     items: [
       { id: 'main', label: 'Günlük Aktiviteler', icon: Baby },
-      { id: 'daily_reports', label: 'Montessori Günlük Raporları', icon: Sparkles },
+    ],
+  },
+  {
+    id: 'reports',
+    label: 'Raporlar ve Değerlendirme',
+    items: [
+      { id: 'daily_reports', label: 'Montessori Raporları', icon: Sparkles },
     ],
   },
   {
