@@ -23,6 +23,11 @@ import {
   X,
   LogOut,
   ChevronLeft,
+  Facebook,
+  Instagram,
+  Linkedin,
+  Youtube,
+  Mail,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -271,7 +276,106 @@ export default function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-gray-700 p-4 space-y-2">
+      <div className="border-t border-gray-700 p-4 space-y-3">
+        {!isCollapsed && (
+          <div className="mb-3">
+            <p className="text-xs text-gray-400 mb-2 px-3">Bizi Takip Edin</p>
+            <div className="flex items-center justify-center space-x-2">
+              <a
+                href="https://www.facebook.com/refanaokulu"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-gray-400 hover:text-blue-500 hover:bg-gray-700 rounded-lg transition-all"
+                title="Facebook"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.instagram.com/refanaokulu"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-gray-400 hover:text-pink-500 hover:bg-gray-700 rounded-lg transition-all"
+                title="Instagram"
+              >
+                <Instagram className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.youtube.com/@refanaokulu"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-700 rounded-lg transition-all"
+                title="Youtube"
+              >
+                <Youtube className="w-5 h-5" />
+              </a>
+              <a
+                href="https://www.linkedin.com/company/refanaokulu"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded-lg transition-all"
+                title="LinkedIn"
+              >
+                <Linkedin className="w-5 h-5" />
+              </a>
+              <a
+                href="mailto:info@refanaokulu.com"
+                className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-gray-700 rounded-lg transition-all"
+                title="E-posta"
+              >
+                <Mail className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+        )}
+
+        {isCollapsed && (
+          <div className="flex flex-col items-center space-y-2 mb-3">
+            <a
+              href="https://www.facebook.com/refanaokulu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-400 hover:text-blue-500 hover:bg-gray-700 rounded-lg transition-all"
+              title="Facebook"
+            >
+              <Facebook className="w-4 h-4" />
+            </a>
+            <a
+              href="https://www.instagram.com/refanaokulu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-400 hover:text-pink-500 hover:bg-gray-700 rounded-lg transition-all"
+              title="Instagram"
+            >
+              <Instagram className="w-4 h-4" />
+            </a>
+            <a
+              href="https://www.youtube.com/@refanaokulu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-700 rounded-lg transition-all"
+              title="Youtube"
+            >
+              <Youtube className="w-4 h-4" />
+            </a>
+            <a
+              href="https://www.linkedin.com/company/refanaokulu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded-lg transition-all"
+              title="LinkedIn"
+            >
+              <Linkedin className="w-4 h-4" />
+            </a>
+            <a
+              href="mailto:info@refanaokulu.com"
+              className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-gray-700 rounded-lg transition-all"
+              title="E-posta"
+            >
+              <Mail className="w-4 h-4" />
+            </a>
+          </div>
+        )}
+
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="hidden lg:flex w-full items-center justify-center space-x-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors"
