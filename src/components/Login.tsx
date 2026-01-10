@@ -211,7 +211,7 @@ export default function Login() {
       </div>
 
       {/* Alt kısımda kartlar */}
-      <div className="flex-1 flex flex-col md:flex-row items-end justify-center md:justify-between gap-4 md:gap-0 relative z-10 max-w-7xl mx-auto w-full pb-2 md:pb-0">
+      <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 relative z-10 max-w-7xl mx-auto w-full pt-32 md:pt-20 pb-12 md:pb-16">
         {/* Sol Alt Kart - Giriş */}
         <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 md:h-[380px] flex flex-col justify-between">
           <div>
