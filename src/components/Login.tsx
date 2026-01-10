@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import InquiryForm from './InquiryForm';
 import ReferenceTeacherForm from './ReferenceTeacherForm';
@@ -14,7 +14,31 @@ export default function Login() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
+  const [videoUrl, setVideoUrl] = useState('');
+  const [posterUrl, setPosterUrl] = useState('');
+  const [videoEnabled, setVideoEnabled] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
+
+  useEffect(() => {
+    const loadVideoSettings = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('app_settings')
+          .select('login_video_url, login_video_active, login_video_poster')
+          .single();
+
+        if (!error && data) {
+          setVideoUrl(data.login_video_url || '');
+          setPosterUrl(data.login_video_poster || '');
+          setVideoEnabled(data.login_video_active || false);
+        }
+      } catch (err) {
+        console.log('Video settings not loaded:', err);
+      }
+    };
+
+    loadVideoSettings();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,8 +97,25 @@ export default function Login() {
 
   if (showForgotPassword) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+      <div className="min-h-screen relative flex items-center justify-center p-4">
+        {videoEnabled && videoUrl ? (
+          <>
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              poster={posterUrl || undefined}
+              className="absolute inset-0 w-full h-full object-cover"
+            >
+              <source src={videoUrl} type="video/mp4" />
+            </video>
+            <div className="absolute inset-0 bg-black/30" />
+          </>
+        ) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
+        )}
+        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative z-10">
           <div className="flex items-center justify-center mb-8 mt-4">
             <img
               src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
@@ -139,8 +180,25 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen relative flex items-center justify-center p-4">
+      {videoEnabled && videoUrl ? (
+        <>
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            poster={posterUrl || undefined}
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src={videoUrl} type="video/mp4" />
+          </video>
+          <div className="absolute inset-0 bg-black/30" />
+        </>
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
+      )}
+      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative z-10">
         <div className="flex items-center justify-center mb-12 mt-4">
           <img
             src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"

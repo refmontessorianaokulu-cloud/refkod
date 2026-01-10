@@ -37,6 +37,7 @@ import {
   GraduationCap,
   Briefcase,
   Palette,
+  Video,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -66,6 +67,7 @@ export type MenuTab =
   | 'reference_applications'
   | 'content_management'
   | 'settings_management'
+  | 'video_settings'
   | 'main'
   | 'task_responses'
   | 'group_messages'
@@ -192,6 +194,7 @@ const defaultAdminMenuCategories: MenuCategory[] = [
     label: 'Ayarlar',
     items: [
       { id: 'settings_management', label: 'Instagram Ayarları', icon: Settings },
+      { id: 'video_settings', label: 'Login Video Ayarları', icon: Video },
     ],
   },
 ];

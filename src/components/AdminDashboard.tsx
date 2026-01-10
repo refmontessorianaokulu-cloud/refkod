@@ -25,6 +25,7 @@ import InstagramSettings from './InstagramSettings';
 import RefSectionsManagement from './RefSectionsManagement';
 import RefSectionsView from './RefSectionsView';
 import TeacherBranchAssignments from './TeacherBranchAssignments';
+import VideoUploadSection from './VideoUploadSection';
 import Sidebar, { MenuTab } from './Sidebar';
 
 export default function AdminDashboard() {
@@ -535,6 +536,7 @@ export default function AdminDashboard() {
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                 {activeTab === 'content_management' && <AboutContentEditor />}
                 {activeTab === 'settings_management' && <InstagramSettings />}
+                {activeTab === 'video_settings' && <VideoUploadSection />}
                 {activeTab === 'children' && (
                   <div>
                 {pickupNotifications.length > 0 && (
