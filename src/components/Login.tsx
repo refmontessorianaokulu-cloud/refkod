@@ -211,15 +211,15 @@ export default function Login() {
       </div>
 
       {/* Alt kısımda kartlar */}
-      <div className="flex-1 flex items-end justify-between relative z-10 max-w-7xl mx-auto w-full">
+      <div className="flex-1 flex flex-col md:flex-row items-center md:items-end justify-center md:justify-between gap-4 md:gap-0 relative z-10 max-w-7xl mx-auto w-full">
         {/* Sol Alt Kart - Giriş */}
-        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 h-[380px] flex flex-col justify-between">
+        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 md:h-[380px] flex flex-col justify-between">
           <div>
             <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
               Giriş Yap
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <form onSubmit={handleSubmit} className="space-y-3 hidden md:block">
               {error && (
                 <div className="bg-red-50/90 backdrop-blur-sm border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs">
                   {error}
@@ -265,7 +265,7 @@ export default function Login() {
               </button>
             </form>
 
-            <div className="text-center text-xs text-gray-800 mt-3">
+            <div className="text-center text-xs text-gray-800 mt-3 hidden md:block">
               <button
                 onClick={() => setShowForgotPassword(true)}
                 className="text-green-600 hover:text-green-700 font-medium transition-colors"
@@ -275,7 +275,7 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-white/30">
+          <div className="mt-3 pt-3 border-t border-white/30 hidden md:block">
             <button
               onClick={signInAsGuest}
               className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
@@ -289,12 +289,12 @@ export default function Login() {
         </div>
 
         {/* Sağ Alt Kart - Başvuru Formları */}
-        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 h-[380px] flex flex-col justify-center">
+        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 md:h-[380px] flex flex-col justify-center">
           <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
             Başvuru Formları
           </h2>
 
-          <div className="space-y-4">
+          <div className="space-y-4 hidden md:block">
             <div>
               <button
                 onClick={() => setShowInquiryForm(true)}
