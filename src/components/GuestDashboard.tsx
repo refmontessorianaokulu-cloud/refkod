@@ -7,8 +7,18 @@ import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 import { Home, Info, GraduationCap, Briefcase, Palette } from 'lucide-react';
 
 export default function GuestDashboard() {
-  const { signOut } = useAuth();
+  const { signOut, guestInitialTab, guestInitialSection } = useAuth();
   const [activeTab, setActiveTab] = useState<MenuTab>('home');
+  const [aboutInitialSection, setAboutInitialSection] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (guestInitialTab) {
+      setActiveTab(guestInitialTab as MenuTab);
+    }
+    if (guestInitialSection) {
+      setAboutInitialSection(guestInitialSection);
+    }
+  }, [guestInitialTab, guestInitialSection]);
 
   const guestMenuCategories: MenuCategory[] = [
     {
@@ -50,7 +60,10 @@ export default function GuestDashboard() {
           />
         )}
         {activeTab === 'about' && (
-          <AboutPage onNavigateHome={() => setActiveTab('home')} />
+          <AboutPage
+            onNavigateHome={() => setActiveTab('home')}
+            initialSection={aboutInitialSection}
+          />
         )}
         {activeTab === 'ref_akademi' && (
           <div className="p-8">

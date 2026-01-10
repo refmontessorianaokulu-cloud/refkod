@@ -7,8 +7,10 @@ type AuthContextType = {
   profile: Profile | null;
   loading: boolean;
   isGuest: boolean;
+  guestInitialTab: string | null;
+  guestInitialSection: string | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signInAsGuest: () => void;
+  signInAsGuest: (initialTab?: string, initialSection?: string) => void;
   signUp: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -28,6 +30,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGuest, setIsGuest] = useState(false);
+  const [guestInitialTab, setGuestInitialTab] = useState<string | null>(null);
+  const [guestInitialSection, setGuestInitialSection] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -124,14 +128,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signInAsGuest = () => {
+  const signInAsGuest = (initialTab?: string, initialSection?: string) => {
     setIsGuest(true);
+    setGuestInitialTab(initialTab || null);
+    setGuestInitialSection(initialSection || null);
     setLoading(false);
   };
 
   const signOut = async () => {
     if (isGuest) {
       setIsGuest(false);
+      setGuestInitialTab(null);
+      setGuestInitialSection(null);
       setUser(null);
       setProfile(null);
     } else {
@@ -141,7 +149,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, isGuest, signIn, signInAsGuest, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, isGuest, guestInitialTab, guestInitialSection, signIn, signInAsGuest, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

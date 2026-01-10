@@ -13,6 +13,7 @@ interface AboutSection {
 
 interface AboutPageProps {
   onNavigateHome: () => void;
+  initialSection?: string | null;
 }
 
 const sectionIcons: Record<string, any> = {
@@ -22,7 +23,7 @@ const sectionIcons: Record<string, any> = {
   education_programs: GraduationCap,
 };
 
-export default function AboutPage({ onNavigateHome }: AboutPageProps) {
+export default function AboutPage({ onNavigateHome, initialSection }: AboutPageProps) {
   const [sections, setSections] = useState<AboutSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState<string>('');
@@ -30,6 +31,14 @@ export default function AboutPage({ onNavigateHome }: AboutPageProps) {
   useEffect(() => {
     loadAboutContent();
   }, []);
+
+  useEffect(() => {
+    if (!loading && initialSection && sections.length > 0) {
+      setTimeout(() => {
+        scrollToSection(initialSection);
+      }, 300);
+    }
+  }, [loading, initialSection, sections]);
 
   useEffect(() => {
     const handleScroll = () => {

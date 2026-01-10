@@ -5,6 +5,12 @@ import ReferenceTeacherForm from './ReferenceTeacherForm';
 import { supabase } from '../lib/supabase';
 import { ChevronDown } from 'lucide-react';
 
+interface AboutSection {
+  id: string;
+  section_key: string;
+  section_title: string;
+}
+
 export default function Login() {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [showReferenceTeacherForm, setShowReferenceTeacherForm] = useState(false);
@@ -20,6 +26,9 @@ export default function Login() {
   const [videoEnabled, setVideoEnabled] = useState(false);
   const [isLoginCardOpen, setIsLoginCardOpen] = useState(false);
   const [isApplicationCardOpen, setIsApplicationCardOpen] = useState(false);
+  const [isAboutCardOpen, setIsAboutCardOpen] = useState(false);
+  const [aboutSections, setAboutSections] = useState<AboutSection[]>([]);
+  const [aboutLoading, setAboutLoading] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
 
   useEffect(() => {
@@ -41,7 +50,26 @@ export default function Login() {
       }
     };
 
+    const loadAboutSections = async () => {
+      setAboutLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('about_content')
+          .select('id, section_key, section_title')
+          .order('display_order', { ascending: true });
+
+        if (!error && data) {
+          setAboutSections(data);
+        }
+      } catch (err) {
+        console.log('About sections not loaded:', err);
+      } finally {
+        setAboutLoading(false);
+      }
+    };
+
     loadVideoSettings();
+    loadAboutSections();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,6 +117,10 @@ export default function Login() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleAboutSectionClick = (sectionKey: string) => {
+    signInAsGuest('about', sectionKey);
   };
 
   if (showInquiryForm) {
@@ -203,20 +235,20 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
       )}
 
-      {/* Mobil: Logo en üstte */}
-      <div className="flex justify-center pt-2 pb-0 relative z-10 md:hidden">
+      {/* Logo en üstte - Tüm ekranlar */}
+      <div className="flex justify-center pt-2 pb-6 relative z-10">
         <img
           src="/whatsapp_image_2026-01-10_at_23.02.15.png"
           alt="REF Logo"
-          className="w-32 h-32 object-contain drop-shadow-2xl"
+          className="w-32 h-32 md:w-48 md:h-48 object-contain drop-shadow-2xl"
           style={{ mixBlendMode: 'multiply' }}
         />
       </div>
 
-      {/* Masaüstü: Ana içerik (Sol kart - Logo - Sağ kart) */}
-      <div className="hidden md:flex flex-row items-center justify-center gap-8 lg:gap-12 relative z-10 max-w-7xl mx-auto w-full">
-        {/* Sol Kart - Giriş */}
-        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-80">
+      {/* Masaüstü: 2x2 Grid Layout */}
+      <div className="hidden md:grid grid-cols-2 gap-6 lg:gap-8 relative z-10 max-w-4xl mx-auto w-full px-4">
+        {/* Sol Üst - Giriş */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
           <button
             onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
@@ -301,18 +333,8 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Ortada Logo - Sadece masaüstü */}
-        <div>
-          <img
-            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-            alt="REF Logo"
-            className="w-64 h-64 object-contain drop-shadow-2xl"
-            style={{ mixBlendMode: 'multiply' }}
-          />
-        </div>
-
-        {/* Sağ Kart - Başvuru Formları */}
-        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-80">
+        {/* Sağ Üst - Başvuru Formları */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
           <button
             onClick={() => setIsApplicationCardOpen(!isApplicationCardOpen)}
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
@@ -353,11 +375,48 @@ export default function Login() {
             </div>
           </div>
         </div>
+
+        {/* Sol Alt - Hakkımızda */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
+          <button
+            onClick={() => setIsAboutCardOpen(!isAboutCardOpen)}
+            className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800">
+              Hakkımızda
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                isAboutCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 space-y-2 ${isAboutCardOpen ? 'block' : 'hidden'}`}>
+            {aboutLoading ? (
+              <div className="text-center py-4">
+                <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-gray-800 border-t-transparent"></div>
+              </div>
+            ) : (
+              <>
+                {aboutSections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => handleAboutSectionClick(section.section_key)}
+                    className="w-full text-left px-4 py-2 bg-white/80 backdrop-blur-sm text-gray-800 rounded-lg hover:bg-white/95 transition-all text-sm font-medium"
+                  >
+                    {section.section_title}
+                  </button>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Mobil: Alt kısımda kartlar */}
       <div className="flex-1 flex flex-col items-center justify-end gap-6 relative z-10 max-w-7xl mx-auto w-full pb-4 md:hidden">
-        {/* Mobil Sol Kart - Giriş */}
+        {/* Mobil - Giriş */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-64">
           <button
             onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
@@ -443,7 +502,7 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Mobil Sağ Kart - Başvuru Formları */}
+        {/* Mobil - Başvuru Formları */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-64">
           <button
             onClick={() => setIsApplicationCardOpen(!isApplicationCardOpen)}
@@ -483,6 +542,43 @@ export default function Login() {
                 Son başvuru tarihi: 23 Ocak
               </p>
             </div>
+          </div>
+        </div>
+
+        {/* Mobil - Hakkımızda */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-64">
+          <button
+            onClick={() => setIsAboutCardOpen(!isAboutCardOpen)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800">
+              Hakkımızda
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                isAboutCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 space-y-2 ${isAboutCardOpen ? 'block' : 'hidden'}`}>
+            {aboutLoading ? (
+              <div className="text-center py-4">
+                <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-gray-800 border-t-transparent"></div>
+              </div>
+            ) : (
+              <>
+                {aboutSections.map((section) => (
+                  <button
+                    key={section.id}
+                    onClick={() => handleAboutSectionClick(section.section_key)}
+                    className="w-full text-left px-4 py-2 bg-white/80 backdrop-blur-sm text-gray-800 rounded-lg hover:bg-white/95 transition-all text-sm font-medium"
+                  >
+                    {section.section_title}
+                  </button>
+                ))}
+              </>
+            )}
           </div>
         </div>
       </div>
