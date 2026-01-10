@@ -199,113 +199,132 @@ export default function Login() {
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
       )}
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative z-10">
-        <div className="flex items-center justify-center mb-12 mt-4">
-          <img
-            src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-            alt="REF Logo"
-            className="w-32 h-32 object-contain"
-          />
-        </div>
-        <h1 className="text-3xl font-bold text-center text-gray-800 mb-2">
-          REF
-        </h1>
-        <p className="text-center text-gray-600 mb-8">Öğrenci Takip Sistemi</p>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-              {error}
+      <div className="w-full max-w-7xl relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
+
+          {/* Sol Kart - Giriş */}
+          <div className="backdrop-blur-lg bg-white/10 border border-white/30 rounded-2xl shadow-xl p-8">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
+              Giriş Yap
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-red-50/90 backdrop-blur-sm border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-800 mb-2">
+                  E-posta
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  placeholder="ornek@email.com"
+                />
+              </div>
+
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-800 mb-2">
+                  Şifre
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-4 py-3 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              >
+                {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+              </button>
+            </form>
+
+            <div className="text-center text-sm text-gray-800 mt-6">
+              <button
+                onClick={() => setShowForgotPassword(true)}
+                className="text-green-600 hover:text-green-700 font-medium transition-colors"
+              >
+                Şifremi Unuttum
+              </button>
             </div>
-          )}
 
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              E-posta
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              placeholder="ornek@email.com"
+            <div className="mt-6 pt-6 border-t border-white/30">
+              <button
+                onClick={signInAsGuest}
+                className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg"
+              >
+                Misafir Olarak Giriş Yap
+              </button>
+              <p className="text-center text-xs text-gray-700 mt-2">
+                Sadece ana sayfa ve hakkımızda bölümünü görüntüleyebilirsiniz
+              </p>
+            </div>
+          </div>
+
+          {/* Ortada - Logo */}
+          <div className="flex flex-col items-center justify-center">
+            <img
+              src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+              alt="REF Logo"
+              className="w-48 h-48 object-contain drop-shadow-2xl"
             />
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-              Şifre
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-              placeholder="••••••••"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
-          >
-            {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
-          </button>
-        </form>
-
-        <div className="text-center text-sm text-gray-600 mt-6">
-          <button
-            onClick={() => setShowForgotPassword(true)}
-            className="text-green-600 hover:text-green-700 font-medium transition-colors"
-          >
-            Şifremi Unuttum
-          </button>
-        </div>
-
-        <div className="mt-4">
-          <button
-            onClick={signInAsGuest}
-            className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg"
-          >
-            Misafir Olarak Giriş Yap
-          </button>
-          <p className="text-center text-xs text-gray-500 mt-2">
-            Sadece ana sayfa ve hakkımızda bölümünü görüntüleyebilirsiniz
-          </p>
-        </div>
-
-        <div className="border-t border-gray-200 mt-6 pt-6 space-y-4">
-          <div>
-            <p className="text-center text-sm text-gray-600 mb-3">
-              Henüz hesabınız yok mu?
-            </p>
-            <button
-              onClick={() => setShowInquiryForm(true)}
-              className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
-            >
-              Ön Bilgi Talep Formu
-            </button>
-            <p className="text-center text-xs text-gray-500 mt-2">
-              Formu doldurarak yönetici ile iletişime geçebilirsiniz
+            <h1 className="text-4xl font-bold text-center text-gray-800 mt-6 drop-shadow-lg">
+              REF
+            </h1>
+            <p className="text-center text-gray-700 text-lg mt-2 drop-shadow-md">
+              Öğrenci Takip Sistemi
             </p>
           </div>
 
-          <div className="border-t border-gray-200 pt-4">
-            <button
-              onClick={() => setShowReferenceTeacherForm(true)}
-              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
-            >
-              Referans Öğretmen Programı Başvurusu
-            </button>
-            <p className="text-center text-xs text-gray-500 mt-2">
-              Son başvuru tarihi: 23 Ocak
-            </p>
+          {/* Sağ Kart - Başvuru Formları */}
+          <div className="backdrop-blur-lg bg-white/10 border border-white/30 rounded-2xl shadow-xl p-8">
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-8">
+              Başvuru Formları
+            </h2>
+
+            <div className="space-y-6">
+              <div>
+                <button
+                  onClick={() => setShowInquiryForm(true)}
+                  className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-4 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg"
+                >
+                  Ön Bilgi Talep Formu
+                </button>
+                <p className="text-center text-sm text-gray-700 mt-3">
+                  Formu doldurarak yönetici ile iletişime geçebilirsiniz
+                </p>
+              </div>
+
+              <div className="border-t border-white/30 pt-6">
+                <button
+                  onClick={() => setShowReferenceTeacherForm(true)}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-4 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg"
+                >
+                  Referans Öğretmen Programı Başvurusu
+                </button>
+                <p className="text-center text-sm text-gray-700 mt-3">
+                  Son başvuru tarihi: 23 Ocak
+                </p>
+              </div>
+            </div>
           </div>
+
         </div>
       </div>
     </div>
