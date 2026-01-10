@@ -22,8 +22,8 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
         }`}
       >
         <div className="bg-gradient-to-r from-amber-50 to-green-50 py-12 lg:py-16 px-4">
-          <div className="max-w-6xl mx-auto text-center space-y-6">
-            <div className="flex justify-center mb-6">
+          <div className="max-w-6xl mx-auto space-y-6">
+            <div className="flex justify-end mb-6">
               <div className="group">
                 <img
                   src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
@@ -33,7 +33,7 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="text-center space-y-2">
               <div className="flex items-center justify-center space-x-2">
                 <Globe className="w-6 h-6 lg:w-8 lg:h-8 text-emerald-600" />
                 <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-clip-text text-transparent">
@@ -81,7 +81,7 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
                     ve sosyal gelişim kazanırlar.
                   </p>
                   <p className="text-lg">
-                    Okul öncesi eğitimde 20 yılı aşkın deneyimimizle, her çocuğa değer veren, onların
+                    Okul öncesi eğitimde deneyimimizle, her çocuğa değer veren, onların
                     bireysel farklılıklarını destekleyen ve özgüven kazandıran bir eğitim anlayışına sahibiz.
                   </p>
                 </div>

@@ -416,7 +416,7 @@ export default function Sidebar({
     <>
       <button
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-40 p-3 bg-gray-900 text-white rounded-lg shadow-lg hover:bg-gray-800 transition-colors"
+        className="lg:hidden fixed top-4 left-4 z-40 p-3 bg-emerald-600 text-white rounded-lg shadow-lg hover:bg-emerald-700 transition-colors"
       >
         <Menu className="w-6 h-6" />
       </button>
