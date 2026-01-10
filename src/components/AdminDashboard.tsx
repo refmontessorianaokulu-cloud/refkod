@@ -24,6 +24,7 @@ import AboutContentEditor from './AboutContentEditor';
 import InstagramSettings from './InstagramSettings';
 import RefSectionsManagement from './RefSectionsManagement';
 import RefSectionsView from './RefSectionsView';
+import TeacherBranchAssignments from './TeacherBranchAssignments';
 import Sidebar, { MenuTab } from './Sidebar';
 
 export default function AdminDashboard() {
@@ -1133,6 +1134,12 @@ export default function AdminDashboard() {
                   teacherId={profile?.id}
                   userRole="admin"
                 />
+              </div>
+            )}
+
+            {activeTab === 'teacher_assignments' && (
+              <div>
+                <TeacherBranchAssignments />
               </div>
             )}
 

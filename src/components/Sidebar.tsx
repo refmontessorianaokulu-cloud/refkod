@@ -48,6 +48,7 @@ export type MenuTab =
   | 'montessori_reports'
   | 'daily_reports'
   | 'branch_reports'
+  | 'teacher_assignments'
   | 'behavior_incidents'
   | 'announcements'
   | 'messages'
@@ -131,6 +132,7 @@ const defaultAdminMenuCategories: MenuCategory[] = [
     items: [
       { id: 'montessori_reports', label: 'Montessori Raporları', icon: Sparkles },
       { id: 'branch_reports', label: 'Branş Dersleri', icon: BookOpen },
+      { id: 'teacher_assignments', label: 'Öğretmen Atamaları', icon: UserCheck },
       { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
     ],
   },

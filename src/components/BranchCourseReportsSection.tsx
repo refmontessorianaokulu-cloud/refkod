@@ -53,23 +53,61 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   const [uploading, setUploading] = useState(false);
   const [editingReport, setEditingReport] = useState<BranchCourseReport | null>(null);
   const [existingMediaUrls, setExistingMediaUrls] = useState<string[]>([]);
+  const [teacherAssignments, setTeacherAssignments] = useState<{ class_name: string; course_type: string }[]>([]);
+  const [loadingAssignments, setLoadingAssignments] = useState(true);
 
   useEffect(() => {
-    loadReports();
-  }, [selectedDate, selectedCourse, selectedClass, selectedStudent, children]);
+    if (userRole === 'teacher' && teacherId) {
+      loadTeacherAssignments();
+    } else {
+      setLoadingAssignments(false);
+    }
+  }, [teacherId, userRole]);
+
+  useEffect(() => {
+    if (!loadingAssignments) {
+      loadReports();
+    }
+  }, [selectedDate, selectedCourse, selectedClass, selectedStudent, children, loadingAssignments]);
+
+  const loadTeacherAssignments = async () => {
+    if (!teacherId) return;
+
+    setLoadingAssignments(true);
+    try {
+      const { data, error } = await supabase
+        .from('teacher_branch_assignments')
+        .select('class_name, course_type')
+        .eq('teacher_id', teacherId);
+
+      if (error) throw error;
+      setTeacherAssignments(data || []);
+    } catch (error) {
+      console.error('Error loading teacher assignments:', error);
+    } finally {
+      setLoadingAssignments(false);
+    }
+  };
 
   const loadReports = async () => {
     setLoading(true);
     try {
-      const filteredChildren = selectedClass === 'all'
-        ? children
-        : children.filter(c => c.class_name === selectedClass);
+      const baseFilteredChildren = getFilteredChildren();
+      const targetChildren = selectedClass === 'all'
+        ? baseFilteredChildren
+        : baseFilteredChildren.filter(c => c.class_name === selectedClass);
+
+      if (targetChildren.length === 0) {
+        setReports([]);
+        setLoading(false);
+        return;
+      }
 
       let query = supabase
         .from('branch_course_reports')
         .select('*, children(first_name, last_name, class_name)')
         .eq('report_date', selectedDate)
-        .in('child_id', filteredChildren.map(c => c.id));
+        .in('child_id', targetChildren.map(c => c.id));
 
       if (selectedCourse !== 'all') {
         query = query.eq('course_type', selectedCourse);
@@ -123,9 +161,11 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     e.preventDefault();
     if (!teacherId) return;
 
+    const targetChildren = filteredChildren;
+
     if (form.child_id === 'all') {
       const courseLabel = courseTypes.find(c => c.value === form.course_type)?.label || form.course_type;
-      const confirmMessage = `${children.length} çocuk için ${courseLabel} raporu eklenecek. Devam etmek istiyor musunuz?`;
+      const confirmMessage = `${targetChildren.length} çocuk için ${courseLabel} raporu eklenecek. Devam etmek istiyor musunuz?`;
       if (!confirm(confirmMessage)) return;
     }
 
@@ -133,7 +173,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
       const mediaUrls = await uploadMediaFiles();
 
       if (form.child_id === 'all') {
-        const reportsToInsert = children.map(child => ({
+        const reportsToInsert = targetChildren.map(child => ({
           teacher_id: teacherId,
           child_id: child.id,
           course_type: form.course_type,
@@ -146,7 +186,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
         if (error) throw error;
 
         const courseLabel = courseTypes.find(c => c.value === form.course_type)?.label || form.course_type;
-        alert(`${children.length} çocuk için ${courseLabel} raporu başarıyla eklendi!`);
+        alert(`${targetChildren.length} çocuk için ${courseLabel} raporu başarıyla eklendi!`);
       } else {
         const { error } = await supabase.from('branch_course_reports').insert({
           teacher_id: teacherId,
@@ -251,6 +291,31 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     return courseTypes.find(c => c.value === type)?.label || type;
   };
 
+  const getFilteredChildren = () => {
+    if (userRole !== 'teacher' || teacherAssignments.length === 0) {
+      return children;
+    }
+
+    const assignedClasses = Array.from(new Set(teacherAssignments.map(a => a.class_name)));
+    return children.filter(child => assignedClasses.includes(child.class_name));
+  };
+
+  const getAvailableCourseTypes = () => {
+    if (userRole === 'guidance_counselor') {
+      return courseTypes.filter(c => c.value === 'guidance');
+    }
+
+    if (userRole !== 'teacher' || teacherAssignments.length === 0) {
+      return courseTypes;
+    }
+
+    const assignedCourses = Array.from(new Set(teacherAssignments.map(a => a.course_type)));
+    return courseTypes.filter(c => assignedCourses.includes(c.value));
+  };
+
+  const filteredChildren = getFilteredChildren();
+  const availableCourseTypes = getAvailableCourseTypes();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -264,12 +329,21 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
           <button
             onClick={() => setShowModal(true)}
             className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:shadow-lg transition-shadow"
+            disabled={userRole === 'teacher' && teacherAssignments.length === 0}
           >
             <Plus className="w-5 h-5" />
             <span>Rapor Ekle</span>
           </button>
         )}
       </div>
+
+      {userRole === 'teacher' && !loadingAssignments && teacherAssignments.length === 0 && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <p className="text-yellow-800 text-sm">
+            <strong>Bilgilendirme:</strong> Size henüz branş dersi ataması yapılmamış. Rapor ekleyebilmek için lütfen yöneticinizle iletişime geçin.
+          </p>
+        </div>
+      )}
 
       <div className="flex items-center space-x-3 flex-wrap gap-3">
         <div>
@@ -290,7 +364,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >
               <option value="all">Tüm Dersler</option>
-              {courseTypes.map((type) => (
+              {availableCourseTypes.map((type) => (
                 <option key={type.value} value={type.value}>
                   {type.label}
                 </option>
@@ -309,7 +383,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             <option value="all">Tüm Sınıflar</option>
-            {Array.from(new Set(children.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+            {Array.from(new Set(filteredChildren.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
               <option key={className} value={className}>
                 {className}
               </option>
@@ -324,7 +398,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
             className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
             <option value="all">Tüm Öğrenciler</option>
-            {children
+            {filteredChildren
               .filter(child => selectedClass === 'all' || child.class_name === selectedClass)
               .map((child) => (
                 <option key={child.id} value={child.id}>
@@ -453,10 +527,10 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                   <option value="">Çocuk seçin...</option>
                   {!editingReport && (
                     <option value="all" className="font-bold">
-                      ✓ Tüm Çocuklar ({children.length})
+                      ✓ Tüm Çocuklar ({filteredChildren.length})
                     </option>
                   )}
-                  {children.map((child) => (
+                  {filteredChildren.map((child) => (
                     <option key={child.id} value={child.id}>
                       {child.first_name} {child.last_name} - {child.class_name}
                     </option>
@@ -464,7 +538,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                 </select>
                 {form.child_id === 'all' && !editingReport && (
                   <p className="mt-2 text-sm text-purple-600 bg-purple-50 p-2 rounded-lg">
-                    ℹ Bu rapor tüm çocuklara ({children.length} çocuk) aynı içerikle kaydedilecektir.
+                    ℹ Bu rapor tüm çocuklara ({filteredChildren.length} çocuk) aynı içerikle kaydedilecektir.
                   </p>
                 )}
               </div>
@@ -478,7 +552,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                     onChange={(e) => setForm({ ...form, course_type: e.target.value as any })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
-                    {courseTypes.map((type) => (
+                    {availableCourseTypes.map((type) => (
                       <option key={type.value} value={type.value}>
                         {type.label}
                       </option>
