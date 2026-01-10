@@ -211,27 +211,50 @@ export default function Sidebar({
 }: SidebarProps) {
   const categories = menuCategories || defaultAdminMenuCategories;
   const title = panelTitle || 'Yönetici Paneli';
+
+  const STORAGE_VERSION = '1.0';
+
   const [isCollapsed, setIsCollapsed] = useState(() => {
+    const version = localStorage.getItem('sidebar-version');
+    if (version !== STORAGE_VERSION) {
+      localStorage.removeItem('sidebar-collapsed');
+      localStorage.removeItem('sidebar-expanded-categories');
+      localStorage.setItem('sidebar-version', STORAGE_VERSION);
+    }
+
     const saved = localStorage.getItem('sidebar-collapsed');
     return saved ? JSON.parse(saved) : false;
   });
 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>(() => {
+    const version = localStorage.getItem('sidebar-version');
+    if (version !== STORAGE_VERSION) {
+      localStorage.removeItem('sidebar-expanded-categories');
+      localStorage.setItem('sidebar-version', STORAGE_VERSION);
+    }
+
     const saved = localStorage.getItem('sidebar-expanded-categories');
-    let initialCategories: string[] = [];
+    let initialCategories: string[] = ['homepage'];
 
     if (saved) {
-      initialCategories = JSON.parse(saved);
+      try {
+        const parsed = JSON.parse(saved);
+        initialCategories = Array.isArray(parsed) ? parsed : ['homepage'];
+      } catch (e) {
+        initialCategories = ['homepage'];
+      }
     } else {
       const activeCategory = categories.find(cat =>
         cat.items.some(item => item.id === activeTab)
       );
-      initialCategories = activeCategory ? [activeCategory.id] : [];
+      if (activeCategory && activeCategory.id !== 'homepage') {
+        initialCategories.push(activeCategory.id);
+      }
     }
 
     if (!initialCategories.includes('homepage')) {
-      initialCategories.push('homepage');
+      initialCategories.unshift('homepage');
     }
 
     return initialCategories;
@@ -244,7 +267,7 @@ export default function Sidebar({
   useEffect(() => {
     const categoriesToSave = expandedCategories.includes('homepage')
       ? expandedCategories
-      : [...expandedCategories, 'homepage'];
+      : ['homepage', ...expandedCategories];
     localStorage.setItem('sidebar-expanded-categories', JSON.stringify(categoriesToSave));
   }, [expandedCategories]);
 
@@ -253,7 +276,13 @@ export default function Sidebar({
       cat.items.some(item => item.id === activeTab)
     );
     if (activeCategory && !expandedCategories.includes(activeCategory.id)) {
-      setExpandedCategories(prev => [...prev, activeCategory.id]);
+      setExpandedCategories(prev => {
+        const newCategories = [...prev, activeCategory.id];
+        if (!newCategories.includes('homepage')) {
+          newCategories.unshift('homepage');
+        }
+        return newCategories;
+      });
     }
   }, [activeTab]);
 
