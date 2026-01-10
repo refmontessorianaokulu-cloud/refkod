@@ -205,7 +205,7 @@ export default function Login() {
         <img
           src="/whatsapp_image_2026-01-10_at_23.02.15.png"
           alt="REF Logo"
-          className="w-24 h-24 md:w-48 md:h-48 object-contain drop-shadow-2xl"
+          className="w-32 h-32 md:w-64 md:h-64 object-contain drop-shadow-2xl"
           style={{ mixBlendMode: 'multiply' }}
         />
       </div>
