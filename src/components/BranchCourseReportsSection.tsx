@@ -292,12 +292,24 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   };
 
   const getFilteredChildren = () => {
-    if (userRole !== 'teacher' || teacherAssignments.length === 0) {
+    if (userRole === 'admin') {
       return children;
     }
 
-    const assignedClasses = Array.from(new Set(teacherAssignments.map(a => a.class_name)));
-    return children.filter(child => assignedClasses.includes(child.class_name));
+    if (userRole === 'guidance_counselor') {
+      return children;
+    }
+
+    if (userRole === 'teacher') {
+      if (teacherAssignments.length === 0) {
+        return children;
+      }
+
+      const assignedClasses = Array.from(new Set(teacherAssignments.map(a => a.class_name)));
+      return children.filter(child => assignedClasses.includes(child.class_name));
+    }
+
+    return children;
   };
 
   const getAvailableCourseTypes = () => {

@@ -154,18 +154,42 @@ export default function TeacherDashboard() {
     try {
       if (!profile) return;
 
+      const childIdsSet = new Set<string>();
+
       const { data: teacherChildrenData } = await supabase
         .from('teacher_children')
         .select('child_id')
         .eq('teacher_id', profile.id);
 
-      if (!teacherChildrenData || teacherChildrenData.length === 0) {
+      if (teacherChildrenData && teacherChildrenData.length > 0) {
+        teacherChildrenData.forEach((tc) => childIdsSet.add(tc.child_id));
+      }
+
+      const { data: branchAssignments } = await supabase
+        .from('teacher_branch_assignments')
+        .select('class_name')
+        .eq('teacher_id', profile.id);
+
+      if (branchAssignments && branchAssignments.length > 0) {
+        const assignedClasses = Array.from(new Set(branchAssignments.map(a => a.class_name)));
+
+        const { data: classChildren } = await supabase
+          .from('children')
+          .select('id')
+          .in('class_name', assignedClasses);
+
+        if (classChildren) {
+          classChildren.forEach((child) => childIdsSet.add(child.id));
+        }
+      }
+
+      if (childIdsSet.size === 0) {
         setChildren([]);
         setLoading(false);
         return;
       }
 
-      const childIds = teacherChildrenData.map((tc) => tc.child_id);
+      const childIds = Array.from(childIdsSet);
       const { data } = await supabase
         .from('children')
         .select('*')
@@ -183,17 +207,41 @@ export default function TeacherDashboard() {
     try {
       if (!profile) return;
 
+      const childIdsSet = new Set<string>();
+
       const { data: teacherChildrenData } = await supabase
         .from('teacher_children')
         .select('child_id')
         .eq('teacher_id', profile.id);
 
-      if (!teacherChildrenData || teacherChildrenData.length === 0) {
+      if (teacherChildrenData && teacherChildrenData.length > 0) {
+        teacherChildrenData.forEach((tc) => childIdsSet.add(tc.child_id));
+      }
+
+      const { data: branchAssignments } = await supabase
+        .from('teacher_branch_assignments')
+        .select('class_name')
+        .eq('teacher_id', profile.id);
+
+      if (branchAssignments && branchAssignments.length > 0) {
+        const assignedClasses = Array.from(new Set(branchAssignments.map(a => a.class_name)));
+
+        const { data: classChildren } = await supabase
+          .from('children')
+          .select('id')
+          .in('class_name', assignedClasses);
+
+        if (classChildren) {
+          classChildren.forEach((child) => childIdsSet.add(child.id));
+        }
+      }
+
+      if (childIdsSet.size === 0) {
         setDailyReports([]);
         return;
       }
 
-      const childIds = teacherChildrenData.map((tc) => tc.child_id);
+      const childIds = Array.from(childIdsSet);
 
       let query = supabase
         .from('daily_reports')
