@@ -201,7 +201,7 @@ export default function Login() {
       )}
 
       {/* Logo en üstte ortada */}
-      <div className="flex justify-center pt-2 pb-2 md:pt-4 md:pb-6 relative z-10">
+      <div className="flex justify-center pt-2 pb-0 md:pt-4 md:pb-2 relative z-10">
         <img
           src="/whatsapp_image_2026-01-10_at_23.02.15.png"
           alt="REF Logo"
@@ -211,7 +211,7 @@ export default function Login() {
       </div>
 
       {/* Alt kısımda kartlar */}
-      <div className="flex-1 flex flex-col md:flex-row items-end justify-center md:justify-between gap-4 md:gap-0 relative z-10 max-w-7xl mx-auto w-full pb-4 md:pb-0">
+      <div className="flex-1 flex flex-col md:flex-row items-end justify-center md:justify-between gap-4 md:gap-0 relative z-10 max-w-7xl mx-auto w-full pb-2 md:pb-0">
         {/* Sol Alt Kart - Giriş */}
         <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 md:h-[380px] flex flex-col justify-between">
           <div>
