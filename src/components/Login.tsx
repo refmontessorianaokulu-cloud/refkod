@@ -181,7 +181,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen relative flex flex-col p-8">
+    <div className="min-h-screen relative flex flex-col p-4 md:p-8">
       {videoEnabled && videoUrl ? (
         <>
           <video
@@ -201,17 +201,17 @@ export default function Login() {
       )}
 
       {/* Logo en üstte ortada */}
-      <div className="flex justify-center pt-4 pb-6 relative z-10">
+      <div className="flex justify-center pt-2 pb-2 md:pt-4 md:pb-6 relative z-10">
         <img
           src="/whatsapp_image_2026-01-10_at_23.02.15.png"
           alt="REF Logo"
-          className="w-48 h-48 object-contain drop-shadow-2xl"
+          className="w-24 h-24 md:w-48 md:h-48 object-contain drop-shadow-2xl"
           style={{ mixBlendMode: 'multiply' }}
         />
       </div>
 
       {/* Alt kısımda kartlar */}
-      <div className="flex-1 flex flex-col md:flex-row items-center md:items-end justify-center md:justify-between gap-4 md:gap-0 relative z-10 max-w-7xl mx-auto w-full">
+      <div className="flex-1 flex flex-col md:flex-row items-end justify-center md:justify-between gap-4 md:gap-0 relative z-10 max-w-7xl mx-auto w-full pb-4 md:pb-0">
         {/* Sol Alt Kart - Giriş */}
         <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 md:h-[380px] flex flex-col justify-between">
           <div>
