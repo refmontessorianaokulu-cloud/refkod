@@ -137,3 +137,23 @@ export type BehaviorIncident = {
   creator?: Profile;
   evaluator?: Profile;
 };
+
+export type AboutContent = {
+  id: string;
+  section_key: string;
+  section_title: string;
+  content: string;
+  image_url: string | null;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+};
+
+export type AppSettings = {
+  id: string;
+  key: string;
+  value: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+};

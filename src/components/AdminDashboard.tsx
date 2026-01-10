@@ -18,13 +18,17 @@ import BranchCourseReportsSection from './BranchCourseReportsSection';
 import InquiryFormsSection from './InquiryFormsSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
+import HomePage from './HomePage';
+import AboutPage from './AboutPage';
+import AboutContentEditor from './AboutContentEditor';
+import InstagramSettings from './InstagramSettings';
 import Sidebar, { MenuTab } from './Sidebar';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
   const [activeTab, setActiveTab] = useState<MenuTab>(() => {
     const saved = localStorage.getItem('admin-active-tab');
-    return (saved as MenuTab) || 'children';
+    return (saved as MenuTab) || 'home';
   });
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
@@ -519,10 +523,17 @@ export default function AdminDashboard() {
 
       <main className="flex-1 overflow-x-hidden">
         <div className="lg:pl-0 pl-0">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            {activeTab === 'children' && (
-              <div>
+          {activeTab === 'home' ? (
+            <HomePage onNavigateToAbout={() => setActiveTab('about')} />
+          ) : activeTab === 'about' ? (
+            <AboutPage onNavigateHome={() => setActiveTab('home')} />
+          ) : (
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                {activeTab === 'content_management' && <AboutContentEditor />}
+                {activeTab === 'settings_management' && <InstagramSettings />}
+                {activeTab === 'children' && (
+                  <div>
                 {pickupNotifications.length > 0 && (
                   <div className="bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-6 mb-6">
                     <div className="flex items-center space-x-3 mb-4">
@@ -1212,8 +1223,9 @@ export default function AdminDashboard() {
                 userRole="admin"
               />
             )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </main>
 

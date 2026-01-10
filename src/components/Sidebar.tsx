@@ -28,9 +28,15 @@ import {
   Linkedin,
   Youtube,
   Mail,
+  Home,
+  Info,
+  Edit,
+  Settings,
 } from 'lucide-react';
 
 export type MenuTab =
+  | 'home'
+  | 'about'
   | 'children'
   | 'users'
   | 'attendance'
@@ -49,7 +55,9 @@ export type MenuTab =
   | 'cleaning'
   | 'material_requests'
   | 'inquiries'
-  | 'reference_applications';
+  | 'reference_applications'
+  | 'content_management'
+  | 'settings_management';
 
 interface MenuItem {
   id: MenuTab;
@@ -72,6 +80,14 @@ interface SidebarProps {
 }
 
 const menuCategories: MenuCategory[] = [
+  {
+    id: 'homepage',
+    label: 'Ana Sayfa',
+    items: [
+      { id: 'home', label: 'Ana Sayfa', icon: Home },
+      { id: 'about', label: 'Hakkımızda', icon: Info },
+    ],
+  },
   {
     id: 'student_management',
     label: 'Öğrenci Yönetimi',
@@ -131,6 +147,20 @@ const menuCategories: MenuCategory[] = [
     label: 'Başvurular',
     items: [
       { id: 'reference_applications', label: 'Referans Öğretmen', icon: FileText },
+    ],
+  },
+  {
+    id: 'content',
+    label: 'İçerik Yönetimi',
+    items: [
+      { id: 'content_management', label: 'Hakkımızda İçeriği', icon: Edit },
+    ],
+  },
+  {
+    id: 'settings',
+    label: 'Ayarlar',
+    items: [
+      { id: 'settings_management', label: 'Instagram Ayarları', icon: Settings },
     ],
   },
 ];
