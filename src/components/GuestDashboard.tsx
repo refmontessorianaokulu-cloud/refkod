@@ -21,7 +21,7 @@ export default function GuestDashboard() {
     },
     {
       id: 'ref_sections',
-      label: 'Ref Bölümleri',
+      label: 'Ref Ekosistemi',
       items: [
         { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
         { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },

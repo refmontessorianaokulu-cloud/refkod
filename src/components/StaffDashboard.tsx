@@ -42,6 +42,16 @@ export default function StaffDashboard() {
       ],
     });
 
+    categories.push({
+      id: 'ref_sections',
+      label: 'Ref Ekosistemi',
+      items: [
+        { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
+        { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+        { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
+      ],
+    });
+
     const roleSpecificItems: any[] = [];
 
     if (showMenuTab) {
@@ -71,16 +81,6 @@ export default function StaffDashboard() {
       items: [
         { id: 'material_requests', label: 'Malzeme Talepleri', icon: Package },
         { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
-      ],
-    });
-
-    categories.push({
-      id: 'ref_sections',
-      label: 'Ref Bölümleri',
-      items: [
-        { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
-        { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
-        { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
       ],
     });
 

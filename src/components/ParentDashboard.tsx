@@ -30,6 +30,15 @@ const parentMenuCategories: MenuCategory[] = [
     ],
   },
   {
+    id: 'ref_sections',
+    label: 'Ref Ekosistemi',
+    items: [
+      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
+      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
+    ],
+  },
+  {
     id: 'children_activities',
     label: 'Çocuğum',
     items: [
@@ -61,15 +70,6 @@ const parentMenuCategories: MenuCategory[] = [
       { id: 'menu', label: 'Yemek Menüsü', icon: UtensilsCrossed },
       { id: 'duty', label: 'Nöbetçi Öğretmen', icon: UserCheck },
       { id: 'service', label: 'Servis Takibi', icon: Car },
-    ],
-  },
-  {
-    id: 'ref_sections',
-    label: 'Ref Bölümleri',
-    items: [
-      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
-      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
-      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
     ],
   },
 ];

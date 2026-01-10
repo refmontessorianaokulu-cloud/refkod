@@ -108,6 +108,15 @@ const defaultAdminMenuCategories: MenuCategory[] = [
     ],
   },
   {
+    id: 'ref_sections',
+    label: 'Ref Ekosistemi',
+    items: [
+      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
+      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
+    ],
+  },
+  {
     id: 'student_management',
     label: 'Öğrenci Yönetimi',
     items: [
@@ -173,16 +182,7 @@ const defaultAdminMenuCategories: MenuCategory[] = [
     label: 'İçerik Yönetimi',
     items: [
       { id: 'content_management', label: 'Hakkımızda İçeriği', icon: Edit },
-      { id: 'ref_management', label: 'Ref Bölümleri Yönetimi', icon: Edit },
-    ],
-  },
-  {
-    id: 'ref_sections',
-    label: 'Ref Bölümleri',
-    items: [
-      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
-      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
-      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
+      { id: 'ref_management', label: 'Ref Ekosistemi Yönetimi', icon: Edit },
     ],
   },
   {

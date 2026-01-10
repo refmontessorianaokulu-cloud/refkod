@@ -30,6 +30,15 @@ const teacherMenuCategories: MenuCategory[] = [
     ],
   },
   {
+    id: 'ref_sections',
+    label: 'Ref Ekosistemi',
+    items: [
+      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
+      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
+    ],
+  },
+  {
     id: 'daily_activities',
     label: 'Günlük Aktiviteler',
     items: [
@@ -71,15 +80,6 @@ const teacherMenuCategories: MenuCategory[] = [
       { id: 'cleaning', label: 'Temizlik İstekleri', icon: Sparkles },
       { id: 'service', label: 'Servis Takibi', icon: Car },
       { id: 'material_requests', label: 'Malzeme Talepleri', icon: Package },
-    ],
-  },
-  {
-    id: 'ref_sections',
-    label: 'Ref Bölümleri',
-    items: [
-      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
-      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
-      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
     ],
   },
 ];
