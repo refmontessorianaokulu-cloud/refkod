@@ -26,7 +26,7 @@ export default function HomePage({ onNavigateToAbout, userFullName, onSignOut }:
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-green-50 to-teal-50">
       {userFullName && onSignOut && (
-        <div className="lg:hidden sticky top-0 right-0 z-40 flex items-center justify-end space-x-2 bg-emerald-50/95 backdrop-blur-sm shadow-md px-3 py-2 border-b border-emerald-100">
+        <div className="lg:hidden fixed top-4 right-4 z-40 flex items-center space-x-2 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-3 py-2.5">
           <div className="flex items-center space-x-1.5">
             <User className="w-4 h-4 text-emerald-700" />
             <span className="text-xs font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
