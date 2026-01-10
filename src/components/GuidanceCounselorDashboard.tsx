@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Calendar, Send, Users, MessageSquare, ClipboardList, BookOpen, AlertTriangle, Home, Info } from 'lucide-react';
+import { Calendar, Send, Users, MessageSquare, ClipboardList, BookOpen, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette } from 'lucide-react';
 import MessagesSection from './MessagesSection';
 import TaskResponseSection from './TaskResponseSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
+import RefSectionsView from './RefSectionsView';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 interface Appointment {
@@ -73,6 +74,15 @@ const guidanceMenuCategories: MenuCategory[] = [
       { id: 'tasks', label: 'Görevlerim', icon: ClipboardList },
       { id: 'branch_reports', label: 'Rehberlik Raporları', icon: BookOpen },
       { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
+    ],
+  },
+  {
+    id: 'ref_sections',
+    label: 'Ref Bölümleri',
+    items: [
+      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
+      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
     ],
   },
 ];
@@ -428,6 +438,24 @@ export default function GuidanceCounselorDashboard() {
                 userId={profile.id}
                 userRole="guidance_counselor"
               />
+            </div>
+          )}
+
+          {activeTab === 'ref_akademi' && (
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <RefSectionsView sectionType="ref_akademi" />
+            </div>
+          )}
+
+          {activeTab === 'ref_danismanlik' && (
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <RefSectionsView sectionType="ref_danismanlik" />
+            </div>
+          )}
+
+          {activeTab === 'ref_atolye' && (
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <RefSectionsView sectionType="ref_atolye" />
             </div>
           )}
         </div>

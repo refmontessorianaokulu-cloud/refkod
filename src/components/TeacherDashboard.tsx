@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, DailyReport } from '../lib/supabase';
-import { Baby, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle, Home, Info } from 'lucide-react';
+import { Baby, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -17,6 +17,7 @@ import MaterialRequestsSection from './MaterialRequestsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
+import RefSectionsView from './RefSectionsView';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 const teacherMenuCategories: MenuCategory[] = [
@@ -70,6 +71,15 @@ const teacherMenuCategories: MenuCategory[] = [
       { id: 'cleaning', label: 'Temizlik İstekleri', icon: Sparkles },
       { id: 'service', label: 'Servis Takibi', icon: Car },
       { id: 'material_requests', label: 'Malzeme Talepleri', icon: Package },
+    ],
+  },
+  {
+    id: 'ref_sections',
+    label: 'Ref Bölümleri',
+    items: [
+      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
+      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
     ],
   },
 ];
@@ -898,6 +908,24 @@ export default function TeacherDashboard() {
               userId={profile.id}
               userRole="teacher"
             />
+          </div>
+        )}
+
+        {activeTab === 'ref_akademi' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefSectionsView sectionType="ref_akademi" />
+          </div>
+        )}
+
+        {activeTab === 'ref_danismanlik' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefSectionsView sectionType="ref_danismanlik" />
+          </div>
+        )}
+
+        {activeTab === 'ref_atolye' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefSectionsView sectionType="ref_atolye" />
           </div>
         )}
 

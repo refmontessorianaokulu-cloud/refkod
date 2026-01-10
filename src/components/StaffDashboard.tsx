@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { UtensilsCrossed, Sparkles, Car, Baby, Package, AlertTriangle, Home, Info } from 'lucide-react';
+import { UtensilsCrossed, Sparkles, Car, Baby, Package, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette } from 'lucide-react';
 import MealMenuSection from './MealMenuSection';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import ToiletNotificationsSection from './ToiletNotificationsSection';
@@ -9,6 +9,7 @@ import MaterialRequestsSection from './MaterialRequestsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
+import RefSectionsView from './RefSectionsView';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 export default function StaffDashboard() {
@@ -73,6 +74,16 @@ export default function StaffDashboard() {
       ],
     });
 
+    categories.push({
+      id: 'ref_sections',
+      label: 'Ref Bölümleri',
+      items: [
+        { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
+        { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+        { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
+      ],
+    });
+
     return categories;
   };
 
@@ -126,6 +137,18 @@ export default function StaffDashboard() {
 
               {activeTab === 'behavior_incidents' && profile && (
                 <BehaviorIncidentSection userId={profile.id} userRole="staff" />
+              )}
+
+              {activeTab === 'ref_akademi' && (
+                <RefSectionsView sectionType="ref_akademi" />
+              )}
+
+              {activeTab === 'ref_danismanlik' && (
+                <RefSectionsView sectionType="ref_danismanlik" />
+              )}
+
+              {activeTab === 'ref_atolye' && (
+                <RefSectionsView sectionType="ref_atolye" />
               )}
             </div>
           )}

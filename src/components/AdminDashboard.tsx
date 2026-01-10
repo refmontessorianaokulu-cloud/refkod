@@ -22,6 +22,8 @@ import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import AboutContentEditor from './AboutContentEditor';
 import InstagramSettings from './InstagramSettings';
+import RefSectionsManagement from './RefSectionsManagement';
+import RefSectionsView from './RefSectionsView';
 import Sidebar, { MenuTab } from './Sidebar';
 
 export default function AdminDashboard() {
@@ -1223,6 +1225,11 @@ export default function AdminDashboard() {
                 userRole="admin"
               />
             )}
+
+            {activeTab === 'ref_management' && <RefSectionsManagement />}
+            {activeTab === 'ref_akademi' && <RefSectionsView sectionType="ref_akademi" />}
+            {activeTab === 'ref_danismanlik' && <RefSectionsView sectionType="ref_danismanlik" />}
+            {activeTab === 'ref_atolye' && <RefSectionsView sectionType="ref_atolye" />}
               </div>
             </div>
           )}

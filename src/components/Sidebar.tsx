@@ -34,6 +34,9 @@ import {
   Settings,
   User,
   Phone,
+  GraduationCap,
+  Briefcase,
+  Palette,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -66,7 +69,11 @@ export type MenuTab =
   | 'task_responses'
   | 'group_messages'
   | 'service_location'
-  | 'notifications';
+  | 'notifications'
+  | 'ref_akademi'
+  | 'ref_danismanlik'
+  | 'ref_atolye'
+  | 'ref_management';
 
 export interface MenuItem {
   id: MenuTab;
@@ -166,6 +173,16 @@ const defaultAdminMenuCategories: MenuCategory[] = [
     label: 'İçerik Yönetimi',
     items: [
       { id: 'content_management', label: 'Hakkımızda İçeriği', icon: Edit },
+      { id: 'ref_management', label: 'Ref Bölümleri Yönetimi', icon: Edit },
+    ],
+  },
+  {
+    id: 'ref_sections',
+    label: 'Ref Bölümleri',
+    items: [
+      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
+      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
     ],
   },
   {

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles } from 'lucide-react';
+import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles, GraduationCap, Briefcase, Palette } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -11,6 +11,7 @@ import DutyScheduleSection from './DutyScheduleSection';
 import ServiceLocationSection from './ServiceLocationSection';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
+import RefSectionsView from './RefSectionsView';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 type ChildWithLogs = Child & {
@@ -60,6 +61,15 @@ const parentMenuCategories: MenuCategory[] = [
       { id: 'menu', label: 'Yemek Menüsü', icon: UtensilsCrossed },
       { id: 'duty', label: 'Nöbetçi Öğretmen', icon: UserCheck },
       { id: 'service', label: 'Servis Takibi', icon: Car },
+    ],
+  },
+  {
+    id: 'ref_sections',
+    label: 'Ref Bölümleri',
+    items: [
+      { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
+      { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+      { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
     ],
   },
 ];
@@ -532,6 +542,24 @@ export default function ParentDashboard() {
 
         {activeTab === 'service' && selectedChild && (
           <ServiceLocationSection childId={selectedChild} />
+        )}
+
+        {activeTab === 'ref_akademi' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefSectionsView sectionType="ref_akademi" />
+          </div>
+        )}
+
+        {activeTab === 'ref_danismanlik' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefSectionsView sectionType="ref_danismanlik" />
+          </div>
+        )}
+
+        {activeTab === 'ref_atolye' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefSectionsView sectionType="ref_atolye" />
+          </div>
         )}
 
         {activeTab === 'home' && (
