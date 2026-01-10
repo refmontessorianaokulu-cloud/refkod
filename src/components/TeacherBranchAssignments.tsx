@@ -9,16 +9,14 @@ interface TeacherBranchAssignment {
   course_type: string;
   created_at: string;
   teacher?: {
-    first_name: string;
-    last_name: string;
+    full_name: string;
     email: string;
   };
 }
 
 interface Profile {
   id: string;
-  first_name: string;
-  last_name: string;
+  full_name: string;
   email: string;
   role: string;
 }
@@ -59,7 +57,7 @@ export default function TeacherBranchAssignments() {
         .from('teacher_branch_assignments')
         .select(`
           *,
-          teacher:profiles!teacher_id(first_name, last_name, email)
+          teacher:profiles!teacher_id(full_name, email)
         `)
         .order('created_at', { ascending: false });
 
@@ -77,14 +75,19 @@ export default function TeacherBranchAssignments() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, first_name, last_name, email, role')
+        .select('id, full_name, email, role')
         .in('role', ['teacher', 'guidance_counselor'])
-        .order('first_name');
+        .order('full_name');
 
       if (error) throw error;
       setTeachers(data || []);
+
+      if (!data || data.length === 0) {
+        setError('Sistemde öğretmen bulunamadı. Lütfen önce öğretmen hesapları oluşturun.');
+      }
     } catch (err: any) {
       console.error('Error fetching teachers:', err);
+      setError('Öğretmen listesi yüklenirken hata oluştu: ' + err.message);
     }
   };
 
@@ -249,7 +252,7 @@ export default function TeacherBranchAssignments() {
                   <tr key={assignment.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {assignment.teacher?.first_name} {assignment.teacher?.last_name}
+                        {assignment.teacher?.full_name}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
@@ -312,7 +315,7 @@ export default function TeacherBranchAssignments() {
                   <option value="">Öğretmen Seçin</option>
                   {teachers.map((teacher) => (
                     <option key={teacher.id} value={teacher.id}>
-                      {teacher.first_name} {teacher.last_name} ({teacher.role === 'guidance_counselor' ? 'Rehber Öğretmen' : 'Öğretmen'})
+                      {teacher.full_name} ({teacher.role === 'guidance_counselor' ? 'Rehber Öğretmen' : 'Öğretmen'})
                     </option>
                   ))}
                 </select>
