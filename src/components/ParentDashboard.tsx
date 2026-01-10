@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard } from 'lucide-react';
+import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -9,6 +9,8 @@ import FeesSection from './FeesSection';
 import MealMenuSection from './MealMenuSection';
 import DutyScheduleSection from './DutyScheduleSection';
 import ServiceLocationSection from './ServiceLocationSection';
+import HomePage from './HomePage';
+import AboutPage from './AboutPage';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 type ChildWithLogs = Child & {
@@ -18,6 +20,14 @@ type ChildWithLogs = Child & {
 };
 
 const parentMenuCategories: MenuCategory[] = [
+  {
+    id: 'homepage',
+    label: 'Ana Sayfa',
+    items: [
+      { id: 'home', label: 'Ana Sayfa', icon: Home },
+      { id: 'about', label: 'Hakkımızda', icon: Info },
+    ],
+  },
   {
     id: 'children_activities',
     label: 'Çocuğum',
@@ -57,7 +67,7 @@ export default function ParentDashboard() {
   const { signOut, profile } = useAuth();
   const [activeTab, setActiveTab] = useState<MenuTab>(() => {
     const saved = localStorage.getItem('parent-active-tab');
-    return (saved as MenuTab) || 'main';
+    return (saved as MenuTab) || 'home';
   });
   const [children, setChildren] = useState<ChildWithLogs[]>([]);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
@@ -528,6 +538,10 @@ export default function ParentDashboard() {
         {activeTab === 'service' && selectedChild && (
           <ServiceLocationSection childId={selectedChild} />
         )}
+
+        {activeTab === 'home' && <HomePage />}
+
+        {activeTab === 'about' && <AboutPage />}
 
         {activeTab === 'main' && loading ? (
           <div className="text-center py-12">

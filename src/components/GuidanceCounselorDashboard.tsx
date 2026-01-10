@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { Calendar, Send, Users, MessageSquare, ClipboardList, BookOpen, AlertTriangle } from 'lucide-react';
+import { Calendar, Send, Users, MessageSquare, ClipboardList, BookOpen, AlertTriangle, Home, Info } from 'lucide-react';
 import MessagesSection from './MessagesSection';
 import TaskResponseSection from './TaskResponseSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
+import HomePage from './HomePage';
+import AboutPage from './AboutPage';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 interface Appointment {
@@ -42,6 +44,14 @@ interface Child {
 
 const guidanceMenuCategories: MenuCategory[] = [
   {
+    id: 'homepage',
+    label: 'Ana Sayfa',
+    items: [
+      { id: 'home', label: 'Ana Sayfa', icon: Home },
+      { id: 'about', label: 'Hakkımızda', icon: Info },
+    ],
+  },
+  {
     id: 'appointments_management',
     label: 'Randevu Yönetimi',
     items: [
@@ -71,7 +81,7 @@ export default function GuidanceCounselorDashboard() {
   const { signOut, profile } = useAuth();
   const [activeTab, setActiveTab] = useState<MenuTab>(() => {
     const saved = localStorage.getItem('guidance-active-tab');
-    return (saved as MenuTab) || 'appointments';
+    return (saved as MenuTab) || 'home';
   });
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [groupMessages, setGroupMessages] = useState<GroupMessage[]>([]);
@@ -288,6 +298,10 @@ export default function GuidanceCounselorDashboard() {
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activeTab === 'home' && <HomePage />}
+
+          {activeTab === 'about' && <AboutPage />}
+
           {activeTab === 'appointments' && (
             <div className="bg-white rounded-2xl shadow-xl p-8">
               <h2 className="text-3xl font-bold text-gray-800 mb-6">Randevu Talepleri</h2>

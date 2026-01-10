@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { UtensilsCrossed, Sparkles, Car, Baby, Package, AlertTriangle } from 'lucide-react';
+import { UtensilsCrossed, Sparkles, Car, Baby, Package, AlertTriangle, Home, Info } from 'lucide-react';
 import MealMenuSection from './MealMenuSection';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import ToiletNotificationsSection from './ToiletNotificationsSection';
 import BusDriverServiceSection from './BusDriverServiceSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
+import HomePage from './HomePage';
+import AboutPage from './AboutPage';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 export default function StaffDashboard() {
   const { signOut, profile } = useAuth();
   const [activeTab, setActiveTab] = useState<MenuTab>(() => {
     const saved = localStorage.getItem('staff-active-tab');
-    return (saved as MenuTab) || 'menu';
+    return (saved as MenuTab) || 'home';
   });
 
   useEffect(() => {
@@ -36,6 +38,16 @@ export default function StaffDashboard() {
 
   const getStaffMenuCategories = (): MenuCategory[] => {
     const categories: MenuCategory[] = [];
+
+    categories.push({
+      id: 'homepage',
+      label: 'Ana Sayfa',
+      items: [
+        { id: 'home', label: 'Ana Sayfa', icon: Home },
+        { id: 'about', label: 'Hakkımızda', icon: Info },
+      ],
+    });
+
     const roleSpecificItems: any[] = [];
 
     if (showMenuTab) {
@@ -85,6 +97,10 @@ export default function StaffDashboard() {
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {activeTab === 'home' && <HomePage />}
+
+          {activeTab === 'about' && <AboutPage />}
+
           <div className="bg-white rounded-2xl shadow-xl p-8">
             {activeTab === 'menu' && showMenuTab && (
               <MealMenuSection userId={profile?.id || ''} userRole="staff" />

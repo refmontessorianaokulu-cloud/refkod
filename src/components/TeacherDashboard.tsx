@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, DailyReport } from '../lib/supabase';
-import { Baby, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle } from 'lucide-react';
+import { Baby, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle, Home, Info } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -15,9 +15,19 @@ import AllServicesLocationSection from './AllServicesLocationSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
+import HomePage from './HomePage';
+import AboutPage from './AboutPage';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 const teacherMenuCategories: MenuCategory[] = [
+  {
+    id: 'homepage',
+    label: 'Ana Sayfa',
+    items: [
+      { id: 'home', label: 'Ana Sayfa', icon: Home },
+      { id: 'about', label: 'Hakkımızda', icon: Info },
+    ],
+  },
   {
     id: 'daily_activities',
     label: 'Günlük Aktiviteler',
@@ -68,7 +78,7 @@ export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
   const [activeTab, setActiveTab] = useState<MenuTab>(() => {
     const saved = localStorage.getItem('teacher-active-tab');
-    return (saved as MenuTab) || 'main';
+    return (saved as MenuTab) || 'home';
   });
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -546,6 +556,10 @@ export default function TeacherDashboard() {
 
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {activeTab === 'home' && <HomePage />}
+
+        {activeTab === 'about' && <AboutPage />}
 
         {activeTab === 'main' && (
         <>
