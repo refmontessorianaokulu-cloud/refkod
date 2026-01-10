@@ -76,10 +76,7 @@ const teacherMenuCategories: MenuCategory[] = [
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<MenuTab>(() => {
-    const saved = localStorage.getItem('teacher-active-tab');
-    return (saved as MenuTab) || 'home';
-  });
+  const [activeTab, setActiveTab] = useState<MenuTab>('home');
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
@@ -127,9 +124,6 @@ export default function TeacherDashboard() {
   const [editingReport, setEditingReport] = useState<DailyReport | null>(null);
   const [existingMediaUrls, setExistingMediaUrls] = useState<string[]>([]);
 
-  useEffect(() => {
-    localStorage.setItem('teacher-active-tab', activeTab);
-  }, [activeTab]);
 
   useEffect(() => {
     if (profile) {

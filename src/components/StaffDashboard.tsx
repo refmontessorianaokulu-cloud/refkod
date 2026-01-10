@@ -13,14 +13,7 @@ import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 export default function StaffDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<MenuTab>(() => {
-    const saved = localStorage.getItem('staff-active-tab');
-    return (saved as MenuTab) || 'home';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('staff-active-tab', activeTab);
-  }, [activeTab]);
+  const [activeTab, setActiveTab] = useState<MenuTab>('home');
 
   const getStaffTitle = () => {
     if (profile?.staff_role === 'cook') return 'Aşçı Paneli';

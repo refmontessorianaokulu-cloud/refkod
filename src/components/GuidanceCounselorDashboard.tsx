@@ -79,10 +79,7 @@ const guidanceMenuCategories: MenuCategory[] = [
 
 export default function GuidanceCounselorDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<MenuTab>(() => {
-    const saved = localStorage.getItem('guidance-active-tab');
-    return (saved as MenuTab) || 'home';
-  });
+  const [activeTab, setActiveTab] = useState<MenuTab>('home');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [groupMessages, setGroupMessages] = useState<GroupMessage[]>([]);
   const [children, setChildren] = useState<Child[]>([]);
@@ -102,7 +99,6 @@ export default function GuidanceCounselorDashboard() {
   });
 
   useEffect(() => {
-    localStorage.setItem('guidance-active-tab', activeTab);
     if (profile) {
       loadAppointments();
       loadGroupMessages();

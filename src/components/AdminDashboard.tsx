@@ -26,10 +26,7 @@ import Sidebar, { MenuTab } from './Sidebar';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<MenuTab>(() => {
-    const saved = localStorage.getItem('admin-active-tab');
-    return (saved as MenuTab) || 'home';
-  });
+  const [activeTab, setActiveTab] = useState<MenuTab>('home');
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -73,7 +70,6 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    localStorage.setItem('admin-active-tab', activeTab);
     loadData();
     loadParentsAndTeachers();
     loadPickupNotifications();

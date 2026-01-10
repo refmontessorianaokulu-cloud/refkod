@@ -7,14 +7,7 @@ import { Home, Info } from 'lucide-react';
 
 export default function GuestDashboard() {
   const { signOut } = useAuth();
-  const [activeTab, setActiveTab] = useState<MenuTab>(() => {
-    const saved = localStorage.getItem('guest-active-tab');
-    return (saved as MenuTab) || 'home';
-  });
-
-  useEffect(() => {
-    localStorage.setItem('guest-active-tab', activeTab);
-  }, [activeTab]);
+  const [activeTab, setActiveTab] = useState<MenuTab>('home');
 
   const guestMenuCategories: MenuCategory[] = [
     {

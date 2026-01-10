@@ -66,10 +66,7 @@ const parentMenuCategories: MenuCategory[] = [
 
 export default function ParentDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<MenuTab>(() => {
-    const saved = localStorage.getItem('parent-active-tab');
-    return (saved as MenuTab) || 'home';
-  });
+  const [activeTab, setActiveTab] = useState<MenuTab>('home');
   const [children, setChildren] = useState<ChildWithLogs[]>([]);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -87,9 +84,6 @@ export default function ParentDashboard() {
     message: '',
   });
 
-  useEffect(() => {
-    localStorage.setItem('parent-active-tab', activeTab);
-  }, [activeTab]);
 
   useEffect(() => {
     loadChildren();
