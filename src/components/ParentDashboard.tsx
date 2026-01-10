@@ -50,6 +50,7 @@ const parentMenuCategories: MenuCategory[] = [
     label: 'Raporlar ve Değerlendirme',
     items: [
       { id: 'daily_reports', label: 'Montessori Raporları', icon: Sparkles },
+      { id: 'branch_reports', label: 'Branş Dersleri Raporları', icon: BookOpen },
     ],
   },
   {
@@ -99,6 +100,9 @@ export default function ParentDashboard() {
     subject: '',
     message: '',
   });
+  const [branchReports, setBranchReports] = useState<any[]>([]);
+  const [selectedBranchDate, setSelectedBranchDate] = useState(new Date().toISOString().split('T')[0]);
+  const [selectedCourseType, setSelectedCourseType] = useState<string>('all');
 
 
   useEffect(() => {
@@ -190,6 +194,12 @@ export default function ParentDashboard() {
     }
   }, [selectedChild]);
 
+  useEffect(() => {
+    if (activeTab === 'branch_reports' && selectedChild) {
+      loadBranchReports();
+    }
+  }, [activeTab, selectedChild, selectedBranchDate, selectedCourseType]);
+
   const loadAttendances = async () => {
     if (!selectedChild) return;
     try {
@@ -261,6 +271,26 @@ export default function ParentDashboard() {
       setTargetUsers(data || []);
     } catch (error) {
       console.error('Error loading target users:', error);
+    }
+  };
+
+  const loadBranchReports = async () => {
+    if (!selectedChild) return;
+    try {
+      let query = supabase
+        .from('branch_course_reports')
+        .select('*, profiles(full_name)')
+        .eq('child_id', selectedChild)
+        .eq('report_date', selectedBranchDate);
+
+      if (selectedCourseType !== 'all') {
+        query = query.eq('course_type', selectedCourseType);
+      }
+
+      const { data } = await query.order('created_at', { ascending: false });
+      setBranchReports(data || []);
+    } catch (error) {
+      console.error('Error loading branch reports:', error);
     }
   };
 
@@ -353,6 +383,18 @@ export default function ParentDashboard() {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     return `${hours} saat ${minutes} dakika`;
+  };
+
+  const getCourseLabel = (type: string) => {
+    const courseTypes: Record<string, string> = {
+      english: 'İngilizce',
+      quran: 'Kuran-ı Kerim',
+      moral_values: 'Manevi Değerler',
+      etiquette: 'Adab-ı Muaşeret',
+      art_music: 'Sanat ve Musiki',
+      guidance: 'Rehberlik',
+    };
+    return courseTypes[type] || type;
   };
 
   const handleSendPickupNotification = async () => {
@@ -932,6 +974,183 @@ export default function ParentDashboard() {
                                     <ImageIcon className="w-4 h-4" />
                                     <span>Fotoğraf ve Videolar</span>
                                   </h5>
+                                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {report.media_urls.map((url: string, idx: number) => {
+                                      const isVideo = url.match(/\.(mp4|mov|avi|webm|mkv)$/i);
+                                      return (
+                                        <div key={idx} className="relative group">
+                                          {isVideo ? (
+                                            <video
+                                              src={url}
+                                              controls
+                                              className="w-full h-32 object-cover rounded-lg border-2 border-white shadow-md"
+                                            />
+                                          ) : (
+                                            <a
+                                              href={url}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="block"
+                                            >
+                                              <img
+                                                src={url}
+                                                alt={`Rapor medyası ${idx + 1}`}
+                                                className="w-full h-32 object-cover rounded-lg border-2 border-white shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                                              />
+                                            </a>
+                                          )}
+                                        </div>
+                                      );
+                                    })}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'branch_reports' && children.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <Baby className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Henüz çocuğunuz eklenmemiş</h2>
+            <p className="text-gray-500">Lütfen yönetici ile iletişime geçin.</p>
+          </div>
+        ) : activeTab === 'branch_reports' && (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Çocuklarım</h3>
+                <div className="space-y-2">
+                  {children.map((child) => (
+                    <button
+                      key={child.id}
+                      onClick={() => setSelectedChild(child.id)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center space-x-3 ${
+                        selectedChild === child.id
+                          ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {child.photo_url ? (
+                        <img
+                          src={child.photo_url}
+                          alt={`${child.first_name} ${child.last_name}`}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
+                      ) : (
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm ${
+                          selectedChild === child.id
+                            ? 'bg-purple-700'
+                            : 'bg-gradient-to-br from-purple-200 to-pink-200'
+                        }`}>
+                          <Baby className={`w-6 h-6 ${selectedChild === child.id ? 'text-white' : 'text-purple-700'}`} />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {child.first_name} {child.last_name}
+                        </div>
+                        <div className={`text-sm ${selectedChild === child.id ? 'text-purple-50' : 'text-gray-500'}`}>
+                          {child.class_name}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-3">
+              {selectedChildData && (
+                <div className="space-y-6">
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+                      <div className="flex items-center space-x-2">
+                        <BookOpen className="w-6 h-6 text-purple-600" />
+                        <h3 className="text-xl font-bold text-gray-800">Branş Dersleri Raporları</h3>
+                      </div>
+                      <div className="flex items-center space-x-3 flex-wrap gap-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Tarih</label>
+                          <input
+                            type="date"
+                            value={selectedBranchDate}
+                            onChange={(e) => setSelectedBranchDate(e.target.value)}
+                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Ders</label>
+                          <select
+                            value={selectedCourseType}
+                            onChange={(e) => setSelectedCourseType(e.target.value)}
+                            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                          >
+                            <option value="all">Tüm Dersler</option>
+                            <option value="english">İngilizce</option>
+                            <option value="quran">Kuran-ı Kerim</option>
+                            <option value="moral_values">Manevi Değerler</option>
+                            <option value="etiquette">Adab-ı Muaşeret</option>
+                            <option value="art_music">Sanat ve Musiki</option>
+                            <option value="guidance">Rehberlik</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+
+                    {branchReports.length === 0 ? (
+                      <p className="text-gray-500 text-center py-8">
+                        {selectedBranchDate !== new Date().toISOString().split('T')[0]
+                          ? 'Seçili tarihte rapor bulunamadı'
+                          : 'Bugün için henüz branş dersi raporu eklenmemiş'}
+                      </p>
+                    ) : (
+                      <div className="space-y-4">
+                        {branchReports.map((report: any) => (
+                          <div
+                            key={report.id}
+                            className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border border-purple-100"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div>
+                                <div className="flex items-center space-x-3">
+                                  <span className="inline-block px-3 py-1 bg-purple-200 text-purple-800 rounded-full text-sm font-medium">
+                                    {getCourseLabel(report.course_type)}
+                                  </span>
+                                  {report.profiles && (
+                                    <span className="text-sm text-gray-600">
+                                      Öğretmen: {report.profiles.full_name}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                  {new Date(report.created_at).toLocaleString('tr-TR')}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="space-y-3">
+                              <div>
+                                <h4 className="text-sm font-medium text-gray-700 mb-2">Rapor:</h4>
+                                <p className="text-gray-700 whitespace-pre-wrap bg-white bg-opacity-50 rounded-lg p-3">
+                                  {report.content}
+                                </p>
+                              </div>
+
+                              {report.media_urls && report.media_urls.length > 0 && (
+                                <div>
+                                  <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center space-x-2">
+                                    <ImageIcon className="w-4 h-4" />
+                                    <span>Fotoğraf ve Videolar</span>
+                                  </h4>
                                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                     {report.media_urls.map((url: string, idx: number) => {
                                       const isVideo = url.match(/\.(mp4|mov|avi|webm|mkv)$/i);
