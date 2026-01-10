@@ -118,35 +118,13 @@ export default function AboutPage({ onNavigateHome, initialSection }: AboutPageP
         <span>Ana Sayfa</span>
       </button>
 
-      <div className="fixed right-6 top-24 z-40 hidden lg:block">
-        <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 space-y-2 max-w-xs">
-          <p className="text-sm font-semibold text-gray-700 mb-3">İçindekiler</p>
-          {sections.map((section) => {
-            const isActive = activeSection === section.section_key;
-            return (
-              <button
-                key={section.id}
-                onClick={() => scrollToSection(section.section_key)}
-                className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all ${
-                  isActive
-                    ? 'bg-emerald-600 text-white font-semibold'
-                    : 'text-gray-600 hover:bg-emerald-50 hover:text-emerald-700'
-                }`}
-              >
-                {section.section_title}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
       <div className="relative z-10 max-w-4xl mx-auto px-4 py-24 space-y-8">
         <div className="text-center mb-12">
           <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg">
             Hakkımızda
           </h1>
           <p className="text-xl text-white/90 drop-shadow-md">
-            REF Çocuk Akademisi'ni daha yakından tanıyın
+            Ref'e dair bir kaç şey...
           </p>
         </div>
 
