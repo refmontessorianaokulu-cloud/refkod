@@ -57,15 +57,20 @@ export type MenuTab =
   | 'inquiries'
   | 'reference_applications'
   | 'content_management'
-  | 'settings_management';
+  | 'settings_management'
+  | 'main'
+  | 'task_responses'
+  | 'group_messages'
+  | 'service_location'
+  | 'notifications';
 
-interface MenuItem {
+export interface MenuItem {
   id: MenuTab;
   label: string;
   icon: any;
 }
 
-interface MenuCategory {
+export interface MenuCategory {
   id: string;
   label: string;
   items: MenuItem[];
@@ -77,9 +82,12 @@ interface SidebarProps {
   onSignOut: () => void;
   userFullName?: string;
   pendingUsersCount?: number;
+  userRole?: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff';
+  menuCategories?: MenuCategory[];
+  panelTitle?: string;
 }
 
-const menuCategories: MenuCategory[] = [
+const defaultAdminMenuCategories: MenuCategory[] = [
   {
     id: 'homepage',
     label: 'Ana Sayfa',
@@ -171,7 +179,12 @@ export default function Sidebar({
   onSignOut,
   userFullName,
   pendingUsersCount = 0,
+  userRole = 'admin',
+  menuCategories,
+  panelTitle,
 }: SidebarProps) {
+  const categories = menuCategories || defaultAdminMenuCategories;
+  const title = panelTitle || 'Yönetici Paneli';
   const [isCollapsed, setIsCollapsed] = useState(() => {
     const saved = localStorage.getItem('sidebar-collapsed');
     return saved ? JSON.parse(saved) : false;
@@ -183,7 +196,7 @@ export default function Sidebar({
     if (saved) {
       return JSON.parse(saved);
     }
-    const activeCategory = menuCategories.find(cat =>
+    const activeCategory = categories.find(cat =>
       cat.items.some(item => item.id === activeTab)
     );
     return activeCategory ? [activeCategory.id] : [];
@@ -198,7 +211,7 @@ export default function Sidebar({
   }, [expandedCategories]);
 
   useEffect(() => {
-    const activeCategory = menuCategories.find(cat =>
+    const activeCategory = categories.find(cat =>
       cat.items.some(item => item.id === activeTab)
     );
     if (activeCategory && !expandedCategories.includes(activeCategory.id)) {
@@ -232,7 +245,7 @@ export default function Sidebar({
           />
           {!isCollapsed && (
             <div>
-              <h1 className="text-lg font-bold text-white">Yönetici Paneli</h1>
+              <h1 className="text-lg font-bold text-white">{title}</h1>
               {userFullName && (
                 <p className="text-xs text-gray-300 truncate max-w-[160px]">{userFullName}</p>
               )}
@@ -248,7 +261,7 @@ export default function Sidebar({
       </div>
 
       <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-1 scrollbar-thin">
-        {menuCategories.map((category) => {
+        {categories.map((category) => {
           const isExpanded = expandedCategories.includes(category.id);
           return (
             <div key={category.id}>

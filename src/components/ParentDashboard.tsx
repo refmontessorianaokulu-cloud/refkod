@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin } from 'lucide-react';
+import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -9,6 +9,7 @@ import FeesSection from './FeesSection';
 import MealMenuSection from './MealMenuSection';
 import DutyScheduleSection from './DutyScheduleSection';
 import ServiceLocationSection from './ServiceLocationSection';
+import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 
 type ChildWithLogs = Child & {
   meal_logs: MealLog[];
@@ -16,9 +17,48 @@ type ChildWithLogs = Child & {
   daily_reports: DailyReport[];
 };
 
+const parentMenuCategories: MenuCategory[] = [
+  {
+    id: 'children_activities',
+    label: 'Çocuğum',
+    items: [
+      { id: 'main', label: 'Çocuk Takibi', icon: Baby },
+    ],
+  },
+  {
+    id: 'communication',
+    label: 'İletişim',
+    items: [
+      { id: 'announcements', label: 'Duyurular', icon: Megaphone },
+      { id: 'messages', label: 'Mesajlar', icon: MessageSquare },
+      { id: 'calendar', label: 'Akademik Takvim', icon: Calendar },
+    ],
+  },
+  {
+    id: 'finance_appointments',
+    label: 'Mali İşler ve Randevular',
+    items: [
+      { id: 'fees', label: 'Okul Ödemeleri', icon: CreditCard },
+      { id: 'appointments', label: 'Randevular', icon: CalendarCheck },
+    ],
+  },
+  {
+    id: 'operations',
+    label: 'Operasyonel',
+    items: [
+      { id: 'menu', label: 'Yemek Menüsü', icon: UtensilsCrossed },
+      { id: 'duty', label: 'Nöbetçi Öğretmen', icon: UserCheck },
+      { id: 'service', label: 'Servis Takibi', icon: Car },
+    ],
+  },
+];
+
 export default function ParentDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'menu' | 'duty' | 'service'>('main');
+  const [activeTab, setActiveTab] = useState<MenuTab>(() => {
+    const saved = localStorage.getItem('parent-active-tab');
+    return (saved as MenuTab) || 'main';
+  });
   const [children, setChildren] = useState<ChildWithLogs[]>([]);
   const [selectedChild, setSelectedChild] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,6 +75,10 @@ export default function ParentDashboard() {
     subject: '',
     message: '',
   });
+
+  useEffect(() => {
+    localStorage.setItem('parent-active-tab', activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     loadChildren();
@@ -321,149 +365,19 @@ export default function ParentDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-                alt="REF Logo"
-                className="w-10 h-10 object-contain"
-              />
-              <div>
-                <h1 className="text-xl font-bold text-gray-800">Veli Paneli</h1>
-                <p className="text-sm text-gray-500">{profile?.full_name}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => signOut()}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Çıkış</span>
-            </button>
-          </div>
-        </div>
-      </nav>
+    <div className="flex h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onSignOut={signOut}
+        userFullName={profile?.full_name}
+        userRole="parent"
+        menuCategories={parentMenuCategories}
+        panelTitle="Veli Paneli"
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-          <div className="border-b border-gray-200">
-            <div className="flex overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('main')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'main'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Baby className="w-5 h-5" />
-                <span>Ana Sayfa</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('attendance')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'attendance'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <CalendarCheck className="w-5 h-5" />
-                <span>Devamsızlık</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('announcements')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'announcements'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Megaphone className="w-5 h-5" />
-                <span>Duyurular</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('messages')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'messages'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <MessageSquare className="w-5 h-5" />
-                <span>Mesajlar</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('calendar')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'calendar'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Calendar className="w-5 h-5" />
-                <span>Akademik Takvim</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('fees')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'fees'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <span className="text-lg font-bold">₺</span>
-                <span>Okul Ödemeleri</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('appointments')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'appointments'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <CalendarPlus className="w-5 h-5" />
-                <span>Randevular</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('menu')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'menu'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <UtensilsCrossed className="w-5 h-5" />
-                <span>Yemek Menüsü</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('duty')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'duty'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <UserCheck className="w-5 h-5" />
-                <span>Nöbetçi Öğretmen</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('service')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'service'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <MapPin className="w-5 h-5" />
-                <span>Servis Takibi</span>
-              </button>
-            </div>
-          </div>
-        </div>
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {activeTab === 'attendance' && selectedChild && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
@@ -1130,6 +1044,7 @@ export default function ParentDashboard() {
             </div>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle } from 'lucide-react';
+import { Baby, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -15,10 +15,61 @@ import AllServicesLocationSection from './AllServicesLocationSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
+import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
+
+const teacherMenuCategories: MenuCategory[] = [
+  {
+    id: 'daily_activities',
+    label: 'Günlük Aktiviteler',
+    items: [
+      { id: 'main', label: 'Çocuk Takibi', icon: Baby },
+      { id: 'attendance', label: 'Devamsızlık', icon: Calendar },
+    ],
+  },
+  {
+    id: 'reports',
+    label: 'Raporlar',
+    items: [
+      { id: 'branch_reports', label: 'Branş Dersleri', icon: BookOpen },
+      { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
+    ],
+  },
+  {
+    id: 'communication',
+    label: 'İletişim',
+    items: [
+      { id: 'announcements', label: 'Duyurular', icon: Megaphone },
+      { id: 'messages', label: 'Mesajlar', icon: MessageSquare },
+      { id: 'calendar', label: 'Akademik Takvim', icon: Calendar },
+    ],
+  },
+  {
+    id: 'operations',
+    label: 'Operasyonel',
+    items: [
+      { id: 'appointments', label: 'Randevular', icon: CalendarCheck },
+      { id: 'tasks', label: 'Görevlerim', icon: ClipboardList },
+      { id: 'menu', label: 'Yemek Menüsü', icon: UtensilsCrossed },
+      { id: 'duty', label: 'Nöbetçi Öğretmen', icon: UserCheck },
+    ],
+  },
+  {
+    id: 'services',
+    label: 'Hizmetler',
+    items: [
+      { id: 'cleaning', label: 'Temizlik İstekleri', icon: Sparkles },
+      { id: 'service', label: 'Servis Takibi', icon: Car },
+      { id: 'material_requests', label: 'Malzeme Talepleri', icon: Package },
+    ],
+  },
+];
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning' | 'service' | 'branch_reports' | 'material_requests' | 'behavior_incidents'>('main');
+  const [activeTab, setActiveTab] = useState<MenuTab>(() => {
+    const saved = localStorage.getItem('teacher-active-tab');
+    return (saved as MenuTab) || 'main';
+  });
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
@@ -65,6 +116,10 @@ export default function TeacherDashboard() {
   const [reportChildFilter, setReportChildFilter] = useState<string>('all');
   const [editingReport, setEditingReport] = useState<DailyReport | null>(null);
   const [existingMediaUrls, setExistingMediaUrls] = useState<string[]>([]);
+
+  useEffect(() => {
+    localStorage.setItem('teacher-active-tab', activeTab);
+  }, [activeTab]);
 
   useEffect(() => {
     if (profile) {
@@ -478,193 +533,19 @@ export default function TeacherDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-                alt="REF Logo"
-                className="w-10 h-10 object-contain"
-              />
-              <div>
-                <h1 className="text-xl font-bold text-gray-800">Öğretmen Paneli</h1>
-                <p className="text-sm text-gray-500">{profile?.full_name}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => signOut()}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Çıkış</span>
-            </button>
-          </div>
-        </div>
-      </nav>
+    <div className="flex h-screen bg-gradient-to-br from-emerald-50 via-green-50 to-teal-50">
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onSignOut={signOut}
+        userFullName={profile?.full_name}
+        userRole="teacher"
+        menuCategories={teacherMenuCategories}
+        panelTitle="Öğretmen Paneli"
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-          <div className="border-b border-gray-200">
-            <div className="flex overflow-x-auto">
-              <button
-                onClick={() => setActiveTab('main')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'main'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Baby className="w-5 h-5" />
-                <span>Ana Sayfa</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('attendance')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'attendance'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Calendar className="w-5 h-5" />
-                <span>Devamsızlık</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('branch_reports')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'branch_reports'
-                    ? 'border-purple-500 text-purple-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <BookOpen className="w-5 h-5" />
-                <span>Branş Dersleri</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('material_requests')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'material_requests'
-                    ? 'border-orange-500 text-orange-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Package className="w-5 h-5" />
-                <span>Materyal Talepleri</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('behavior_incidents')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'behavior_incidents'
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <AlertTriangle className="w-5 h-5" />
-                <span>KOD Kayıtları</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('announcements')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'announcements'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Megaphone className="w-5 h-5" />
-                <span>Duyurular</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('messages')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'messages'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <MessageSquare className="w-5 h-5" />
-                <span>Mesajlar</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('calendar')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'calendar'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Calendar className="w-5 h-5" />
-                <span>Akademik Takvim</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('appointments')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'appointments'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <CalendarCheck className="w-5 h-5" />
-                <span>Randevular</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('tasks')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'tasks'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <ClipboardList className="w-5 h-5" />
-                <span>Görevlerim</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('menu')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'menu'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <UtensilsCrossed className="w-5 h-5" />
-                <span>Yemek Menüsü</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('duty')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'duty'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <UserCheck className="w-5 h-5" />
-                <span>Nöbetçi Öğretmen</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('cleaning')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'cleaning'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Sparkles className="w-5 h-5" />
-                <span>Temizlik</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('service')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
-                  activeTab === 'service'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Car className="w-5 h-5" />
-                <span>Servis</span>
-              </button>
-            </div>
-          </div>
-        </div>
+      <div className="flex-1 overflow-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         {activeTab === 'main' && (
         <>
@@ -1550,7 +1431,7 @@ export default function TeacherDashboard() {
                   required
                   value={selectedChild}
                   onChange={(e) => setSelectedChild(e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 >
                   <option value="">Çocuk seçin...</option>
                   {children.map((child) => (
@@ -1569,7 +1450,7 @@ export default function TeacherDashboard() {
                   onChange={(e) => setToiletNotes(e.target.value)}
                   placeholder="Örn: Acil, özel dikkat gerekiyor..."
                   rows={3}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
               </div>
               <div className="flex space-x-3 pt-4">
@@ -1586,7 +1467,7 @@ export default function TeacherDashboard() {
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 text-white rounded-lg hover:from-teal-700 hover:to-cyan-700 transition-all"
+                  className="flex-1 px-4 py-2 bg-gradient-to-r from-emerald-600 to-green-600 text-white rounded-lg hover:from-emerald-700 hover:to-green-700 transition-all"
                 >
                   Gönder
                 </button>
@@ -1595,6 +1476,7 @@ export default function TeacherDashboard() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
