@@ -24,7 +24,7 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
         <div className="bg-gradient-to-r from-amber-50 to-green-50 py-12 lg:py-16 px-4">
           <div className="max-w-6xl mx-auto text-center space-y-6">
             <div className="space-y-2">
-              <div className="flex items-center justify-center space-x-2">
+              <div className="flex items-center justify-center space-x-2 mt-8 lg:mt-0">
                 <Globe className="w-6 h-6 lg:w-8 lg:h-8 text-emerald-600" />
                 <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-clip-text text-transparent">
                   Montessori School
@@ -65,12 +65,12 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
                     doğal öğrenme süreçlerini destekliyoruz. Her çocuğun benzersiz potansiyelini keşfetmesi
                     ve geliştirmesi için güvenli, destekleyici ve zengin bir öğrenme ortamı sunuyoruz.
                   </p>
-                  <p className="text-lg">
+                  <p className="text-lg hidden lg:block">
                     Deneyimli eğitmenlerimiz ve özel olarak hazırlanmış Montessori materyallerimizle,
                     çocuklarımız kendi hızlarında ilerleyerek pratik hayat becerileri, akademik temeller
                     ve sosyal gelişim kazanırlar.
                   </p>
-                  <p className="text-lg">
+                  <p className="text-lg hidden lg:block">
                     Okul öncesi eğitimde deneyimimizle, her çocuğa değer veren, onların
                     bireysel farklılıklarını destekleyen ve özgüven kazandıran bir eğitim anlayışına sahibiz.
                   </p>
