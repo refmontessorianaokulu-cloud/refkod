@@ -524,7 +524,11 @@ export default function AdminDashboard() {
       <main className="flex-1 overflow-x-hidden">
         <div className="lg:pl-0 pl-0">
           {activeTab === 'home' ? (
-            <HomePage onNavigateToAbout={() => setActiveTab('about')} />
+            <HomePage
+              onNavigateToAbout={() => setActiveTab('about')}
+              userFullName={profile?.full_name}
+              onSignOut={signOut}
+            />
           ) : activeTab === 'about' ? (
             <AboutPage onNavigateHome={() => setActiveTab('home')} />
           ) : (

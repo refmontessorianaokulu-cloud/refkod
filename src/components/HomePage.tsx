@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, Globe, Sparkles } from 'lucide-react';
+import { ArrowRight, Globe, Sparkles, LogOut, User } from 'lucide-react';
 import AnnouncementCarousel from './AnnouncementCarousel';
 import InstagramFeed from './InstagramFeed';
 
 interface HomePageProps {
   onNavigateToAbout: () => void;
+  userFullName?: string;
+  onSignOut?: () => void;
 }
 
-export default function HomePage({ onNavigateToAbout }: HomePageProps) {
+export default function HomePage({ onNavigateToAbout, userFullName, onSignOut }: HomePageProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -16,6 +18,22 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-green-50 to-teal-50">
+      {userFullName && onSignOut && (
+        <div className="lg:hidden fixed top-4 right-4 z-40 flex items-center space-x-3 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg px-4 py-3">
+          <div className="flex items-center space-x-2">
+            <User className="w-5 h-5 text-emerald-600" />
+            <span className="text-sm font-medium text-gray-700">{userFullName}</span>
+          </div>
+          <button
+            onClick={onSignOut}
+            className="flex items-center space-x-1 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white text-sm rounded-md transition-colors"
+            title="Çıkış Yap"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Çıkış</span>
+          </button>
+        </div>
+      )}
       <div
         className={`transition-all duration-1000 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
@@ -51,7 +69,7 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
             <div className="absolute inset-0 bg-black/40" />
 
             <div className="relative z-10 p-8 lg:p-12 flex items-center min-h-[500px]">
-              <div className="max-w-3xl mx-auto bg-white/95 backdrop-blur-sm rounded-2xl shadow-2xl p-8 lg:p-12">
+              <div className="max-w-3xl mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 lg:p-12">
                 <div className="flex items-center space-x-3 mb-6">
                   <Sparkles className="w-8 h-8 text-emerald-600" />
                   <h3 className="text-3xl lg:text-4xl font-bold text-emerald-800">
