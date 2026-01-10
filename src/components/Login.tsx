@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import InquiryForm from './InquiryForm';
 import ReferenceTeacherForm from './ReferenceTeacherForm';
 import { supabase } from '../lib/supabase';
+import { ChevronDown } from 'lucide-react';
 
 export default function Login() {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
@@ -17,6 +18,8 @@ export default function Login() {
   const [videoUrl, setVideoUrl] = useState('');
   const [posterUrl, setPosterUrl] = useState('');
   const [videoEnabled, setVideoEnabled] = useState(false);
+  const [isLoginCardOpen, setIsLoginCardOpen] = useState(false);
+  const [isApplicationCardOpen, setIsApplicationCardOpen] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
 
   useEffect(() => {
@@ -215,11 +218,21 @@ export default function Login() {
         {/* Sol Alt Kart - Giriş */}
         <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 md:h-[380px] flex flex-col justify-between">
           <div>
-            <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
-              Giriş Yap
-            </h2>
+            <button
+              onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
+              className="w-full flex items-center justify-center gap-2 md:cursor-default"
+            >
+              <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
+                Giriş Yap
+              </h2>
+              <ChevronDown
+                className={`w-5 h-5 text-gray-800 transition-transform duration-300 mb-4 md:hidden ${
+                  isLoginCardOpen ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
 
-            <form onSubmit={handleSubmit} className="space-y-3 hidden md:block">
+            <form onSubmit={handleSubmit} className={`space-y-3 ${isLoginCardOpen ? 'block' : 'hidden'} md:block`}>
               {error && (
                 <div className="bg-red-50/90 backdrop-blur-sm border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs">
                   {error}
@@ -265,7 +278,7 @@ export default function Login() {
               </button>
             </form>
 
-            <div className="text-center text-xs text-gray-800 mt-3 hidden md:block">
+            <div className={`text-center text-xs text-gray-800 mt-3 ${isLoginCardOpen ? 'block' : 'hidden'} md:block`}>
               <button
                 onClick={() => setShowForgotPassword(true)}
                 className="text-green-600 hover:text-green-700 font-medium transition-colors"
@@ -275,7 +288,7 @@ export default function Login() {
             </div>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-white/30 hidden md:block">
+          <div className={`mt-3 pt-3 border-t border-white/30 ${isLoginCardOpen ? 'block' : 'hidden'} md:block`}>
             <button
               onClick={signInAsGuest}
               className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
@@ -290,11 +303,21 @@ export default function Login() {
 
         {/* Sağ Alt Kart - Başvuru Formları */}
         <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 md:h-[380px] flex flex-col justify-center">
-          <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
-            Başvuru Formları
-          </h2>
+          <button
+            onClick={() => setIsApplicationCardOpen(!isApplicationCardOpen)}
+            className="w-full flex items-center justify-center gap-2 md:cursor-default"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
+              Başvuru Formları
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 mb-4 md:hidden ${
+                isApplicationCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
 
-          <div className="space-y-4 hidden md:block">
+          <div className={`space-y-4 ${isApplicationCardOpen ? 'block' : 'hidden'} md:block`}>
             <div>
               <button
                 onClick={() => setShowInquiryForm(true)}
