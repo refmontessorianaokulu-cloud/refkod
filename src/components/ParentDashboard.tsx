@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles, GraduationCap, Briefcase, Palette } from 'lucide-react';
+import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles, GraduationCap, Briefcase, Palette, AlertCircle } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -51,6 +51,7 @@ const parentMenuCategories: MenuCategory[] = [
     items: [
       { id: 'daily_reports', label: 'Montessori Raporları', icon: Sparkles },
       { id: 'branch_reports', label: 'Branş Dersleri Raporları', icon: BookOpen },
+      { id: 'behavior_incidents', label: 'Davranış Raporları (KOD)', icon: AlertCircle },
     ],
   },
   {
@@ -103,6 +104,7 @@ export default function ParentDashboard() {
   const [branchReports, setBranchReports] = useState<any[]>([]);
   const [selectedBranchDate, setSelectedBranchDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedCourseType, setSelectedCourseType] = useState<string>('all');
+  const [behaviorIncidents, setBehaviorIncidents] = useState<any[]>([]);
 
 
   useEffect(() => {
@@ -200,6 +202,12 @@ export default function ParentDashboard() {
     }
   }, [activeTab, selectedChild, selectedBranchDate, selectedCourseType]);
 
+  useEffect(() => {
+    if (activeTab === 'behavior_incidents' && selectedChild) {
+      loadBehaviorIncidents();
+    }
+  }, [activeTab, selectedChild]);
+
   const loadAttendances = async () => {
     if (!selectedChild) return;
     try {
@@ -291,6 +299,21 @@ export default function ParentDashboard() {
       setBranchReports(data || []);
     } catch (error) {
       console.error('Error loading branch reports:', error);
+    }
+  };
+
+  const loadBehaviorIncidents = async () => {
+    if (!selectedChild) return;
+    try {
+      const { data } = await supabase
+        .from('behavior_incidents')
+        .select('*, profiles!behavior_incidents_created_by_fkey(full_name), evaluated_by_profile:profiles!behavior_incidents_evaluated_by_fkey(full_name)')
+        .eq('child_id', selectedChild)
+        .order('incident_date', { ascending: false })
+        .order('incident_time', { ascending: false });
+      setBehaviorIncidents(data || []);
+    } catch (error) {
+      console.error('Error loading behavior incidents:', error);
     }
   };
 
@@ -1182,6 +1205,149 @@ export default function ParentDashboard() {
                                   </div>
                                 </div>
                               )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'behavior_incidents' && children.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <Baby className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Henüz çocuğunuz eklenmemiş</h2>
+            <p className="text-gray-500">Lütfen yönetici ile iletişime geçin.</p>
+          </div>
+        ) : activeTab === 'behavior_incidents' && (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Çocuklarım</h3>
+                <div className="space-y-2">
+                  {children.map((child) => (
+                    <button
+                      key={child.id}
+                      onClick={() => setSelectedChild(child.id)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center space-x-3 ${
+                        selectedChild === child.id
+                          ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white shadow-md'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {child.photo_url ? (
+                        <img
+                          src={child.photo_url}
+                          alt={`${child.first_name} ${child.last_name}`}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
+                      ) : (
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm ${
+                          selectedChild === child.id
+                            ? 'bg-orange-700'
+                            : 'bg-gradient-to-br from-orange-200 to-red-200'
+                        }`}>
+                          <Baby className={`w-6 h-6 ${selectedChild === child.id ? 'text-white' : 'text-orange-700'}`} />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {child.first_name} {child.last_name}
+                        </div>
+                        <div className={`text-sm ${selectedChild === child.id ? 'text-orange-50' : 'text-gray-500'}`}>
+                          {child.class_name}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-3">
+              {selectedChildData && (
+                <div className="space-y-6">
+                  <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <div className="flex items-center space-x-2 mb-6">
+                      <AlertCircle className="w-6 h-6 text-orange-600" />
+                      <h3 className="text-xl font-bold text-gray-800">Davranış Raporları (KOD)</h3>
+                    </div>
+
+                    {behaviorIncidents.length === 0 ? (
+                      <div className="text-center py-12">
+                        <AlertCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                        <p className="text-gray-500">
+                          Henüz davranış raporu kaydı bulunmuyor
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {behaviorIncidents.map((incident: any) => (
+                          <div
+                            key={incident.id}
+                            className="bg-gradient-to-br from-orange-50 to-red-50 rounded-xl p-6 border border-orange-200"
+                          >
+                            <div className="flex items-start justify-between mb-4">
+                              <div className="flex-1">
+                                <div className="flex items-center space-x-3 mb-2">
+                                  <span className="inline-block px-3 py-1 bg-orange-200 text-orange-800 rounded-full text-sm font-medium">
+                                    {new Date(incident.incident_date).toLocaleDateString('tr-TR', {
+                                      day: 'numeric',
+                                      month: 'long',
+                                      year: 'numeric'
+                                    })}
+                                  </span>
+                                  <span className="text-sm text-gray-600">
+                                    Saat: {incident.incident_time.slice(0, 5)}
+                                  </span>
+                                </div>
+                                <div className="flex items-center space-x-2 text-sm text-gray-600">
+                                  <MapPin className="w-4 h-4" />
+                                  <span>{incident.location}</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            <div className="space-y-4">
+                              <div>
+                                <h4 className="text-sm font-medium text-gray-700 mb-2">Olay Özeti:</h4>
+                                <p className="text-gray-700 whitespace-pre-wrap bg-white bg-opacity-50 rounded-lg p-3">
+                                  {incident.summary}
+                                </p>
+                              </div>
+
+                              {incident.guidance_evaluation && (
+                                <div className="border-t border-orange-200 pt-4">
+                                  <div className="flex items-center space-x-2 mb-2">
+                                    <UserCheck className="w-4 h-4 text-blue-600" />
+                                    <h4 className="text-sm font-medium text-blue-800">Rehberlik Birimi Değerlendirmesi:</h4>
+                                  </div>
+                                  <p className="text-gray-700 whitespace-pre-wrap bg-blue-50 rounded-lg p-3">
+                                    {incident.guidance_evaluation}
+                                  </p>
+                                  {incident.evaluated_by_profile && (
+                                    <p className="text-xs text-gray-500 mt-2">
+                                      Değerlendiren: {incident.evaluated_by_profile.full_name}
+                                      {incident.evaluated_at && ` - ${new Date(incident.evaluated_at).toLocaleString('tr-TR')}`}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+
+                              <div className="border-t border-orange-200 pt-3">
+                                {incident.profiles && (
+                                  <p className="text-xs text-gray-500">
+                                    Kaydı oluşturan: {incident.profiles.full_name}
+                                  </p>
+                                )}
+                                <p className="text-xs text-gray-500">
+                                  Kayıt tarihi: {new Date(incident.created_at).toLocaleString('tr-TR')}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         ))}
