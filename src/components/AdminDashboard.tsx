@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck, CreditCard as Edit, Sparkles, Package, FileText } from 'lucide-react';
+import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck, CreditCard as Edit, Sparkles, Package, FileText, AlertTriangle } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -17,10 +17,11 @@ import AllServicesLocationSection from './AllServicesLocationSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import InquiryFormsSection from './InquiryFormsSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
+import BehaviorIncidentSection from './BehaviorIncidentSection';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'montessori_reports' | 'branch_reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services' | 'cleaning' | 'inquiries' | 'material_requests' | 'reference_applications'>('children');
+  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'montessori_reports' | 'branch_reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services' | 'cleaning' | 'inquiries' | 'material_requests' | 'reference_applications' | 'behavior_incidents'>('children');
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -728,6 +729,17 @@ export default function AdminDashboard() {
                 <FileText className="w-5 h-5" />
                 <span>Referans Öğretmen Başvuruları</span>
               </button>
+              <button
+                onClick={() => setActiveTab('behavior_incidents')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'behavior_incidents'
+                    ? 'border-red-500 text-red-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <AlertTriangle className="w-5 h-5" />
+                <span>KOD Kayıtları</span>
+              </button>
             </div>
           </div>
 
@@ -1415,6 +1427,13 @@ export default function AdminDashboard() {
                   </div>
                 )}
               </div>
+            )}
+
+            {activeTab === 'behavior_incidents' && profile && (
+              <BehaviorIncidentSection
+                userId={profile.id}
+                userRole="admin"
+              />
             )}
           </div>
         </div>

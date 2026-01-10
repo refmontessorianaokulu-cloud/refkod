@@ -121,3 +121,19 @@ export type MaterialRequest = {
   created_at: string;
   updated_at: string;
 };
+
+export type BehaviorIncident = {
+  id: string;
+  incident_date: string;
+  incident_time: string;
+  location: string;
+  summary: string;
+  created_by: string;
+  guidance_evaluation: string | null;
+  evaluated_by: string | null;
+  evaluated_at: string | null;
+  created_at: string;
+  updated_at: string;
+  creator?: Profile;
+  evaluator?: Profile;
+};

@@ -1,15 +1,16 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, UtensilsCrossed, Sparkles, Car, Baby, Package } from 'lucide-react';
+import { LogOut, UtensilsCrossed, Sparkles, Car, Baby, Package, AlertTriangle } from 'lucide-react';
 import MealMenuSection from './MealMenuSection';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import ToiletNotificationsSection from './ToiletNotificationsSection';
 import BusDriverServiceSection from './BusDriverServiceSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
+import BehaviorIncidentSection from './BehaviorIncidentSection';
 
 export default function StaffDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'requests' | 'notifications' | 'menu' | 'service' | 'material_requests'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'requests' | 'notifications' | 'menu' | 'service' | 'material_requests' | 'behavior_incidents'>('main');
 
   const getStaffTitle = () => {
     if (profile?.staff_role === 'cook') return 'Aşçı Paneli';
@@ -119,6 +120,17 @@ export default function StaffDashboard() {
                 <Package className="w-5 h-5" />
                 <span>Malzeme Talepleri</span>
               </button>
+              <button
+                onClick={() => setActiveTab('behavior_incidents')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
+                  activeTab === 'behavior_incidents'
+                    ? 'border-red-500 text-red-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <AlertTriangle className="w-5 h-5" />
+                <span>KOD Kayıtları</span>
+              </button>
             </div>
           </div>
 
@@ -144,6 +156,13 @@ export default function StaffDashboard() {
                 userId={profile?.id || ''}
                 userRole="staff"
                 staffRole={profile?.staff_role}
+              />
+            )}
+
+            {activeTab === 'behavior_incidents' && profile && (
+              <BehaviorIncidentSection
+                userId={profile.id}
+                userRole="staff"
               />
             )}
 

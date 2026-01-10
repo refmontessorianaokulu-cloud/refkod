@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, DailyReport } from '../lib/supabase';
-import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload } from 'lucide-react';
+import { Baby, LogOut, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -14,10 +14,11 @@ import CleaningRequestsSection from './CleaningRequestsSection';
 import AllServicesLocationSection from './AllServicesLocationSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
+import BehaviorIncidentSection from './BehaviorIncidentSection';
 
 export default function TeacherDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning' | 'service' | 'branch_reports' | 'material_requests'>('main');
+  const [activeTab, setActiveTab] = useState<'main' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'cleaning' | 'service' | 'branch_reports' | 'material_requests' | 'behavior_incidents'>('main');
   const [children, setChildren] = useState<Child[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
   const [showMealModal, setShowMealModal] = useState(false);
@@ -552,6 +553,17 @@ export default function TeacherDashboard() {
                 <span>Materyal Talepleri</span>
               </button>
               <button
+                onClick={() => setActiveTab('behavior_incidents')}
+                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
+                  activeTab === 'behavior_incidents'
+                    ? 'border-red-500 text-red-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <AlertTriangle className="w-5 h-5" />
+                <span>KOD Kayıtları</span>
+              </button>
+              <button
                 onClick={() => setActiveTab('announcements')}
                 className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors whitespace-nowrap ${
                   activeTab === 'announcements'
@@ -978,6 +990,15 @@ export default function TeacherDashboard() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <MaterialRequestsSection
               userId={profile?.id || ''}
+              userRole="teacher"
+            />
+          </div>
+        )}
+
+        {activeTab === 'behavior_incidents' && profile && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <BehaviorIncidentSection
+              userId={profile.id}
               userRole="teacher"
             />
           </div>

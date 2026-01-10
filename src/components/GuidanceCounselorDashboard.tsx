@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { LogOut, Calendar, Send, Users, MessageSquare, User, ClipboardList, BookOpen } from 'lucide-react';
+import { LogOut, Calendar, Send, Users, MessageSquare, User, ClipboardList, BookOpen, AlertTriangle } from 'lucide-react';
 import MessagesSection from './MessagesSection';
 import TaskResponseSection from './TaskResponseSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
+import BehaviorIncidentSection from './BehaviorIncidentSection';
 
 interface Appointment {
   id: string;
@@ -40,7 +41,7 @@ interface Child {
 
 export default function GuidanceCounselorDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'appointments' | 'group-messages' | 'individual-messages' | 'tasks' | 'reports'>('appointments');
+  const [activeTab, setActiveTab] = useState<'appointments' | 'group-messages' | 'individual-messages' | 'tasks' | 'reports' | 'behavior_incidents'>('appointments');
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [groupMessages, setGroupMessages] = useState<GroupMessage[]>([]);
   const [children, setChildren] = useState<Child[]>([]);
@@ -324,6 +325,17 @@ export default function GuidanceCounselorDashboard() {
               <BookOpen className="w-5 h-5 inline mr-2" />
               Rehberlik Raporları
             </button>
+            <button
+              onClick={() => setActiveTab('behavior_incidents')}
+              className={`pb-4 px-6 font-semibold transition-colors ${
+                activeTab === 'behavior_incidents'
+                  ? 'text-red-600 border-b-2 border-red-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              <AlertTriangle className="w-5 h-5 inline mr-2" />
+              KOD Kayıtları
+            </button>
           </div>
 
           {activeTab === 'appointments' && (
@@ -437,6 +449,15 @@ export default function GuidanceCounselorDashboard() {
               <BranchCourseReportsSection
                 children={children}
                 teacherId={profile?.id}
+                userRole="guidance_counselor"
+              />
+            </div>
+          )}
+
+          {activeTab === 'behavior_incidents' && profile && (
+            <div className="mt-6">
+              <BehaviorIncidentSection
+                userId={profile.id}
                 userRole="guidance_counselor"
               />
             </div>
