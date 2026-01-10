@@ -316,7 +316,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
         <div>
           <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
             <ClipboardList className="w-8 h-8 text-blue-600" />
-            KOD - Olay Kayıtları
+            KOD - Durum Kayıtları
           </h2>
           <p className="text-sm text-gray-600 mt-1">Kayıt Oluşturulan Davranış</p>
         </div>
@@ -326,7 +326,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
             className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2 transition"
           >
             <Plus className="w-5 h-5" />
-            Yeni Olay Kaydı
+            Yeni Durum Kaydı
           </button>
         )}
       </div>
@@ -586,7 +586,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b-2 border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-800">Yeni Olay Kaydı</h3>
+              <h3 className="text-xl font-bold text-gray-800">Yeni Durum Kaydı</h3>
               <button
                 onClick={() => setShowCreateModal(false)}
                 className="text-gray-500 hover:text-gray-700"
@@ -736,7 +736,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b-2 border-gray-200 px-6 py-4 flex items-center justify-between">
-              <h3 className="text-xl font-bold text-gray-800">Olay Kaydını Düzenle</h3>
+              <h3 className="text-xl font-bold text-gray-800">Durum Kaydını Düzenle</h3>
               <button
                 onClick={() => setShowEditModal(false)}
                 className="text-gray-500 hover:text-gray-700"
