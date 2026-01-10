@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { UserCheck, Plus, Trash2, AlertCircle } from 'lucide-react';
+import { UserCheck, Plus, Trash2, AlertCircle, X } from 'lucide-react';
 
 interface TeacherBranchAssignment {
   id: string;
