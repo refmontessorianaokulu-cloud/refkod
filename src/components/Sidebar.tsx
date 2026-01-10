@@ -32,6 +32,8 @@ import {
   Info,
   Edit,
   Settings,
+  User,
+  Phone,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -41,6 +43,7 @@ export type MenuTab =
   | 'users'
   | 'attendance'
   | 'montessori_reports'
+  | 'daily_reports'
   | 'branch_reports'
   | 'behavior_incidents'
   | 'announcements'
@@ -52,6 +55,7 @@ export type MenuTab =
   | 'menu'
   | 'duty'
   | 'services'
+  | 'service'
   | 'cleaning'
   | 'material_requests'
   | 'inquiries'
@@ -425,14 +429,48 @@ export default function Sidebar({
     </div>
   );
 
+  const capitalizeWords = (text: string) => {
+    return text
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join(' ');
+  };
+
   return (
     <>
       <button
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-40 p-3 bg-emerald-600 text-white rounded-lg shadow-lg hover:bg-emerald-700 transition-colors"
+        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-emerald-600 text-white rounded-lg shadow-lg hover:bg-emerald-700 transition-colors"
       >
         <Menu className="w-6 h-6" />
       </button>
+
+      {userFullName && (
+        <div className="lg:hidden fixed top-4 right-4 z-40 flex items-center space-x-2 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-3 py-2.5">
+          <div className="flex items-center space-x-1.5">
+            <User className="w-4 h-4 text-emerald-700" />
+            <span className="text-xs font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
+          </div>
+          <button
+            onClick={onSignOut}
+            className="flex items-center space-x-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-md transition-colors"
+            title="Çıkış Yap"
+          >
+            <LogOut className="w-3 h-3" />
+            <span className="text-xs">Çıkış</span>
+          </button>
+        </div>
+      )}
+
+      <a
+        href="https://wa.me/905315504454"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-2 lg:right-6 z-40 flex items-center justify-center w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
+        title="WhatsApp ile iletişime geç"
+      >
+        <Phone className="w-7 h-7 group-hover:scale-110 transition-transform" />
+      </a>
 
       <div
         className={`lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity ${

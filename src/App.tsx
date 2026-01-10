@@ -5,10 +5,11 @@ import TeacherDashboard from './components/TeacherDashboard';
 import ParentDashboard from './components/ParentDashboard';
 import GuidanceCounselorDashboard from './components/GuidanceCounselorDashboard';
 import StaffDashboard from './components/StaffDashboard';
+import GuestDashboard from './components/GuestDashboard';
 import PasswordReset from './components/PasswordReset';
 
 function App() {
-  const { user, profile, loading } = useAuth();
+  const { user, profile, loading, isGuest } = useAuth();
 
   const hashParams = new URLSearchParams(window.location.hash.substring(1));
   const isRecoveryMode = hashParams.get('type') === 'recovery';
@@ -29,6 +30,10 @@ function App() {
         </div>
       </div>
     );
+  }
+
+  if (isGuest) {
+    return <GuestDashboard />;
   }
 
   if (!user || !profile) {

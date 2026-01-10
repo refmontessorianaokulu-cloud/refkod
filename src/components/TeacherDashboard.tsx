@@ -557,9 +557,17 @@ export default function TeacherDashboard() {
       <div className="flex-1 overflow-auto">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
-        {activeTab === 'home' && <HomePage />}
+        {activeTab === 'home' && (
+          <HomePage
+            onNavigateToAbout={() => setActiveTab('about')}
+            userFullName={profile?.full_name}
+            onSignOut={signOut}
+          />
+        )}
 
-        {activeTab === 'about' && <AboutPage />}
+        {activeTab === 'about' && (
+          <AboutPage onNavigateHome={() => setActiveTab('home')} />
+        )}
 
         {activeTab === 'main' && (
         <>

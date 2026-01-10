@@ -6,7 +6,9 @@ type AuthContextType = {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  isGuest: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInAsGuest: () => void;
   signUp: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -25,6 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isGuest, setIsGuest] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -121,13 +124,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signInAsGuest = () => {
+    setIsGuest(true);
+    setLoading(false);
+  };
+
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    if (isGuest) {
+      setIsGuest(false);
+      setUser(null);
+      setProfile(null);
+    } else {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+    }
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signIn, signUp, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, isGuest, signIn, signInAsGuest, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

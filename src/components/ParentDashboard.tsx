@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info } from 'lucide-react';
+import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -32,7 +32,8 @@ const parentMenuCategories: MenuCategory[] = [
     id: 'children_activities',
     label: 'Çocuğum',
     items: [
-      { id: 'main', label: 'Çocuk Takibi', icon: Baby },
+      { id: 'main', label: 'Günlük Aktiviteler', icon: Baby },
+      { id: 'daily_reports', label: 'Montessori Günlük Raporları', icon: Sparkles },
     ],
   },
   {
@@ -539,9 +540,17 @@ export default function ParentDashboard() {
           <ServiceLocationSection childId={selectedChild} />
         )}
 
-        {activeTab === 'home' && <HomePage />}
+        {activeTab === 'home' && (
+          <HomePage
+            onNavigateToAbout={() => setActiveTab('about')}
+            userFullName={profile?.full_name}
+            onSignOut={signOut}
+          />
+        )}
 
-        {activeTab === 'about' && <AboutPage />}
+        {activeTab === 'about' && (
+          <AboutPage onNavigateHome={() => setActiveTab('home')} />
+        )}
 
         {activeTab === 'main' && loading ? (
           <div className="text-center py-12">
@@ -615,41 +624,32 @@ export default function ParentDashboard() {
               {selectedChildData && (
                 <div className="space-y-6">
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center space-x-4">
-                        {selectedChildData.photo_url ? (
-                          <img
-                            src={selectedChildData.photo_url}
-                            alt={`${selectedChildData.first_name} ${selectedChildData.last_name}`}
-                            className="w-20 h-20 rounded-full object-cover border-4 border-green-100 shadow-lg"
-                          />
-                        ) : (
-                          <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-full border-4 border-white shadow-lg">
-                            <Baby className="w-8 h-8 text-green-600" />
-                          </div>
-                        )}
-                        <div>
-                          <h2 className="text-2xl font-bold text-gray-800">
-                            {selectedChildData.first_name} {selectedChildData.last_name}
-                          </h2>
-                          <p className="text-gray-600">{selectedChildData.class_name}</p>
-                          {selectedChildData.teacher && (
-                            <p className="text-sm text-green-600 font-medium">
-                              Öğretmen: {selectedChildData.teacher.full_name}
-                            </p>
-                          )}
-                          <p className="text-sm text-gray-500">
-                            Doğum: {new Date(selectedChildData.birth_date).toLocaleDateString('tr-TR')}
-                          </p>
+                    <div className="flex items-center space-x-4">
+                      {selectedChildData.photo_url ? (
+                        <img
+                          src={selectedChildData.photo_url}
+                          alt={`${selectedChildData.first_name} ${selectedChildData.last_name}`}
+                          className="w-20 h-20 rounded-full object-cover border-4 border-green-100 shadow-lg"
+                        />
+                      ) : (
+                        <div className="bg-gradient-to-br from-green-100 to-emerald-100 p-6 rounded-full border-4 border-white shadow-lg">
+                          <Baby className="w-8 h-8 text-green-600" />
                         </div>
+                      )}
+                      <div>
+                        <h2 className="text-2xl font-bold text-gray-800">
+                          {selectedChildData.first_name} {selectedChildData.last_name}
+                        </h2>
+                        <p className="text-gray-600">{selectedChildData.class_name}</p>
+                        {selectedChildData.teacher && (
+                          <p className="text-sm text-green-600 font-medium">
+                            Öğretmen: {selectedChildData.teacher.full_name}
+                          </p>
+                        )}
+                        <p className="text-sm text-gray-500">
+                          Doğum: {new Date(selectedChildData.birth_date).toLocaleDateString('tr-TR')}
+                        </p>
                       </div>
-                      <button
-                        onClick={() => setShowPickupModal(true)}
-                        className="flex items-center space-x-2 px-4 py-2 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-shadow"
-                      >
-                        <Car className="w-5 h-5" />
-                        <span>Çocuğumu Almaya Geliyorum</span>
-                      </button>
                     </div>
                   </div>
 
@@ -736,8 +736,88 @@ export default function ParentDashboard() {
                         ))}
                       </div>
                     )}
+                    <div className="mt-6 flex justify-center">
+                      <button
+                        onClick={() => setShowPickupModal(true)}
+                        className="flex items-center space-x-2 px-6 py-3 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg hover:shadow-lg transition-shadow"
+                      >
+                        <Car className="w-5 h-5" />
+                        <span>Çocuğumu Almaya Geliyorum</span>
+                      </button>
+                    </div>
                   </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
+        {activeTab === 'daily_reports' && children.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <Baby className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Henüz çocuğunuz eklenmemiş</h2>
+            <p className="text-gray-500">Lütfen yönetici ile iletişime geçin.</p>
+          </div>
+        ) : activeTab === 'daily_reports' && (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Çocuklarım</h3>
+                <div className="space-y-2">
+                  {children.map((child) => (
+                    <button
+                      key={child.id}
+                      onClick={() => setSelectedChild(child.id)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center space-x-3 ${
+                        selectedChild === child.id
+                          ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-md'
+                          : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      {child.photo_url ? (
+                        <img
+                          src={child.photo_url}
+                          alt={`${child.first_name} ${child.last_name}`}
+                          className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-sm"
+                        />
+                      ) : (
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center border-2 border-white shadow-sm ${
+                          selectedChild === child.id
+                            ? 'bg-green-700'
+                            : 'bg-gradient-to-br from-green-200 to-emerald-200'
+                        }`}>
+                          <Baby className={`w-6 h-6 ${selectedChild === child.id ? 'text-white' : 'text-green-700'}`} />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <div className="font-medium">
+                          {child.first_name} {child.last_name}
+                        </div>
+                        <div className={`text-sm ${selectedChild === child.id ? 'text-green-50' : 'text-gray-500'}`}>
+                          <div className="flex items-center gap-2">
+                            <span>{child.class_name}</span>
+                            {child.schedule_type === 'yarim_gun' && (
+                              <span className="px-2 py-0.5 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">
+                                Yarım Gün
+                              </span>
+                            )}
+                          </div>
+                          {child.teacher && (
+                            <span className={`block text-xs ${selectedChild === child.id ? 'text-green-100' : 'text-gray-400'}`}>
+                              Öğretmen: {child.teacher.full_name}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-3">
+              {selectedChildData && (
+                <div className="space-y-6">
                   <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <div className="flex items-center space-x-2 mb-4">
                       <BookOpen className="w-6 h-6 text-amber-600" />

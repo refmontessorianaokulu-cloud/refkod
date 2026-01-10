@@ -14,7 +14,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, signInAsGuest } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -206,6 +206,18 @@ export default function Login() {
           >
             Şifremi Unuttum
           </button>
+        </div>
+
+        <div className="mt-4">
+          <button
+            onClick={signInAsGuest}
+            className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-3 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg"
+          >
+            Misafir Olarak Giriş Yap
+          </button>
+          <p className="text-center text-xs text-gray-500 mt-2">
+            Sadece ana sayfa ve hakkımızda bölümünü görüntüleyebilirsiniz
+          </p>
         </div>
 
         <div className="border-t border-gray-200 mt-6 pt-6 space-y-4">

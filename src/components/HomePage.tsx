@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, Globe, Sparkles, LogOut, User, Phone } from 'lucide-react';
+import { ArrowRight, Globe, Sparkles } from 'lucide-react';
 import AnnouncementCarousel from './AnnouncementCarousel';
 import InstagramFeed from './InstagramFeed';
 
@@ -9,38 +9,15 @@ interface HomePageProps {
   onSignOut?: () => void;
 }
 
-export default function HomePage({ onNavigateToAbout, userFullName, onSignOut }: HomePageProps) {
+export default function HomePage({ onNavigateToAbout }: HomePageProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     setIsVisible(true);
   }, []);
 
-  const capitalizeWords = (text: string) => {
-    return text
-      .split(' ')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-      .join(' ');
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-amber-50 via-green-50 to-teal-50">
-      {userFullName && onSignOut && (
-        <div className="lg:hidden fixed top-4 right-4 z-40 flex items-center space-x-2 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-3 py-2.5">
-          <div className="flex items-center space-x-1.5">
-            <User className="w-4 h-4 text-emerald-700" />
-            <span className="text-xs font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
-          </div>
-          <button
-            onClick={onSignOut}
-            className="flex items-center space-x-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-md transition-colors"
-            title="Çıkış Yap"
-          >
-            <LogOut className="w-3 h-3" />
-            <span className="text-xs">Çıkış</span>
-          </button>
-        </div>
-      )}
       <div
         className={`transition-all duration-1000 ${
           isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
@@ -117,16 +94,6 @@ export default function HomePage({ onNavigateToAbout, userFullName, onSignOut }:
           <InstagramFeed />
         </div>
       </div>
-
-      <a
-        href="https://wa.me/905315504454"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-2 lg:right-6 z-50 flex items-center justify-center w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
-        title="WhatsApp ile iletişime geç"
-      >
-        <Phone className="w-7 h-7 group-hover:scale-110 transition-transform" />
-      </a>
     </div>
   );
 }
