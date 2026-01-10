@@ -225,7 +225,7 @@ export default function Sidebar({
     const activeCategory = categories.find(cat =>
       cat.items.some(item => item.id === activeTab)
     );
-    return activeCategory ? [activeCategory.id] : [];
+    return activeCategory ? [activeCategory.id] : ['homepage'];
   });
 
   useEffect(() => {
