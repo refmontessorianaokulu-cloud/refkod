@@ -127,9 +127,9 @@ export default function InstagramFeed() {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-bold text-gray-800 flex items-center space-x-2">
-            <Instagram className="w-7 h-7 text-pink-500" />
-            <span>Instagram</span>
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center space-x-2 whitespace-nowrap">
+            <Instagram className="w-6 h-6 sm:w-7 sm:h-7 text-pink-500 flex-shrink-0" />
+            <span>Ref Instagram</span>
           </h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -145,9 +145,9 @@ export default function InstagramFeed() {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-bold text-gray-800 flex items-center space-x-2">
-            <Instagram className="w-7 h-7 text-pink-500" />
-            <span>Instagram</span>
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center space-x-2 whitespace-nowrap">
+            <Instagram className="w-6 h-6 sm:w-7 sm:h-7 text-pink-500 flex-shrink-0" />
+            <span>Ref Instagram</span>
           </h3>
         </div>
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
@@ -171,9 +171,9 @@ export default function InstagramFeed() {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-8">
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-2xl font-bold text-gray-800 flex items-center space-x-2">
-            <Instagram className="w-7 h-7 text-pink-500" />
-            <span>Instagram</span>
+          <h3 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center space-x-2 whitespace-nowrap">
+            <Instagram className="w-6 h-6 sm:w-7 sm:h-7 text-pink-500 flex-shrink-0" />
+            <span>Ref Instagram</span>
           </h3>
         </div>
         <div className="text-center py-12">
@@ -187,13 +187,13 @@ export default function InstagramFeed() {
   return (
     <div className="bg-white rounded-2xl shadow-lg p-8">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-2xl font-bold text-gray-800 flex items-center space-x-2">
-          <Instagram className="w-7 h-7 text-pink-500" />
-          <span>İnstagramda Biz!</span>
+        <h3 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center space-x-2 whitespace-nowrap">
+          <Instagram className="w-6 h-6 sm:w-7 sm:h-7 text-pink-500 flex-shrink-0" />
+          <span>Ref Instagram</span>
         </h3>
         <button
           onClick={handleRefresh}
-          className="p-2 text-gray-600 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all"
+          className="p-2 text-gray-600 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all flex-shrink-0"
           title="Yenile"
         >
           <RefreshCw className="w-5 h-5" />
