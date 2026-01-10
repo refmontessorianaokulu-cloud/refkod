@@ -101,31 +101,33 @@ export default function StaffDashboard() {
 
           {activeTab === 'about' && <AboutPage />}
 
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            {activeTab === 'menu' && showMenuTab && (
-              <MealMenuSection userId={profile?.id || ''} userRole="staff" />
-            )}
+          {activeTab !== 'home' && activeTab !== 'about' && (
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              {activeTab === 'menu' && showMenuTab && (
+                <MealMenuSection userId={profile?.id || ''} userRole="staff" />
+              )}
 
-            {activeTab === 'cleaning' && showCleaningTab && (
-              <CleaningRequestsSection userId={profile?.id || ''} userRole="staff" />
-            )}
+              {activeTab === 'cleaning' && showCleaningTab && (
+                <CleaningRequestsSection userId={profile?.id || ''} userRole="staff" />
+              )}
 
-            {activeTab === 'notifications' && showToiletTab && (
-              <ToiletNotificationsSection />
-            )}
+              {activeTab === 'notifications' && showToiletTab && (
+                <ToiletNotificationsSection />
+              )}
 
-            {activeTab === 'service' && showServiceTab && (
-              <BusDriverServiceSection userId={profile?.id || ''} />
-            )}
+              {activeTab === 'service' && showServiceTab && (
+                <BusDriverServiceSection userId={profile?.id || ''} />
+              )}
 
-            {activeTab === 'material_requests' && (
-              <MaterialRequestsSection userId={profile?.id || ''} userRole="staff" />
-            )}
+              {activeTab === 'material_requests' && (
+                <MaterialRequestsSection userId={profile?.id || ''} userRole="staff" />
+              )}
 
-            {activeTab === 'behavior_incidents' && profile && (
-              <BehaviorIncidentSection userId={profile.id} userRole="staff" />
-            )}
-          </div>
+              {activeTab === 'behavior_incidents' && profile && (
+                <BehaviorIncidentSection userId={profile.id} userRole="staff" />
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
