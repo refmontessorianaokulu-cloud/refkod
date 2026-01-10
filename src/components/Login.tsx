@@ -205,74 +205,77 @@ export default function Login() {
         <img
           src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
           alt="REF Logo"
-          className="w-40 h-40 object-contain drop-shadow-2xl"
+          className="w-72 h-72 object-contain drop-shadow-2xl"
+          style={{ mixBlendMode: 'multiply' }}
         />
       </div>
 
       {/* Alt kısımda kartlar */}
       <div className="flex-1 flex items-end justify-between relative z-10 max-w-7xl mx-auto w-full">
         {/* Sol Alt Kart - Giriş */}
-        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-80">
-          <h2 className="text-xl font-bold text-center text-gray-800 mb-6">
-            Giriş Yap
-          </h2>
+        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 h-[380px] flex flex-col justify-between">
+          <div>
+            <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
+              Giriş Yap
+            </h2>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <div className="bg-red-50/90 backdrop-blur-sm border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs">
-                {error}
+            <form onSubmit={handleSubmit} className="space-y-3">
+              {error && (
+                <div className="bg-red-50/90 backdrop-blur-sm border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs">
+                  {error}
+                </div>
+              )}
+
+              <div>
+                <label htmlFor="email" className="block text-xs font-medium text-gray-800 mb-1">
+                  E-posta
+                </label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+                  placeholder="ornek@email.com"
+                />
               </div>
-            )}
 
-            <div>
-              <label htmlFor="email" className="block text-xs font-medium text-gray-800 mb-1">
-                E-posta
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
-                placeholder="ornek@email.com"
-              />
+              <div>
+                <label htmlFor="password" className="block text-xs font-medium text-gray-800 mb-1">
+                  Şifre
+                </label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-sm"
+              >
+                {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+              </button>
+            </form>
+
+            <div className="text-center text-xs text-gray-800 mt-3">
+              <button
+                onClick={() => setShowForgotPassword(true)}
+                className="text-green-600 hover:text-green-700 font-medium transition-colors"
+              >
+                Şifremi Unuttum
+              </button>
             </div>
-
-            <div>
-              <label htmlFor="password" className="block text-xs font-medium text-gray-800 mb-1">
-                Şifre
-              </label>
-              <input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full px-3 py-2 bg-white/80 backdrop-blur-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all text-sm"
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-2 rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl text-sm"
-            >
-              {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
-            </button>
-          </form>
-
-          <div className="text-center text-xs text-gray-800 mt-4">
-            <button
-              onClick={() => setShowForgotPassword(true)}
-              className="text-green-600 hover:text-green-700 font-medium transition-colors"
-            >
-              Şifremi Unuttum
-            </button>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-white/30">
+          <div className="mt-3 pt-3 border-t border-white/30">
             <button
               onClick={signInAsGuest}
               className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
@@ -286,8 +289,8 @@ export default function Login() {
         </div>
 
         {/* Sağ Alt Kart - Başvuru Formları */}
-        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-80">
-          <h2 className="text-xl font-bold text-center text-gray-800 mb-6">
+        <div className="backdrop-blur-xl bg-transparent border-none rounded-2xl shadow-2xl p-6 w-64 h-[380px] flex flex-col justify-center">
+          <h2 className="text-lg font-bold text-center text-gray-800 mb-4">
             Başvuru Formları
           </h2>
 
