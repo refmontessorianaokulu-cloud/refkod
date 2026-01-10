@@ -22,18 +22,8 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
         }`}
       >
         <div className="bg-gradient-to-r from-amber-50 to-green-50 py-12 lg:py-16 px-4">
-          <div className="max-w-6xl mx-auto space-y-6">
-            <div className="flex justify-end mb-6">
-              <div className="group">
-                <img
-                  src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-                  alt="REF Logo"
-                  className="w-16 h-16 lg:w-20 lg:h-20 object-contain rounded-xl shadow-lg transition-transform duration-300 group-hover:scale-110"
-                />
-              </div>
-            </div>
-
-            <div className="text-center space-y-2">
+          <div className="max-w-6xl mx-auto text-center space-y-6">
+            <div className="space-y-2">
               <div className="flex items-center justify-center space-x-2">
                 <Globe className="w-6 h-6 lg:w-8 lg:h-8 text-emerald-600" />
                 <h1 className="text-3xl lg:text-4xl font-bold bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 bg-clip-text text-transparent">
@@ -42,7 +32,7 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
                 <span className="text-3xl">🇹🇷</span>
               </div>
               <h2 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-emerald-800 leading-tight">
-                REF ÇOCUK AKADEMİSİNE HOŞGELDİNİZ!
+                Ref Çocuk Akademisine HOŞGELDİNİZ!
               </h2>
             </div>
           </div>
@@ -65,13 +55,13 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
                 <div className="flex items-center space-x-3 mb-6">
                   <Sparkles className="w-8 h-8 text-emerald-600" />
                   <h3 className="text-3xl lg:text-4xl font-bold text-emerald-800">
-                    REF Çocuk Akademisi
+                    Ref Çocuk Akademisi
                   </h3>
                 </div>
 
                 <div className="space-y-4 text-gray-700 leading-relaxed">
                   <p className="text-lg">
-                    REF Çocuk Akademisi olarak, Montessori eğitim felsefesini benimseyerek çocuklarımızın
+                    Ref Çocuk Akademisi olarak, Montessori eğitim felsefesini benimseyerek çocuklarımızın
                     doğal öğrenme süreçlerini destekliyoruz. Her çocuğun benzersiz potansiyelini keşfetmesi
                     ve geliştirmesi için güvenli, destekleyici ve zengin bir öğrenme ortamı sunuyoruz.
                   </p>
