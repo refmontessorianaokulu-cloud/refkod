@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { supabase, BehaviorIncident, Profile } from '../lib/supabase';
-import { ClipboardList, Plus, Edit2, Trash2, Calendar, Clock, MapPin, User, FileText, CheckCircle, AlertCircle, X, Save } from 'lucide-react';
+import { supabase, BehaviorIncident, Profile, Child } from '../lib/supabase';
+import { ClipboardList, Plus, Edit2, Trash2, Calendar, Clock, MapPin, User, FileText, CheckCircle, AlertCircle, X, Save, Baby } from 'lucide-react';
 
 interface Props {
   userId: string;
@@ -9,6 +9,7 @@ interface Props {
 
 export default function BehaviorIncidentSection({ userId, userRole }: Props) {
   const [incidents, setIncidents] = useState<BehaviorIncident[]>([]);
+  const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -17,9 +18,11 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
   const [dateFilter, setDateFilter] = useState<string>('');
   const [locationFilter, setLocationFilter] = useState<string>('');
   const [evaluationFilter, setEvaluationFilter] = useState<string>('all');
+  const [childFilter, setChildFilter] = useState<string>('');
   const [expandedIncident, setExpandedIncident] = useState<string | null>(null);
 
   const [incidentForm, setIncidentForm] = useState({
+    child_id: '',
     incident_date: new Date().toISOString().split('T')[0],
     incident_time: new Date().toTimeString().slice(0, 5),
     location: '',
@@ -37,6 +40,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
   const canViewAll = userRole === 'admin' || userRole === 'teacher' || userRole === 'guidance_counselor';
 
   useEffect(() => {
+    loadChildren();
     loadIncidents();
 
     const channel = supabase
@@ -51,6 +55,20 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
     };
   }, []);
 
+  const loadChildren = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('children')
+        .select('*')
+        .order('first_name', { ascending: true });
+
+      if (error) throw error;
+      setChildren(data || []);
+    } catch (error) {
+      console.error('Error loading children:', error);
+    }
+  };
+
   const loadIncidents = async () => {
     try {
       const { data, error } = await supabase
@@ -58,7 +76,8 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
         .select(`
           *,
           creator:profiles!created_by(full_name, email, role),
-          evaluator:profiles!evaluated_by(full_name, email)
+          evaluator:profiles!evaluated_by(full_name, email),
+          child:children(id, first_name, last_name, class_name)
         `)
         .order('incident_date', { ascending: false })
         .order('incident_time', { ascending: false });
@@ -74,8 +93,15 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
 
   const handleCreateIncident = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!incidentForm.child_id) {
+      alert('Lütfen bir öğrenci seçin');
+      return;
+    }
+
     try {
       const { error } = await supabase.from('behavior_incidents').insert({
+        child_id: incidentForm.child_id,
         incident_date: incidentForm.incident_date,
         incident_time: incidentForm.incident_time,
         location: incidentForm.location,
@@ -87,6 +113,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
 
       setShowCreateModal(false);
       setIncidentForm({
+        child_id: '',
         incident_date: new Date().toISOString().split('T')[0],
         incident_time: new Date().toTimeString().slice(0, 5),
         location: '',
@@ -102,10 +129,16 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
     e.preventDefault();
     if (!selectedIncident) return;
 
+    if (!incidentForm.child_id) {
+      alert('Lütfen bir öğrenci seçin');
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('behavior_incidents')
         .update({
+          child_id: incidentForm.child_id,
           incident_date: incidentForm.incident_date,
           incident_time: incidentForm.incident_time,
           location: incidentForm.location,
@@ -167,6 +200,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
   const openEditModal = (incident: BehaviorIncident) => {
     setSelectedIncident(incident);
     setIncidentForm({
+      child_id: incident.child_id || '',
       incident_date: incident.incident_date,
       incident_time: incident.incident_time,
       location: incident.location,
@@ -188,6 +222,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
     if (locationFilter && !incident.location.toLowerCase().includes(locationFilter.toLowerCase())) return false;
     if (evaluationFilter === 'evaluated' && !incident.guidance_evaluation) return false;
     if (evaluationFilter === 'pending' && incident.guidance_evaluation) return false;
+    if (childFilter && incident.child_id !== childFilter) return false;
     return true;
   });
 
@@ -263,7 +298,22 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
 
       <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
         <h3 className="font-semibold text-gray-800 mb-3">Filtreler</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Öğrenci</label>
+            <select
+              value={childFilter}
+              onChange={(e) => setChildFilter(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="">Tümü</option>
+              {children.map((child) => (
+                <option key={child.id} value={child.id}>
+                  {child.first_name} {child.last_name} - {child.class_name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Tarih</label>
             <input
@@ -296,12 +346,13 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
             </select>
           </div>
         </div>
-        {(dateFilter || locationFilter || evaluationFilter !== 'all') && (
+        {(dateFilter || locationFilter || evaluationFilter !== 'all' || childFilter) && (
           <button
             onClick={() => {
               setDateFilter('');
               setLocationFilter('');
               setEvaluationFilter('all');
+              setChildFilter('');
             }}
             className="mt-3 text-sm text-blue-600 hover:text-blue-700"
           >
@@ -328,7 +379,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
+                  <div className="flex items-center gap-3 mb-3">
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${
                         incident.guidance_evaluation
@@ -338,6 +389,14 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
                     >
                       {incident.guidance_evaluation ? 'Değerlendirildi' : 'Değerlendirme Bekliyor'}
                     </span>
+                    {incident.child && (
+                      <div className="flex items-center gap-2 text-blue-700 bg-blue-50 px-3 py-1 rounded-full">
+                        <Baby className="w-4 h-4" />
+                        <span className="text-sm font-medium">
+                          {incident.child.first_name} {incident.child.last_name} - {incident.child.class_name}
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
                     <div className="flex items-center gap-2 text-gray-600">
@@ -437,6 +496,25 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
               </button>
             </div>
             <form onSubmit={handleCreateIncident} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Öğrenci *
+                </label>
+                <select
+                  value={incidentForm.child_id}
+                  onChange={(e) => setIncidentForm({ ...incidentForm, child_id: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Öğrenci Seçin</option>
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id}>
+                      {child.first_name} {child.last_name} - {child.class_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -527,6 +605,25 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
               </button>
             </div>
             <form onSubmit={handleUpdateIncident} className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Öğrenci *
+                </label>
+                <select
+                  value={incidentForm.child_id}
+                  onChange={(e) => setIncidentForm({ ...incidentForm, child_id: e.target.value })}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Öğrenci Seçin</option>
+                  {children.map((child) => (
+                    <option key={child.id} value={child.id}>
+                      {child.first_name} {child.last_name} - {child.class_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">

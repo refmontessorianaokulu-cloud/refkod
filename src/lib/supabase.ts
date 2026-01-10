@@ -124,6 +124,7 @@ export type MaterialRequest = {
 
 export type BehaviorIncident = {
   id: string;
+  child_id: string | null;
   incident_date: string;
   incident_time: string;
   location: string;
@@ -136,6 +137,7 @@ export type BehaviorIncident = {
   updated_at: string;
   creator?: Profile;
   evaluator?: Profile;
+  child?: Child;
 };
 
 export type AboutContent = {
