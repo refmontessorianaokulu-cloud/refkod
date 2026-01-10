@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import InquiryForm from './InquiryForm';
 import ReferenceTeacherForm from './ReferenceTeacherForm';
+import ContactPage from './ContactPage';
 import { supabase } from '../lib/supabase';
 import { ChevronDown } from 'lucide-react';
 
@@ -14,6 +15,7 @@ interface AboutSection {
 export default function Login() {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [showReferenceTeacherForm, setShowReferenceTeacherForm] = useState(false);
+  const [showContactPage, setShowContactPage] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -27,6 +29,7 @@ export default function Login() {
   const [isLoginCardOpen, setIsLoginCardOpen] = useState(false);
   const [isApplicationCardOpen, setIsApplicationCardOpen] = useState(false);
   const [isAboutCardOpen, setIsAboutCardOpen] = useState(false);
+  const [isContactCardOpen, setIsContactCardOpen] = useState(false);
   const [aboutSections, setAboutSections] = useState<AboutSection[]>([]);
   const [aboutLoading, setAboutLoading] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
@@ -129,6 +132,10 @@ export default function Login() {
 
   if (showReferenceTeacherForm) {
     return <ReferenceTeacherForm />;
+  }
+
+  if (showContactPage) {
+    return <ContactPage onBack={() => setShowContactPage(false)} />;
   }
 
   if (showForgotPassword) {
@@ -412,6 +419,37 @@ export default function Login() {
             )}
           </div>
         </div>
+
+        {/* Sağ Alt - İletişim */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
+          <button
+            onClick={() => setIsContactCardOpen(!isContactCardOpen)}
+            className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800">
+              İletişim
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                isContactCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 space-y-3 ${isContactCardOpen ? 'block' : 'hidden'}`}>
+            <button
+              onClick={() => setShowContactPage(true)}
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
+            >
+              İletişim Bilgilerimiz
+            </button>
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 space-y-2 text-xs text-gray-700">
+              <p className="font-medium">📍 Arnavutköy - İstanbul</p>
+              <p className="font-medium">📞 0531 550 44 54</p>
+              <p className="font-medium break-all">✉️ bilgi@refcocukakademisi.com</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Mobil: Alt kısımda kartlar */}
@@ -579,6 +617,37 @@ export default function Login() {
                 ))}
               </>
             )}
+          </div>
+        </div>
+
+        {/* Mobil - İletişim */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-64">
+          <button
+            onClick={() => setIsContactCardOpen(!isContactCardOpen)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800">
+              İletişim
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                isContactCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 space-y-3 ${isContactCardOpen ? 'block' : 'hidden'}`}>
+            <button
+              onClick={() => setShowContactPage(true)}
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
+            >
+              İletişim Bilgilerimiz
+            </button>
+            <div className="bg-white/80 backdrop-blur-sm rounded-lg p-3 space-y-2 text-xs text-gray-700">
+              <p className="font-medium">📍 Arnavutköy - İstanbul</p>
+              <p className="font-medium">📞 0531 550 44 54</p>
+              <p className="font-medium break-all">✉️ bilgi@refcocukakademisi.com</p>
+            </div>
           </div>
         </div>
       </div>
