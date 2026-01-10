@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, BehaviorIncident, Profile, Child } from '../lib/supabase';
-import { ClipboardList, Plus, Edit2, Trash2, Calendar, Clock, MapPin, User, FileText, CheckCircle, AlertCircle, X, Save, Baby } from 'lucide-react';
+import { ClipboardList, Plus, Edit2, Trash2, Calendar, Clock, MapPin, User, FileText, CheckCircle, AlertCircle, X, Save, Baby, Upload, Image as ImageIcon } from 'lucide-react';
 
 interface Props {
   userId: string;
@@ -32,6 +32,9 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
   const [evaluationForm, setEvaluationForm] = useState({
     guidance_evaluation: '',
   });
+
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
 
   const canCreate = true;
   const canEdit = userRole === 'admin';
@@ -91,6 +94,33 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
     }
   };
 
+  const uploadMediaFiles = async (files: File[]): Promise<string[]> => {
+    const uploadedUrls: string[] = [];
+
+    for (const file of files) {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('report-media')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('report-media')
+        .getPublicUrl(filePath);
+
+      uploadedUrls.push(publicUrl);
+    }
+
+    return uploadedUrls;
+  };
+
   const handleCreateIncident = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -100,12 +130,20 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
     }
 
     try {
+      setUploadingMedia(true);
+      let mediaUrls: string[] = [];
+
+      if (mediaFiles.length > 0) {
+        mediaUrls = await uploadMediaFiles(mediaFiles);
+      }
+
       const { error } = await supabase.from('behavior_incidents').insert({
         child_id: incidentForm.child_id,
         incident_date: incidentForm.incident_date,
         incident_time: incidentForm.incident_time,
         location: incidentForm.location,
         summary: incidentForm.summary,
+        media_urls: mediaUrls.length > 0 ? mediaUrls : null,
         created_by: userId,
       });
 
@@ -119,9 +157,12 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
         location: '',
         summary: '',
       });
+      setMediaFiles([]);
       loadIncidents();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
+    } finally {
+      setUploadingMedia(false);
     }
   };
 
@@ -135,6 +176,16 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
     }
 
     try {
+      setUploadingMedia(true);
+      let newMediaUrls: string[] = [];
+
+      if (mediaFiles.length > 0) {
+        newMediaUrls = await uploadMediaFiles(mediaFiles);
+      }
+
+      const existingMediaUrls = selectedIncident.media_urls || [];
+      const allMediaUrls = [...existingMediaUrls, ...newMediaUrls];
+
       const { error } = await supabase
         .from('behavior_incidents')
         .update({
@@ -143,6 +194,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
           incident_time: incidentForm.incident_time,
           location: incidentForm.location,
           summary: incidentForm.summary,
+          media_urls: allMediaUrls.length > 0 ? allMediaUrls : null,
         })
         .eq('id', selectedIncident.id);
 
@@ -150,9 +202,12 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
 
       setShowEditModal(false);
       setSelectedIncident(null);
+      setMediaFiles([]);
       loadIncidents();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
+    } finally {
+      setUploadingMedia(false);
     }
   };
 
@@ -197,6 +252,17 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
     }
   };
 
+  const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files);
+      setMediaFiles(prev => [...prev, ...files]);
+    }
+  };
+
+  const removeMediaFile = (index: number) => {
+    setMediaFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
   const openEditModal = (incident: BehaviorIncident) => {
     setSelectedIncident(incident);
     setIncidentForm({
@@ -206,6 +272,7 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
       location: incident.location,
       summary: incident.summary,
     });
+    setMediaFiles([]);
     setShowEditModal(true);
   };
 
@@ -449,6 +516,38 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
                 <p className="text-gray-700 whitespace-pre-wrap">{incident.summary}</p>
               </div>
 
+              {incident.media_urls && incident.media_urls.length > 0 && (
+                <div className="mb-3">
+                  <h4 className="font-medium text-gray-800 mb-2 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4" />
+                    Medya ({incident.media_urls.length})
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {incident.media_urls.map((url, index) => {
+                      const isVideo = url.match(/\.(mp4|webm|ogg|mov)$/i);
+                      return (
+                        <div key={index} className="relative group">
+                          {isVideo ? (
+                            <video
+                              src={url}
+                              controls
+                              className="w-full h-32 object-cover rounded-lg"
+                            />
+                          ) : (
+                            <img
+                              src={url}
+                              alt={`Medya ${index + 1}`}
+                              className="w-full h-32 object-cover rounded-lg cursor-pointer hover:opacity-80 transition"
+                              onClick={() => window.open(url, '_blank')}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
                 <User className="w-4 h-4" />
                 <span>
@@ -571,13 +670,54 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fotoğraf / Video
+                </label>
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleMediaChange}
+                    className="hidden"
+                    id="media-upload-create"
+                  />
+                  <label
+                    htmlFor="media-upload-create"
+                    className="flex flex-col items-center cursor-pointer"
+                  >
+                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-600">Fotoğraf veya video yüklemek için tıklayın</span>
+                    <span className="text-xs text-gray-500 mt-1">Birden fazla dosya seçebilirsiniz</span>
+                  </label>
+                </div>
+                {mediaFiles.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    {mediaFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                        <span className="text-sm text-gray-700 truncate flex-1">{file.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeMediaFile(index)}
+                          className="text-red-600 hover:text-red-700 ml-2"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                  disabled={uploadingMedia}
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <Save className="w-5 h-5" />
-                  Kaydet
+                  {uploadingMedia ? 'Yükleniyor...' : 'Kaydet'}
                 </button>
                 <button
                   type="button"
@@ -680,13 +820,60 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fotoğraf / Video Ekle
+                </label>
+                {selectedIncident.media_urls && selectedIncident.media_urls.length > 0 && (
+                  <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+                    <p className="text-sm text-gray-600 mb-2">Mevcut medya: {selectedIncident.media_urls.length} dosya</p>
+                  </div>
+                )}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
+                  <input
+                    type="file"
+                    accept="image/*,video/*"
+                    multiple
+                    onChange={handleMediaChange}
+                    className="hidden"
+                    id="media-upload-edit"
+                  />
+                  <label
+                    htmlFor="media-upload-edit"
+                    className="flex flex-col items-center cursor-pointer"
+                  >
+                    <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                    <span className="text-sm text-gray-600">Yeni fotoğraf veya video eklemek için tıklayın</span>
+                    <span className="text-xs text-gray-500 mt-1">Birden fazla dosya seçebilirsiniz</span>
+                  </label>
+                </div>
+                {mediaFiles.length > 0 && (
+                  <div className="mt-3 space-y-2">
+                    <p className="text-sm font-medium text-gray-700">Eklenecek dosyalar:</p>
+                    {mediaFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded">
+                        <span className="text-sm text-gray-700 truncate flex-1">{file.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeMediaFile(index)}
+                          className="text-red-600 hover:text-red-700 ml-2"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <div className="flex gap-3 pt-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2"
+                  disabled={uploadingMedia}
+                  className="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center gap-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
                 >
                   <Save className="w-5 h-5" />
-                  Güncelle
+                  {uploadingMedia ? 'Yükleniyor...' : 'Güncelle'}
                 </button>
                 <button
                   type="button"

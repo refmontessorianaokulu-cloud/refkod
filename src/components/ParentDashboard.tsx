@@ -163,6 +163,20 @@ export default function ParentDashboard() {
               .order('report_date', { ascending: false })
               .limit(10);
 
+            const { data: attendanceRecords } = await supabase
+              .from('attendance')
+              .select('date, status')
+              .eq('child_id', child.id)
+              .eq('status', 'present');
+
+            const attendanceDates = new Set(
+              attendanceRecords?.map(record => record.date) || []
+            );
+
+            const filteredDailyReports = (dailyReports || []).filter(report =>
+              attendanceDates.has(report.report_date)
+            );
+
             const teacherData = child.teacher && child.teacher.length > 0
               ? { full_name: child.teacher[0].teacher_id.full_name }
               : undefined;
@@ -172,7 +186,7 @@ export default function ParentDashboard() {
               teacher: teacherData,
               meal_logs: mealLogs || [],
               sleep_logs: sleepLogs || [],
-              daily_reports: dailyReports || [],
+              daily_reports: filteredDailyReports,
             };
           })
         );

@@ -129,6 +129,7 @@ export type BehaviorIncident = {
   incident_time: string;
   location: string;
   summary: string;
+  media_urls?: string[];
   created_by: string;
   guidance_evaluation: string | null;
   evaluated_by: string | null;
