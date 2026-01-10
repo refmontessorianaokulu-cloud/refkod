@@ -5,11 +5,13 @@ import { supabase } from '../lib/supabase';
 interface InstagramPost {
   id: string;
   caption?: string;
-  media_type: 'IMAGE' | 'VIDEO' | 'CAROUSEL_ALBUM';
+  media_type?: 'IMAGE' | 'VIDEO' | 'CAROUSEL_ALBUM';
   media_url: string;
   thumbnail_url?: string;
   permalink: string;
-  timestamp: string;
+  timestamp?: string;
+  posted_date?: string;
+  is_manual?: boolean;
 }
 
 export default function InstagramFeed() {
@@ -27,6 +29,29 @@ export default function InstagramFeed() {
     setError(null);
 
     try {
+      const { data: manualPosts, error: manualError } = await supabase
+        .from('instagram_posts')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true })
+        .limit(9);
+
+      if (manualError) throw manualError;
+
+      if (manualPosts && manualPosts.length > 0) {
+        const formattedPosts: InstagramPost[] = manualPosts.map(post => ({
+          id: post.id,
+          caption: post.caption || undefined,
+          media_url: post.image_url,
+          permalink: post.post_url || '#',
+          posted_date: post.posted_date,
+          is_manual: true,
+        }));
+        setPosts(formattedPosts);
+        setLoading(false);
+        return;
+      }
+
       const cachedData = localStorage.getItem('instagram-feed');
       const cachedTimestamp = localStorage.getItem('instagram-feed-timestamp');
 
@@ -204,6 +229,11 @@ export default function InstagramFeed() {
             {post.media_type === 'CAROUSEL_ALBUM' && (
               <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
                 Albüm
+              </div>
+            )}
+            {post.is_manual && (
+              <div className="absolute top-2 left-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-1 rounded text-xs font-semibold">
+                Manuel
               </div>
             )}
           </div>

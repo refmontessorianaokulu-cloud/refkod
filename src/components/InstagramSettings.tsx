@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Save, Eye, EyeOff, CheckCircle, XCircle, ExternalLink, Instagram, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Save, Eye, EyeOff, CheckCircle, XCircle, ExternalLink, Instagram, RefreshCw, ChevronDown, ChevronUp, Settings, Image } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import ManualInstagramPosts from './ManualInstagramPosts';
 
 interface InstagramPost {
   id: string;
@@ -10,6 +11,7 @@ interface InstagramPost {
 }
 
 export default function InstagramSettings() {
+  const [activeTab, setActiveTab] = useState<'api' | 'manual'>('manual');
   const [accessToken, setAccessToken] = useState('');
   const [showToken, setShowToken] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -118,9 +120,39 @@ export default function InstagramSettings() {
       <div>
         <h2 className="text-2xl font-bold text-gray-800">Instagram Ayarları</h2>
         <p className="text-gray-600 mt-1">
-          Ana sayfadaki Instagram feed için API erişim ayarlarını yapılandırın
+          Ana sayfadaki Instagram feed'i yönetin
         </p>
       </div>
+
+      <div className="flex space-x-2 border-b border-gray-200">
+        <button
+          onClick={() => setActiveTab('manual')}
+          className={`flex items-center space-x-2 px-6 py-3 font-semibold transition-all ${
+            activeTab === 'manual'
+              ? 'text-pink-600 border-b-2 border-pink-600'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          <Image className="w-5 h-5" />
+          <span>Manuel Gönderiler</span>
+        </button>
+        <button
+          onClick={() => setActiveTab('api')}
+          className={`flex items-center space-x-2 px-6 py-3 font-semibold transition-all ${
+            activeTab === 'api'
+              ? 'text-pink-600 border-b-2 border-pink-600'
+              : 'text-gray-600 hover:text-gray-800'
+          }`}
+        >
+          <Settings className="w-5 h-5" />
+          <span>API Ayarları</span>
+        </button>
+      </div>
+
+      {activeTab === 'manual' ? (
+        <ManualInstagramPosts />
+      ) : (
+        <div className="space-y-6">
 
       <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg p-6 border border-pink-200">
         <button
@@ -280,6 +312,8 @@ export default function InstagramSettings() {
           </div>
         </div>
       </div>
+        </div>
+      )}
     </div>
   );
 }
