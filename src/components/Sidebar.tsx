@@ -281,17 +281,14 @@ export default function Sidebar({
           <div className="mb-3">
             <p className="text-xs text-gray-400 mb-2 px-3">Bizi Takip Edin</p>
             <div className="flex items-center justify-center space-x-2">
-              <a
-                href="https://www.facebook.com/refanaokulu"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 text-gray-400 hover:text-blue-500 hover:bg-gray-700 rounded-lg transition-all"
-                title="Facebook"
+              <div
+                className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
+                title="Facebook (Yakında)"
               >
                 <Facebook className="w-5 h-5" />
-              </a>
+              </div>
               <a
-                href="https://www.instagram.com/refanaokulu"
+                href="https://www.instagram.com/refcocukakademisi/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 text-gray-400 hover:text-pink-500 hover:bg-gray-700 rounded-lg transition-all"
@@ -299,26 +296,20 @@ export default function Sidebar({
               >
                 <Instagram className="w-5 h-5" />
               </a>
-              <a
-                href="https://www.youtube.com/@refanaokulu"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-700 rounded-lg transition-all"
-                title="Youtube"
+              <div
+                className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
+                title="Youtube (Yakında)"
               >
                 <Youtube className="w-5 h-5" />
-              </a>
-              <a
-                href="https://www.linkedin.com/company/refanaokulu"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded-lg transition-all"
-                title="LinkedIn"
+              </div>
+              <div
+                className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
+                title="LinkedIn (Yakında)"
               >
                 <Linkedin className="w-5 h-5" />
-              </a>
+              </div>
               <a
-                href="mailto:info@refanaokulu.com"
+                href="mailto:bilgi@refcocukakademisi.com"
                 className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-gray-700 rounded-lg transition-all"
                 title="E-posta"
               >
@@ -330,17 +321,14 @@ export default function Sidebar({
 
         {isCollapsed && (
           <div className="flex flex-col items-center space-y-2 mb-3">
-            <a
-              href="https://www.facebook.com/refanaokulu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-gray-400 hover:text-blue-500 hover:bg-gray-700 rounded-lg transition-all"
-              title="Facebook"
+            <div
+              className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
+              title="Facebook (Yakında)"
             >
               <Facebook className="w-4 h-4" />
-            </a>
+            </div>
             <a
-              href="https://www.instagram.com/refanaokulu"
+              href="https://www.instagram.com/refcocukakademisi/"
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-gray-400 hover:text-pink-500 hover:bg-gray-700 rounded-lg transition-all"
@@ -348,26 +336,20 @@ export default function Sidebar({
             >
               <Instagram className="w-4 h-4" />
             </a>
-            <a
-              href="https://www.youtube.com/@refanaokulu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-gray-400 hover:text-red-500 hover:bg-gray-700 rounded-lg transition-all"
-              title="Youtube"
+            <div
+              className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
+              title="Youtube (Yakında)"
             >
               <Youtube className="w-4 h-4" />
-            </a>
-            <a
-              href="https://www.linkedin.com/company/refanaokulu"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-gray-400 hover:text-blue-400 hover:bg-gray-700 rounded-lg transition-all"
-              title="LinkedIn"
+            </div>
+            <div
+              className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
+              title="LinkedIn (Yakında)"
             >
               <Linkedin className="w-4 h-4" />
-            </a>
+            </div>
             <a
-              href="mailto:info@refanaokulu.com"
+              href="mailto:bilgi@refcocukakademisi.com"
               className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-gray-700 rounded-lg transition-all"
               title="E-posta"
             >
