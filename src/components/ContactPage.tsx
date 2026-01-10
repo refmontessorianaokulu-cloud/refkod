@@ -88,7 +88,7 @@ export default function ContactPage({ onBack }: ContactPageProps) {
               <h3 className="font-semibold text-gray-800 mb-4 text-lg">Konum</h3>
               <div className="relative rounded-lg overflow-hidden shadow-lg">
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3005.0768764883676!2d28.7381!3d41.1858!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDExJzA4LjkiTiAyOMKwNDQnMTcuMiJF!5e0!3m2!1str!2str!4v1234567890"
+                  src="https://www.google.com/maps?q=Ref+%C3%87ocuk+Akademisi+Mustafa+Kemal+Pa%C5%9Fa+Mah+Cansever+Sok+34-38%2FA+Arnavutk%C3%B6y+%C4%B0stanbul&output=embed"
                   width="100%"
                   height="450"
                   style={{ border: 0 }}
@@ -101,7 +101,7 @@ export default function ContactPage({ onBack }: ContactPageProps) {
               </div>
               <div className="mt-4 flex flex-col sm:flex-row gap-3">
                 <a
-                  href="https://www.google.com/maps/dir/?api=1&destination=Mustafa+Kemal+Paşa+Mah.+Cansever+Sk.+No:34-38/A+Arnavutköy+İstanbul"
+                  href="https://www.google.com/maps/dir/?api=1&destination=Ref+Çocuk+Akademisi+Mustafa+Kemal+Paşa+Mah+Cansever+Sok+34-38/A+Arnavutköy+İstanbul"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 text-center px-6 py-3 bg-emerald-600 text-white rounded-lg font-medium hover:bg-emerald-700 transition-colors shadow-md hover:shadow-lg"
@@ -109,7 +109,7 @@ export default function ContactPage({ onBack }: ContactPageProps) {
                   Yol Tarifi Al
                 </a>
                 <a
-                  href="https://www.google.com/maps/search/?api=1&query=Mustafa+Kemal+Paşa+Mah.+Cansever+Sk.+No:34-38/A+Arnavutköy+İstanbul"
+                  href="https://www.google.com/maps/search/?api=1&query=Ref+Çocuk+Akademisi+Mustafa+Kemal+Paşa+Mah+Cansever+Sok+34-38/A+Arnavutköy+İstanbul"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 text-center px-6 py-3 bg-gray-600 text-white rounded-lg font-medium hover:bg-gray-700 transition-colors shadow-md hover:shadow-lg"
