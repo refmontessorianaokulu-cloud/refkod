@@ -71,6 +71,18 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     }
   }, [selectedDate, selectedCourse, selectedClass, selectedStudent, children, loadingAssignments]);
 
+  useEffect(() => {
+    if (showModal && userRole === 'teacher' && teacherAssignments.length > 0 && form.course_type) {
+      const assignedClassesForCourse = teacherAssignments
+        .filter(a => a.course_type === form.course_type)
+        .map(a => a.class_name);
+
+      if (modalSelectedClass !== 'all' && !assignedClassesForCourse.includes(modalSelectedClass)) {
+        setModalSelectedClass('all');
+      }
+    }
+  }, [form.course_type, showModal]);
+
   const loadTeacherAssignments = async () => {
     if (!teacherId) return;
 
@@ -320,6 +332,22 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
     return courseTypes.filter(c => assignedCourses.includes(c.value));
   };
 
+  const getAvailableClassesForModal = () => {
+    if (userRole !== 'teacher' || teacherAssignments.length === 0 || !form.course_type) {
+      return Array.from(new Set(filteredChildren.map(c => c.class_name).filter(Boolean))).sort();
+    }
+
+    const assignedClassesForCourse = teacherAssignments
+      .filter(a => a.course_type === form.course_type)
+      .map(a => a.class_name);
+
+    if (assignedClassesForCourse.length === 0) {
+      return [];
+    }
+
+    return Array.from(new Set(assignedClassesForCourse)).sort();
+  };
+
   const getModalFilteredChildren = () => {
     let baseChildren = filteredChildren;
 
@@ -344,6 +372,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
   const filteredChildren = getFilteredChildren();
   const availableCourseTypesForViewing = getAvailableCourseTypesForViewing();
   const availableCourseTypesForAdding = getAvailableCourseTypesForAdding();
+  const availableClassesForModal = getAvailableClassesForModal();
   const modalFilteredChildren = getModalFilteredChildren();
 
   return (
@@ -560,7 +589,7 @@ export default function BranchCourseReportsSection({ children, teacherId, userRo
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   >
                     <option value="all">Tüm Sınıflar</option>
-                    {Array.from(new Set(filteredChildren.map(c => c.class_name).filter(Boolean))).sort().map((className) => (
+                    {availableClassesForModal.map((className) => (
                       <option key={className} value={className}>
                         {className}
                       </option>
