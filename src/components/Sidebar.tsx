@@ -219,13 +219,22 @@ export default function Sidebar({
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [expandedCategories, setExpandedCategories] = useState<string[]>(() => {
     const saved = localStorage.getItem('sidebar-expanded-categories');
+    let initialCategories: string[] = [];
+
     if (saved) {
-      return JSON.parse(saved);
+      initialCategories = JSON.parse(saved);
+    } else {
+      const activeCategory = categories.find(cat =>
+        cat.items.some(item => item.id === activeTab)
+      );
+      initialCategories = activeCategory ? [activeCategory.id] : [];
     }
-    const activeCategory = categories.find(cat =>
-      cat.items.some(item => item.id === activeTab)
-    );
-    return activeCategory ? [activeCategory.id] : ['homepage'];
+
+    if (!initialCategories.includes('homepage')) {
+      initialCategories.push('homepage');
+    }
+
+    return initialCategories;
   });
 
   useEffect(() => {
