@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase, Child, Profile, DailyReport } from '../lib/supabase';
-import { Users, Baby, LogOut, Plus, Trash2, UserPlus, BookOpen, GraduationCap, CheckCircle, XCircle, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UtensilsCrossed, UserCheck, CreditCard as Edit, Sparkles, Package, FileText, AlertTriangle } from 'lucide-react';
+import { Plus, Trash2, UserPlus, GraduationCap, CheckCircle, XCircle, Car, Bell, CreditCard as Edit, Baby } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -18,10 +18,14 @@ import BranchCourseReportsSection from './BranchCourseReportsSection';
 import InquiryFormsSection from './InquiryFormsSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
+import Sidebar, { MenuTab } from './Sidebar';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
-  const [activeTab, setActiveTab] = useState<'children' | 'users' | 'montessori_reports' | 'branch_reports' | 'attendance' | 'announcements' | 'messages' | 'calendar' | 'fees' | 'appointments' | 'tasks' | 'menu' | 'duty' | 'services' | 'cleaning' | 'inquiries' | 'material_requests' | 'reference_applications' | 'behavior_incidents'>('children');
+  const [activeTab, setActiveTab] = useState<MenuTab>(() => {
+    const saved = localStorage.getItem('admin-active-tab');
+    return (saved as MenuTab) || 'children';
+  });
   const [children, setChildren] = useState<Child[]>([]);
   const [users, setUsers] = useState<Profile[]>([]);
   const [dailyReports, setDailyReports] = useState<DailyReport[]>([]);
@@ -65,6 +69,7 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
+    localStorage.setItem('admin-active-tab', activeTab);
     loadData();
     loadParentsAndTeachers();
     loadPickupNotifications();
@@ -500,250 +505,22 @@ export default function AdminDashboard() {
     }
   };
 
+  const pendingUsersCount = users.filter(u => !u.approved && u.role !== 'admin').length;
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <img
-                src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-                alt="REF Logo"
-                className="w-10 h-10 object-contain"
-              />
-              <div>
-                <h1 className="text-xl font-bold text-gray-800">Yönetici Paneli</h1>
-                <p className="text-sm text-gray-500">{profile?.full_name}</p>
-              </div>
-            </div>
-            <button
-              onClick={() => signOut()}
-              className="flex items-center space-x-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-              <span>Çıkış</span>
-            </button>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        onSignOut={signOut}
+        userFullName={profile?.full_name}
+        pendingUsersCount={pendingUsersCount}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="border-b border-gray-200">
-            <div className="flex">
-              <button
-                onClick={() => setActiveTab('children')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'children'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Baby className="w-5 h-5" />
-                <span>Çocuklar</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('users')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'users'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Users className="w-5 h-5" />
-                <span>Kullanıcılar</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('montessori_reports')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'montessori_reports'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Sparkles className="w-5 h-5" />
-                <span>Montessori Raporları</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('branch_reports')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'branch_reports'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <BookOpen className="w-5 h-5" />
-                <span>Branş Dersleri</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('attendance')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'attendance'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Calendar className="w-5 h-5" />
-                <span>Devamsızlık</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('announcements')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'announcements'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Megaphone className="w-5 h-5" />
-                <span>Duyurular</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('messages')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'messages'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <MessageSquare className="w-5 h-5" />
-                <span>Mesajlar</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('calendar')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'calendar'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Calendar className="w-5 h-5" />
-                <span>Akademik Takvim</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('fees')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'fees'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <span className="text-lg font-bold">₺</span>
-                <span>Okul Ödemeleri</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('appointments')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'appointments'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <CalendarCheck className="w-5 h-5" />
-                <span>Randevular</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('tasks')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'tasks'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <ClipboardList className="w-5 h-5" />
-                <span>Görevlendirmeler</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('menu')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'menu'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <UtensilsCrossed className="w-5 h-5" />
-                <span>Yemek Menüsü</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('duty')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'duty'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <UserCheck className="w-5 h-5" />
-                <span>Nöbetçi Öğretmen</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('services')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'services'
-                    ? 'border-green-500 text-green-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Car className="w-5 h-5" />
-                <span>Servis Takibi</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('cleaning')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'cleaning'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Sparkles className="w-5 h-5" />
-                <span>Temizlik</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('inquiries')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'inquiries'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Bell className="w-5 h-5" />
-                <span>Bilgi Talepleri</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('material_requests')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'material_requests'
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <Package className="w-5 h-5" />
-                <span>Malzeme Talepleri</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('reference_applications')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'reference_applications'
-                    ? 'border-emerald-500 text-emerald-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <FileText className="w-5 h-5" />
-                <span>Referans Öğretmen Başvuruları</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('behavior_incidents')}
-                className={`flex items-center space-x-2 px-6 py-4 font-medium border-b-2 transition-colors ${
-                  activeTab === 'behavior_incidents'
-                    ? 'border-red-500 text-red-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
-                }`}
-              >
-                <AlertTriangle className="w-5 h-5" />
-                <span>KOD Kayıtları</span>
-              </button>
-            </div>
-          </div>
-
-          <div className="p-6">
+      <main className="flex-1 overflow-x-hidden">
+        <div className="lg:pl-0 pl-0">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             {activeTab === 'children' && (
               <div>
                 {pickupNotifications.length > 0 && (
@@ -1435,9 +1212,10 @@ export default function AdminDashboard() {
                 userRole="admin"
               />
             )}
+            </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {showChildModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
