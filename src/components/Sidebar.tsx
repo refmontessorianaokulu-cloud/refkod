@@ -312,9 +312,10 @@ export default function Sidebar({
       <div className={`flex items-center justify-between p-4 border-b border-gray-700 ${isCollapsed ? 'flex-col' : ''}`}>
         <div className={`flex items-center space-x-3 ${isCollapsed ? 'mb-2' : ''}`}>
           <img
-            src="/whatsapp_image_2026-01-10_at_23.02.15 copy.png"
+            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
-            className="w-10 h-10 object-cover"
+            className="w-10 h-10 object-contain transition-all duration-300 hover:scale-105"
+            style={{ mixBlendMode: 'multiply' }}
           />
           {!isCollapsed && (
             <div>
@@ -579,9 +580,10 @@ export default function Sidebar({
       {/* Mobil Sağ Üst - Logo */}
       <div className="lg:hidden fixed top-4 right-4 z-50">
         <img
-          src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+          src="/whatsapp_image_2026-01-10_at_23.02.15.png"
           alt="REF Logo"
-          className="w-20 h-20 object-contain"
+          className="w-20 h-20 object-contain transition-all duration-300 hover:scale-105"
+          style={{ mixBlendMode: 'multiply' }}
         />
       </div>
 
