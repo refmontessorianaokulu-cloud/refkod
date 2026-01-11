@@ -357,8 +357,14 @@ export default function Login() {
           <Menu className="w-5 h-5 text-gray-700" />
         </button>
 
-        {/* Boş div - Mobilde balance için */}
-        <div className="md:hidden" />
+        {/* Logo - Sadece Mobilde görünür */}
+        <div className="md:hidden">
+          <img
+            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+            alt="REF Logo"
+            className="w-12 h-12 object-contain"
+          />
+        </div>
 
         {/* Sağ Üst İkonlar */}
         <div className="flex items-center gap-3">
@@ -387,7 +393,7 @@ export default function Login() {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-sm font-bold text-gray-800 leading-tight">🌍 Ref Montessori School 🇹🇷</h2>
+            <h2 className="text-lg font-bold text-gray-800 leading-tight">🌍 Ref Montessori School 🇹🇷</h2>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
