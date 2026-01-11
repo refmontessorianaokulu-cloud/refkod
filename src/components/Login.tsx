@@ -398,7 +398,6 @@ export default function Login() {
           >
             <SearchIcon className="w-5 h-5 text-gray-700" />
           </button>
-          <LanguageToggle />
         </div>
       </div>
 
@@ -1226,6 +1225,9 @@ export default function Login() {
               >
                 <Globe className="w-5 h-5 text-white" />
               </a>
+              <div className="flex items-center justify-center w-10 h-10">
+                <LanguageToggle />
+              </div>
             </div>
           </div>
         </div>
