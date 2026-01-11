@@ -117,6 +117,7 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
     items: [
       { id: 'ref_akademi', label: t('menu.refAkademi'), icon: GraduationCap },
       { id: 'ref_danismanlik', label: t('menu.refDanismanlik'), icon: Briefcase },
+      { id: 'reference_applications', label: t('menu.referenceApplications'), icon: FileText },
       { id: 'ref_atolye', label: t('menu.refAtolye'), icon: Palette },
     ],
   },
@@ -173,13 +174,6 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
       { id: 'cleaning', label: t('menu.cleaning'), icon: Sparkles },
       { id: 'material_requests', label: t('menu.materialRequests'), icon: Package },
       { id: 'inquiries', label: t('menu.inquiries'), icon: Bell },
-    ],
-  },
-  {
-    id: 'applications',
-    label: t('menu.applications'),
-    items: [
-      { id: 'reference_applications', label: t('menu.referenceApplications'), icon: FileText },
     ],
   },
   {

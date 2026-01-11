@@ -116,7 +116,6 @@ const trTranslations: Record<string, string> = {
   'menu.cleaning': 'Temizlik',
   'menu.materialRequests': 'Malzeme Talepleri',
   'menu.inquiries': 'Bilgi Talepleri',
-  'menu.applications': 'Başvurular',
   'menu.referenceApplications': 'Referans Öğretmen',
   'menu.content': 'İçerik Yönetimi',
   'menu.contentManagement': 'Hakkımızda İçeriği',
@@ -132,6 +131,7 @@ const trTranslations: Record<string, string> = {
   'home.description2': 'Deneyimli eğitmenlerimiz ve özel olarak hazırlanmış Montessori materyallerimizle, çocuklarımız kendi hızlarında ilerleyerek pratik hayat becerileri, akademik temeller ve sosyal gelişim kazanırlar.',
   'home.description3': 'Okul öncesi eğitimde deneyimimizle, her çocuğa değer veren, onların bireysel farklılıklarını destekleyen ve özgüven kazandıran bir eğitim anlayışına sahibiz.',
   'home.readMore': 'Devamını Oku',
+  'home.noContent': 'İçerik yüklenemedi. Lütfen daha sonra tekrar deneyin.',
 
   'search.placeholder': 'Ara...',
   'search.noResults': 'Sonuç bulunamadı',
@@ -209,7 +209,6 @@ const enTranslations: Record<string, string> = {
   'menu.cleaning': 'Cleaning',
   'menu.materialRequests': 'Material Requests',
   'menu.inquiries': 'Inquiry Requests',
-  'menu.applications': 'Applications',
   'menu.referenceApplications': 'Reference Teacher',
   'menu.content': 'Content Management',
   'menu.contentManagement': 'About Content',
@@ -225,6 +224,7 @@ const enTranslations: Record<string, string> = {
   'home.description2': 'With our experienced educators and specially prepared Montessori materials, our children progress at their own pace, gaining practical life skills, academic foundations and social development.',
   'home.description3': 'With our experience in preschool education, we have an educational approach that values each child, supports their individual differences and builds self-confidence.',
   'home.readMore': 'Read More',
+  'home.noContent': 'Content could not be loaded. Please try again later.',
 
   'search.placeholder': 'Search...',
   'search.noResults': 'No results found',

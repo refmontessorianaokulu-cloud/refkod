@@ -13,7 +13,7 @@ interface HomePageProps {
 
 interface AboutContent {
   section_title: string;
-  content_text: string;
+  content: string;
 }
 
 export default function HomePage({ onNavigateToAbout }: HomePageProps) {
@@ -29,7 +29,7 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
       try {
         const { data, error } = await supabase
           .from('about_content')
-          .select('section_title, content_text')
+          .select('section_title, content')
           .eq('section_key', 'education_programs')
           .maybeSingle();
 
@@ -99,7 +99,7 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
 
                     <div className="space-y-4 text-gray-700 leading-relaxed">
                       <p className="text-lg whitespace-pre-wrap">
-                        {educationProgram.content_text}
+                        {educationProgram.content}
                       </p>
                     </div>
 
