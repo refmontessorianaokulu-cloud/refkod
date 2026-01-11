@@ -578,21 +578,26 @@ export default function Sidebar({
 
       {/* Mobil Sağ Üst - Logo */}
       <div className="lg:hidden fixed top-4 right-4 z-50">
-        <button
-          onClick={() => handleMenuItemClick('ref_akademi')}
-          className="transition-all hover:scale-105"
-          title="REF Çocuk Akademisi"
-        >
-          <img
-            src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-            alt="REF Logo"
-            className="w-20 h-20 object-contain"
-          />
-        </button>
+        <img
+          src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+          alt="REF Logo"
+          className="w-20 h-20 object-contain"
+        />
       </div>
 
-      {/* Mobil Sağ Alt - Kullanıcı Adı, Çıkış ve WhatsApp */}
+      {/* Mobil Sağ Alt - WhatsApp, Kullanıcı Adı ve Çıkış */}
       <div className="lg:hidden fixed bottom-4 right-4 z-50 flex items-center gap-2">
+        {/* WhatsApp */}
+        <a
+          href="https://wa.me/905315504454"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
+          title="WhatsApp ile iletişime geç"
+        >
+          <Phone className="w-7 h-7 group-hover:scale-110 transition-transform" />
+        </a>
+
         {/* Kullanıcı Adı ve Çıkış */}
         {userFullName && !isGuestMode && (
           <div className="flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-2 py-1.5">
@@ -610,17 +615,6 @@ export default function Sidebar({
             </button>
           </div>
         )}
-
-        {/* WhatsApp */}
-        <a
-          href="https://wa.me/905315504454"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
-          title="WhatsApp ile iletişime geç"
-        >
-          <Phone className="w-7 h-7 group-hover:scale-110 transition-transform" />
-        </a>
       </div>
 
       <div
