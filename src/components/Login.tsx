@@ -405,18 +405,6 @@ export default function Login() {
           <div className={`mt-4 space-y-4 ${isApplicationCardOpen ? 'block' : 'hidden'}`}>
             <div>
               <button
-                onClick={() => setShowInquiryForm(true)}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg text-sm"
-              >
-                {t('login.inquiryForm')}
-              </button>
-              <p className="text-center text-xs text-gray-700 mt-2">
-                {t('login.inquiryFormDesc')}
-              </p>
-            </div>
-
-            <div className="border-t border-white/30 pt-4">
-              <button
                 onClick={() => setShowReferenceTeacherForm(true)}
                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
               >
@@ -493,6 +481,17 @@ export default function Login() {
               <p className="font-medium">📍 Arnavutköy - İstanbul</p>
               <p className="font-medium">📞 0531 550 44 54</p>
               <p className="font-medium break-all">✉️ bilgi@refcocukakademisi.com</p>
+            </div>
+            <div className="border-t border-white/30 pt-3">
+              <button
+                onClick={() => setShowInquiryForm(true)}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg text-sm"
+              >
+                {t('login.inquiryForm')}
+              </button>
+              <p className="text-center text-xs text-gray-700 mt-2">
+                {t('login.inquiryFormDesc')}
+              </p>
             </div>
           </div>
         </div>
@@ -605,18 +604,6 @@ export default function Login() {
           <div className={`mt-4 space-y-4 ${isApplicationCardOpen ? 'block' : 'hidden'}`}>
             <div>
               <button
-                onClick={() => setShowInquiryForm(true)}
-                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg text-sm"
-              >
-                {t('login.inquiryForm')}
-              </button>
-              <p className="text-center text-xs text-gray-700 mt-2">
-                {t('login.inquiryFormDesc')}
-              </p>
-            </div>
-
-            <div className="border-t border-white/30 pt-4">
-              <button
                 onClick={() => setShowReferenceTeacherForm(true)}
                 className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
               >
@@ -693,6 +680,17 @@ export default function Login() {
               <p className="font-medium">📍 Arnavutköy - İstanbul</p>
               <p className="font-medium">📞 0531 550 44 54</p>
               <p className="font-medium break-all">✉️ bilgi@refcocukakademisi.com</p>
+            </div>
+            <div className="border-t border-white/30 pt-3">
+              <button
+                onClick={() => setShowInquiryForm(true)}
+                className="w-full bg-gradient-to-r from-blue-600 to-blue-700 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-800 transition-all shadow-md hover:shadow-lg text-sm"
+              >
+                {t('login.inquiryForm')}
+              </button>
+              <p className="text-center text-xs text-gray-700 mt-2">
+                {t('login.inquiryFormDesc')}
+              </p>
             </div>
           </div>
         </div>
