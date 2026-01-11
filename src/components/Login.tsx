@@ -15,6 +15,15 @@ interface AboutSection {
   section_title: string;
 }
 
+interface RefSection {
+  id: string;
+  section_type: 'ref_akademi' | 'ref_danismanlik' | 'ref_atolye';
+  title: string;
+  content: string;
+  media_urls: string[];
+  created_at: string;
+}
+
 export default function Login() {
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [showReferenceTeacherForm, setShowReferenceTeacherForm] = useState(false);
@@ -35,6 +44,8 @@ export default function Login() {
   const [isContactCardOpen, setIsContactCardOpen] = useState(false);
   const [aboutSections, setAboutSections] = useState<AboutSection[]>([]);
   const [aboutLoading, setAboutLoading] = useState(false);
+  const [refDanismanlik, setRefDanismanlik] = useState<RefSection | null>(null);
+  const [refDanismanlikLoading, setRefDanismanlikLoading] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
   const { t } = useLanguage();
@@ -76,8 +87,28 @@ export default function Login() {
       }
     };
 
+    const loadRefDanismanlik = async () => {
+      setRefDanismanlikLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('ref_sections')
+          .select('*')
+          .eq('section_type', 'ref_danismanlik')
+          .maybeSingle();
+
+        if (!error && data) {
+          setRefDanismanlik(data);
+        }
+      } catch (err) {
+        console.log('Ref danismanlik section not loaded:', err);
+      } finally {
+        setRefDanismanlikLoading(false);
+      }
+    };
+
     loadVideoSettings();
     loadAboutSections();
+    loadRefDanismanlik();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -402,18 +433,59 @@ export default function Login() {
             />
           </button>
 
-          <div className={`mt-4 space-y-4 ${isApplicationCardOpen ? 'block' : 'hidden'}`}>
-            <div>
-              <button
-                onClick={() => setShowReferenceTeacherForm(true)}
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
-              >
-                {t('login.referenceTeacher')}
-              </button>
-              <p className="text-center text-xs text-gray-700 mt-2">
-                {t('login.referenceTeacherDesc')}
-              </p>
-            </div>
+          <div className={`mt-4 space-y-4 max-h-96 overflow-y-auto ${isApplicationCardOpen ? 'block' : 'hidden'}`}>
+            {refDanismanlikLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
+              </div>
+            ) : refDanismanlik ? (
+              <>
+                <div className="space-y-3">
+                  <h3 className="text-base font-semibold text-gray-800">
+                    {refDanismanlik.title}
+                  </h3>
+                  <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {refDanismanlik.content}
+                  </p>
+                  {refDanismanlik.media_urls && refDanismanlik.media_urls.length > 0 && (
+                    <div className="grid grid-cols-1 gap-2 mt-3">
+                      {refDanismanlik.media_urls.map((url, index) => (
+                        <div key={index} className="rounded-lg overflow-hidden shadow-sm">
+                          <img
+                            src={url}
+                            alt={`${refDanismanlik.title} - ${index + 1}`}
+                            className="w-full h-32 object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="border-t border-white/30 pt-4 mt-4">
+                  <button
+                    onClick={() => setShowReferenceTeacherForm(true)}
+                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
+                  >
+                    {t('login.referenceTeacher')}
+                  </button>
+                  <p className="text-center text-xs text-gray-700 mt-2">
+                    {t('login.referenceTeacherDesc')}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="py-4">
+                <button
+                  onClick={() => setShowReferenceTeacherForm(true)}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
+                >
+                  {t('login.referenceTeacher')}
+                </button>
+                <p className="text-center text-xs text-gray-700 mt-2">
+                  {t('login.referenceTeacherDesc')}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
@@ -601,18 +673,59 @@ export default function Login() {
             />
           </button>
 
-          <div className={`mt-4 space-y-4 ${isApplicationCardOpen ? 'block' : 'hidden'}`}>
-            <div>
-              <button
-                onClick={() => setShowReferenceTeacherForm(true)}
-                className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
-              >
-                {t('login.referenceTeacher')}
-              </button>
-              <p className="text-center text-xs text-gray-700 mt-2">
-                {t('login.referenceTeacherDesc')}
-              </p>
-            </div>
+          <div className={`mt-4 space-y-4 max-h-96 overflow-y-auto ${isApplicationCardOpen ? 'block' : 'hidden'}`}>
+            {refDanismanlikLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
+              </div>
+            ) : refDanismanlik ? (
+              <>
+                <div className="space-y-3">
+                  <h3 className="text-base font-semibold text-gray-800">
+                    {refDanismanlik.title}
+                  </h3>
+                  <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                    {refDanismanlik.content}
+                  </p>
+                  {refDanismanlik.media_urls && refDanismanlik.media_urls.length > 0 && (
+                    <div className="grid grid-cols-1 gap-2 mt-3">
+                      {refDanismanlik.media_urls.map((url, index) => (
+                        <div key={index} className="rounded-lg overflow-hidden shadow-sm">
+                          <img
+                            src={url}
+                            alt={`${refDanismanlik.title} - ${index + 1}`}
+                            className="w-full h-32 object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div className="border-t border-white/30 pt-4 mt-4">
+                  <button
+                    onClick={() => setShowReferenceTeacherForm(true)}
+                    className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
+                  >
+                    {t('login.referenceTeacher')}
+                  </button>
+                  <p className="text-center text-xs text-gray-700 mt-2">
+                    {t('login.referenceTeacherDesc')}
+                  </p>
+                </div>
+              </>
+            ) : (
+              <div className="py-4">
+                <button
+                  onClick={() => setShowReferenceTeacherForm(true)}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all shadow-md hover:shadow-lg text-sm"
+                >
+                  {t('login.referenceTeacher')}
+                </button>
+                <p className="text-center text-xs text-gray-700 mt-2">
+                  {t('login.referenceTeacherDesc')}
+                </p>
+              </div>
+            )}
           </div>
         </div>
 
