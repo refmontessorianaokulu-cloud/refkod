@@ -46,7 +46,13 @@ export default function Login() {
   const [aboutLoading, setAboutLoading] = useState(false);
   const [refDanismanlik, setRefDanismanlik] = useState<RefSection | null>(null);
   const [refDanismanlikLoading, setRefDanismanlikLoading] = useState(false);
+  const [refAkademi, setRefAkademi] = useState<RefSection | null>(null);
+  const [refAkademiLoading, setRefAkademiLoading] = useState(false);
+  const [refAtolye, setRefAtolye] = useState<RefSection | null>(null);
+  const [refAtolyeLoading, setRefAtolyeLoading] = useState(false);
   const [showSearchModal, setShowSearchModal] = useState(false);
+  const [isRefAkademiCardOpen, setIsRefAkademiCardOpen] = useState(false);
+  const [isRefAtolyeCardOpen, setIsRefAtolyeCardOpen] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
   const { t } = useLanguage();
 
@@ -106,9 +112,49 @@ export default function Login() {
       }
     };
 
+    const loadRefAkademi = async () => {
+      setRefAkademiLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('ref_sections')
+          .select('*')
+          .eq('section_type', 'ref_akademi')
+          .maybeSingle();
+
+        if (!error && data) {
+          setRefAkademi(data);
+        }
+      } catch (err) {
+        console.log('Ref akademi section not loaded:', err);
+      } finally {
+        setRefAkademiLoading(false);
+      }
+    };
+
+    const loadRefAtolye = async () => {
+      setRefAtolyeLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('ref_sections')
+          .select('*')
+          .eq('section_type', 'ref_atolye')
+          .maybeSingle();
+
+        if (!error && data) {
+          setRefAtolye(data);
+        }
+      } catch (err) {
+        console.log('Ref atolye section not loaded:', err);
+      } finally {
+        setRefAtolyeLoading(false);
+      }
+    };
+
     loadVideoSettings();
     loadAboutSections();
     loadRefDanismanlik();
+    loadRefAkademi();
+    loadRefAtolye();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -329,19 +375,19 @@ export default function Login() {
         />
       </div>
 
-      {/* Masaüstü: 2x2 Grid Layout */}
-      <div className="hidden md:grid grid-cols-2 gap-6 lg:gap-8 relative z-10 max-w-4xl mx-auto w-full px-4">
-        {/* Sol Üst - Giriş */}
+      {/* Masaüstü: 3x2 Grid Layout */}
+      <div className="hidden md:grid grid-cols-3 gap-4 lg:gap-6 relative z-10 max-w-6xl mx-auto w-full px-4">
+        {/* Satır 1, Sütun 1 - Giriş */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
           <button
             onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <h2 className="text-lg font-bold text-center text-gray-800">
+            <h2 className="text-base font-bold text-center text-gray-800">
               {t('login.title')}
             </h2>
             <ChevronDown
-              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+              className={`w-4 h-4 text-gray-800 transition-transform duration-300 ${
                 isLoginCardOpen ? 'rotate-180' : ''
               }`}
             />
@@ -417,17 +463,68 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Sağ Üst - REF Danışmanlık */}
+        {/* Satır 1, Sütun 2 - REF Akademi */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
+          <button
+            onClick={() => setIsRefAkademiCardOpen(!isRefAkademiCardOpen)}
+            className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <h2 className="text-base font-bold text-center text-gray-800">
+              REF Akademi
+            </h2>
+            <ChevronDown
+              className={`w-4 h-4 text-gray-800 transition-transform duration-300 ${
+                isRefAkademiCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 space-y-4 max-h-96 overflow-y-auto ${isRefAkademiCardOpen ? 'block' : 'hidden'}`}>
+            {refAkademiLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
+              </div>
+            ) : refAkademi ? (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-800">
+                  {refAkademi.title}
+                </h3>
+                <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {refAkademi.content}
+                </p>
+                {refAkademi.media_urls && refAkademi.media_urls.length > 0 && (
+                  <div className="grid grid-cols-1 gap-2 mt-3">
+                    {refAkademi.media_urls.map((url, index) => (
+                      <div key={index} className="rounded-lg overflow-hidden shadow-sm">
+                        <img
+                          src={url}
+                          alt={`${refAkademi.title} - ${index + 1}`}
+                          className="w-full h-32 object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-xs text-gray-700">Bu bölüm için henüz içerik eklenmemiş.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Satır 1, Sütun 3 - REF Danışmanlık */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
           <button
             onClick={() => setIsApplicationCardOpen(!isApplicationCardOpen)}
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <h2 className="text-lg font-bold text-center text-gray-800">
+            <h2 className="text-base font-bold text-center text-gray-800">
               {t('login.applications')}
             </h2>
             <ChevronDown
-              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+              className={`w-4 h-4 text-gray-800 transition-transform duration-300 ${
                 isApplicationCardOpen ? 'rotate-180' : ''
               }`}
             />
@@ -441,7 +538,7 @@ export default function Login() {
             ) : refDanismanlik ? (
               <>
                 <div className="space-y-3">
-                  <h3 className="text-base font-semibold text-gray-800">
+                  <h3 className="text-sm font-semibold text-gray-800">
                     {refDanismanlik.title}
                   </h3>
                   <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
@@ -489,17 +586,68 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Sol Alt - Hakkımızda */}
+        {/* Satır 2, Sütun 1 - REF Atölye */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
+          <button
+            onClick={() => setIsRefAtolyeCardOpen(!isRefAtolyeCardOpen)}
+            className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          >
+            <h2 className="text-base font-bold text-center text-gray-800">
+              REF Atölye
+            </h2>
+            <ChevronDown
+              className={`w-4 h-4 text-gray-800 transition-transform duration-300 ${
+                isRefAtolyeCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 space-y-4 max-h-96 overflow-y-auto ${isRefAtolyeCardOpen ? 'block' : 'hidden'}`}>
+            {refAtolyeLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
+              </div>
+            ) : refAtolye ? (
+              <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-800">
+                  {refAtolye.title}
+                </h3>
+                <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {refAtolye.content}
+                </p>
+                {refAtolye.media_urls && refAtolye.media_urls.length > 0 && (
+                  <div className="grid grid-cols-1 gap-2 mt-3">
+                    {refAtolye.media_urls.map((url, index) => (
+                      <div key={index} className="rounded-lg overflow-hidden shadow-sm">
+                        <img
+                          src={url}
+                          alt={`${refAtolye.title} - ${index + 1}`}
+                          className="w-full h-32 object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-xs text-gray-700">Bu bölüm için henüz içerik eklenmemiş.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Satır 2, Sütun 2 - Hakkımızda */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
           <button
             onClick={() => setIsAboutCardOpen(!isAboutCardOpen)}
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <h2 className="text-lg font-bold text-center text-gray-800">
+            <h2 className="text-base font-bold text-center text-gray-800">
               {t('login.about')}
             </h2>
             <ChevronDown
-              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+              className={`w-4 h-4 text-gray-800 transition-transform duration-300 ${
                 isAboutCardOpen ? 'rotate-180' : ''
               }`}
             />
@@ -526,17 +674,17 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Sağ Alt - İletişim */}
+        {/* Satır 2, Sütun 3 - İletişim */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6">
           <button
             onClick={() => setIsContactCardOpen(!isContactCardOpen)}
             className="w-full flex items-center justify-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           >
-            <h2 className="text-lg font-bold text-center text-gray-800">
+            <h2 className="text-base font-bold text-center text-gray-800">
               {t('login.contact')}
             </h2>
             <ChevronDown
-              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+              className={`w-4 h-4 text-gray-800 transition-transform duration-300 ${
                 isContactCardOpen ? 'rotate-180' : ''
               }`}
             />
@@ -657,6 +805,57 @@ export default function Login() {
           </div>
         </div>
 
+        {/* Mobil - REF Akademi */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-64">
+          <button
+            onClick={() => setIsRefAkademiCardOpen(!isRefAkademiCardOpen)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800">
+              REF Akademi
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                isRefAkademiCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 space-y-4 max-h-96 overflow-y-auto ${isRefAkademiCardOpen ? 'block' : 'hidden'}`}>
+            {refAkademiLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
+              </div>
+            ) : refAkademi ? (
+              <div className="space-y-3">
+                <h3 className="text-base font-semibold text-gray-800">
+                  {refAkademi.title}
+                </h3>
+                <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {refAkademi.content}
+                </p>
+                {refAkademi.media_urls && refAkademi.media_urls.length > 0 && (
+                  <div className="grid grid-cols-1 gap-2 mt-3">
+                    {refAkademi.media_urls.map((url, index) => (
+                      <div key={index} className="rounded-lg overflow-hidden shadow-sm">
+                        <img
+                          src={url}
+                          alt={`${refAkademi.title} - ${index + 1}`}
+                          className="w-full h-32 object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-xs text-gray-700">Bu bölüm için henüz içerik eklenmemiş.</p>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Mobil - REF Danışmanlık */}
         <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-64">
           <button
@@ -681,7 +880,7 @@ export default function Login() {
             ) : refDanismanlik ? (
               <>
                 <div className="space-y-3">
-                  <h3 className="text-base font-semibold text-gray-800">
+                  <h3 className="text-sm font-semibold text-gray-800">
                     {refDanismanlik.title}
                   </h3>
                   <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
@@ -724,6 +923,57 @@ export default function Login() {
                 <p className="text-center text-xs text-gray-700 mt-2">
                   {t('login.referenceTeacherDesc')}
                 </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Mobil - REF Atölye */}
+        <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl shadow-2xl p-6 w-64">
+          <button
+            onClick={() => setIsRefAtolyeCardOpen(!isRefAtolyeCardOpen)}
+            className="w-full flex items-center justify-center gap-2"
+          >
+            <h2 className="text-lg font-bold text-center text-gray-800">
+              REF Atölye
+            </h2>
+            <ChevronDown
+              className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                isRefAtolyeCardOpen ? 'rotate-180' : ''
+              }`}
+            />
+          </button>
+
+          <div className={`mt-4 space-y-4 max-h-96 overflow-y-auto ${isRefAtolyeCardOpen ? 'block' : 'hidden'}`}>
+            {refAtolyeLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
+              </div>
+            ) : refAtolye ? (
+              <div className="space-y-3">
+                <h3 className="text-base font-semibold text-gray-800">
+                  {refAtolye.title}
+                </h3>
+                <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
+                  {refAtolye.content}
+                </p>
+                {refAtolye.media_urls && refAtolye.media_urls.length > 0 && (
+                  <div className="grid grid-cols-1 gap-2 mt-3">
+                    {refAtolye.media_urls.map((url, index) => (
+                      <div key={index} className="rounded-lg overflow-hidden shadow-sm">
+                        <img
+                          src={url}
+                          alt={`${refAtolye.title} - ${index + 1}`}
+                          className="w-full h-32 object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-xs text-gray-700">Bu bölüm için henüz içerik eklenmemiş.</p>
               </div>
             )}
           </div>
