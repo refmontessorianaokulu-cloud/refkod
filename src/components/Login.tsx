@@ -351,33 +351,56 @@ export default function Login() {
 
       {/* Top Header - Mobil ve Masaüstü */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3">
-        {/* Hamburger Menü - Sol Üst */}
-        <button
-          onClick={() => {
-            setIsMobileMenuOpen(true);
-            setIsDesktopMenuOpen(true);
-          }}
-          className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
-        >
-          <Menu className="w-5 h-5 text-gray-700" />
-        </button>
+        {/* Sol Üst İkonlar - Mobilde dikey, Masaüstünde hamburger */}
+        <div className="flex flex-col gap-3">
+          {/* Hamburger Menü */}
+          <button
+            onClick={() => {
+              setIsMobileMenuOpen(true);
+              setIsDesktopMenuOpen(true);
+            }}
+            className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+          >
+            <Menu className="w-5 h-5 text-gray-700" />
+          </button>
+
+          {/* Arama İkonu - Sadece mobilde görünür ve hamburger'ın altında */}
+          <button
+            onClick={() => setShowSearchModal(true)}
+            className="md:hidden p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+            title={t('search.placeholder')}
+          >
+            <SearchIcon className="w-5 h-5 text-gray-700" />
+          </button>
+
+          {/* Dil İkonu - Sadece mobilde görünür ve arama'nın altında */}
+          <div className="md:hidden">
+            <LanguageToggle />
+          </div>
+        </div>
 
         {/* Logo - Her durumda ortalı */}
-        <div className="md:absolute md:left-1/2 md:-translate-x-1/2 md:top-px">
+        <div className="absolute left-1/2 -translate-x-1/2 top-3 md:top-px">
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
             className="w-20 h-20 md:w-40 md:h-40 object-contain cursor-pointer transition-all duration-300 hover:scale-105"
             style={{ mixBlendMode: 'multiply' }}
             onClick={() => {
-              setIsDesktopMenuOpen(true);
-              setOpenDesktopCard('login');
+              const isMobile = window.innerWidth < 768;
+              if (isMobile) {
+                setIsMobileMenuOpen(true);
+                setOpenMobileCard('login');
+              } else {
+                setIsDesktopMenuOpen(true);
+                setOpenDesktopCard('login');
+              }
             }}
           />
         </div>
 
-        {/* Sağ Üst İkonlar */}
-        <div className="flex items-center gap-3">
+        {/* Sağ Üst İkonlar - Sadece masaüstünde görünür */}
+        <div className="hidden md:flex items-center gap-3">
           <button
             onClick={() => setShowSearchModal(true)}
             className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
