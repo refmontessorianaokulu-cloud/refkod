@@ -285,11 +285,13 @@ export default function Sidebar({
     if (categoryId === 'homepage') {
       return;
     }
-    setExpandedCategories(prev =>
-      prev.includes(categoryId)
-        ? prev.filter(id => id !== categoryId)
-        : [...prev, categoryId]
-    );
+    setExpandedCategories(prev => {
+      if (prev.includes(categoryId)) {
+        return prev.filter(id => id !== categoryId);
+      } else {
+        return ['homepage', categoryId];
+      }
+    });
   };
 
   const handleMenuItemClick = (tabId: MenuTab) => {
@@ -505,9 +507,13 @@ export default function Sidebar({
     <>
       <button
         onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-3 bg-emerald-600 text-white rounded-lg shadow-lg hover:bg-emerald-700 transition-colors"
+        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg hover:shadow-xl transition-all"
       >
-        <Menu className="w-6 h-6" />
+        <img
+          src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+          alt="REF Logo"
+          className="w-10 h-10 object-contain"
+        />
       </button>
 
       {userFullName && (
