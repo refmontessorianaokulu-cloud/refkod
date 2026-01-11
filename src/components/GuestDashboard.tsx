@@ -54,6 +54,7 @@ export default function GuestDashboard() {
         userFullName={t('sidebar.guestPanel')}
         menuCategories={guestMenuCategories}
         panelTitle={t('sidebar.guestPanel')}
+        isGuestMode={true}
       />
 
       <div className="fixed top-4 right-4 z-40 flex items-center gap-3">

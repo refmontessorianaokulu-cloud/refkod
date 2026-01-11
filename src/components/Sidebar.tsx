@@ -100,6 +100,7 @@ interface SidebarProps {
   userRole?: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff';
   menuCategories?: MenuCategory[];
   panelTitle?: string;
+  isGuestMode?: boolean;
 }
 
 const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory[] => [
@@ -202,6 +203,7 @@ export default function Sidebar({
   userRole = 'admin',
   menuCategories,
   panelTitle,
+  isGuestMode = false,
 }: SidebarProps) {
   const { t } = useLanguage();
   const categories = menuCategories || getDefaultAdminMenuCategories(t);
@@ -312,8 +314,10 @@ export default function Sidebar({
           />
           {!isCollapsed && (
             <div>
-              <h1 className="text-lg font-bold text-white">{title}</h1>
-              {userFullName && (
+              <h1 className="text-lg font-bold text-white">
+                {isGuestMode ? '🌍 Ref Montessori School 🇹🇷' : title}
+              </h1>
+              {userFullName && !isGuestMode && (
                 <p className="text-xs text-gray-300 truncate max-w-[160px]">{userFullName}</p>
               )}
             </div>
@@ -427,6 +431,14 @@ export default function Sidebar({
                 <Mail className="w-5 h-5" />
               </a>
             </div>
+            <a
+              href="https://www.refcocukakademisi.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block text-center text-xs text-gray-400 hover:text-emerald-400 transition-colors px-3 py-1"
+            >
+              www.refcocukakademisi.com
+            </a>
             </div>
           </>
         )}
@@ -509,11 +521,15 @@ export default function Sidebar({
         onClick={() => setIsMobileOpen(true)}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg hover:shadow-xl transition-all"
       >
-        <img
-          src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-          alt="REF Logo"
-          className="w-10 h-10 object-contain"
-        />
+        {isGuestMode ? (
+          <img
+            src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+            alt="REF Logo"
+            className="w-10 h-10 object-contain"
+          />
+        ) : (
+          <Menu className="w-6 h-6 text-gray-800" />
+        )}
       </button>
 
       {userFullName && (
