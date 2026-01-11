@@ -362,12 +362,17 @@ export default function Login() {
           <Menu className="w-5 h-5 text-gray-700" />
         </button>
 
-        {/* Logo - Sadece Mobilde görünür */}
-        <div className="md:hidden">
+        {/* Logo - Mobilde ortalı, Masaüstünde hamburger sonrası */}
+        <div className="md:absolute md:left-24">
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
-            className="w-20 h-20 object-contain"
+            className="w-20 h-20 md:w-40 md:h-40 object-contain cursor-pointer transition-all duration-300 hover:scale-105"
+            style={{ mixBlendMode: 'multiply' }}
+            onClick={() => {
+              setIsDesktopMenuOpen(true);
+              setOpenDesktopCard('login');
+            }}
           />
         </div>
 
@@ -1208,24 +1213,6 @@ export default function Login() {
         }}
         userRole="guest"
       />
-
-      {/* Masaüstü Layout - Logo Üst Ortalı */}
-      <div className="hidden md:flex flex-col items-center justify-start min-h-screen pt-32 relative z-10">
-        <button
-          onClick={() => {
-            setIsDesktopMenuOpen(true);
-            setOpenDesktopCard('login');
-          }}
-          className="cursor-pointer transition-all duration-300 hover:scale-110 hover:drop-shadow-2xl"
-        >
-          <img
-            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-            alt="REF Logo"
-            className="w-80 h-80 object-contain drop-shadow-2xl"
-            style={{ mixBlendMode: 'multiply' }}
-          />
-        </button>
-      </div>
 
     </div>
   );
