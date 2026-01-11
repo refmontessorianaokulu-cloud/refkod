@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import LanguageToggle from './LanguageToggle';
 import {
   Baby,
   Users,
@@ -39,6 +40,7 @@ import {
   Briefcase,
   Palette,
   Video,
+  Search,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -101,6 +103,7 @@ interface SidebarProps {
   menuCategories?: MenuCategory[];
   panelTitle?: string;
   isGuestMode?: boolean;
+  onSearchClick?: () => void;
 }
 
 const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory[] => [
@@ -204,6 +207,7 @@ export default function Sidebar({
   menuCategories,
   panelTitle,
   isGuestMode = false,
+  onSearchClick,
 }: SidebarProps) {
   const { t } = useLanguage();
   const categories = menuCategories || getDefaultAdminMenuCategories(t);
@@ -517,15 +521,27 @@ export default function Sidebar({
 
   return (
     <>
-      <button
-        onClick={() => setIsMobileOpen(true)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg hover:shadow-xl transition-all"
-      >
-        <Menu className="w-6 h-6 text-gray-800" />
-      </button>
+      <div className="lg:hidden fixed top-4 left-4 z-50 flex items-center gap-3">
+        <button
+          onClick={() => setIsMobileOpen(true)}
+          className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+        >
+          <Menu className="w-5 h-5 text-gray-700" />
+        </button>
+        {onSearchClick && (
+          <button
+            onClick={onSearchClick}
+            className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+            title={t('search.placeholder')}
+          >
+            <Search className="w-5 h-5 text-gray-700" />
+          </button>
+        )}
+        <LanguageToggle />
+      </div>
 
       {userFullName && !isGuestMode && (
-        <div className="lg:hidden fixed top-20 right-4 z-40 flex items-center space-x-2 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-3 py-2.5">
+        <div className="lg:hidden fixed top-4 right-4 z-50 flex items-center space-x-2 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-3 py-2.5">
           <div className="flex items-center space-x-1.5">
             <User className="w-4 h-4 text-emerald-700" />
             <span className="text-xs font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
