@@ -185,22 +185,22 @@ export default function InstagramFeed() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="text-xl sm:text-2xl font-bold text-gray-800 flex items-center space-x-2 whitespace-nowrap">
-          <Instagram className="w-6 h-6 sm:w-7 sm:h-7 text-pink-500 flex-shrink-0" />
-          <span>Ref Instagram</span>
+    <div className="bg-white rounded-xl lg:rounded-2xl shadow-lg p-4 sm:p-6 lg:p-8">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
+        <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 flex items-center space-x-2">
+          <Instagram className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-pink-500 flex-shrink-0" />
+          <span className="truncate">Ref Instagram</span>
         </h3>
         <button
           onClick={handleRefresh}
-          className="p-2 text-gray-600 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all flex-shrink-0"
+          className="p-1.5 sm:p-2 text-gray-600 hover:text-pink-500 hover:bg-pink-50 rounded-lg transition-all flex-shrink-0"
           title="Yenile"
         >
-          <RefreshCw className="w-5 h-5" />
+          <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 lg:gap-4 mb-4 sm:mb-6">
         {posts.map((post) => (
           <div
             key={post.id}
@@ -213,26 +213,26 @@ export default function InstagramFeed() {
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               loading="lazy"
             />
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-              <div className="text-white text-center space-y-2">
-                <ExternalLink className="w-8 h-8 mx-auto" />
+            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-2">
+              <div className="text-white text-center space-y-1 sm:space-y-2">
+                <ExternalLink className="w-6 h-6 sm:w-8 sm:h-8 mx-auto" />
                 {post.caption && (
-                  <p className="text-sm px-4 line-clamp-2">{post.caption}</p>
+                  <p className="text-xs sm:text-sm px-2 sm:px-4 line-clamp-2">{post.caption}</p>
                 )}
               </div>
             </div>
             {post.media_type === 'VIDEO' && (
-              <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+              <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-black/70 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs">
                 Video
               </div>
             )}
             {post.media_type === 'CAROUSEL_ALBUM' && (
-              <div className="absolute top-2 right-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+              <div className="absolute top-1 sm:top-2 right-1 sm:right-2 bg-black/70 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs">
                 Albüm
               </div>
             )}
             {post.is_manual && (
-              <div className="absolute top-2 left-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-2 py-1 rounded text-xs font-semibold">
+              <div className="absolute top-1 sm:top-2 left-1 sm:left-2 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[10px] sm:text-xs font-semibold">
                 Manuel
               </div>
             )}
@@ -245,11 +245,11 @@ export default function InstagramFeed() {
           href="https://www.instagram.com/refcocukakademisi/"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+          className="inline-flex items-center justify-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto"
         >
-          <Instagram className="w-5 h-5" />
-          <span>Bizi Instagram'da Takip Edin</span>
-          <ExternalLink className="w-4 h-4" />
+          <Instagram className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+          <span className="truncate">Bizi Instagram'da Takip Edin</span>
+          <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4 flex-shrink-0" />
         </a>
       </div>
     </div>

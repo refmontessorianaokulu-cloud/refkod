@@ -70,45 +70,45 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
           </div>
         </div>
 
-        <div className="max-w-7xl mx-auto px-4 py-12 lg:py-16 space-y-12">
+        <div className="max-w-7xl mx-auto px-4 py-8 lg:py-16 space-y-8 lg:space-y-12">
           <div
-            className="relative rounded-3xl overflow-hidden shadow-2xl"
+            className="relative rounded-2xl lg:rounded-3xl overflow-hidden shadow-2xl"
             style={{
               backgroundImage: "url('/whatsapp_image_2026-01-08_at_14.06.07_(1).jpeg')",
               backgroundSize: 'cover',
               backgroundPosition: 'center',
-              minHeight: '500px',
+              minHeight: '300px',
             }}
           >
             <div className="absolute inset-0 bg-black/40" />
 
-            <div className="relative z-10 p-8 lg:p-12 flex items-center min-h-[500px]">
-              <div className="max-w-3xl mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 lg:p-12">
+            <div className="relative z-10 p-4 sm:p-6 lg:p-12 flex items-center min-h-[300px] lg:min-h-[500px]">
+              <div className="w-full max-w-3xl mx-auto bg-white/95 lg:bg-white/80 backdrop-blur-sm rounded-xl lg:rounded-2xl shadow-2xl p-4 sm:p-6 lg:p-12">
                 {loading ? (
                   <div className="flex items-center justify-center py-12">
                     <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent"></div>
                   </div>
                 ) : educationProgram ? (
                   <>
-                    <div className="flex items-center space-x-3 mb-6">
-                      <Sparkles className="w-8 h-8 text-emerald-600" />
-                      <h3 className="text-3xl lg:text-4xl font-bold text-emerald-800">
+                    <div className="flex items-center space-x-2 sm:space-x-3 mb-4 sm:mb-6">
+                      <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-emerald-600 flex-shrink-0" />
+                      <h3 className="text-xl sm:text-2xl lg:text-4xl font-bold text-emerald-800">
                         {educationProgram.section_title}
                       </h3>
                     </div>
 
-                    <div className="space-y-4 text-gray-700 leading-relaxed">
-                      <p className="text-lg whitespace-pre-wrap">
+                    <div className="space-y-3 sm:space-y-4 text-gray-700 leading-relaxed">
+                      <p className="text-sm sm:text-base lg:text-lg whitespace-pre-wrap">
                         {educationProgram.content}
                       </p>
                     </div>
 
                     <button
                       onClick={onNavigateToAbout}
-                      className="mt-8 group flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                      className="mt-6 sm:mt-8 group flex items-center space-x-2 px-4 sm:px-6 py-2.5 sm:py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-lg sm:rounded-xl text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 w-full sm:w-auto justify-center"
                     >
                       <span>{t('home.readMore')}</span>
-                      <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                      <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 transition-transform group-hover:translate-x-1" />
                     </button>
                   </>
                 ) : (
