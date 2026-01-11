@@ -547,28 +547,15 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobil Sol Üst - Hamburger, Logo, Arama, Dil */}
+      {/* Mobil Sol Üst - Hamburger, Arama, Dil */}
       <div className="lg:hidden fixed top-4 left-4 z-50 flex flex-col gap-3">
-        {/* Hamburger ve Logo yan yana */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsMobileOpen(true)}
-            className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
-          >
-            <Menu className="w-4 h-4 text-gray-700" />
-          </button>
-          <button
-            onClick={() => handleMenuItemClick('ref_akademi')}
-            className="transition-all hover:scale-105"
-            title="REF Çocuk Akademisi"
-          >
-            <img
-              src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-              alt="REF Logo"
-              className="w-20 h-20 object-contain"
-            />
-          </button>
-        </div>
+        {/* Hamburger */}
+        <button
+          onClick={() => setIsMobileOpen(true)}
+          className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+        >
+          <Menu className="w-4 h-4 text-gray-700" />
+        </button>
 
         {/* Arama İkonu */}
         {onSearchClick && !isMobileOpen && (
@@ -589,33 +576,52 @@ export default function Sidebar({
         )}
       </div>
 
-      {/* Mobil Sol Alt - Kullanıcı Adı ve Çıkış */}
-      {userFullName && !isGuestMode && (
-        <div className="lg:hidden fixed bottom-4 left-4 z-50 flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-2 py-1.5">
-          <div className="flex items-center space-x-1">
-            <User className="w-3.5 h-3.5 text-emerald-700" />
-            <span className="text-[10px] font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
-          </div>
-          <button
-            onClick={onSignOut}
-            className="flex items-center space-x-0.5 px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] rounded-md transition-colors"
-            title="Çıkış Yap"
-          >
-            <LogOut className="w-3 h-3" />
-            <span>Çıkış</span>
-          </button>
-        </div>
-      )}
+      {/* Mobil Sağ Üst - Logo */}
+      <div className="lg:hidden fixed top-4 right-4 z-50">
+        <button
+          onClick={() => handleMenuItemClick('ref_akademi')}
+          className="transition-all hover:scale-105"
+          title="REF Çocuk Akademisi"
+        >
+          <img
+            src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+            alt="REF Logo"
+            className="w-20 h-20 object-contain"
+          />
+        </button>
+      </div>
 
-      <a
-        href="https://wa.me/905315504454"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-2 lg:right-6 z-40 flex items-center justify-center w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
-        title="WhatsApp ile iletişime geç"
-      >
-        <Phone className="w-7 h-7 group-hover:scale-110 transition-transform" />
-      </a>
+      {/* Mobil Sağ Alt - Kullanıcı Adı, Çıkış ve WhatsApp */}
+      <div className="lg:hidden fixed bottom-4 right-4 z-50 flex items-center gap-2">
+        {/* Kullanıcı Adı ve Çıkış */}
+        {userFullName && !isGuestMode && (
+          <div className="flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-2 py-1.5">
+            <div className="flex items-center space-x-1">
+              <User className="w-3.5 h-3.5 text-emerald-700" />
+              <span className="text-[10px] font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
+            </div>
+            <button
+              onClick={onSignOut}
+              className="flex items-center space-x-0.5 px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] rounded-md transition-colors"
+              title="Çıkış Yap"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>Çıkış</span>
+            </button>
+          </div>
+        )}
+
+        {/* WhatsApp */}
+        <a
+          href="https://wa.me/905315504454"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center justify-center w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
+          title="WhatsApp ile iletişime geç"
+        >
+          <Phone className="w-7 h-7 group-hover:scale-110 transition-transform" />
+        </a>
+      </div>
 
       <div
         className={`lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity ${
