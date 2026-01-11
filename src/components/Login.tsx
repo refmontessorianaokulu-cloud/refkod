@@ -248,7 +248,7 @@ export default function Login() {
         <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
           <button
             onClick={() => setShowSearchModal(true)}
-            className="p-3 transition-all border-2 border-emerald-600 rounded-lg"
+            className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
             title={t('search.placeholder')}
           >
             <SearchIcon className="w-5 h-5 text-gray-700" />
@@ -359,7 +359,7 @@ export default function Login() {
               setIsMobileMenuOpen(true);
               setIsDesktopMenuOpen(true);
             }}
-            className="p-3 transition-all border-2 border-emerald-600 rounded-lg"
+            className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
           >
             <Menu className="w-5 h-5 text-gray-700" />
           </button>
@@ -367,7 +367,7 @@ export default function Login() {
           {/* Arama İkonu - Sadece mobilde görünür ve hamburger'ın altında */}
           <button
             onClick={() => setShowSearchModal(true)}
-            className="md:hidden p-3 transition-all border-2 border-emerald-600 rounded-lg"
+            className="md:hidden p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
             title={t('search.placeholder')}
           >
             <SearchIcon className="w-5 h-5 text-gray-700" />
@@ -407,7 +407,7 @@ export default function Login() {
         <div className="hidden md:flex items-center gap-3">
           <button
             onClick={() => setShowSearchModal(true)}
-            className="p-3 transition-all border-2 border-emerald-600 rounded-lg"
+            className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
             title={t('search.placeholder')}
           >
             <SearchIcon className="w-5 h-5 text-gray-700" />
