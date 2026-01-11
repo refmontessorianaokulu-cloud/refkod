@@ -547,47 +547,52 @@ export default function Sidebar({
 
   return (
     <>
-      <div className="lg:hidden fixed top-4 left-4 z-50">
-        <button
-          onClick={() => setIsMobileOpen(true)}
-          className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
-        >
-          <Menu className="w-4 h-4 text-gray-700" />
-        </button>
-      </div>
+      {/* Mobil Sol Üst - Hamburger, Logo, Arama, Dil */}
+      <div className="lg:hidden fixed top-4 left-4 z-50 flex flex-col gap-3">
+        {/* Hamburger ve Logo yan yana */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setIsMobileOpen(true)}
+            className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+          >
+            <Menu className="w-4 h-4 text-gray-700" />
+          </button>
+          <button
+            onClick={() => handleMenuItemClick('ref_akademi')}
+            className="transition-all hover:scale-105"
+            title="REF Çocuk Akademisi"
+          >
+            <img
+              src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+              alt="REF Logo"
+              className="w-20 h-20 object-contain"
+            />
+          </button>
+        </div>
 
-      <div className="lg:hidden fixed top-4 right-4 z-50">
-        <button
-          onClick={() => handleMenuItemClick('ref_akademi')}
-          className="bg-white backdrop-blur-sm hover:bg-white rounded-lg shadow-lg transition-all hover:scale-105 p-2 border-2 border-emerald-500"
-          title="REF Çocuk Akademisi"
-        >
-          <img
-            src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-            alt="REF Logo"
-            className="w-12 h-12 object-contain"
-          />
-        </button>
-      </div>
-
-      {onSearchClick && !isMobileOpen && (
-        <div className="lg:hidden fixed bottom-4 left-0 right-0 z-50 px-4 flex items-center justify-between pointer-events-none">
+        {/* Arama İkonu */}
+        {onSearchClick && !isMobileOpen && (
           <button
             onClick={onSearchClick}
-            className="p-1.5 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all pointer-events-auto"
+            className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
             title={t('search.placeholder')}
           >
-            <Search className="w-3.5 h-3.5 text-gray-700" />
+            <Search className="w-4 h-4 text-gray-700" />
           </button>
-          <div className="pointer-events-auto">
+        )}
+
+        {/* Dil İkonu */}
+        {!isMobileOpen && (
+          <div>
             <LanguageToggle isMobile={true} />
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
+      {/* Mobil Sol Alt - Kullanıcı Adı ve Çıkış */}
       {userFullName && !isGuestMode && (
-        <div className="lg:hidden fixed top-[4.5rem] right-1 z-50 flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-1.5 py-1.5">
-          <div className="flex items-center space-x-0.5">
+        <div className="lg:hidden fixed bottom-4 left-4 z-50 flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-2 py-1.5">
+          <div className="flex items-center space-x-1">
             <User className="w-3.5 h-3.5 text-emerald-700" />
             <span className="text-[10px] font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
           </div>
