@@ -18,9 +18,10 @@ interface SearchModalProps {
   onClose: () => void;
   onNavigate?: (tab: MenuTab) => void;
   userRole?: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff' | 'guest';
+  userId?: string;
 }
 
-export default function SearchModal({ isOpen, onClose, onNavigate, userRole = 'guest' }: SearchModalProps) {
+export default function SearchModal({ isOpen, onClose, onNavigate, userRole = 'guest', userId }: SearchModalProps) {
   const { t } = useLanguage();
   const [searchQuery, setSearchQuery] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
@@ -90,34 +91,57 @@ export default function SearchModal({ isOpen, onClose, onNavigate, userRole = 'g
 
     if (userRole === 'admin' || userRole === 'teacher' || userRole === 'parent') {
       try {
-        const { data: children } = await supabase
-          .from('children')
-          .select('id, first_name, last_name, class_name')
-          .ilike('first_name', `%${normalizedQuery}%`);
+        let childrenQuery;
 
-        if (children) {
-          children.forEach(child => {
-            results.push({
-              id: child.id,
-              title: `${child.first_name} ${child.last_name}`,
-              description: child.class_name || '',
-              category: t('menu.children'),
-              action: () => {
-                if (onNavigate) {
-                  onNavigate('children');
-                }
-                saveRecentSearch(query);
-                onClose();
-              },
+        if (userRole === 'parent' && userId) {
+          const { data: parentChildrenData } = await supabase
+            .from('parent_children')
+            .select('child_id')
+            .eq('parent_id', userId);
+
+          const childIds = parentChildrenData?.map(pc => pc.child_id) || [];
+
+          if (childIds.length > 0) {
+            childrenQuery = supabase
+              .from('children')
+              .select('id, first_name, last_name, class_name')
+              .in('id', childIds)
+              .ilike('first_name', `%${normalizedQuery}%`);
+          }
+        } else {
+          childrenQuery = supabase
+            .from('children')
+            .select('id, first_name, last_name, class_name')
+            .ilike('first_name', `%${normalizedQuery}%`);
+        }
+
+        if (childrenQuery) {
+          const { data: children } = await childrenQuery;
+
+          if (children) {
+            children.forEach(child => {
+              results.push({
+                id: child.id,
+                title: `${child.first_name} ${child.last_name}`,
+                description: child.class_name || '',
+                category: t('menu.children'),
+                action: () => {
+                  if (onNavigate) {
+                    onNavigate(userRole === 'parent' ? 'main' : 'children');
+                  }
+                  saveRecentSearch(query);
+                  onClose();
+                },
+              });
             });
-          });
+          }
         }
       } catch (err) {
         console.error('Search error:', err);
       }
     }
 
-    if (userRole === 'admin' || userRole === 'teacher') {
+    if (userRole === 'admin' || userRole === 'teacher' || userRole === 'parent') {
       try {
         const { data: announcements } = await supabase
           .from('announcements')
@@ -215,13 +239,18 @@ export default function SearchModal({ isOpen, onClose, onNavigate, userRole = 'g
     if (role === 'parent') {
       return [
         ...baseItems,
-        { id: 'children', label: t('menu.children'), description: '', keywords: ['çocuk', 'cocuk', 'children'] },
-        { id: 'montessori_reports', label: t('menu.montessoriReports'), description: '', keywords: ['montessori', 'rapor', 'report'] },
+        { id: 'main', label: t('menu.children'), description: '', keywords: ['çocuk', 'cocuk', 'children', 'günlük', 'gunluk', 'aktivite', 'activity'] },
+        { id: 'daily_reports', label: t('menu.montessoriReports'), description: '', keywords: ['montessori', 'rapor', 'report'] },
+        { id: 'branch_reports', label: t('menu.branchReports'), description: '', keywords: ['branş', 'brans', 'ders', 'course'] },
+        { id: 'behavior_incidents', label: t('menu.behaviorIncidents'), description: '', keywords: ['kod', 'davranış', 'davranis', 'behavior'] },
         { id: 'announcements', label: t('menu.announcements'), description: '', keywords: ['duyuru', 'announcement'] },
         { id: 'messages', label: t('menu.messages'), description: '', keywords: ['mesaj', 'message'] },
         { id: 'calendar', label: t('menu.calendar'), description: '', keywords: ['takvim', 'calendar'] },
-        { id: 'fees', label: t('menu.fees'), description: '', keywords: ['ödeme', 'odeme', 'fees'] },
-        { id: 'menu', label: t('menu.menu'), description: '', keywords: ['yemek', 'menü', 'menu'] },
+        { id: 'fees', label: t('menu.fees'), description: '', keywords: ['ödeme', 'odeme', 'fees', 'ücret', 'ucret'] },
+        { id: 'appointments', label: t('menu.appointments'), description: '', keywords: ['randevu', 'appointment'] },
+        { id: 'menu', label: t('menu.menu'), description: '', keywords: ['yemek', 'menü', 'menu', 'meal'] },
+        { id: 'duty', label: t('menu.duty'), description: '', keywords: ['nöbet', 'nobet', 'duty', 'öğretmen', 'ogretmen'] },
+        { id: 'service', label: t('menu.servicesTracking'), description: '', keywords: ['servis', 'service', 'bus', 'takip'] },
       ];
     }
 

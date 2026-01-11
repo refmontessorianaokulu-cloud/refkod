@@ -613,6 +613,7 @@ export default function TeacherDashboard() {
         onClose={() => setShowSearchModal(false)}
         onNavigate={setActiveTab}
         userRole="teacher"
+        userId={profile?.id}
       />
 
       <div className="flex-1 overflow-auto">

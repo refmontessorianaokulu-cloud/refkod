@@ -497,6 +497,7 @@ export default function ParentDashboard() {
         onClose={() => setShowSearchModal(false)}
         onNavigate={setActiveTab}
         userRole="parent"
+        userId={profile?.id}
       />
 
       <div className="flex-1 overflow-auto">

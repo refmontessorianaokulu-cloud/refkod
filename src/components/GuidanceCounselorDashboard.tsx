@@ -357,6 +357,7 @@ export default function GuidanceCounselorDashboard() {
         onClose={() => setShowSearchModal(false)}
         onNavigate={setActiveTab}
         userRole="guidance_counselor"
+        userId={profile?.id}
       />
 
       <div className="flex-1 overflow-auto">

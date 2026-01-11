@@ -542,6 +542,7 @@ export default function AdminDashboard() {
         onClose={() => setShowSearchModal(false)}
         onNavigate={setActiveTab}
         userRole="admin"
+        userId={profile?.id}
       />
 
       <main className="flex-1 overflow-x-hidden">

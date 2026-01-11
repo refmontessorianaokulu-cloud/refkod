@@ -120,6 +120,7 @@ export default function StaffDashboard() {
         onClose={() => setShowSearchModal(false)}
         onNavigate={setActiveTab}
         userRole="staff"
+        userId={profile?.id}
       />
 
       <div className="flex-1 overflow-auto">
