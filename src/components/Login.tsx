@@ -362,8 +362,8 @@ export default function Login() {
           <Menu className="w-5 h-5 text-gray-700" />
         </button>
 
-        {/* Logo - Mobilde ortalı, Masaüstünde hamburger sonrası */}
-        <div className="md:absolute md:left-24">
+        {/* Logo - Her durumda ortalı */}
+        <div className="md:absolute md:left-1/2 md:-translate-x-1/2">
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
