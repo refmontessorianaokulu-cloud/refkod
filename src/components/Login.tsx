@@ -359,7 +359,7 @@ export default function Login() {
               setIsMobileMenuOpen(true);
               setIsDesktopMenuOpen(true);
             }}
-            className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+            className="p-3 transition-all"
           >
             <Menu className="w-5 h-5 text-gray-700" />
           </button>
