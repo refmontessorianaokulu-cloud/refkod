@@ -53,8 +53,6 @@ export default function AdminDashboard() {
   const [reportDateFilter, setReportDateFilter] = useState(new Date().toISOString().split('T')[0]);
   const [reportChildFilter, setReportChildFilter] = useState<string>('all');
   const [reportClassFilter, setReportClassFilter] = useState<string>('all');
-  const [referenceApplications, setReferenceApplications] = useState<any[]>([]);
-  const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
   const [childForm, setChildForm] = useState({
     first_name: '',
@@ -82,9 +80,6 @@ export default function AdminDashboard() {
     loadData();
     loadParentsAndTeachers();
     loadPickupNotifications();
-    if (activeTab === 'reference_applications') {
-      loadReferenceApplications();
-    }
   }, [activeTab]);
 
   useEffect(() => {
@@ -168,38 +163,6 @@ export default function AdminDashboard() {
       setDailyReports(filteredData);
     } catch (error) {
       console.error('Error loading daily reports:', error);
-    }
-  };
-
-  const loadReferenceApplications = async () => {
-    try {
-      const { data } = await supabase
-        .from('reference_teacher_applications')
-        .select('*')
-        .order('created_at', { ascending: false });
-      setReferenceApplications(data || []);
-    } catch (error) {
-      console.error('Error loading reference applications:', error);
-    }
-  };
-
-  const updateApplicationStatus = async (id: string, status: 'approved' | 'rejected') => {
-    try {
-      const { error } = await supabase
-        .from('reference_teacher_applications')
-        .update({ status })
-        .eq('id', id);
-
-      if (error) throw error;
-
-      setReferenceApplications(prev =>
-        prev.map(app => app.id === id ? { ...app, status } : app)
-      );
-      setSelectedApplication(null);
-      alert(`Başvuru ${status === 'approved' ? 'onaylandı' : 'reddedildi'}.`);
-    } catch (error) {
-      console.error('Error updating application status:', error);
-      alert('Durum güncellenirken hata oluştu.');
     }
   };
 
@@ -1189,68 +1152,6 @@ export default function AdminDashboard() {
               </div>
             )}
 
-            {activeTab === 'reference_applications' && (
-              <div>
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-gray-800">Referans Öğretmen Başvuruları</h2>
-                  <p className="text-gray-600 mt-1">Son başvuru tarihi: 23 Ocak</p>
-                </div>
-
-                {loading ? (
-                  <div className="text-center py-12 text-gray-500">Yükleniyor...</div>
-                ) : referenceApplications.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">Henüz başvuru yok</div>
-                ) : (
-                  <div className="grid gap-4">
-                    {referenceApplications.map((app) => (
-                      <div
-                        key={app.id}
-                        className="bg-white rounded-xl p-6 border border-gray-200 hover:shadow-lg transition-shadow"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="flex space-x-4">
-                            {app.photo_url && (
-                              <img
-                                src={app.photo_url}
-                                alt={app.full_name}
-                                className="w-20 h-20 object-cover rounded-lg"
-                              />
-                            )}
-                            <div>
-                              <h3 className="text-xl font-semibold text-gray-900">{app.full_name}</h3>
-                              <p className="text-sm text-gray-600">{app.email}</p>
-                              <p className="text-sm text-gray-600">{app.phone}</p>
-                              <span
-                                className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium ${
-                                  app.status === 'approved'
-                                    ? 'bg-green-100 text-green-800'
-                                    : app.status === 'rejected'
-                                    ? 'bg-red-100 text-red-800'
-                                    : 'bg-yellow-100 text-yellow-800'
-                                }`}
-                              >
-                                {app.status === 'approved'
-                                  ? 'Onaylandı'
-                                  : app.status === 'rejected'
-                                  ? 'Reddedildi'
-                                  : 'Beklemede'}
-                              </span>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => setSelectedApplication(app)}
-                            className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
-                          >
-                            Detayları Gör
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
             {activeTab === 'behavior_incidents' && profile && (
               <BehaviorIncidentSection
                 userId={profile.id}
@@ -1579,120 +1480,6 @@ export default function AdminDashboard() {
         </div>
       )}
 
-      {selectedApplication && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl p-8 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start mb-6">
-              <h3 className="text-2xl font-bold text-gray-800">Başvuru Detayları</h3>
-              <button
-                onClick={() => setSelectedApplication(null)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <XCircle className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="space-y-6">
-              {selectedApplication.photo_url && (
-                <div className="flex justify-center">
-                  <img
-                    src={selectedApplication.photo_url}
-                    alt={selectedApplication.full_name}
-                    className="w-40 h-40 object-cover rounded-lg border-2 border-gray-200"
-                  />
-                </div>
-              )}
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Ad Soyad</label>
-                  <p className="text-gray-900">{selectedApplication.full_name}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">E-posta</label>
-                  <p className="text-gray-900">{selectedApplication.email}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Telefon</label>
-                  <p className="text-gray-900">{selectedApplication.phone}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Adres</label>
-                  <p className="text-gray-900">{selectedApplication.address}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mezun Olduğu Okul</label>
-                  <p className="text-gray-900">{selectedApplication.graduated_school}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Mezun Olduğu Program</label>
-                  <p className="text-gray-900">{selectedApplication.graduated_program}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Formasyon</label>
-                  <p className="text-gray-900">{selectedApplication.has_formation ? 'Var' : 'Yok'}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Çalışma Durumu</label>
-                  <p className="text-gray-900">
-                    {selectedApplication.is_working ? `Çalışıyor - ${selectedApplication.workplace}` : 'Çalışmıyor'}
-                  </p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Montessori Eğitimi</label>
-                  <p className="text-gray-900">{selectedApplication.has_montessori_training ? 'Aldı' : 'Almadı'}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Başvuru Tarihi</label>
-                  <p className="text-gray-900">
-                    {new Date(selectedApplication.created_at).toLocaleDateString('tr-TR')}
-                  </p>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Aldığı Eğitimler</label>
-                <p className="text-gray-900 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
-                  {selectedApplication.previous_trainings}
-                </p>
-              </div>
-
-              {selectedApplication.reference_info && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Referans Bilgisi</label>
-                  <p className="text-gray-900 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
-                    {selectedApplication.reference_info}
-                  </p>
-                </div>
-              )}
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Değerlendirme Yazısı</label>
-                <p className="text-gray-900 whitespace-pre-wrap bg-gray-50 p-4 rounded-lg">
-                  {selectedApplication.evaluation_essay}
-                </p>
-              </div>
-
-              {selectedApplication.status === 'pending' && (
-                <div className="flex space-x-4 pt-4 border-t border-gray-200">
-                  <button
-                    onClick={() => updateApplicationStatus(selectedApplication.id, 'approved')}
-                    className="flex-1 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium"
-                  >
-                    Onayla
-                  </button>
-                  <button
-                    onClick={() => updateApplicationStatus(selectedApplication.id, 'rejected')}
-                    className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
-                  >
-                    Reddet
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

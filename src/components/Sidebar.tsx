@@ -117,7 +117,6 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
     items: [
       { id: 'ref_akademi', label: t('menu.refAkademi'), icon: GraduationCap },
       { id: 'ref_danismanlik', label: t('menu.refDanismanlik'), icon: Briefcase },
-      { id: 'reference_applications', label: t('menu.referenceApplications'), icon: FileText },
       { id: 'ref_atolye', label: t('menu.refAtolye'), icon: Palette },
     ],
   },
