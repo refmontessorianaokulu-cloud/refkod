@@ -350,7 +350,7 @@ export default function Login() {
       )}
 
       {/* Top Header - Mobil ve Masaüstü */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-3">
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-start justify-between px-4 py-3">
         {/* Sol Üst İkonlar - Mobilde dikey, Masaüstünde hamburger */}
         <div className="flex flex-col gap-3">
           {/* Hamburger Menü */}
@@ -379,13 +379,9 @@ export default function Login() {
           </div>
         </div>
 
-        {/* Logo - Her durumda ortalı */}
-        <div className="absolute left-1/2 -translate-x-1/2 top-3 md:top-px">
-          <img
-            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-            alt="REF Logo"
-            className="w-20 h-20 md:w-40 md:h-40 object-contain cursor-pointer transition-all duration-300 hover:scale-105"
-            style={{ mixBlendMode: 'multiply' }}
+        {/* Logo - Mobilde sağ üstte, masaüstünde ortada */}
+        <div className="md:absolute md:left-1/2 md:-translate-x-1/2 md:top-px">
+          <button
             onClick={() => {
               const isMobile = window.innerWidth < 768;
               if (isMobile) {
@@ -396,7 +392,15 @@ export default function Login() {
                 setOpenDesktopCard('login');
               }
             }}
-          />
+            className="p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all md:p-0 md:bg-transparent md:shadow-none"
+          >
+            <img
+              src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+              alt="REF Logo"
+              className="w-5 h-5 md:w-40 md:h-40 object-contain transition-all duration-300 hover:scale-105"
+              style={{ mixBlendMode: 'multiply' }}
+            />
+          </button>
         </div>
 
         {/* Sağ Üst İkonlar - Sadece masaüstünde görünür */}
