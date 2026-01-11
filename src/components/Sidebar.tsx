@@ -314,11 +314,11 @@ export default function Sidebar({
           />
           {!isCollapsed && (
             <div>
-              <h1 className="text-lg font-bold text-white">
-                {isGuestMode ? '🌍 Ref Montessori School 🇹🇷' : title}
+              <h1 className="text-base font-bold text-white leading-tight">
+                🌍 Ref Montessori School 🇹🇷
               </h1>
               {userFullName && !isGuestMode && (
-                <p className="text-xs text-gray-300 truncate max-w-[160px]">{userFullName}</p>
+                <p className="text-xs text-gray-300 truncate max-w-[160px] mt-1">{userFullName}</p>
               )}
             </div>
           )}
@@ -394,7 +394,7 @@ export default function Sidebar({
         {!isCollapsed && (
           <>
             <div className="mb-3">
-              <p className="text-xs text-gray-400 mb-2 px-3">{t('sidebar.followUs')}</p>
+              <p className="text-xs font-semibold text-gray-300 mb-2 px-3">Bize Ulaşın</p>
               <div className="flex items-center justify-center space-x-2">
               <div
                 className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
@@ -521,19 +521,15 @@ export default function Sidebar({
         onClick={() => setIsMobileOpen(true)}
         className="lg:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow-lg hover:shadow-xl transition-all"
       >
-        {isGuestMode ? (
-          <img
-            src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-            alt="REF Logo"
-            className="w-10 h-10 object-contain"
-          />
-        ) : (
-          <Menu className="w-6 h-6 text-gray-800" />
-        )}
+        <img
+          src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+          alt="REF Logo"
+          className="w-10 h-10 object-contain"
+        />
       </button>
 
-      {userFullName && (
-        <div className="lg:hidden fixed top-4 right-4 z-40 flex items-center space-x-2 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-3 py-2.5">
+      {userFullName && !isGuestMode && (
+        <div className="lg:hidden fixed top-20 right-4 z-40 flex items-center space-x-2 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-3 py-2.5">
           <div className="flex items-center space-x-1.5">
             <User className="w-4 h-4 text-emerald-700" />
             <span className="text-xs font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
