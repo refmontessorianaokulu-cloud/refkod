@@ -8,7 +8,7 @@ export default function LanguageToggle({ className = '' }: LanguageToggleProps) 
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div className={`flex flex-col gap-0.5 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-md ${className}`}>
+    <div className={`flex flex-row gap-0.5 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-md ${className}`}>
       <button
         onClick={() => setLanguage('tr')}
         className={`px-3 py-2 rounded-md text-xs font-semibold transition-all ${

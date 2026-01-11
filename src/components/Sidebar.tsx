@@ -525,24 +525,25 @@ export default function Sidebar({
 
   return (
     <>
-      <div className="lg:hidden fixed top-4 left-4 z-50 flex items-center gap-2">
-        <div className="flex flex-col gap-1">
+      <div className="lg:hidden fixed top-4 left-4 z-50 flex flex-col gap-1">
+        <button
+          onClick={() => setIsMobileOpen(true)}
+          className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+        >
+          <Menu className="w-4 h-4 text-gray-700" />
+        </button>
+        {onSearchClick && (
           <button
-            onClick={() => setIsMobileOpen(true)}
+            onClick={onSearchClick}
             className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+            title={t('search.placeholder')}
           >
-            <Menu className="w-4 h-4 text-gray-700" />
+            <Search className="w-4 h-4 text-gray-700" />
           </button>
-          {onSearchClick && (
-            <button
-              onClick={onSearchClick}
-              className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
-              title={t('search.placeholder')}
-            >
-              <Search className="w-4 h-4 text-gray-700" />
-            </button>
-          )}
-        </div>
+        )}
+      </div>
+
+      <div className="lg:hidden fixed top-4 right-4 z-50 flex flex-col gap-2 items-end">
         <button
           onClick={() => handleMenuItemClick('ref_akademi')}
           className="bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all hover:scale-105 p-2"
@@ -554,9 +555,6 @@ export default function Sidebar({
             className="w-10 h-10 object-contain"
           />
         </button>
-      </div>
-
-      <div className="lg:hidden fixed top-4 right-4 z-50">
         <LanguageToggle />
       </div>
 
