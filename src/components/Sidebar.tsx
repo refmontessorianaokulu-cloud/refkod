@@ -488,6 +488,10 @@ export default function Sidebar({
           </>
         )}
 
+        <div className="hidden lg:flex justify-center mb-2">
+          <LanguageToggle />
+        </div>
+
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="hidden lg:flex w-full items-center justify-center space-x-2 px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 hover:text-white rounded-lg transition-colors"
@@ -521,36 +525,40 @@ export default function Sidebar({
 
   return (
     <>
-      <div className="lg:hidden fixed top-4 left-4 z-50 flex flex-col gap-1">
-        <button
-          onClick={() => setIsMobileOpen(true)}
-          className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
-        >
-          <Menu className="w-4 h-4 text-gray-700" />
-        </button>
-        {onSearchClick && (
+      <div className="lg:hidden fixed top-4 left-4 z-50 flex items-center gap-2">
+        <div className="flex flex-col gap-1">
           <button
-            onClick={onSearchClick}
+            onClick={() => setIsMobileOpen(true)}
             className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
-            title={t('search.placeholder')}
           >
-            <Search className="w-4 h-4 text-gray-700" />
+            <Menu className="w-4 h-4 text-gray-700" />
           </button>
-        )}
-        <LanguageToggle />
+          {onSearchClick && (
+            <button
+              onClick={onSearchClick}
+              className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+              title={t('search.placeholder')}
+            >
+              <Search className="w-4 h-4 text-gray-700" />
+            </button>
+          )}
+        </div>
+        <button
+          onClick={() => handleMenuItemClick('ref_akademi')}
+          className="bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all hover:scale-105 p-2"
+          title="REF Çocuk Akademisi"
+        >
+          <img
+            src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+            alt="REF Logo"
+            className="w-10 h-10 object-contain"
+          />
+        </button>
       </div>
 
-      <button
-        onClick={() => handleMenuItemClick('ref_akademi')}
-        className="lg:hidden fixed top-4 right-4 z-50 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all hover:scale-105 p-2"
-        title="REF Çocuk Akademisi"
-      >
-        <img
-          src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
-          alt="REF Logo"
-          className="w-10 h-10 object-contain"
-        />
-      </button>
+      <div className="lg:hidden fixed top-4 right-4 z-50">
+        <LanguageToggle />
+      </div>
 
       {userFullName && !isGuestMode && (
         <div className="lg:hidden fixed top-[4.5rem] right-1 z-50 flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-1.5 py-1.5">
