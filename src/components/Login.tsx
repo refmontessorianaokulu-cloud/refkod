@@ -363,7 +363,7 @@ export default function Login() {
         </button>
 
         {/* Logo - Her durumda ortalı */}
-        <div className="md:absolute md:left-1/2 md:-translate-x-1/2 md:top-8">
+        <div className="md:absolute md:left-1/2 md:-translate-x-1/2 md:top-3">
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
