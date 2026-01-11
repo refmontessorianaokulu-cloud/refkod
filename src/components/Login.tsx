@@ -362,7 +362,7 @@ export default function Login() {
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
-            className="w-12 h-12 object-contain"
+            className="w-20 h-20 object-contain"
           />
         </div>
 
