@@ -521,38 +521,38 @@ export default function Sidebar({
 
   return (
     <>
-      <div className="lg:hidden fixed top-4 left-4 z-50 flex items-center gap-2">
+      <div className="lg:hidden fixed top-4 left-4 z-50 flex items-center gap-1">
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="p-2.5 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+          className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
         >
-          <Menu className="w-5 h-5 text-gray-700" />
+          <Menu className="w-4 h-4 text-gray-700" />
         </button>
         {onSearchClick && (
           <button
             onClick={onSearchClick}
-            className="p-2.5 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+            className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
             title={t('search.placeholder')}
           >
-            <Search className="w-5 h-5 text-gray-700" />
+            <Search className="w-4 h-4 text-gray-700" />
           </button>
         )}
         <LanguageToggle />
       </div>
 
       {userFullName && !isGuestMode && (
-        <div className="lg:hidden fixed top-4 right-2 z-50 flex items-center space-x-1.5 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-2.5 py-2">
-          <div className="flex items-center space-x-1">
-            <User className="w-4 h-4 text-emerald-700" />
-            <span className="text-xs font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
+        <div className="lg:hidden fixed top-4 right-1 z-50 flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-1.5 py-1.5">
+          <div className="flex items-center space-x-0.5">
+            <User className="w-3.5 h-3.5 text-emerald-700" />
+            <span className="text-[10px] font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
           </div>
           <button
             onClick={onSignOut}
-            className="flex items-center space-x-1 px-2 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-md transition-colors"
+            className="flex items-center space-x-0.5 px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] rounded-md transition-colors"
             title="Çıkış Yap"
           >
             <LogOut className="w-3 h-3" />
-            <span className="text-xs">Çıkış</span>
+            <span>Çıkış</span>
           </button>
         </div>
       )}
