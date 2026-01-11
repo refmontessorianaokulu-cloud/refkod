@@ -1209,19 +1209,19 @@ export default function Login() {
         userRole="guest"
       />
 
-      {/* Masaüstü Layout - Logo Ortalı */}
-      <div className="hidden md:flex flex-col items-center justify-center min-h-screen p-8 relative z-10">
+      {/* Masaüstü Layout - Logo Üst Ortalı */}
+      <div className="hidden md:flex flex-col items-center justify-start min-h-screen pt-32 relative z-10">
         <button
           onClick={() => {
             setIsDesktopMenuOpen(true);
             setOpenDesktopCard('login');
           }}
-          className="cursor-pointer transition-all duration-300 hover:scale-105 hover:drop-shadow-2xl"
+          className="cursor-pointer transition-all duration-300 hover:scale-110 hover:drop-shadow-2xl"
         >
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
-            className="w-64 h-64 object-contain drop-shadow-2xl"
+            className="w-80 h-80 object-contain drop-shadow-2xl"
             style={{ mixBlendMode: 'multiply' }}
           />
         </button>
