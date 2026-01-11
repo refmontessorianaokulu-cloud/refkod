@@ -507,7 +507,7 @@ export default function Login() {
             className="w-full flex items-center justify-center gap-2"
           >
             <h2 className="text-lg font-bold text-center text-gray-800">
-              Giriş Yap
+              E-REF
             </h2>
             <ChevronDown
               className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${

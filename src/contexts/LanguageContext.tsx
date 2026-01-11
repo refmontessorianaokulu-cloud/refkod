@@ -49,7 +49,7 @@ export const LanguageProvider = ({ children }: LanguageProviderProps) => {
 };
 
 const trTranslations: Record<string, string> = {
-  'login.title': 'Giriş Yap',
+  'login.title': 'E-REF',
   'login.email': 'E-posta',
   'login.password': 'Şifre',
   'login.loginButton': 'Giriş Yap',
@@ -142,7 +142,7 @@ const trTranslations: Record<string, string> = {
 };
 
 const enTranslations: Record<string, string> = {
-  'login.title': 'Login',
+  'login.title': 'E-REF',
   'login.email': 'Email',
   'login.password': 'Password',
   'login.loginButton': 'Login',
