@@ -351,7 +351,7 @@ export default function Login() {
 
       {/* Top Header - Mobil ve Masaüstü */}
       <div className="fixed top-0 left-0 right-0 z-50 flex items-start justify-between px-4 py-3">
-        {/* Sol Üst İkonlar - Mobilde dikey, Masaüstünde hamburger */}
+        {/* Sol Üst İkonlar - Sadece hamburger */}
         <div className="flex flex-col gap-3">
           {/* Hamburger Menü */}
           <button
@@ -363,20 +363,6 @@ export default function Login() {
           >
             <Menu className="w-5 h-5 text-gray-700" />
           </button>
-
-          {/* Arama İkonu - Sadece mobilde görünür ve hamburger'ın altında */}
-          <button
-            onClick={() => setShowSearchModal(true)}
-            className="md:hidden p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
-            title={t('search.placeholder')}
-          >
-            <SearchIcon className="w-5 h-5 text-gray-700" />
-          </button>
-
-          {/* Dil İkonu - Sadece mobilde görünür ve arama'nın altında */}
-          <div className="md:hidden">
-            <LanguageToggle isMobile={true} />
-          </div>
         </div>
 
         {/* Logo - Mobilde sağ üstte, masaüstünde ortada */}
@@ -786,7 +772,7 @@ export default function Login() {
           {/* Bize Ulaşın - Sabit Alt Bölüm */}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-teal-500 to-teal-600 p-3 border-t-2 border-teal-700">
             <h3 className="text-sm font-bold text-white text-center mb-2">Bize Ulaşın</h3>
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex items-center justify-center gap-3 flex-wrap">
               <a
                 href="tel:05315504454"
                 className="flex items-center justify-center w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full transition-all"
@@ -819,6 +805,19 @@ export default function Login() {
               >
                 <Globe className="w-5 h-5 text-white" />
               </a>
+              <button
+                onClick={() => {
+                  setShowSearchModal(true);
+                  setIsMobileMenuOpen(false);
+                }}
+                className="flex items-center justify-center w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full transition-all"
+                title={t('search.placeholder')}
+              >
+                <SearchIcon className="w-5 h-5 text-white" />
+              </button>
+              <div className="flex items-center justify-center w-10 h-10">
+                <LanguageToggle isMobile={true} />
+              </div>
             </div>
           </div>
         </div>
