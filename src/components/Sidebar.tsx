@@ -314,7 +314,7 @@ export default function Sidebar({
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15 copy.png"
             alt="REF Logo"
-            className="w-10 h-10 object-contain rounded-lg"
+            className="w-10 h-10 object-cover"
           />
           {!isCollapsed && (
             <div>
