@@ -553,7 +553,7 @@ export default function Sidebar({
         {/* Hamburger */}
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="w-20 h-20 flex items-center justify-center bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
+          className="w-20 h-20 flex items-center justify-center transition-all"
         >
           <Menu className="w-8 h-8 text-gray-700" />
         </button>
