@@ -3,10 +3,40 @@ import { useLanguage } from '../contexts/LanguageContext';
 interface LanguageToggleProps {
   className?: string;
   isMobile?: boolean;
+  contactStyle?: boolean;
 }
 
-export default function LanguageToggle({ className = '', isMobile = false }: LanguageToggleProps) {
+export default function LanguageToggle({ className = '', isMobile = false, contactStyle = false }: LanguageToggleProps) {
   const { language, setLanguage } = useLanguage();
+
+  if (contactStyle) {
+    return (
+      <div className={`flex gap-2 ${className}`}>
+        <button
+          onClick={() => setLanguage('tr')}
+          className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+            language === 'tr'
+              ? 'bg-white/40'
+              : 'bg-white/20 hover:bg-white/30'
+          }`}
+          title="Türkçe"
+        >
+          <span className="text-xs font-bold text-white">TR</span>
+        </button>
+        <button
+          onClick={() => setLanguage('en')}
+          className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
+            language === 'en'
+              ? 'bg-white/40'
+              : 'bg-white/20 hover:bg-white/30'
+          }`}
+          title="English"
+        >
+          <span className="text-xs font-bold text-white">EN</span>
+        </button>
+      </div>
+    );
+  }
 
   if (isMobile) {
     return (

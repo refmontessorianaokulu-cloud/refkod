@@ -814,9 +814,7 @@ export default function Login() {
               >
                 <SearchIcon className="w-5 h-5 text-white" />
               </button>
-              <div className="flex items-center justify-center w-10 h-10">
-                <LanguageToggle isMobile={true} />
-              </div>
+              <LanguageToggle contactStyle={true} />
             </div>
           </div>
         </div>
@@ -1225,9 +1223,7 @@ export default function Login() {
               >
                 <Globe className="w-5 h-5 text-white" />
               </a>
-              <div className="flex items-center justify-center w-10 h-10">
-                <LanguageToggle />
-              </div>
+              <LanguageToggle contactStyle={true} />
             </div>
           </div>
         </div>
