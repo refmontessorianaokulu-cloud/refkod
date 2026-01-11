@@ -5,7 +5,7 @@ import InquiryForm from './InquiryForm';
 import ReferenceTeacherForm from './ReferenceTeacherForm';
 import ContactPage from './ContactPage';
 import { supabase } from '../lib/supabase';
-import { ChevronDown, Search as SearchIcon, Menu, X } from 'lucide-react';
+import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
 import SearchModal from './SearchModal';
 
@@ -386,7 +386,7 @@ export default function Login() {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-lg font-bold text-gray-800">Menü</h2>
+            <h2 className="text-sm font-bold text-gray-800 leading-tight">🌍 Ref Montessori School 🇹🇷</h2>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -395,14 +395,14 @@ export default function Login() {
             </button>
           </div>
 
-          <div className="overflow-y-auto h-[calc(100%-73px)] p-4 space-y-4">
+          <div className="overflow-y-auto h-[calc(100%-73px-80px)] p-3 space-y-3">
             {/* Mobil Sidebar - E-REF Giriş */}
-            <div className="border-2 border-green-600 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
                 onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
                 className="w-full flex items-center justify-between"
               >
-                <h3 className="text-base font-bold text-gray-800">E-REF</h3>
+                <h3 className="text-sm font-bold text-gray-800">E-REF</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
                     isLoginCardOpen ? 'rotate-180' : ''
@@ -481,12 +481,12 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - Hakkımızda */}
-            <div className="border-2 border-green-600 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
                 onClick={() => setIsAboutCardOpen(!isAboutCardOpen)}
                 className="w-full flex items-center justify-between"
               >
-                <h3 className="text-base font-bold text-gray-800">Hakkımızda</h3>
+                <h3 className="text-sm font-bold text-gray-800">Hakkımızda</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
                     isAboutCardOpen ? 'rotate-180' : ''
@@ -519,12 +519,12 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - REF Akademi */}
-            <div className="border-2 border-green-600 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
                 onClick={() => setIsRefAkademiCardOpen(!isRefAkademiCardOpen)}
                 className="w-full flex items-center justify-between"
               >
-                <h3 className="text-base font-bold text-gray-800">REF Akademi</h3>
+                <h3 className="text-sm font-bold text-gray-800">REF Akademi</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
                     isRefAkademiCardOpen ? 'rotate-180' : ''
@@ -568,12 +568,12 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - REF Atölye */}
-            <div className="border-2 border-green-600 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
                 onClick={() => setIsRefAtolyeCardOpen(!isRefAtolyeCardOpen)}
                 className="w-full flex items-center justify-between"
               >
-                <h3 className="text-base font-bold text-gray-800">REF Atölye</h3>
+                <h3 className="text-sm font-bold text-gray-800">REF Atölye</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
                     isRefAtolyeCardOpen ? 'rotate-180' : ''
@@ -617,12 +617,12 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - REF Danışmanlık */}
-            <div className="border-2 border-green-600 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
                 onClick={() => setIsApplicationCardOpen(!isApplicationCardOpen)}
                 className="w-full flex items-center justify-between"
               >
-                <h3 className="text-base font-bold text-gray-800">{t('login.applications')}</h3>
+                <h3 className="text-sm font-bold text-gray-800">{t('login.applications')}</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
                     isApplicationCardOpen ? 'rotate-180' : ''
@@ -693,12 +693,12 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - İletişim */}
-            <div className="border-2 border-green-600 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
                 onClick={() => setIsContactCardOpen(!isContactCardOpen)}
                 className="w-full flex items-center justify-between"
               >
-                <h3 className="text-base font-bold text-gray-800">İletişim</h3>
+                <h3 className="text-sm font-bold text-gray-800">İletişim</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
                     isContactCardOpen ? 'rotate-180' : ''
@@ -736,6 +736,45 @@ export default function Login() {
                   </p>
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Bize Ulaşın - Sabit Alt Bölüm */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-r from-teal-500 to-teal-600 p-3 border-t-2 border-teal-700">
+            <h3 className="text-sm font-bold text-white text-center mb-2">Bize Ulaşın</h3>
+            <div className="flex items-center justify-center gap-4">
+              <a
+                href="tel:05315504454"
+                className="flex items-center justify-center w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full transition-all"
+                title="Telefon: 0531 550 44 54"
+              >
+                <Phone className="w-5 h-5 text-white" />
+              </a>
+              <a
+                href="mailto:bilgi@refcocukakademisi.com"
+                className="flex items-center justify-center w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full transition-all"
+                title="E-posta: bilgi@refcocukakademisi.com"
+              >
+                <Mail className="w-5 h-5 text-white" />
+              </a>
+              <a
+                href="https://maps.google.com/?q=Arnavutköy,İstanbul"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full transition-all"
+                title="Konum: Arnavutköy - İstanbul"
+              >
+                <MapPin className="w-5 h-5 text-white" />
+              </a>
+              <a
+                href="https://www.refcocukakademisi.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full transition-all"
+                title="Web: www.refcocukakademisi.com"
+              >
+                <Globe className="w-5 h-5 text-white" />
+              </a>
             </div>
           </div>
         </div>
