@@ -309,7 +309,7 @@ export default function Sidebar({
 
   const sidebarContent = (
     <div className="h-full flex flex-col bg-gradient-to-b from-gray-900 to-gray-800">
-      <div className={`flex items-center justify-between p-4 border-b border-gray-700 ${isCollapsed ? 'flex-col' : ''}`}>
+      <div className={`flex items-center justify-between pt-3 pb-4 px-4 border-b border-gray-700 ${isCollapsed ? 'flex-col' : ''}`}>
         <div className={`flex items-center space-x-3 ${isCollapsed ? 'mb-2' : ''}`}>
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
@@ -548,8 +548,8 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobil Sol Üst - Hamburger, Arama, Dil */}
-      <div className="lg:hidden fixed top-4 left-4 z-50 flex flex-col gap-3">
+      {/* Mobil Sol Üst - Hamburger */}
+      <div className="lg:hidden fixed top-3 left-4 z-50">
         {/* Hamburger */}
         <button
           onClick={() => setIsMobileOpen(true)}
@@ -557,28 +557,10 @@ export default function Sidebar({
         >
           <Menu className="w-4 h-4 text-gray-700" />
         </button>
-
-        {/* Arama İkonu */}
-        {onSearchClick && !isMobileOpen && (
-          <button
-            onClick={onSearchClick}
-            className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
-            title={t('search.placeholder')}
-          >
-            <Search className="w-4 h-4 text-gray-700" />
-          </button>
-        )}
-
-        {/* Dil İkonu */}
-        {!isMobileOpen && (
-          <div>
-            <LanguageToggle isMobile={true} />
-          </div>
-        )}
       </div>
 
       {/* Mobil Sağ Üst - Logo */}
-      <div className="lg:hidden fixed top-4 right-4 z-50">
+      <div className="lg:hidden fixed top-3 right-4 z-50">
         <img
           src="/whatsapp_image_2026-01-10_at_23.02.15.png"
           alt="REF Logo"
