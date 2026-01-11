@@ -393,7 +393,7 @@ export default function Login() {
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between p-4 border-b">
-            <h2 className="text-lg font-bold text-gray-800 leading-tight">🌍 Ref Montessori School 🇹🇷</h2>
+            <h2 className="text-sm font-bold text-gray-800 leading-tight">🌍 Ref Montessori School 🇹🇷</h2>
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
