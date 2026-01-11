@@ -380,7 +380,7 @@ export default function Login() {
         </div>
 
         {/* Logo - Mobilde sağ üstte, masaüstünde ortada */}
-        <div className="md:absolute md:left-1/2 md:-translate-x-1/2 md:top-[7px] flex items-center h-[44px]">
+        <div className="md:absolute md:left-1/2 md:-translate-x-1/2 md:top-3 flex items-center h-[44px]">
           <button
             onClick={() => {
               const isMobile = window.innerWidth < 768;
