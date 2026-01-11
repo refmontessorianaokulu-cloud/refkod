@@ -4,10 +4,40 @@ interface LanguageToggleProps {
   className?: string;
   isMobile?: boolean;
   contactStyle?: boolean;
+  sidebarStyle?: boolean;
 }
 
-export default function LanguageToggle({ className = '', isMobile = false, contactStyle = false }: LanguageToggleProps) {
+export default function LanguageToggle({ className = '', isMobile = false, contactStyle = false, sidebarStyle = false }: LanguageToggleProps) {
   const { language, setLanguage } = useLanguage();
+
+  if (sidebarStyle) {
+    return (
+      <div className={`flex gap-2 ${className}`}>
+        <button
+          onClick={() => setLanguage('tr')}
+          className={`p-2 rounded-lg transition-all ${
+            language === 'tr'
+              ? 'bg-gray-700 text-white'
+              : 'text-gray-400 hover:text-white hover:bg-gray-700'
+          }`}
+          title="Türkçe"
+        >
+          <span className="text-xs font-bold">TR</span>
+        </button>
+        <button
+          onClick={() => setLanguage('en')}
+          className={`p-2 rounded-lg transition-all ${
+            language === 'en'
+              ? 'bg-gray-700 text-white'
+              : 'text-gray-400 hover:text-white hover:bg-gray-700'
+          }`}
+          title="English"
+        >
+          <span className="text-xs font-bold">EN</span>
+        </button>
+      </div>
+    );
+  }
 
   if (contactStyle) {
     return (

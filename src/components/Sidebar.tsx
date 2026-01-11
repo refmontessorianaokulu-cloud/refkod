@@ -448,7 +448,7 @@ export default function Sidebar({
               </div>
             )}
             <div className="flex justify-center mb-3">
-              <LanguageToggle isMobile={false} />
+              <LanguageToggle sidebarStyle={true} />
             </div>
             <a
               href="https://www.refcocukakademisi.com"
@@ -508,8 +508,8 @@ export default function Sidebar({
                 <Search className="w-4 h-4" />
               </button>
             )}
-            <div className="scale-90">
-              <LanguageToggle isMobile={false} />
+            <div className="flex flex-col items-center space-y-2">
+              <LanguageToggle sidebarStyle={true} />
             </div>
             </div>
           </>
