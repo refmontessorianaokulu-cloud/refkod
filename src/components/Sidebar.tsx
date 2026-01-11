@@ -399,7 +399,7 @@ export default function Sidebar({
           <>
             <div className="mb-3">
               <p className="text-xs font-semibold text-gray-300 mb-2 px-3">Bize Ulaşın</p>
-              <div className="flex items-center justify-center space-x-2">
+              <div className="flex items-center justify-center space-x-2 mb-3">
               <div
                 className="p-2 text-gray-600 cursor-not-allowed rounded-lg opacity-50"
                 title="Facebook (Yakında)"
@@ -434,6 +434,20 @@ export default function Sidebar({
               >
                 <Mail className="w-5 h-5" />
               </a>
+            </div>
+            {onSearchClick && (
+              <div className="flex items-center justify-center mb-3">
+                <button
+                  onClick={onSearchClick}
+                  className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-gray-700 rounded-lg transition-all"
+                  title={t('search.placeholder')}
+                >
+                  <Search className="w-5 h-5" />
+                </button>
+              </div>
+            )}
+            <div className="flex justify-center mb-3">
+              <LanguageToggle isMobile={false} />
             </div>
             <a
               href="https://www.refcocukakademisi.com"
@@ -484,13 +498,21 @@ export default function Sidebar({
             >
               <Mail className="w-4 h-4" />
             </a>
+            {onSearchClick && (
+              <button
+                onClick={onSearchClick}
+                className="p-2 text-gray-400 hover:text-emerald-500 hover:bg-gray-700 rounded-lg transition-all"
+                title={t('search.placeholder')}
+              >
+                <Search className="w-4 h-4" />
+              </button>
+            )}
+            <div className="scale-90">
+              <LanguageToggle isMobile={false} />
+            </div>
             </div>
           </>
         )}
-
-        <div className="hidden lg:flex justify-center mb-2">
-          <LanguageToggle isMobile={false} />
-        </div>
 
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
@@ -548,7 +570,7 @@ export default function Sidebar({
         </button>
       </div>
 
-      {onSearchClick && (
+      {onSearchClick && !isMobileOpen && (
         <div className="lg:hidden fixed bottom-4 left-0 right-0 z-50 px-4 flex items-center justify-between pointer-events-none">
           <button
             onClick={onSearchClick}
