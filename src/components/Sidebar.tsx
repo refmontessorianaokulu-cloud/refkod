@@ -489,7 +489,7 @@ export default function Sidebar({
         )}
 
         <div className="hidden lg:flex justify-center mb-2">
-          <LanguageToggle />
+          <LanguageToggle isMobile={false} />
         </div>
 
         <button
@@ -546,16 +546,16 @@ export default function Sidebar({
       <div className="lg:hidden fixed top-4 right-4 z-50 flex flex-col gap-1.5 items-end">
         <button
           onClick={() => handleMenuItemClick('ref_akademi')}
-          className="bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all hover:scale-105 p-1.5"
+          className="bg-white backdrop-blur-sm hover:bg-white rounded-lg shadow-lg transition-all hover:scale-105 p-2 border-2 border-emerald-500"
           title="REF Çocuk Akademisi"
         >
           <img
             src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
             alt="REF Logo"
-            className="w-8 h-8 object-contain"
+            className="w-12 h-12 object-contain"
           />
         </button>
-        <LanguageToggle />
+        <LanguageToggle isMobile={true} />
       </div>
 
       {userFullName && !isGuestMode && (

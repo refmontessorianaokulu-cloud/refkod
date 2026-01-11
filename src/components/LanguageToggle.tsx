@@ -2,13 +2,14 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 interface LanguageToggleProps {
   className?: string;
+  isMobile?: boolean;
 }
 
-export default function LanguageToggle({ className = '' }: LanguageToggleProps) {
+export default function LanguageToggle({ className = '', isMobile = false }: LanguageToggleProps) {
   const { language, setLanguage } = useLanguage();
 
   return (
-    <div className={`flex flex-col lg:flex-row gap-0.5 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-md ${className}`}>
+    <div className={`flex ${isMobile ? 'flex-col' : 'flex-row'} gap-0.5 bg-white/90 backdrop-blur-sm rounded-lg p-0.5 shadow-md ${className}`}>
       <button
         onClick={() => setLanguage('tr')}
         className={`px-2 py-1.5 rounded-md text-xs font-semibold transition-all ${
