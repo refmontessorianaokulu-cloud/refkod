@@ -525,25 +525,16 @@ export default function Sidebar({
 
   return (
     <>
-      <div className="lg:hidden fixed top-4 left-4 z-50 flex flex-col gap-1">
+      <div className="lg:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsMobileOpen(true)}
           className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
         >
           <Menu className="w-4 h-4 text-gray-700" />
         </button>
-        {onSearchClick && (
-          <button
-            onClick={onSearchClick}
-            className="p-2 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all"
-            title={t('search.placeholder')}
-          >
-            <Search className="w-4 h-4 text-gray-700" />
-          </button>
-        )}
       </div>
 
-      <div className="lg:hidden fixed top-4 right-4 z-50 flex flex-col gap-1.5 items-end">
+      <div className="lg:hidden fixed top-4 right-4 z-50">
         <button
           onClick={() => handleMenuItemClick('ref_akademi')}
           className="bg-white backdrop-blur-sm hover:bg-white rounded-lg shadow-lg transition-all hover:scale-105 p-2 border-2 border-emerald-500"
@@ -555,8 +546,22 @@ export default function Sidebar({
             className="w-12 h-12 object-contain"
           />
         </button>
-        <LanguageToggle isMobile={true} />
       </div>
+
+      {onSearchClick && (
+        <div className="lg:hidden fixed bottom-4 left-0 right-0 z-50 px-4 flex items-center justify-between pointer-events-none">
+          <button
+            onClick={onSearchClick}
+            className="p-1.5 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-md transition-all pointer-events-auto"
+            title={t('search.placeholder')}
+          >
+            <Search className="w-3.5 h-3.5 text-gray-700" />
+          </button>
+          <div className="pointer-events-auto">
+            <LanguageToggle isMobile={true} />
+          </div>
+        </div>
+      )}
 
       {userFullName && !isGuestMode && (
         <div className="lg:hidden fixed top-[4.5rem] right-1 z-50 flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-1.5 py-1.5">
