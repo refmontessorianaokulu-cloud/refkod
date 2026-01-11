@@ -3,6 +3,7 @@ import { ArrowRight, Globe, Sparkles } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import AnnouncementCarousel from './AnnouncementCarousel';
 import InstagramFeed from './InstagramFeed';
+import { supabase } from '../lib/supabase';
 
 interface HomePageProps {
   onNavigateToAbout: () => void;
@@ -10,12 +11,39 @@ interface HomePageProps {
   onSignOut?: () => void;
 }
 
+interface AboutContent {
+  section_title: string;
+  content_text: string;
+}
+
 export default function HomePage({ onNavigateToAbout }: HomePageProps) {
   const [isVisible, setIsVisible] = useState(false);
+  const [educationProgram, setEducationProgram] = useState<AboutContent | null>(null);
+  const [loading, setLoading] = useState(true);
   const { t } = useLanguage();
 
   useEffect(() => {
     setIsVisible(true);
+
+    const loadEducationProgram = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('about_content')
+          .select('section_title, content_text')
+          .eq('section_key', 'education_programs')
+          .maybeSingle();
+
+        if (!error && data) {
+          setEducationProgram(data);
+        }
+      } catch (err) {
+        console.log('Education program content not loaded:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadEducationProgram();
   }, []);
 
   return (
@@ -56,32 +84,38 @@ export default function HomePage({ onNavigateToAbout }: HomePageProps) {
 
             <div className="relative z-10 p-8 lg:p-12 flex items-center min-h-[500px]">
               <div className="max-w-3xl mx-auto bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl p-8 lg:p-12">
-                <div className="flex items-center space-x-3 mb-6">
-                  <Sparkles className="w-8 h-8 text-emerald-600" />
-                  <h3 className="text-3xl lg:text-4xl font-bold text-emerald-800">
-                    {t('home.heading')}
-                  </h3>
-                </div>
+                {loading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent"></div>
+                  </div>
+                ) : educationProgram ? (
+                  <>
+                    <div className="flex items-center space-x-3 mb-6">
+                      <Sparkles className="w-8 h-8 text-emerald-600" />
+                      <h3 className="text-3xl lg:text-4xl font-bold text-emerald-800">
+                        {educationProgram.section_title}
+                      </h3>
+                    </div>
 
-                <div className="space-y-4 text-gray-700 leading-relaxed">
-                  <p className="text-lg">
-                    {t('home.description1')}
-                  </p>
-                  <p className="text-lg hidden lg:block">
-                    {t('home.description2')}
-                  </p>
-                  <p className="text-lg hidden lg:block">
-                    {t('home.description3')}
-                  </p>
-                </div>
+                    <div className="space-y-4 text-gray-700 leading-relaxed">
+                      <p className="text-lg whitespace-pre-wrap">
+                        {educationProgram.content_text}
+                      </p>
+                    </div>
 
-                <button
-                  onClick={onNavigateToAbout}
-                  className="mt-8 group flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
-                >
-                  <span>{t('home.readMore')}</span>
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </button>
+                    <button
+                      onClick={onNavigateToAbout}
+                      className="mt-8 group flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+                    >
+                      <span>{t('home.readMore')}</span>
+                      <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                    </button>
+                  </>
+                ) : (
+                  <div className="text-center text-gray-600 py-8">
+                    <p>{t('home.noContent')}</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
