@@ -54,6 +54,7 @@ export default function Login() {
   const [isRefAkademiCardOpen, setIsRefAkademiCardOpen] = useState(false);
   const [isRefAtolyeCardOpen, setIsRefAtolyeCardOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [openMobileCard, setOpenMobileCard] = useState<string | null>(null);
   const { signIn, signInAsGuest } = useAuth();
   const { t } = useLanguage();
 
@@ -399,18 +400,18 @@ export default function Login() {
             {/* Mobil Sidebar - E-REF Giriş */}
             <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
-                onClick={() => setIsLoginCardOpen(!isLoginCardOpen)}
+                onClick={() => setOpenMobileCard(openMobileCard === 'login' ? null : 'login')}
                 className="w-full flex items-center justify-between"
               >
                 <h3 className="text-sm font-bold text-gray-800">E-REF</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
-                    isLoginCardOpen ? 'rotate-180' : ''
+                    openMobileCard === 'login' ? 'rotate-180' : ''
                   }`}
                 />
               </button>
 
-              <div className={`mt-3 ${isLoginCardOpen ? 'block' : 'hidden'}`}>
+              <div className={`mt-3 ${openMobileCard === 'login' ? 'block' : 'hidden'}`}>
                 <form onSubmit={handleSubmit} className="space-y-3">
                   {error && (
                     <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs">
@@ -483,18 +484,18 @@ export default function Login() {
             {/* Mobil Sidebar - Hakkımızda */}
             <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
-                onClick={() => setIsAboutCardOpen(!isAboutCardOpen)}
+                onClick={() => setOpenMobileCard(openMobileCard === 'about' ? null : 'about')}
                 className="w-full flex items-center justify-between"
               >
                 <h3 className="text-sm font-bold text-gray-800">Hakkımızda</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
-                    isAboutCardOpen ? 'rotate-180' : ''
+                    openMobileCard === 'about' ? 'rotate-180' : ''
                   }`}
                 />
               </button>
 
-              <div className={`mt-3 space-y-2 ${isAboutCardOpen ? 'block' : 'hidden'}`}>
+              <div className={`mt-3 space-y-2 ${openMobileCard === 'about' ? 'block' : 'hidden'}`}>
                 {aboutLoading ? (
                   <div className="text-center py-4">
                     <div className="inline-block animate-spin rounded-full h-6 w-6 border-2 border-gray-800 border-t-transparent"></div>
@@ -521,18 +522,18 @@ export default function Login() {
             {/* Mobil Sidebar - REF Akademi */}
             <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
-                onClick={() => setIsRefAkademiCardOpen(!isRefAkademiCardOpen)}
+                onClick={() => setOpenMobileCard(openMobileCard === 'akademi' ? null : 'akademi')}
                 className="w-full flex items-center justify-between"
               >
                 <h3 className="text-sm font-bold text-gray-800">REF Akademi</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
-                    isRefAkademiCardOpen ? 'rotate-180' : ''
+                    openMobileCard === 'akademi' ? 'rotate-180' : ''
                   }`}
                 />
               </button>
 
-              <div className={`mt-3 max-h-80 overflow-y-auto ${isRefAkademiCardOpen ? 'block' : 'hidden'}`}>
+              <div className={`mt-3 max-h-80 overflow-y-auto ${openMobileCard === 'akademi' ? 'block' : 'hidden'}`}>
                 {refAkademiLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
@@ -570,18 +571,18 @@ export default function Login() {
             {/* Mobil Sidebar - REF Atölye */}
             <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
-                onClick={() => setIsRefAtolyeCardOpen(!isRefAtolyeCardOpen)}
+                onClick={() => setOpenMobileCard(openMobileCard === 'atolye' ? null : 'atolye')}
                 className="w-full flex items-center justify-between"
               >
                 <h3 className="text-sm font-bold text-gray-800">REF Atölye</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
-                    isRefAtolyeCardOpen ? 'rotate-180' : ''
+                    openMobileCard === 'atolye' ? 'rotate-180' : ''
                   }`}
                 />
               </button>
 
-              <div className={`mt-3 max-h-80 overflow-y-auto ${isRefAtolyeCardOpen ? 'block' : 'hidden'}`}>
+              <div className={`mt-3 max-h-80 overflow-y-auto ${openMobileCard === 'atolye' ? 'block' : 'hidden'}`}>
                 {refAtolyeLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
@@ -619,18 +620,18 @@ export default function Login() {
             {/* Mobil Sidebar - REF Danışmanlık */}
             <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
-                onClick={() => setIsApplicationCardOpen(!isApplicationCardOpen)}
+                onClick={() => setOpenMobileCard(openMobileCard === 'applications' ? null : 'applications')}
                 className="w-full flex items-center justify-between"
               >
                 <h3 className="text-sm font-bold text-gray-800">{t('login.applications')}</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
-                    isApplicationCardOpen ? 'rotate-180' : ''
+                    openMobileCard === 'applications' ? 'rotate-180' : ''
                   }`}
                 />
               </button>
 
-              <div className={`mt-3 max-h-80 overflow-y-auto ${isApplicationCardOpen ? 'block' : 'hidden'}`}>
+              <div className={`mt-3 max-h-80 overflow-y-auto ${openMobileCard === 'applications' ? 'block' : 'hidden'}`}>
                 {refDanismanlikLoading ? (
                   <div className="flex items-center justify-center py-8">
                     <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
@@ -695,18 +696,18 @@ export default function Login() {
             {/* Mobil Sidebar - İletişim */}
             <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
               <button
-                onClick={() => setIsContactCardOpen(!isContactCardOpen)}
+                onClick={() => setOpenMobileCard(openMobileCard === 'contact' ? null : 'contact')}
                 className="w-full flex items-center justify-between"
               >
                 <h3 className="text-sm font-bold text-gray-800">İletişim</h3>
                 <ChevronDown
                   className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
-                    isContactCardOpen ? 'rotate-180' : ''
+                    openMobileCard === 'contact' ? 'rotate-180' : ''
                   }`}
                 />
               </button>
 
-              <div className={`mt-3 space-y-3 ${isContactCardOpen ? 'block' : 'hidden'}`}>
+              <div className={`mt-3 space-y-3 ${openMobileCard === 'contact' ? 'block' : 'hidden'}`}>
                 <button
                   onClick={() => {
                     setShowContactPage(true);
