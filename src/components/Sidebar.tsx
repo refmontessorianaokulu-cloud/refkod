@@ -312,7 +312,7 @@ export default function Sidebar({
       <div className={`flex items-center justify-between p-4 border-b border-gray-700 ${isCollapsed ? 'flex-col' : ''}`}>
         <div className={`flex items-center space-x-3 ${isCollapsed ? 'mb-2' : ''}`}>
           <img
-            src="/whatsapp_image_2025-08-19_at_11.03.29.jpeg"
+            src="/whatsapp_image_2026-01-10_at_23.02.15 copy.png"
             alt="REF Logo"
             className="w-10 h-10 object-contain rounded-lg"
           />
@@ -585,9 +585,9 @@ export default function Sidebar({
         />
       </div>
 
-      {/* Mobil Sağ Alt - WhatsApp, Kullanıcı Adı ve Çıkış */}
-      <div className="lg:hidden fixed bottom-4 right-4 z-50 flex items-center gap-2">
-        {/* WhatsApp */}
+      {/* Mobil Alt Bar - WhatsApp (En Sol), Kullanıcı Adı ve Çıkış (En Sağ) */}
+      <div className="lg:hidden fixed bottom-4 left-4 right-4 z-50 flex items-center justify-between">
+        {/* WhatsApp - En Solda */}
         <a
           href="https://wa.me/905315504454"
           target="_blank"
@@ -598,7 +598,7 @@ export default function Sidebar({
           <Phone className="w-7 h-7 group-hover:scale-110 transition-transform" />
         </a>
 
-        {/* Kullanıcı Adı ve Çıkış */}
+        {/* Kullanıcı Adı ve Çıkış - En Sağda */}
         {userFullName && !isGuestMode && (
           <div className="flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-2 py-1.5">
             <div className="flex items-center space-x-1">
