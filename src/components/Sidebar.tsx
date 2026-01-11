@@ -553,7 +553,7 @@ export default function Sidebar({
       </button>
 
       {userFullName && !isGuestMode && (
-        <div className="lg:hidden fixed top-20 right-1 z-50 flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-1.5 py-1.5">
+        <div className="lg:hidden fixed top-[4.5rem] right-1 z-50 flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-1.5 py-1.5">
           <div className="flex items-center space-x-0.5">
             <User className="w-3.5 h-3.5 text-emerald-700" />
             <span className="text-[10px] font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
