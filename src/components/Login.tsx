@@ -426,7 +426,7 @@ export default function Login() {
 
           <div className="overflow-y-auto h-[calc(100%-73px-80px)] p-3 space-y-3">
             {/* Mobil Sidebar - E-REF Giriş */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenMobileCard(openMobileCard === 'login' ? null : 'login')}
                 className="w-full flex items-center justify-between"
@@ -510,7 +510,7 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - Hakkımızda */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenMobileCard(openMobileCard === 'about' ? null : 'about')}
                 className="w-full flex items-center justify-between"
@@ -548,7 +548,7 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - REF Akademi */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenMobileCard(openMobileCard === 'akademi' ? null : 'akademi')}
                 className="w-full flex items-center justify-between"
@@ -597,7 +597,7 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - REF Atölye */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenMobileCard(openMobileCard === 'atolye' ? null : 'atolye')}
                 className="w-full flex items-center justify-between"
@@ -646,7 +646,7 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - REF Danışmanlık */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenMobileCard(openMobileCard === 'applications' ? null : 'applications')}
                 className="w-full flex items-center justify-between"
@@ -722,7 +722,7 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - İletişim */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenMobileCard(openMobileCard === 'contact' ? null : 'contact')}
                 className="w-full flex items-center justify-between"
@@ -845,7 +845,7 @@ export default function Login() {
 
           <div className="overflow-y-auto h-[calc(100%-73px-80px)] p-4 space-y-4">
             {/* E-REF Giriş */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenDesktopCard(openDesktopCard === 'login' ? null : 'login')}
                 className="w-full flex items-center justify-between"
@@ -929,7 +929,7 @@ export default function Login() {
             </div>
 
             {/* Hakkımızda */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenDesktopCard(openDesktopCard === 'about' ? null : 'about')}
                 className="w-full flex items-center justify-between"
@@ -967,7 +967,7 @@ export default function Login() {
             </div>
 
             {/* REF Akademi */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenDesktopCard(openDesktopCard === 'akademi' ? null : 'akademi')}
                 className="w-full flex items-center justify-between"
@@ -1016,7 +1016,7 @@ export default function Login() {
             </div>
 
             {/* REF Atölye */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenDesktopCard(openDesktopCard === 'atolye' ? null : 'atolye')}
                 className="w-full flex items-center justify-between"
@@ -1065,7 +1065,7 @@ export default function Login() {
             </div>
 
             {/* REF Danışmanlık */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenDesktopCard(openDesktopCard === 'applications' ? null : 'applications')}
                 className="w-full flex items-center justify-between"
@@ -1141,7 +1141,7 @@ export default function Login() {
             </div>
 
             {/* İletişim */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
               <button
                 onClick={() => setOpenDesktopCard(openDesktopCard === 'contact' ? null : 'contact')}
                 className="w-full flex items-center justify-between"
