@@ -383,7 +383,7 @@ export default function Login() {
               <img
                 src="/whatsapp_image_2026-01-10_at_23.02.15 copy copy.png"
                 alt="REF Logo"
-                className="w-20 h-20 md:w-40 md:h-40 object-contain transition-all duration-300 hover:scale-105"
+                className="w-10 h-10 object-contain transition-all duration-300 hover:scale-105"
               />
             </button>
           </div>
