@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Calendar, Plus, Edit2, Trash2, Save, X, CheckCircle, Clock, Eye, FileText, TrendingUp } from 'lucide-react';
+import { Calendar, Plus, Edit2, Trash2, Save, X, CheckCircle, Clock, Eye, FileText, TrendingUp, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
 
 interface AcademicPeriod {
   id: string;
@@ -282,6 +283,135 @@ export default function AdminPeriodicReportsManagement() {
       console.error('Error approving report:', error);
       alert(error.message || 'An error occurred');
     }
+  };
+
+  const handleDownloadPDF = async (report: PeriodicReport) => {
+    try {
+      const { data, error } = await supabase
+        .from('periodic_development_reports')
+        .select('*')
+        .eq('id', report.id)
+        .single();
+
+      if (error) throw error;
+
+      const fullReport = { ...data, children: report.children, profiles: report.profiles, academic_periods: report.academic_periods };
+      generatePDF(fullReport);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      alert(language === 'tr' ? 'PDF oluşturulurken hata oluştu' : 'Error generating PDF');
+    }
+  };
+
+  const generatePDF = (report: PeriodicReport) => {
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const margin = 20;
+    const maxWidth = pageWidth - 2 * margin;
+    let yPos = 20;
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(16);
+    doc.text(language === 'tr' ? 'Dönem Gelişim Raporu' : 'Periodic Development Report', margin, yPos);
+    yPos += 10;
+
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${language === 'tr' ? 'Öğrenci' : 'Student'}: ${report.children?.first_name} ${report.children?.last_name}`, margin, yPos);
+    yPos += 6;
+    doc.text(`${language === 'tr' ? 'Sınıf' : 'Branch'}: ${report.children?.branch || ''}`, margin, yPos);
+    yPos += 6;
+    doc.text(`${language === 'tr' ? 'Dönem' : 'Period'}: ${report.academic_periods?.name || ''}`, margin, yPos);
+    yPos += 6;
+    doc.text(`${language === 'tr' ? 'Öğretmen' : 'Teacher'}: ${report.profiles?.full_name || ''}`, margin, yPos);
+    yPos += 10;
+
+    const addSection = (title: string, content: string) => {
+      if (!content) return;
+
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(11);
+      doc.text(title, margin, yPos);
+      yPos += 6;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      const lines = doc.splitTextToSize(content, maxWidth);
+      doc.text(lines, margin, yPos);
+      yPos += lines.length * 5 + 5;
+    };
+
+    if (report.practical_life || report.sensorial || report.mathematics || report.language || report.culture) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(language === 'tr' ? 'Montessori Alanları' : 'Montessori Areas', margin, yPos);
+      yPos += 8;
+
+      addSection(language === 'tr' ? 'Pratik Yaşam' : 'Practical Life', report.practical_life);
+      addSection(language === 'tr' ? 'Duyusal' : 'Sensorial', report.sensorial);
+      addSection(language === 'tr' ? 'Matematik' : 'Mathematics', report.mathematics);
+      addSection(language === 'tr' ? 'Dil' : 'Language', report.language);
+      addSection(language === 'tr' ? 'Kültür' : 'Culture', report.culture);
+    }
+
+    if (report.english || report.quran || report.moral_values || report.etiquette || report.art_music) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(language === 'tr' ? 'Branş Dersleri' : 'Branch Courses', margin, yPos);
+      yPos += 8;
+
+      addSection(language === 'tr' ? 'İngilizce' : 'English', report.english);
+      addSection(language === 'tr' ? 'Kuran' : 'Quran', report.quran);
+      addSection(language === 'tr' ? 'Manevi Değerler' : 'Spiritual Values', report.spiritual_values);
+      addSection(language === 'tr' ? 'Adab-ı Muaşeret' : 'Etiquette', report.etiquette);
+      addSection(language === 'tr' ? 'Sanat-Müzik' : 'Art-Music', report.art_music);
+    }
+
+    if (report.guidance_evaluation) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(language === 'tr' ? 'Rehberlik Birimi Değerlendirmesi' : 'Guidance Unit Evaluation', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+      const lines = doc.splitTextToSize(report.guidance_evaluation, maxWidth);
+      doc.text(lines, margin, yPos);
+      yPos += lines.length * 5 + 5;
+    }
+
+    if (yPos > 250) {
+      doc.addPage();
+      yPos = 20;
+    }
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text(language === 'tr' ? 'Genel Değerlendirme' : 'General Evaluation', margin, yPos);
+    yPos += 8;
+
+    addSection(language === 'tr' ? 'Genel Değerlendirme' : 'General Evaluation', report.general_evaluation);
+    addSection(language === 'tr' ? 'Güçlü Yönler' : 'Strengths', report.strengths);
+    addSection(language === 'tr' ? 'Geliştirilmesi Gereken Alanlar' : 'Areas to Improve', report.areas_to_improve);
+    addSection(language === 'tr' ? 'Öneriler ve Hedefler' : 'Recommendations', report.recommendations);
+
+    const fileName = `rapor_${report.children?.first_name}_${report.children?.last_name}_${report.academic_periods?.name}.pdf`.replace(/\s+/g, '_');
+    doc.save(fileName);
   };
 
   const handleViewReport = async (report: PeriodicReport) => {
@@ -653,6 +783,13 @@ export default function AdminPeriodicReportsManagement() {
                           title={t.view[language]}
                         >
                           <Eye className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => handleDownloadPDF(report)}
+                          className="text-purple-600 hover:text-purple-900"
+                          title={language === 'tr' ? 'PDF İndir' : 'Download PDF'}
+                        >
+                          <Download className="w-5 h-5" />
                         </button>
                         {report.status === 'completed' && (
                           <button
