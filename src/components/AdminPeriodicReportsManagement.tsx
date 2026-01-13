@@ -217,7 +217,6 @@ export default function AdminPeriodicReportsManagement() {
           children (
             first_name,
             last_name,
-            branch,
             class_name
           ),
           profiles (
