@@ -13,6 +13,7 @@ import ServiceLocationSection from './ServiceLocationSection';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import RefSectionsView from './RefSectionsView';
+import PeriodicReportsParentView from './PeriodicReportsParentView';
 import SearchModal from './SearchModal';
 import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
@@ -53,6 +54,7 @@ const parentMenuCategories: MenuCategory[] = [
     label: 'Raporlar ve Değerlendirme',
     items: [
       { id: 'daily_reports', label: 'Montessori Raporları', icon: Sparkles },
+      { id: 'periodic_reports', label: 'Dönem Gelişim Raporları', icon: BookOpen },
       { id: 'branch_reports', label: 'Branş Dersleri Raporları', icon: BookOpen },
       { id: 'behavior_incidents', label: 'Davranış Raporları (KOD)', icon: AlertCircle },
     ],
@@ -1383,6 +1385,59 @@ export default function ParentDashboard() {
                     )}
                   </div>
                 </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'periodic_reports' && children.length === 0 ? (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+            <Baby className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Henüz çocuğunuz eklenmemiş</h2>
+            <p className="text-gray-500">Lütfen yönetici ile iletişime geçin.</p>
+          </div>
+        ) : activeTab === 'periodic_reports' && (
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Çocuklarım</h3>
+                <div className="space-y-2">
+                  {children.map((child) => (
+                    <button
+                      key={child.id}
+                      onClick={() => setSelectedChild(child.id)}
+                      className={`w-full text-left px-4 py-3 rounded-lg transition-all flex items-center space-x-3 ${
+                        selectedChild === child.id
+                          ? 'bg-blue-600 text-white shadow-md'
+                          : 'bg-gray-50 hover:bg-gray-100'
+                      }`}
+                    >
+                      {child.photo_url ? (
+                        <img
+                          src={child.photo_url}
+                          alt={`${child.first_name} ${child.last_name}`}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-blue-200 flex items-center justify-center">
+                          <Baby className="w-5 h-5 text-blue-600" />
+                        </div>
+                      )}
+                      <div className="flex-1">
+                        <p className="font-medium">{child.first_name} {child.last_name}</p>
+                        <p className={`text-xs ${selectedChild === child.id ? 'text-blue-100' : 'text-gray-500'}`}>
+                          {child.class_name}
+                        </p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-3">
+              {selectedChildData && (
+                <PeriodicReportsParentView childId={selectedChild!} />
               )}
             </div>
           </div>

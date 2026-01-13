@@ -19,6 +19,7 @@ import BranchCourseReportsSection from './BranchCourseReportsSection';
 import InquiryFormsSection from './InquiryFormsSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
+import AdminPeriodicReportsManagement from './AdminPeriodicReportsManagement';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import AboutContentEditor from './AboutContentEditor';
@@ -1112,6 +1113,12 @@ export default function AdminDashboard() {
                   teacherId={profile?.id}
                   userRole="admin"
                 />
+              </div>
+            )}
+
+            {activeTab === 'periodic_reports' && (
+              <div>
+                <AdminPeriodicReportsManagement />
               </div>
             )}
 

@@ -16,6 +16,7 @@ import AllServicesLocationSection from './AllServicesLocationSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
+import PeriodicDevelopmentReportsSection from './PeriodicDevelopmentReportsSection';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import RefSectionsView from './RefSectionsView';
@@ -54,6 +55,7 @@ const teacherMenuCategories: MenuCategory[] = [
     label: 'Raporlar ve Değerlendirme',
     items: [
       { id: 'montessori_reports', label: 'Montessori Raporları', icon: Sparkles },
+      { id: 'periodic_reports', label: 'Dönem Gelişim Raporları', icon: FileText },
       { id: 'branch_reports', label: 'Branş Dersleri', icon: BookOpen },
       { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
     ],
@@ -987,6 +989,12 @@ export default function TeacherDashboard() {
               userId={profile.id}
               userRole="teacher"
             />
+          </div>
+        )}
+
+        {activeTab === 'periodic_reports' && profile && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <PeriodicDevelopmentReportsSection />
           </div>
         )}
 
