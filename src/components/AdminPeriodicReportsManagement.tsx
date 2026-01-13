@@ -372,7 +372,7 @@ export default function AdminPeriodicReportsManagement() {
 
       addSection(language === 'tr' ? 'İngilizce' : 'English', report.english);
       addSection(language === 'tr' ? 'Kuran' : 'Quran', report.quran);
-      addSection(language === 'tr' ? 'Manevi Değerler' : 'Spiritual Values', report.spiritual_values);
+      addSection(language === 'tr' ? 'Manevi Değerler' : 'Moral Values', report.moral_values);
       addSection(language === 'tr' ? 'Adab-ı Muaşeret' : 'Etiquette', report.etiquette);
       addSection(language === 'tr' ? 'Sanat-Müzik' : 'Art-Music', report.art_music);
     }
@@ -889,10 +889,10 @@ export default function AdminPeriodicReportsManagement() {
                       <p className="text-sm text-gray-600 mt-1">{selectedReport.quran}</p>
                     </div>
                   )}
-                  {selectedReport.spiritual_values && (
+                  {selectedReport.moral_values && (
                     <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Manevi Değerler' : 'Spiritual Values'}</p>
-                      <p className="text-sm text-gray-600 mt-1">{selectedReport.spiritual_values}</p>
+                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Manevi Değerler' : 'Moral Values'}</p>
+                      <p className="text-sm text-gray-600 mt-1">{selectedReport.moral_values}</p>
                     </div>
                   )}
                   {selectedReport.etiquette && (
