@@ -268,7 +268,7 @@ export default function Login() {
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative z-10">
           <div className="flex items-center justify-center mb-8 mt-4">
             <img
-              src="/whatsapp_image_2026-01-10_at_23.02.15 copy copy.png"
+              src="/whatsapp_image_2026-01-10_at_23.02.15.png"
               alt="REF Logo"
               className="w-24 h-24 object-contain"
             />
@@ -381,7 +381,7 @@ export default function Login() {
               className="transition-all"
             >
               <img
-                src="/whatsapp_image_2026-01-10_at_23.02.15 copy copy.png"
+                src="/whatsapp_image_2026-01-10_at_23.02.15.png"
                 alt="REF Logo"
                 className="w-10 h-10 object-contain transition-all duration-300 hover:scale-105"
               />
