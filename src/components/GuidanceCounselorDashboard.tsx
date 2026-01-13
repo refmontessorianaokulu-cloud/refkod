@@ -7,7 +7,7 @@ import MessagesSection from './MessagesSection';
 import TaskResponseSection from './TaskResponseSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
-import AdminPeriodicReportsManagement from './AdminPeriodicReportsManagement';
+import PeriodicDevelopmentReportsSection from './PeriodicDevelopmentReportsSection';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import RefSectionsView from './RefSectionsView';
@@ -594,7 +594,7 @@ export default function GuidanceCounselorDashboard() {
 
           {activeTab === 'periodic_reports' && (
             <div className="bg-white rounded-2xl shadow-xl p-8">
-              <AdminPeriodicReportsManagement />
+              <PeriodicDevelopmentReportsSection />
             </div>
           )}
 
