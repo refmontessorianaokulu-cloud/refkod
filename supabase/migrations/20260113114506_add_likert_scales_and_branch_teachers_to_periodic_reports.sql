@@ -89,18 +89,18 @@ BEGIN
   END IF;
 END $$;
 
--- Alan isimlerini güncelle (areas_for_improvement → learning_process_evaluation)
+-- Alan isimlerini güncelle (areas_to_improve → learning_process_evaluation)
 DO $$
 BEGIN
   IF EXISTS (
     SELECT 1 FROM information_schema.columns
-    WHERE table_name = 'periodic_development_reports' AND column_name = 'areas_for_improvement'
+    WHERE table_name = 'periodic_development_reports' AND column_name = 'areas_to_improve'
   ) AND NOT EXISTS (
     SELECT 1 FROM information_schema.columns
     WHERE table_name = 'periodic_development_reports' AND column_name = 'learning_process_evaluation'
   ) THEN
-    ALTER TABLE periodic_development_reports 
-    RENAME COLUMN areas_for_improvement TO learning_process_evaluation;
+    ALTER TABLE periodic_development_reports
+    RENAME COLUMN areas_to_improve TO learning_process_evaluation;
   END IF;
 END $$;
 

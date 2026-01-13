@@ -406,8 +406,8 @@ export default function AdminPeriodicReportsManagement() {
     yPos += 8;
 
     addSection(language === 'tr' ? 'Genel Değerlendirme' : 'General Evaluation', report.general_evaluation);
-    addSection(language === 'tr' ? 'Güçlü Yönler' : 'Strengths', report.strengths);
-    addSection(language === 'tr' ? 'Geliştirilmesi Gereken Alanlar' : 'Areas to Improve', report.areas_to_improve);
+    addSection(language === 'tr' ? 'Montessori\'de İlgi Duyduğu Alanlar' : 'Areas of Interest in Montessori', report.montessori_interests);
+    addSection(language === 'tr' ? 'Öğrenme Süreci Değerlendirmesi' : 'Learning Process Evaluation', report.learning_process_evaluation);
     addSection(language === 'tr' ? 'Öneriler ve Hedefler' : 'Recommendations', report.recommendations);
 
     const fileName = `rapor_${report.children?.first_name}_${report.children?.last_name}_${report.academic_periods?.name}.pdf`.replace(/\s+/g, '_');
@@ -919,16 +919,16 @@ export default function AdminPeriodicReportsManagement() {
                       <p className="text-sm text-gray-600 mt-1">{selectedReport.general_evaluation}</p>
                     </div>
                   )}
-                  {selectedReport.strengths && (
+                  {selectedReport.montessori_interests && (
                     <div className="bg-green-50 p-3 rounded-lg">
-                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Güçlü Yönler' : 'Strengths'}</p>
-                      <p className="text-sm text-gray-600 mt-1">{selectedReport.strengths}</p>
+                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Montessori\'de İlgi Duyduğu Alanlar' : 'Areas of Interest in Montessori'}</p>
+                      <p className="text-sm text-gray-600 mt-1">{selectedReport.montessori_interests}</p>
                     </div>
                   )}
-                  {selectedReport.areas_to_improve && (
+                  {selectedReport.learning_process_evaluation && (
                     <div className="bg-yellow-50 p-3 rounded-lg">
-                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Geliştirilmesi Gereken Alanlar' : 'Areas to Improve'}</p>
-                      <p className="text-sm text-gray-600 mt-1">{selectedReport.areas_to_improve}</p>
+                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Öğrenme Süreci Değerlendirmesi' : 'Learning Process Evaluation'}</p>
+                      <p className="text-sm text-gray-600 mt-1">{selectedReport.learning_process_evaluation}</p>
                     </div>
                   )}
                   {selectedReport.recommendations && (
