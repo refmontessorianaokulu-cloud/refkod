@@ -242,7 +242,16 @@ export default function AdminPeriodicReportsManagement() {
       }
 
       if (teacherFilter !== 'all') {
-        filteredData = filteredData.filter(r => r.teacher_id === teacherFilter);
+        filteredData = filteredData.filter(r =>
+          r.teacher_id === teacherFilter ||
+          r.montessori_teacher_id === teacherFilter ||
+          r.english_teacher_id === teacherFilter ||
+          r.quran_teacher_id === teacherFilter ||
+          r.moral_values_teacher_id === teacherFilter ||
+          r.etiquette_teacher_id === teacherFilter ||
+          r.art_music_teacher_id === teacherFilter ||
+          r.guidance_teacher_id === teacherFilter
+        );
       }
 
       setReports(filteredData);
