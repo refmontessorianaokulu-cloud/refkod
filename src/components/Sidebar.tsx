@@ -561,12 +561,14 @@ export default function Sidebar({
 
       {/* Mobil Sağ Üst - Logo */}
       <div className="lg:hidden fixed top-3 right-4 z-50">
-        <img
-          src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-          alt="REF Logo"
-          className="w-20 h-20 object-contain transition-all duration-300 hover:scale-105"
-          style={{ mixBlendMode: 'multiply' }}
-        />
+        <button className="w-20 h-20 flex items-center justify-center transition-all">
+          <img
+            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+            alt="REF Logo"
+            className="w-20 h-20 object-contain transition-all duration-300 hover:scale-105"
+            style={{ mixBlendMode: 'multiply' }}
+          />
+        </button>
       </div>
 
       {/* Mobil Alt Bar - WhatsApp (En Sol), Kullanıcı Adı ve Çıkış (En Sağ) */}
