@@ -350,53 +350,54 @@ export default function Login() {
       )}
 
       {/* Top Header - Mobil ve Masaüstü */}
-      <div className="fixed top-0 left-0 right-0 z-50 flex items-start justify-between px-4 py-3">
-        {/* Sol Üst İkonlar - Sadece hamburger */}
-        <div className="flex flex-col gap-3">
-          {/* Hamburger Menü */}
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(true);
-              setIsDesktopMenuOpen(true);
-            }}
-            className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
-          >
-            <Menu className="w-5 h-5 text-gray-700" />
-          </button>
-        </div>
-
-        {/* Logo - Mobilde sağ üstte, masaüstünde ortada */}
-        <div className="md:absolute md:left-1/2 md:-translate-x-1/2 md:top-12 flex items-center h-[44px]">
-          <button
-            onClick={() => {
-              const isMobile = window.innerWidth < 768;
-              if (isMobile) {
+      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
+        <div className="flex items-start justify-between md:justify-start md:items-center md:gap-8">
+          {/* Sol Üst - Hamburger */}
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={() => {
                 setIsMobileMenuOpen(true);
-                setOpenMobileCard('login');
-              } else {
                 setIsDesktopMenuOpen(true);
-                setOpenDesktopCard('login');
-              }
-            }}
-            className="transition-all"
-          >
-            <img
-              src="/whatsapp_image_2026-01-10_at_23.02.15 copy copy.png"
-              alt="REF Logo"
-              className="w-20 h-20 md:w-40 md:h-40 object-contain transition-all duration-300 hover:scale-105"
-            />
-          </button>
-        </div>
+              }}
+              className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
+            >
+              <Menu className="w-5 h-5 text-gray-700" />
+            </button>
+          </div>
 
-        {/* Sağ Üst İkonlar - Sadece masaüstünde görünür */}
-        <div className="hidden md:flex items-center gap-3">
-          <button
-            onClick={() => setShowSearchModal(true)}
-            className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
-            title={t('search.placeholder')}
-          >
-            <SearchIcon className="w-5 h-5 text-gray-700" />
-          </button>
+          {/* Orta - Logo (Masaüstünde hamburger ve search arasında, mobilde sağda) */}
+          <div className="md:flex-1 md:flex md:justify-center">
+            <button
+              onClick={() => {
+                const isMobile = window.innerWidth < 768;
+                if (isMobile) {
+                  setIsMobileMenuOpen(true);
+                  setOpenMobileCard('login');
+                } else {
+                  setIsDesktopMenuOpen(true);
+                  setOpenDesktopCard('login');
+                }
+              }}
+              className="transition-all"
+            >
+              <img
+                src="/whatsapp_image_2026-01-10_at_23.02.15 copy copy.png"
+                alt="REF Logo"
+                className="w-20 h-20 md:w-40 md:h-40 object-contain transition-all duration-300 hover:scale-105"
+              />
+            </button>
+          </div>
+
+          {/* Sağ - Search (Sadece masaüstünde görünür) */}
+          <div className="hidden md:flex items-center gap-3">
+            <button
+              onClick={() => setShowSearchModal(true)}
+              className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
+              title={t('search.placeholder')}
+            >
+              <SearchIcon className="w-5 h-5 text-gray-700" />
+            </button>
+          </div>
         </div>
       </div>
 
