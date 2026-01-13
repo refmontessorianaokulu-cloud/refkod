@@ -100,6 +100,7 @@ export default function PeriodicDevelopmentReportsSection() {
   const [isClassTeacher, setIsClassTeacher] = useState(false);
   const [isBranchTeacher, setIsBranchTeacher] = useState(false);
   const [isGuidanceCounselor, setIsGuidanceCounselor] = useState(false);
+  const [isClassTeacherForSelectedChild, setIsClassTeacherForSelectedChild] = useState(false);
   const [branchAssignments, setBranchAssignments] = useState<TeacherAssignment[]>([]);
 
   const [formData, setFormData] = useState({
@@ -208,6 +209,32 @@ export default function PeriodicDevelopmentReportsSection() {
       fetchReports();
     }
   }, [selectedPeriod]);
+
+  useEffect(() => {
+    const checkIfClassTeacherForChild = async () => {
+      if (!selectedChild || !user) {
+        setIsClassTeacherForSelectedChild(false);
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase
+          .from('teacher_children')
+          .select('id')
+          .eq('teacher_id', user.id)
+          .eq('child_id', selectedChild)
+          .maybeSingle();
+
+        if (error) throw error;
+        setIsClassTeacherForSelectedChild(!!data);
+      } catch (error) {
+        console.error('Error checking class teacher status:', error);
+        setIsClassTeacherForSelectedChild(false);
+      }
+    };
+
+    checkIfClassTeacherForChild();
+  }, [selectedChild, user]);
 
   const fetchPeriods = async () => {
     try {
@@ -456,7 +483,7 @@ export default function PeriodicDevelopmentReportsSection() {
       return;
     }
 
-    if (saveStatus === 'completed' && isClassTeacher) {
+    if (saveStatus === 'completed' && isClassTeacherForSelectedChild) {
       const completionCheck = checkAllBranchesCompleted(editingReport);
       if (!completionCheck.allCompleted) {
         alert(`${t.cannotCompleteWithoutBranches[language]}\n\n${t.missingEvaluations[language]}: ${completionCheck.missing.join(', ')}`);
@@ -472,7 +499,7 @@ export default function PeriodicDevelopmentReportsSection() {
         updated_at: new Date().toISOString(),
       };
 
-      if (isClassTeacher) {
+      if (isClassTeacherForSelectedChild) {
         reportData = {
           ...reportData,
           practical_life: formData.practical_life,
@@ -539,7 +566,7 @@ export default function PeriodicDevelopmentReportsSection() {
 
         if (error) throw error;
       } else {
-        if (!isClassTeacher) {
+        if (!isClassTeacherForSelectedChild) {
           alert(language === 'tr' ? 'Sadece sınıf öğretmeni yeni rapor oluşturabilir' : 'Only class teacher can create new report');
           return;
         }
@@ -804,13 +831,13 @@ export default function PeriodicDevelopmentReportsSection() {
             <button
               key={option.value}
               type="button"
-              disabled={!isClassTeacher}
+              disabled={!isClassTeacherForSelectedChild}
               onClick={() => setFormData({ ...formData, [fieldName]: option.value })}
               className={`flex-1 px-4 py-2 border-2 rounded-lg text-sm font-medium transition-colors ${
                 formData[fieldName] === option.value
                   ? option.color + ' border-opacity-100'
                   : 'bg-white hover:bg-gray-50 border-gray-200'
-              } ${!isClassTeacher ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+              } ${!isClassTeacherForSelectedChild ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {option.label}
             </button>
@@ -880,7 +907,7 @@ export default function PeriodicDevelopmentReportsSection() {
             </div>
           </div>
 
-          {isClassTeacher && (
+          {isClassTeacherForSelectedChild && (
             <>
               <div className="border-t pt-6">
                 <div className="flex items-center gap-2 mb-4">
@@ -992,7 +1019,7 @@ export default function PeriodicDevelopmentReportsSection() {
             </div>
           </div>
 
-          {isClassTeacher && (
+          {isClassTeacherForSelectedChild && (
             <div className="border-t pt-6">
               <div className="flex items-center gap-2 mb-4">
                 <FileText className="w-5 h-5 text-blue-600" />
@@ -1055,7 +1082,7 @@ export default function PeriodicDevelopmentReportsSection() {
             </div>
           )}
 
-          {editingReport && !isClassTeacher && (
+          {editingReport && !isClassTeacherForSelectedChild && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <div className="flex items-start gap-2">
                 <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
@@ -1082,7 +1109,7 @@ export default function PeriodicDevelopmentReportsSection() {
               <Save className="w-5 h-5" />
               {t.saveAsDraft[language]}
             </button>
-            {isClassTeacher && (
+            {isClassTeacherForSelectedChild && (
               <button
                 onClick={() => handleSave('completed')}
                 disabled={loading}
@@ -1359,7 +1386,7 @@ export default function PeriodicDevelopmentReportsSection() {
                       >
                         <Edit2 className="w-5 h-5" />
                       </button>
-                      {isClassTeacher && (
+                      {isClassTeacher && report.teacher_id === user?.id && (
                         <button
                           onClick={() => handleDelete(report.id)}
                           className="text-red-600 hover:text-red-900"
