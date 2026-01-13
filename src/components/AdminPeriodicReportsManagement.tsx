@@ -173,6 +173,12 @@ export default function AdminPeriodicReportsManagement() {
 
       if (error) throw error;
       setPeriods(data || []);
+
+      if (data && data.length > 0 && !selectedPeriod) {
+        const activePeriod = data.find(p => p.is_active);
+        const periodToSelect = activePeriod || data[0];
+        setSelectedPeriod(periodToSelect.id);
+      }
     } catch (error) {
       console.error('Error fetching periods:', error);
     }
