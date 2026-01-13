@@ -969,24 +969,28 @@ export default function PeriodicDevelopmentReportsSection() {
             </div>
           )}
 
-          {canEditBranch('guidance') && (
-            <div className="border-t pt-6">
-              <div className="flex items-center gap-2 mb-4">
-                <User className="w-5 h-5 text-blue-600" />
-                <h3 className="text-lg font-semibold text-gray-900">{t.guidanceEvaluation[language]}</h3>
-                <span className="ml-auto px-2 py-1 bg-teal-100 text-teal-800 text-xs rounded-full">{t.guidanceCounselor[language]}</span>
-              </div>
-              <div>
-                <textarea
-                  value={formData.guidance_evaluation}
-                  onChange={(e) => setFormData({ ...formData, guidance_evaluation: e.target.value })}
-                  rows={4}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                  placeholder={language === 'tr' ? 'Rehberlik birimi değerlendirmesi...' : 'Guidance evaluation...'}
-                />
-              </div>
+          <div className="border-t pt-6">
+            <div className="flex items-center gap-2 mb-4">
+              <User className="w-5 h-5 text-teal-600" />
+              <h3 className="text-lg font-semibold text-gray-900">{t.guidanceEvaluation[language]}</h3>
+              <span className="ml-auto px-2 py-1 bg-teal-100 text-teal-800 text-xs rounded-full">{t.guidanceCounselor[language]}</span>
             </div>
-          )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t.guidanceEvaluation[language]}
+                {canEditBranch('guidance') && <span className="ml-2 text-xs text-green-600">({language === 'tr' ? 'Düzenleyebilirsiniz' : 'You can edit'})</span>}
+                {!canEditBranch('guidance') && <span className="ml-2 text-xs text-gray-500">({language === 'tr' ? 'Sadece okuma' : 'Read only'})</span>}
+              </label>
+              <textarea
+                value={formData.guidance_evaluation}
+                onChange={(e) => setFormData({ ...formData, guidance_evaluation: e.target.value })}
+                rows={4}
+                disabled={!canEditBranch('guidance')}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
+                placeholder={canEditBranch('guidance') ? (language === 'tr' ? 'Rehberlik birimi değerlendirmesi...' : 'Guidance evaluation...') : ''}
+              />
+            </div>
+          </div>
 
           {isClassTeacher && (
             <div className="border-t pt-6">
@@ -1204,14 +1208,16 @@ export default function PeriodicDevelopmentReportsSection() {
             </div>
           )}
 
-          {formData.guidance_evaluation && (
-            <div>
-              <h4 className="text-lg font-semibold text-gray-900 mb-3">{t.guidanceEvaluation[language]}</h4>
-              <div className="bg-teal-50 p-4 rounded-lg">
+          <div>
+            <h4 className="text-lg font-semibold text-gray-900 mb-3">{t.guidanceEvaluation[language]}</h4>
+            <div className="bg-teal-50 p-4 rounded-lg">
+              {formData.guidance_evaluation ? (
                 <p className="text-gray-700">{formData.guidance_evaluation}</p>
-              </div>
+              ) : (
+                <p className="text-gray-500 italic">{language === 'tr' ? 'Henüz doldurulmadı' : 'Not yet completed'}</p>
+              )}
             </div>
-          )}
+          </div>
 
           <div>
             <h4 className="text-lg font-semibold text-gray-900 mb-3">{t.generalEvaluation[language]}</h4>
