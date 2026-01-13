@@ -272,6 +272,7 @@ export default function PeriodicDevelopmentReportsSection() {
 
       setIsClassTeacher(classChildrenData.length > 0);
 
+      // Fetch children from branch and guidance assignments
       const branchChildren = await supabase
         .from('teacher_branch_assignments')
         .select(`
@@ -334,6 +335,11 @@ export default function PeriodicDevelopmentReportsSection() {
   };
 
   const handleCreateNew = () => {
+    if (!isClassTeacher) {
+      alert(language === 'tr' ? 'Sadece sınıf öğretmeni yeni rapor oluşturabilir' : 'Only class teacher can create new report');
+      return;
+    }
+
     setEditingReport(null);
     setFormData({
       practical_life: '',
@@ -519,7 +525,7 @@ export default function PeriodicDevelopmentReportsSection() {
         }
       }
 
-      if (isGuidanceCounselor) {
+      if (canEditBranch('guidance')) {
         reportData.guidance_evaluation = formData.guidance_evaluation;
         reportData.guidance_teacher_id = user?.id;
         reportData.guidance_completed = true;
@@ -963,7 +969,7 @@ export default function PeriodicDevelopmentReportsSection() {
             </div>
           )}
 
-          {isGuidanceCounselor && (
+          {canEditBranch('guidance') && (
             <div className="border-t pt-6">
               <div className="flex items-center gap-2 mb-4">
                 <User className="w-5 h-5 text-blue-600" />
