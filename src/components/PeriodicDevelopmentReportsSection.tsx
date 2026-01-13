@@ -192,12 +192,16 @@ export default function PeriodicDevelopmentReportsSection() {
 
   useEffect(() => {
     if (user && profile) {
-      setIsGuidanceCounselor(profile.role === 'guidance_counselor');
       fetchPeriods();
-      fetchChildren();
       fetchBranchAssignments();
     }
   }, [user, profile]);
+
+  useEffect(() => {
+    if (user && profile && (isClassTeacher || isBranchTeacher || isGuidanceCounselor)) {
+      fetchChildren();
+    }
+  }, [user, profile, isClassTeacher, isBranchTeacher, isGuidanceCounselor]);
 
   useEffect(() => {
     if (selectedPeriod) {
@@ -233,7 +237,12 @@ export default function PeriodicDevelopmentReportsSection() {
 
       if (error) throw error;
       setBranchAssignments(data || []);
-      setIsBranchTeacher((data || []).length > 0);
+
+      const hasGuidanceAssignment = (data || []).some((a: TeacherAssignment) => a.course_type === 'guidance');
+      const hasBranchAssignment = (data || []).some((a: TeacherAssignment) => a.course_type !== 'guidance');
+
+      setIsGuidanceCounselor(hasGuidanceAssignment);
+      setIsBranchTeacher(hasBranchAssignment);
     } catch (error) {
       console.error('Error fetching branch assignments:', error);
     }
