@@ -359,9 +359,9 @@ export default function Login() {
                 setIsMobileMenuOpen(true);
                 setIsDesktopMenuOpen(true);
               }}
-              className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
+              className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
             >
-              <Menu className="w-5 h-5 text-gray-700" />
+              <Menu className="w-8 h-8 text-gray-700" />
             </button>
           </div>
 
