@@ -94,8 +94,6 @@ export default function PeriodicDevelopmentReportsSection() {
   const [reports, setReports] = useState<PeriodicReport[]>([]);
   const [selectedPeriod, setSelectedPeriod] = useState<string>('');
   const [selectedChild, setSelectedChild] = useState<string>('');
-  const [selectedClass, setSelectedClass] = useState<string>('');
-  const [availableClasses, setAvailableClasses] = useState<string[]>([]);
   const [viewMode, setViewMode] = useState<'list' | 'form' | 'view'>('list');
   const [editingReport, setEditingReport] = useState<PeriodicReport | null>(null);
   const [loading, setLoading] = useState(false);
@@ -134,9 +132,6 @@ export default function PeriodicDevelopmentReportsSection() {
     title: { tr: 'Dönem Gelişim Raporları', en: 'Periodic Development Reports' },
     selectPeriod: { tr: 'Dönem Seçin', en: 'Select Period' },
     selectChild: { tr: 'Öğrenci Seçin', en: 'Select Student' },
-    selectClass: { tr: 'Sınıf Seçin', en: 'Select Class' },
-    allClasses: { tr: 'Tüm Sınıflar', en: 'All Classes' },
-    className: { tr: 'Sınıf', en: 'Class' },
     createReport: { tr: 'Yeni Rapor Oluştur', en: 'Create New Report' },
     montessoriAreas: { tr: 'Montessori Alanları', en: 'Montessori Areas' },
     practicalLife: { tr: 'Pratik Yaşam Becerileri', en: 'Practical Life Skills' },
@@ -209,10 +204,10 @@ export default function PeriodicDevelopmentReportsSection() {
   }, [user, profile, isClassTeacher, isBranchTeacher, isGuidanceCounselor]);
 
   useEffect(() => {
-    if (selectedPeriod && children.length > 0) {
+    if (selectedPeriod) {
       fetchReports();
     }
-  }, [selectedPeriod, selectedClass, children]);
+  }, [selectedPeriod]);
 
   const fetchPeriods = async () => {
     try {
@@ -304,16 +299,8 @@ export default function PeriodicDevelopmentReportsSection() {
         });
 
         setChildren(allChildren);
-
-        // Extract unique class names
-        const uniqueClasses = Array.from(new Set(allChildren.map(c => c.class_name))).sort();
-        setAvailableClasses(uniqueClasses);
       } else {
         setChildren(classChildrenData);
-
-        // Extract unique class names
-        const uniqueClasses = Array.from(new Set(classChildrenData.map(c => c.class_name))).sort();
-        setAvailableClasses(uniqueClasses);
       }
     } catch (error) {
       console.error('Error fetching children:', error);
@@ -323,37 +310,19 @@ export default function PeriodicDevelopmentReportsSection() {
   const fetchReports = async () => {
     try {
       setLoading(true);
-
-      // Filter children by selected class
-      let filteredChildren = children;
-      if (selectedClass) {
-        filteredChildren = children.filter(c => c.class_name === selectedClass);
-      }
-
-      // Get child IDs that the teacher has access to
-      const childIds = filteredChildren.map(c => c.id);
-
-      if (childIds.length === 0) {
-        setReports([]);
-        setLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase
         .from('periodic_development_reports')
         .select(`
           *,
           children (
             first_name,
-            last_name,
-            class_name
+            last_name
           ),
           academic_periods (
             name
           )
         `)
         .eq('period_id', selectedPeriod)
-        .in('child_id', childIds)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -871,7 +840,7 @@ export default function PeriodicDevelopmentReportsSection() {
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t.period[language]} *
@@ -891,26 +860,6 @@ export default function PeriodicDevelopmentReportsSection() {
               </select>
             </div>
 
-            {availableClasses.length > 1 && !editingReport && (
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {t.className[language]}
-                </label>
-                <select
-                  value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                  className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">{t.allClasses[language]}</option>
-                  {availableClasses.map(className => (
-                    <option key={className} value={className}>
-                      {className}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 {t.student[language]} *
@@ -922,13 +871,11 @@ export default function PeriodicDevelopmentReportsSection() {
                 className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100"
               >
                 <option value="">{t.selectChild[language]}</option>
-                {children
-                  .filter(child => !selectedClass || child.class_name === selectedClass)
-                  .map(child => (
-                    <option key={child.id} value={child.id}>
-                      {child.first_name} {child.last_name} - {child.class_name}
-                    </option>
-                  ))}
+                {children.map(child => (
+                  <option key={child.id} value={child.id}>
+                    {child.first_name} {child.last_name} - {child.class_name}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -1325,40 +1272,20 @@ export default function PeriodicDevelopmentReportsSection() {
       </div>
 
       <div className="bg-white rounded-lg shadow-sm p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="flex items-center gap-4">
-            <Calendar className="w-5 h-5 text-gray-600" />
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">{t.selectPeriod[language]}</option>
-              {periods.map(period => (
-                <option key={period.id} value={period.id}>
-                  {period.name} {period.is_active ? '(Aktif)' : ''}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {availableClasses.length > 0 && (
-            <div className="flex items-center gap-4">
-              <BookOpen className="w-5 h-5 text-gray-600" />
-              <select
-                value={selectedClass}
-                onChange={(e) => setSelectedClass(e.target.value)}
-                className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="">{t.allClasses[language]}</option>
-                {availableClasses.map(className => (
-                  <option key={className} value={className}>
-                    {className}
-                  </option>
-                ))}
-              </select>
-            </div>
-          )}
+        <div className="flex items-center gap-4">
+          <Calendar className="w-5 h-5 text-gray-600" />
+          <select
+            value={selectedPeriod}
+            onChange={(e) => setSelectedPeriod(e.target.value)}
+            className="flex-1 px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          >
+            <option value="">{t.selectPeriod[language]}</option>
+            {periods.map(period => (
+              <option key={period.id} value={period.id}>
+                {period.name} {period.is_active ? '(Aktif)' : ''}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -1380,9 +1307,6 @@ export default function PeriodicDevelopmentReportsSection() {
                   {t.student[language]}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  {t.className[language]}
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   {t.period[language]}
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -1399,11 +1323,6 @@ export default function PeriodicDevelopmentReportsSection() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm font-medium text-gray-900">
                       {report.children?.first_name} {report.children?.last_name}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-600">
-                      {(report.children as any)?.class_name || '-'}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">

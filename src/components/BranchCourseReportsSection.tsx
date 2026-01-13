@@ -649,6 +649,38 @@ export default function BranchCourseReportsSection({ teacherId, userRole }: Bran
             </div>
 
             <form onSubmit={editingReport ? handleEditReport : handleSubmit} className="space-y-4">
+              {userRole !== 'guidance_counselor' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Ders *</label>
+                  <select
+                    required
+                    value={form.course_type}
+                    onChange={(e) => {
+                      setForm({ ...form, course_type: e.target.value as any, child_id: '' });
+                      setModalSelectedClass('all');
+                    }}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                  >
+                    {availableCourseTypesForAdding.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
+                  </select>
+                  {userRole === 'teacher' && teacherAssignments.length > 0 && (
+                    <p className="mt-1 text-xs text-gray-600">
+                      Atandığınız sınıflar: {teacherAssignments
+                        .filter(a => a.course_type === form.course_type)
+                        .map(a => a.class_name)
+                        .join(', ')}
+                    </p>
+                  )}
+                </div>
+              )}
+              {userRole === 'guidance_counselor' && (
+                <input type="hidden" name="course_type" value="guidance" />
+              )}
+
               {!editingReport && (
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">Sınıf Seçin</label>
@@ -669,14 +701,14 @@ export default function BranchCourseReportsSection({ teacherId, userRole }: Bran
                   </select>
                   {modalSelectedClass !== 'all' && (
                     <p className="mt-1 text-xs text-gray-600">
-                      {modalFilteredChildren.length} çocuk bulundu
+                      {modalFilteredChildren.length} öğrenci bulundu
                     </p>
                   )}
                 </div>
               )}
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Çocuk</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Öğrenci *</label>
                 <select
                   required
                   value={form.child_id}
@@ -684,10 +716,10 @@ export default function BranchCourseReportsSection({ teacherId, userRole }: Bran
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                   disabled={!!editingReport}
                 >
-                  <option value="">Çocuk seçin...</option>
+                  <option value="">Öğrenci seçin...</option>
                   {!editingReport && modalFilteredChildren.length > 0 && (
                     <option value="all" className="font-bold">
-                      ✓ Tüm Çocuklar ({modalFilteredChildren.length})
+                      ✓ Tüm Öğrenciler ({modalFilteredChildren.length})
                       {modalSelectedClass !== 'all' && ` - ${modalSelectedClass}`}
                     </option>
                   )}
@@ -699,31 +731,10 @@ export default function BranchCourseReportsSection({ teacherId, userRole }: Bran
                 </select>
                 {form.child_id === 'all' && !editingReport && (
                   <p className="mt-2 text-sm text-purple-600 bg-purple-50 p-2 rounded-lg">
-                    ℹ Bu rapor {modalSelectedClass !== 'all' ? `${modalSelectedClass} sınıfındaki` : ''} tüm çocuklara ({modalFilteredChildren.length} çocuk) aynı içerikle kaydedilecektir.
+                    ℹ Bu rapor {modalSelectedClass !== 'all' ? `${modalSelectedClass} sınıfındaki` : ''} tüm öğrencilere ({modalFilteredChildren.length} öğrenci) aynı içerikle kaydedilecektir.
                   </p>
                 )}
               </div>
-
-              {userRole !== 'guidance_counselor' && (
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Ders</label>
-                  <select
-                    required
-                    value={form.course_type}
-                    onChange={(e) => setForm({ ...form, course_type: e.target.value as any, child_id: '' })}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                  >
-                    {availableCourseTypesForAdding.map((type) => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              {userRole === 'guidance_counselor' && (
-                <input type="hidden" name="course_type" value="guidance" />
-              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Tarih</label>
