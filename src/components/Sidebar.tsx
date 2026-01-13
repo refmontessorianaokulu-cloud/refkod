@@ -565,7 +565,7 @@ export default function Sidebar({
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
-            className="w-20 h-20 object-contain transition-all duration-300 hover:scale-105"
+            className="w-14 h-14 object-contain transition-all duration-300 hover:scale-105"
             style={{ mixBlendMode: 'multiply' }}
           />
         </button>
