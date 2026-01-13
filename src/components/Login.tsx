@@ -376,7 +376,7 @@ export default function Login() {
                   setOpenDesktopCard('login');
                 }
               }}
-              className="transition-all p-2"
+              className="transition-all"
             >
               <img
                 src="/whatsapp_image_2026-01-10_at_23.02.15.png"
