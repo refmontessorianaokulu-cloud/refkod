@@ -2,11 +2,12 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
-import { Calendar, Send, Users, MessageSquare, ClipboardList, BookOpen, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette, Sparkles, Search as SearchIcon } from 'lucide-react';
+import { Calendar, Send, Users, MessageSquare, ClipboardList, BookOpen, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette, Sparkles, FileText, Search as SearchIcon } from 'lucide-react';
 import MessagesSection from './MessagesSection';
 import TaskResponseSection from './TaskResponseSection';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import BehaviorIncidentSection from './BehaviorIncidentSection';
+import AdminPeriodicReportsManagement from './AdminPeriodicReportsManagement';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import RefSectionsView from './RefSectionsView';
@@ -91,6 +92,7 @@ const guidanceMenuCategories: MenuCategory[] = [
     label: 'Raporlar ve Değerlendirme',
     items: [
       { id: 'montessori_reports', label: 'Montessori Raporları', icon: Sparkles },
+      { id: 'periodic_reports', label: 'Dönem Gelişim Raporları', icon: FileText },
       { id: 'branch_reports', label: 'Rehberlik Raporları', icon: BookOpen },
       { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
     ],
@@ -587,6 +589,12 @@ export default function GuidanceCounselorDashboard() {
                 userId={profile.id}
                 userRole="guidance_counselor"
               />
+            </div>
+          )}
+
+          {activeTab === 'periodic_reports' && (
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <AdminPeriodicReportsManagement />
             </div>
           )}
 
