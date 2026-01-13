@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Calendar, Plus, Edit2, Trash2, Save, X, CheckCircle, Clock, Eye, FileText, TrendingUp, Download } from 'lucide-react';
+import { Calendar, Plus, Edit2, Trash2, Save, X, CheckCircle, Clock, Eye, FileText, TrendingUp, Download, Filter, Users, GraduationCap, AlertCircle, CheckSquare, Square } from 'lucide-react';
 import jsPDF from 'jspdf';
 
 interface AcademicPeriod {
@@ -63,6 +63,7 @@ interface PeriodicReport {
     first_name: string;
     last_name: string;
     branch: string;
+    class_name: string;
   };
   profiles?: {
     full_name: string;
@@ -82,8 +83,14 @@ export default function AdminPeriodicReportsManagement() {
   const [loading, setLoading] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<string>('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [classFilter, setClassFilter] = useState<string>('all');
+  const [teacherFilter, setTeacherFilter] = useState<string>('all');
+  const [pendingOnlyFilter, setPendingOnlyFilter] = useState(false);
   const [selectedReport, setSelectedReport] = useState<PeriodicReport | null>(null);
   const [showReportDetail, setShowReportDetail] = useState(false);
+  const [selectedReports, setSelectedReports] = useState<Set<string>>(new Set());
+  const [classes, setClasses] = useState<string[]>([]);
+  const [teachers, setTeachers] = useState<any[]>([]);
 
   const [periodForm, setPeriodForm] = useState({
     name: '',
@@ -128,11 +135,26 @@ export default function AdminPeriodicReportsManagement() {
     noPeriods: { tr: 'Henüz dönem bulunmuyor', en: 'No periods yet' },
     noReports: { tr: 'Rapor bulunmuyor', en: 'No reports found' },
     branch: { tr: 'Sınıf', en: 'Branch' },
+    class: { tr: 'Sınıf', en: 'Class' },
+    allClasses: { tr: 'Tüm Sınıflar', en: 'All Classes' },
+    allTeachers: { tr: 'Tüm Öğretmenler', en: 'All Teachers' },
+    filters: { tr: 'Filtreler', en: 'Filters' },
+    pendingApprovalOnly: { tr: 'Sadece Onay Bekleyenler', en: 'Pending Approval Only' },
+    completion: { tr: 'Tamamlanma', en: 'Completion' },
+    bulkApprove: { tr: 'Toplu Onayla', en: 'Bulk Approve' },
+    selectAll: { tr: 'Tümünü Seç', en: 'Select All' },
+    deselectAll: { tr: 'Tümünü Kaldır', en: 'Deselect All' },
+    selected: { tr: 'Seçili', en: 'Selected' },
+    montessoriSections: { tr: 'Montessori Alanları', en: 'Montessori Areas' },
+    branchCourses: { tr: 'Branş Dersleri', en: 'Branch Courses' },
+    guidanceUnit: { tr: 'Rehberlik', en: 'Guidance' },
+    completionRate: { tr: 'Tamamlanma Oranı', en: 'Completion Rate' },
   };
 
   useEffect(() => {
     if (user) {
       fetchPeriods();
+      fetchClassesAndTeachers();
     }
   }, [user]);
 
@@ -140,7 +162,7 @@ export default function AdminPeriodicReportsManagement() {
     if (selectedPeriod) {
       fetchReports();
     }
-  }, [selectedPeriod, statusFilter]);
+  }, [selectedPeriod, statusFilter, classFilter, teacherFilter, pendingOnlyFilter]);
 
   const fetchPeriods = async () => {
     try {
@@ -156,6 +178,29 @@ export default function AdminPeriodicReportsManagement() {
     }
   };
 
+  const fetchClassesAndTeachers = async () => {
+    try {
+      const { data: childrenData } = await supabase
+        .from('children')
+        .select('class_name')
+        .order('class_name');
+
+      const uniqueClasses = Array.from(new Set(childrenData?.map(c => c.class_name).filter(Boolean)));
+      setClasses(uniqueClasses);
+
+      const { data: teachersData } = await supabase
+        .from('profiles')
+        .select('id, full_name, role')
+        .in('role', ['teacher', 'guidance_counselor'])
+        .eq('approved', true)
+        .order('full_name');
+
+      setTeachers(teachersData || []);
+    } catch (error) {
+      console.error('Error fetching classes and teachers:', error);
+    }
+  };
+
   const fetchReports = async () => {
     try {
       setLoading(true);
@@ -166,7 +211,8 @@ export default function AdminPeriodicReportsManagement() {
           children (
             first_name,
             last_name,
-            branch
+            branch,
+            class_name
           ),
           profiles (
             full_name
@@ -181,15 +227,45 @@ export default function AdminPeriodicReportsManagement() {
         query = query.eq('status', statusFilter);
       }
 
+      if (pendingOnlyFilter) {
+        query = query.eq('status', 'completed');
+      }
+
       const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
-      setReports(data || []);
+
+      let filteredData = data || [];
+
+      if (classFilter !== 'all') {
+        filteredData = filteredData.filter(r => r.children?.class_name === classFilter);
+      }
+
+      if (teacherFilter !== 'all') {
+        filteredData = filteredData.filter(r => r.teacher_id === teacherFilter);
+      }
+
+      setReports(filteredData);
     } catch (error) {
       console.error('Error fetching reports:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const calculateCompletionRate = (report: PeriodicReport): number => {
+    const sections = [
+      report.montessori_completed,
+      report.english_completed,
+      report.quran_completed,
+      report.moral_values_completed,
+      report.etiquette_completed,
+      report.art_music_completed,
+      report.guidance_completed,
+    ];
+
+    const completedCount = sections.filter(Boolean).length;
+    return Math.round((completedCount / sections.length) * 100);
   };
 
   const handleSavePeriod = async (e: React.FormEvent) => {
@@ -279,9 +355,62 @@ export default function AdminPeriodicReportsManagement() {
 
       alert(language === 'tr' ? 'Rapor onaylandı' : 'Report approved');
       fetchReports();
+      setSelectedReports(new Set());
     } catch (error: any) {
       console.error('Error approving report:', error);
       alert(error.message || 'An error occurred');
+    }
+  };
+
+  const handleBulkApprove = async () => {
+    if (selectedReports.size === 0) {
+      alert(language === 'tr' ? 'Lütfen onaylamak için rapor seçin' : 'Please select reports to approve');
+      return;
+    }
+
+    if (!confirm(language === 'tr' ? `${selectedReports.size} raporu onaylamak istediğinizden emin misiniz?` : `Are you sure you want to approve ${selectedReports.size} reports?`)) {
+      return;
+    }
+
+    try {
+      const promises = Array.from(selectedReports).map(reportId =>
+        supabase
+          .from('periodic_development_reports')
+          .update({
+            status: 'approved',
+            approved_by: user?.id,
+            approved_at: new Date().toISOString(),
+          })
+          .eq('id', reportId)
+      );
+
+      await Promise.all(promises);
+
+      alert(language === 'tr' ? 'Raporlar onaylandı' : 'Reports approved');
+      fetchReports();
+      setSelectedReports(new Set());
+    } catch (error: any) {
+      console.error('Error bulk approving:', error);
+      alert(error.message || 'An error occurred');
+    }
+  };
+
+  const toggleReportSelection = (reportId: string) => {
+    const newSelection = new Set(selectedReports);
+    if (newSelection.has(reportId)) {
+      newSelection.delete(reportId);
+    } else {
+      newSelection.add(reportId);
+    }
+    setSelectedReports(newSelection);
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedReports.size === reports.filter(r => r.status === 'completed').length) {
+      setSelectedReports(new Set());
+    } else {
+      const completedReportIds = reports.filter(r => r.status === 'completed').map(r => r.id);
+      setSelectedReports(new Set(completedReportIds));
     }
   };
 
@@ -442,7 +571,7 @@ export default function AdminPeriodicReportsManagement() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'draft': return <Clock className="w-4 h-4" />;
-      case 'completed': return <CheckCircle className="w-4 h-4" />;
+      case 'completed': return <AlertCircle className="w-4 h-4" />;
       case 'approved': return <CheckCircle className="w-4 h-4" />;
       default: return <Clock className="w-4 h-4" />;
     }
@@ -640,39 +769,94 @@ export default function AdminPeriodicReportsManagement() {
           {t.reports[language]}
         </h3>
 
-        <div className="flex gap-4 mb-6">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.period[language]}
-            </label>
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">{t.selectPeriod[language]}</option>
-              {periods.map((period) => (
-                <option key={period.id} value={period.id}>
-                  {period.name}
-                </option>
-              ))}
-            </select>
+        <div className="space-y-4 mb-6">
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t.period[language]}
+              </label>
+              <select
+                value={selectedPeriod}
+                onChange={(e) => setSelectedPeriod(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">{t.selectPeriod[language]}</option>
+                {periods.map((period) => (
+                  <option key={period.id} value={period.id}>
+                    {period.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t.status[language]}
+              </label>
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">{t.allStatuses[language]}</option>
+                <option value="draft">{t.draft[language]}</option>
+                <option value="completed">{t.completed[language]}</option>
+                <option value="approved">{t.approved[language]}</option>
+              </select>
+            </div>
           </div>
 
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              {t.status[language]}
-            </label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">{t.allStatuses[language]}</option>
-              <option value="draft">{t.draft[language]}</option>
-              <option value="completed">{t.completed[language]}</option>
-              <option value="approved">{t.approved[language]}</option>
-            </select>
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                {t.class[language]}
+              </label>
+              <select
+                value={classFilter}
+                onChange={(e) => setClassFilter(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">{t.allClasses[language]}</option>
+                {classes.map((className) => (
+                  <option key={className} value={className}>
+                    {className}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex-1">
+              <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
+                <GraduationCap className="w-4 h-4" />
+                {t.teacher[language]}
+              </label>
+              <select
+                value={teacherFilter}
+                onChange={(e) => setTeacherFilter(e.target.value)}
+                className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="all">{t.allTeachers[language]}</option>
+                {teachers.map((teacher) => (
+                  <option key={teacher.id} value={teacher.id}>
+                    {teacher.full_name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-center px-4 py-2 border rounded-lg bg-yellow-50">
+              <input
+                type="checkbox"
+                id="pending_only"
+                checked={pendingOnlyFilter}
+                onChange={(e) => setPendingOnlyFilter(e.target.checked)}
+                className="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500"
+              />
+              <label htmlFor="pending_only" className="ml-2 text-sm text-gray-700 whitespace-nowrap">
+                {t.pendingApprovalOnly[language]}
+              </label>
+            </div>
           </div>
         </div>
 
@@ -696,13 +880,13 @@ export default function AdminPeriodicReportsManagement() {
                 <Clock className="w-8 h-8 text-yellow-600" />
               </div>
             </div>
-            <div className="bg-blue-50 rounded-lg p-4">
+            <div className="bg-orange-50 rounded-lg p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-600">{t.completedReports[language]}</p>
-                  <p className="text-2xl font-bold text-blue-600">{stats.completed}</p>
+                  <p className="text-2xl font-bold text-orange-600">{stats.completed}</p>
                 </div>
-                <CheckCircle className="w-8 h-8 text-blue-600" />
+                <AlertCircle className="w-8 h-8 text-orange-600" />
               </div>
             </div>
             <div className="bg-green-50 rounded-lg p-4">
@@ -714,6 +898,43 @@ export default function AdminPeriodicReportsManagement() {
                 <CheckCircle className="w-8 h-8 text-green-600" />
               </div>
             </div>
+          </div>
+        )}
+
+        {stats.completed > 0 && (
+          <div className="mb-4 flex items-center justify-between p-4 bg-blue-50 rounded-lg">
+            <div className="flex items-center gap-4">
+              <button
+                onClick={toggleSelectAll}
+                className="flex items-center gap-2 text-blue-600 hover:text-blue-700 font-medium"
+              >
+                {selectedReports.size === reports.filter(r => r.status === 'completed').length ? (
+                  <>
+                    <CheckSquare className="w-5 h-5" />
+                    {t.deselectAll[language]}
+                  </>
+                ) : (
+                  <>
+                    <Square className="w-5 h-5" />
+                    {t.selectAll[language]}
+                  </>
+                )}
+              </button>
+              {selectedReports.size > 0 && (
+                <span className="text-sm text-gray-600">
+                  {selectedReports.size} {t.selected[language]}
+                </span>
+              )}
+            </div>
+            {selectedReports.size > 0 && (
+              <button
+                onClick={handleBulkApprove}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <CheckCircle className="w-5 h-5" />
+                {t.bulkApprove[language]}
+              </button>
+            )}
           </div>
         )}
 
@@ -734,14 +955,22 @@ export default function AdminPeriodicReportsManagement() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  {stats.completed > 0 && (
+                    <th className="px-3 py-3 text-left">
+                      <span className="sr-only">Select</span>
+                    </th>
+                  )}
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {t.student[language]}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    {t.branch[language]}
+                    {t.class[language]}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {t.teacher[language]}
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    {t.completionRate[language]}
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {t.status[language]}
@@ -754,6 +983,18 @@ export default function AdminPeriodicReportsManagement() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {reports.map((report) => (
                   <tr key={report.id} className="hover:bg-gray-50">
+                    {stats.completed > 0 && (
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        {report.status === 'completed' && (
+                          <input
+                            type="checkbox"
+                            checked={selectedReports.has(report.id)}
+                            onChange={() => toggleReportSelection(report.id)}
+                            className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                        )}
+                      </td>
+                    )}
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
                         {report.children?.first_name} {report.children?.last_name}
@@ -761,12 +1002,33 @@ export default function AdminPeriodicReportsManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600">
-                        {report.children?.branch}
+                        {report.children?.class_name}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-600">
                         {report.profiles?.full_name}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center gap-2">
+                        <div className="w-24 bg-gray-200 rounded-full h-2">
+                          <div
+                            className={`h-2 rounded-full ${
+                              calculateCompletionRate(report) === 100
+                                ? 'bg-green-600'
+                                : calculateCompletionRate(report) >= 70
+                                ? 'bg-blue-600'
+                                : calculateCompletionRate(report) >= 40
+                                ? 'bg-yellow-600'
+                                : 'bg-red-600'
+                            }`}
+                            style={{ width: `${calculateCompletionRate(report)}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-xs text-gray-600 font-medium">
+                          {calculateCompletionRate(report)}%
+                        </span>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -786,7 +1048,7 @@ export default function AdminPeriodicReportsManagement() {
                         </button>
                         <button
                           onClick={() => handleDownloadPDF(report)}
-                          className="text-purple-600 hover:text-purple-900"
+                          className="text-indigo-600 hover:text-indigo-900"
                           title={language === 'tr' ? 'PDF İndir' : 'Download PDF'}
                         >
                           <Download className="w-5 h-5" />
@@ -812,7 +1074,7 @@ export default function AdminPeriodicReportsManagement() {
 
       {showReportDetail && selectedReport && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
-          <div className="bg-white rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg p-6 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900">
                 {language === 'tr' ? 'Rapor Detayı' : 'Report Details'}
@@ -831,18 +1093,56 @@ export default function AdminPeriodicReportsManagement() {
                   <h4 className="text-lg font-semibold text-gray-900">
                     {selectedReport.children?.first_name} {selectedReport.children?.last_name}
                   </h4>
-                  <p className="text-sm text-gray-600">{selectedReport.children?.branch}</p>
+                  <p className="text-sm text-gray-600">{selectedReport.children?.class_name}</p>
                   <p className="text-sm text-gray-600">{selectedReport.academic_periods?.name}</p>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${getStatusColor(selectedReport.status)}`}>
-                  {getStatusIcon(selectedReport.status)}
-                  {t[selectedReport.status][language]}
-                </span>
+                <div className="text-right">
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${getStatusColor(selectedReport.status)}`}>
+                    {getStatusIcon(selectedReport.status)}
+                    {t[selectedReport.status][language]}
+                  </span>
+                  <div className="mt-2 text-sm text-gray-600">
+                    {t.completionRate[language]}: {calculateCompletionRate(selectedReport)}%
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <GraduationCap className="w-5 h-5 text-blue-600" />
+                    <h5 className="font-semibold text-gray-900">{t.montessoriSections[language]}</h5>
+                  </div>
+                  <div className={`text-2xl font-bold ${selectedReport.montessori_completed ? 'text-green-600' : 'text-gray-400'}`}>
+                    {selectedReport.montessori_completed ? <CheckCircle className="w-8 h-8 mx-auto" /> : <Clock className="w-8 h-8 mx-auto" />}
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <FileText className="w-5 h-5 text-orange-600" />
+                    <h5 className="font-semibold text-gray-900">{t.branchCourses[language]}</h5>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    {[selectedReport.english_completed, selectedReport.quran_completed, selectedReport.moral_values_completed, selectedReport.etiquette_completed, selectedReport.art_music_completed].filter(Boolean).length}/5
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center justify-center gap-2 mb-2">
+                    <Users className="w-5 h-5 text-green-600" />
+                    <h5 className="font-semibold text-gray-900">{t.guidanceUnit[language]}</h5>
+                  </div>
+                  <div className={`text-2xl font-bold ${selectedReport.guidance_completed ? 'text-green-600' : 'text-gray-400'}`}>
+                    {selectedReport.guidance_completed ? <CheckCircle className="w-8 h-8 mx-auto" /> : <Clock className="w-8 h-8 mx-auto" />}
+                  </div>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h5 className="font-semibold text-gray-900">{language === 'tr' ? 'Montessori Alanları' : 'Montessori Areas'}</h5>
+                  <h5 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-blue-600" />
+                    {language === 'tr' ? 'Montessori Alanları' : 'Montessori Areas'}
+                  </h5>
                   {selectedReport.practical_life && (
                     <div className="bg-gray-50 p-3 rounded-lg">
                       <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Pratik Yaşam' : 'Practical Life'}</p>
@@ -876,39 +1176,69 @@ export default function AdminPeriodicReportsManagement() {
                 </div>
 
                 <div className="space-y-4">
-                  <h5 className="font-semibold text-gray-900">{language === 'tr' ? 'Branş Dersleri' : 'Branch Courses'}</h5>
+                  <h5 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-orange-600" />
+                    {language === 'tr' ? 'Branş Dersleri' : 'Branch Courses'}
+                  </h5>
                   {selectedReport.english && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'İngilizce' : 'English'}</p>
-                      <p className="text-sm text-gray-600 mt-1">{selectedReport.english}</p>
+                    <div className={`p-3 rounded-lg ${selectedReport.english_completed ? 'bg-green-50' : 'bg-gray-50'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'İngilizce' : 'English'}</p>
+                        {selectedReport.english_completed && <CheckCircle className="w-4 h-4 text-green-600" />}
+                      </div>
+                      <p className="text-sm text-gray-600">{selectedReport.english}</p>
                     </div>
                   )}
                   {selectedReport.quran && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Kuran' : 'Quran'}</p>
-                      <p className="text-sm text-gray-600 mt-1">{selectedReport.quran}</p>
+                    <div className={`p-3 rounded-lg ${selectedReport.quran_completed ? 'bg-green-50' : 'bg-gray-50'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Kuran' : 'Quran'}</p>
+                        {selectedReport.quran_completed && <CheckCircle className="w-4 h-4 text-green-600" />}
+                      </div>
+                      <p className="text-sm text-gray-600">{selectedReport.quran}</p>
                     </div>
                   )}
                   {selectedReport.moral_values && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Manevi Değerler' : 'Moral Values'}</p>
-                      <p className="text-sm text-gray-600 mt-1">{selectedReport.moral_values}</p>
+                    <div className={`p-3 rounded-lg ${selectedReport.moral_values_completed ? 'bg-green-50' : 'bg-gray-50'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Manevi Değerler' : 'Moral Values'}</p>
+                        {selectedReport.moral_values_completed && <CheckCircle className="w-4 h-4 text-green-600" />}
+                      </div>
+                      <p className="text-sm text-gray-600">{selectedReport.moral_values}</p>
                     </div>
                   )}
                   {selectedReport.etiquette && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Adab-ı Muaşeret' : 'Etiquette'}</p>
-                      <p className="text-sm text-gray-600 mt-1">{selectedReport.etiquette}</p>
+                    <div className={`p-3 rounded-lg ${selectedReport.etiquette_completed ? 'bg-green-50' : 'bg-gray-50'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Adab-ı Muaşeret' : 'Etiquette'}</p>
+                        {selectedReport.etiquette_completed && <CheckCircle className="w-4 h-4 text-green-600" />}
+                      </div>
+                      <p className="text-sm text-gray-600">{selectedReport.etiquette}</p>
                     </div>
                   )}
                   {selectedReport.art_music && (
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Sanat-Müzik' : 'Art-Music'}</p>
-                      <p className="text-sm text-gray-600 mt-1">{selectedReport.art_music}</p>
+                    <div className={`p-3 rounded-lg ${selectedReport.art_music_completed ? 'bg-green-50' : 'bg-gray-50'}`}>
+                      <div className="flex items-center justify-between mb-1">
+                        <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Sanat-Müzik' : 'Art-Music'}</p>
+                        {selectedReport.art_music_completed && <CheckCircle className="w-4 h-4 text-green-600" />}
+                      </div>
+                      <p className="text-sm text-gray-600">{selectedReport.art_music}</p>
                     </div>
                   )}
                 </div>
               </div>
+
+              {selectedReport.guidance_evaluation && (
+                <div className="border-t pt-4">
+                  <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                    <Users className="w-5 h-5 text-green-600" />
+                    {language === 'tr' ? 'Rehberlik Birimi Değerlendirmesi' : 'Guidance Unit Evaluation'}
+                  </h5>
+                  <div className={`p-3 rounded-lg ${selectedReport.guidance_completed ? 'bg-green-50' : 'bg-gray-50'}`}>
+                    <p className="text-sm text-gray-600">{selectedReport.guidance_evaluation}</p>
+                  </div>
+                </div>
+              )}
 
               <div className="border-t pt-4">
                 <h5 className="font-semibold text-gray-900 mb-3">{language === 'tr' ? 'Genel Değerlendirme' : 'General Evaluation'}</h5>
@@ -932,13 +1262,28 @@ export default function AdminPeriodicReportsManagement() {
                     </div>
                   )}
                   {selectedReport.recommendations && (
-                    <div className="bg-purple-50 p-3 rounded-lg">
+                    <div className="bg-indigo-50 p-3 rounded-lg">
                       <p className="font-medium text-sm text-gray-700">{language === 'tr' ? 'Öneriler ve Hedefler' : 'Recommendations and Goals'}</p>
                       <p className="text-sm text-gray-600 mt-1">{selectedReport.recommendations}</p>
                     </div>
                   )}
                 </div>
               </div>
+
+              {selectedReport.status === 'completed' && (
+                <div className="border-t pt-4 flex justify-end">
+                  <button
+                    onClick={() => {
+                      handleApproveReport(selectedReport.id);
+                      setShowReportDetail(false);
+                    }}
+                    className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <CheckCircle className="w-5 h-5" />
+                    {t.approve[language]}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
