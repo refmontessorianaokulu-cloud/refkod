@@ -351,19 +351,17 @@ export default function Login() {
 
       {/* Top Header - Mobil ve Masaüstü */}
       <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
-        <div className="flex items-start justify-between md:justify-start md:items-center md:gap-8">
+        <div className="flex items-start justify-between md:justify-start md:gap-8">
           {/* Sol Üst - Hamburger */}
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => {
-                setIsMobileMenuOpen(true);
-                setIsDesktopMenuOpen(true);
-              }}
-              className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
-            >
-              <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
-            </button>
-          </div>
+          <button
+            onClick={() => {
+              setIsMobileMenuOpen(true);
+              setIsDesktopMenuOpen(true);
+            }}
+            className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
+          >
+            <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
+          </button>
 
           {/* Orta - Logo (Masaüstünde hamburger ve search arasında, mobilde sağda) */}
           <div className="md:flex-1 md:flex md:justify-center">
@@ -378,7 +376,7 @@ export default function Login() {
                   setOpenDesktopCard('login');
                 }
               }}
-              className="transition-all"
+              className="transition-all p-2"
             >
               <img
                 src="/whatsapp_image_2026-01-10_at_23.02.15.png"
@@ -389,7 +387,7 @@ export default function Login() {
           </div>
 
           {/* Sağ - Search (Sadece masaüstünde görünür) */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-start gap-3">
             <button
               onClick={() => setShowSearchModal(true)}
               className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
