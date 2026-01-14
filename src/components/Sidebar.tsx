@@ -41,6 +41,7 @@ import {
   Palette,
   Video,
   Search,
+  ShoppingCart,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -80,7 +81,9 @@ export type MenuTab =
   | 'ref_akademi'
   | 'ref_danismanlik'
   | 'ref_atolye'
-  | 'ref_management';
+  | 'ref_management'
+  | 'shopping_cart'
+  | 'my_orders';
 
 export interface MenuItem {
   id: MenuTab;
@@ -123,6 +126,8 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
       { id: 'ref_akademi', label: t('menu.refAkademi'), icon: GraduationCap },
       { id: 'ref_danismanlik', label: t('menu.refDanismanlik'), icon: Briefcase },
       { id: 'ref_atolye', label: t('menu.refAtolye'), icon: Palette },
+      { id: 'shopping_cart', label: t('menu.shoppingCart'), icon: ShoppingCart },
+      { id: 'my_orders', label: t('menu.myOrders'), icon: Package },
     ],
   },
   {

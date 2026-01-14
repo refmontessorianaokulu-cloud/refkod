@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { ShoppingCart, Package, GraduationCap, Settings } from 'lucide-react';
 import ProductManagement from './ProductManagement';
+import ProductCatalog from './ProductCatalog';
 
 interface RefSection {
   id: string;
@@ -230,11 +231,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       {/* Ref Atölye - Products Tab */}
       {activeTab === 'products' && sectionType === 'ref_atolye' && (
         <div>
-          <div className="text-center py-12">
-            <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">Ürün Kataloğu</h3>
-            <p className="text-gray-500">Montessori materyalleri ve eğitim araçları yakında burada olacak.</p>
-          </div>
+          <ProductCatalog />
         </div>
       )}
 

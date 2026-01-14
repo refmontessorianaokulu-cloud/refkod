@@ -124,6 +124,8 @@ const trTranslations: Record<string, string> = {
   'menu.settings': 'Ayarlar',
   'menu.instagramSettings': 'Instagram Ayarları',
   'menu.videoSettings': 'Login Video Ayarları',
+  'menu.shoppingCart': 'Sepetim',
+  'menu.myOrders': 'Siparişlerim',
 
   'home.title': 'Ref Çocuk Akademisine HOŞGELDİNİZ!',
   'home.subtitle': 'Montessori School',
@@ -218,6 +220,8 @@ const enTranslations: Record<string, string> = {
   'menu.settings': 'Settings',
   'menu.instagramSettings': 'Instagram Settings',
   'menu.videoSettings': 'Login Video Settings',
+  'menu.shoppingCart': 'My Cart',
+  'menu.myOrders': 'My Orders',
 
   'home.title': 'WELCOME to Ref Children\'s Academy!',
   'home.subtitle': 'Montessori School',

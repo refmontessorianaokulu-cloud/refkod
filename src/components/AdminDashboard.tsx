@@ -28,6 +28,8 @@ import RefSectionsManagement from './RefSectionsManagement';
 import RefSectionsView from './RefSectionsView';
 import TeacherBranchAssignments from './TeacherBranchAssignments';
 import VideoUploadSection from './VideoUploadSection';
+import ShoppingCartView from './ShoppingCartView';
+import OrderManagement from './OrderManagement';
 import SearchModal from './SearchModal';
 import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab } from './Sidebar';
@@ -1160,6 +1162,8 @@ export default function AdminDashboard() {
             {activeTab === 'ref_akademi' && <RefSectionsView sectionType="ref_akademi" />}
             {activeTab === 'ref_danismanlik' && <RefSectionsView sectionType="ref_danismanlik" />}
             {activeTab === 'ref_atolye' && <RefSectionsView sectionType="ref_atolye" />}
+            {activeTab === 'shopping_cart' && <ShoppingCartView />}
+            {activeTab === 'my_orders' && <OrderManagement />}
               </div>
             </div>
           )}
