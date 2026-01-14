@@ -595,52 +595,20 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - REF Atölye */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
-              <button
-                onClick={() => setOpenMobileCard(openMobileCard === 'atolye' ? null : 'atolye')}
-                className="w-full flex items-center justify-between"
-              >
+            <div
+              className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors cursor-pointer"
+              onClick={() => {
+                signInAsGuest('ref_atolye');
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              <div className="w-full flex items-center justify-between">
                 <h3 className="text-sm font-bold text-gray-800">REF Atölye</h3>
-                <ChevronDown
-                  className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
-                    openMobileCard === 'atolye' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              <div className={`mt-3 max-h-80 overflow-y-auto ${openMobileCard === 'atolye' ? 'block' : 'hidden'}`}>
-                {refAtolyeLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
-                  </div>
-                ) : refAtolye ? (
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-gray-800">
-                      {refAtolye.title}
-                    </h4>
-                    <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
-                      {refAtolye.content}
-                    </p>
-                    {refAtolye.media_urls && refAtolye.media_urls.length > 0 && (
-                      <div className="grid grid-cols-1 gap-2 mt-3">
-                        {refAtolye.media_urls.map((url, index) => (
-                          <div key={index} className="rounded-lg overflow-hidden shadow-sm">
-                            <img
-                              src={url}
-                              alt={`${refAtolye.title} - ${index + 1}`}
-                              className="w-full h-32 object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-xs text-gray-700">Bu bölüm için henüz içerik eklenmemiş.</p>
-                  </div>
-                )}
+                <ChevronDown className="w-5 h-5 text-gray-800" />
               </div>
+              <p className="text-xs text-gray-600 mt-2">
+                Ürünlerimizi görüntülemek için tıklayın
+              </p>
             </div>
 
             {/* Mobil Sidebar - REF Danışmanlık */}
@@ -1014,52 +982,20 @@ export default function Login() {
             </div>
 
             {/* REF Atölye */}
-            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
-              <button
-                onClick={() => setOpenDesktopCard(openDesktopCard === 'atolye' ? null : 'atolye')}
-                className="w-full flex items-center justify-between"
-              >
+            <div
+              className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors cursor-pointer"
+              onClick={() => {
+                signInAsGuest('ref_atolye');
+                setIsDesktopMenuOpen(false);
+              }}
+            >
+              <div className="w-full flex items-center justify-between">
                 <h3 className="text-base font-bold text-gray-800">REF Atölye</h3>
-                <ChevronDown
-                  className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
-                    openDesktopCard === 'atolye' ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
-
-              <div className={`mt-4 max-h-80 overflow-y-auto ${openDesktopCard === 'atolye' ? 'block' : 'hidden'}`}>
-                {refAtolyeLoading ? (
-                  <div className="flex items-center justify-center py-8">
-                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-gray-800 border-t-transparent"></div>
-                  </div>
-                ) : refAtolye ? (
-                  <div className="space-y-3">
-                    <h4 className="text-sm font-semibold text-gray-800">
-                      {refAtolye.title}
-                    </h4>
-                    <p className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed">
-                      {refAtolye.content}
-                    </p>
-                    {refAtolye.media_urls && refAtolye.media_urls.length > 0 && (
-                      <div className="grid grid-cols-1 gap-2 mt-3">
-                        {refAtolye.media_urls.map((url, index) => (
-                          <div key={index} className="rounded-lg overflow-hidden shadow-sm">
-                            <img
-                              src={url}
-                              alt={`${refAtolye.title} - ${index + 1}`}
-                              className="w-full h-32 object-cover"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className="text-center py-4">
-                    <p className="text-xs text-gray-700">Bu bölüm için henüz içerik eklenmemiş.</p>
-                  </div>
-                )}
+                <ChevronDown className="w-5 h-5 text-gray-800" />
               </div>
+              <p className="text-sm text-gray-600 mt-2">
+                Ürünlerimizi görüntülemek için tıklayın
+              </p>
             </div>
 
             {/* REF Danışmanlık */}

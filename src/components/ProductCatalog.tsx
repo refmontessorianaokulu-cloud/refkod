@@ -47,9 +47,7 @@ export default function ProductCatalog() {
 
   useEffect(() => {
     loadData();
-    if (user) {
-      loadCartCount();
-    }
+    loadCartCount();
   }, [user]);
 
   const loadData = async () => {
@@ -73,13 +71,19 @@ export default function ProductCatalog() {
 
   const loadCartCount = async () => {
     try {
-      const { data } = await supabase
-        .from('shopping_cart')
-        .select('quantity')
-        .eq('user_id', user?.id);
+      if (user) {
+        const { data } = await supabase
+          .from('shopping_cart')
+          .select('quantity')
+          .eq('user_id', user.id);
 
-      if (data) {
-        const total = data.reduce((sum, item) => sum + item.quantity, 0);
+        if (data) {
+          const total = data.reduce((sum, item) => sum + item.quantity, 0);
+          setCartCount(total);
+        }
+      } else {
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const total = guestCart.reduce((sum: number, item: any) => sum + item.quantity, 0);
         setCartCount(total);
       }
     } catch (error) {
@@ -88,20 +92,34 @@ export default function ProductCatalog() {
   };
 
   const addToCart = async (product: Product) => {
-    if (!user) {
-      alert('Sepete eklemek için giriş yapmalısınız!');
-      return;
-    }
-
     try {
-      const { error } = await supabase.from('shopping_cart').insert({
-        user_id: user.id,
-        product_id: product.id,
-        quantity: 1,
-      });
+      if (user) {
+        const { error } = await supabase.from('shopping_cart').insert({
+          user_id: user.id,
+          product_id: product.id,
+          quantity: 1,
+        });
 
-      if (error) throw error;
-      alert('Ürün sepete eklendi!');
+        if (error) throw error;
+        alert('Ürün sepete eklendi!');
+      } else {
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const existingItem = guestCart.find((item: any) => item.product_id === product.id);
+
+        if (existingItem) {
+          existingItem.quantity += 1;
+        } else {
+          guestCart.push({
+            id: `guest_${Date.now()}`,
+            product_id: product.id,
+            quantity: 1,
+            added_at: new Date().toISOString(),
+          });
+        }
+
+        localStorage.setItem('guest_cart', JSON.stringify(guestCart));
+        alert('Ürün sepete eklendi!');
+      }
       loadCartCount();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
@@ -139,7 +157,7 @@ export default function ProductCatalog() {
           <h3 className="text-2xl font-bold text-gray-800">Ürün Kataloğu</h3>
           <p className="text-gray-600 mt-1">Montessori materyalleri ve eğitim araçları</p>
         </div>
-        {user && cartCount > 0 && (
+        {cartCount > 0 && (
           <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg">
             <ShoppingCart className="w-5 h-5" />
             <span className="font-semibold">{cartCount} ürün sepetinizde</span>

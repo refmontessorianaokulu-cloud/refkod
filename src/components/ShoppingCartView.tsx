@@ -34,6 +34,8 @@ interface CartItemWithDetails extends CartItem {
 }
 
 interface CheckoutData {
+  guest_email?: string;
+  guest_phone?: string;
   shipping_address: {
     full_name: string;
     address: string;
@@ -78,19 +80,24 @@ export default function ShoppingCartView() {
   });
 
   useEffect(() => {
-    if (user) {
-      loadCart();
-    }
+    loadCart();
   }, [user]);
 
   const loadCart = async () => {
-    if (!user) return;
     setLoading(true);
     try {
-      const { data: cartData } = await supabase
-        .from('shopping_cart')
-        .select('*')
-        .eq('user_id', user.id);
+      let cartData: any[] = [];
+
+      if (user) {
+        const { data } = await supabase
+          .from('shopping_cart')
+          .select('*')
+          .eq('user_id', user.id);
+        cartData = data || [];
+      } else {
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        cartData = guestCart;
+      }
 
       if (cartData) {
         const itemsWithDetails = await Promise.all(
@@ -132,12 +139,21 @@ export default function ShoppingCartView() {
   const updateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
     try {
-      const { error } = await supabase
-        .from('shopping_cart')
-        .update({ quantity: newQuantity })
-        .eq('id', itemId);
+      if (user) {
+        const { error } = await supabase
+          .from('shopping_cart')
+          .update({ quantity: newQuantity })
+          .eq('id', itemId);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const item = guestCart.find((i: any) => i.id === itemId);
+        if (item) {
+          item.quantity = newQuantity;
+          localStorage.setItem('guest_cart', JSON.stringify(guestCart));
+        }
+      }
       loadCart();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
@@ -146,12 +162,18 @@ export default function ShoppingCartView() {
 
   const removeItem = async (itemId: string) => {
     try {
-      const { error } = await supabase
-        .from('shopping_cart')
-        .delete()
-        .eq('id', itemId);
+      if (user) {
+        const { error } = await supabase
+          .from('shopping_cart')
+          .delete()
+          .eq('id', itemId);
 
-      if (error) throw error;
+        if (error) throw error;
+      } else {
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const filteredCart = guestCart.filter((i: any) => i.id !== itemId);
+        localStorage.setItem('guest_cart', JSON.stringify(filteredCart));
+      }
       loadCart();
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
@@ -168,8 +190,6 @@ export default function ShoppingCartView() {
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!user) return;
-
     try {
       const orderNumber = `ORD-${Date.now()}`;
       const subtotal = calculateTotal();
@@ -180,20 +200,31 @@ export default function ShoppingCartView() {
         ? checkoutData.shipping_address
         : checkoutData.billing_address;
 
+      const orderData: any = {
+        order_number: orderNumber,
+        status: 'pending',
+        subtotal,
+        discount_amount: 0,
+        shipping_cost: shippingCost,
+        total_amount: total,
+        shipping_address: checkoutData.shipping_address,
+        billing_address: billingAddress,
+        notes: checkoutData.notes,
+      };
+
+      if (user) {
+        orderData.user_id = user.id;
+        orderData.is_guest_order = false;
+      } else {
+        orderData.user_id = null;
+        orderData.is_guest_order = true;
+        orderData.guest_email = checkoutData.guest_email || 'guest@example.com';
+        orderData.guest_phone = checkoutData.guest_phone || checkoutData.shipping_address.phone;
+      }
+
       const { data: order, error: orderError } = await supabase
         .from('orders')
-        .insert({
-          user_id: user.id,
-          order_number: orderNumber,
-          status: 'pending',
-          subtotal,
-          discount_amount: 0,
-          shipping_cost: shippingCost,
-          total_amount: total,
-          shipping_address: checkoutData.shipping_address,
-          billing_address: billingAddress,
-          notes: checkoutData.notes,
-        })
+        .insert(orderData)
         .select()
         .single();
 
@@ -226,12 +257,16 @@ export default function ShoppingCartView() {
 
       if (paymentError) throw paymentError;
 
-      const { error: clearCartError } = await supabase
-        .from('shopping_cart')
-        .delete()
-        .eq('user_id', user.id);
+      if (user) {
+        const { error: clearCartError } = await supabase
+          .from('shopping_cart')
+          .delete()
+          .eq('user_id', user.id);
 
-      if (clearCartError) throw clearCartError;
+        if (clearCartError) throw clearCartError;
+      } else {
+        localStorage.removeItem('guest_cart');
+      }
 
       alert(`Siparişiniz alındı! Sipariş numaranız: ${orderNumber}`);
       setShowCheckout(false);
@@ -240,15 +275,6 @@ export default function ShoppingCartView() {
       alert('Sipariş oluşturulurken hata: ' + (error as Error).message);
     }
   };
-
-  if (!user) {
-    return (
-      <div className="text-center py-12">
-        <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-500">Sepetinizi görmek için giriş yapmalısınız.</p>
-      </div>
-    );
-  }
 
   if (loading) {
     return <div className="text-center py-12 text-gray-500">Yükleniyor...</div>;
@@ -354,6 +380,36 @@ export default function ShoppingCartView() {
               <h3 className="text-2xl font-bold text-gray-800 mb-6">Sipariş Bilgileri</h3>
 
               <form onSubmit={handleCheckout} className="space-y-6">
+                {!user && (
+                  <div>
+                    <h4 className="font-semibold text-gray-800 mb-4">İletişim Bilgileri</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">E-posta *</label>
+                        <input
+                          type="email"
+                          required
+                          value={checkoutData.guest_email || ''}
+                          onChange={(e) => setCheckoutData({ ...checkoutData, guest_email: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          placeholder="ornek@email.com"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Telefon *</label>
+                        <input
+                          type="tel"
+                          required
+                          value={checkoutData.guest_phone || ''}
+                          onChange={(e) => setCheckoutData({ ...checkoutData, guest_phone: e.target.value })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          placeholder="05XX XXX XX XX"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <h4 className="font-semibold text-gray-800 mb-4">Teslimat Adresi</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
