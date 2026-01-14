@@ -4,7 +4,7 @@ import { Package, Truck, CheckCircle, X, Eye, Search, Filter } from 'lucide-reac
 
 interface Order {
   id: string;
-  user_id: string;
+  user_id: string | null;
   order_number: string;
   status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
   subtotal: number;
@@ -14,6 +14,9 @@ interface Order {
   shipping_address: any;
   billing_address: any;
   notes?: string;
+  is_guest_order?: boolean;
+  guest_email?: string;
+  guest_phone?: string;
   created_at: string;
 }
 
@@ -73,17 +76,25 @@ export default function OrderManagement() {
       if (ordersData) {
         const ordersWithUser = await Promise.all(
           ordersData.map(async (order) => {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('full_name, email')
-              .eq('id', order.user_id)
-              .maybeSingle();
+            if (order.is_guest_order) {
+              return {
+                ...order,
+                user_name: order.shipping_address?.full_name || 'Misafir',
+                user_email: order.guest_email || '',
+              };
+            } else {
+              const { data: profile } = await supabase
+                .from('profiles')
+                .select('full_name, email')
+                .eq('id', order.user_id)
+                .maybeSingle();
 
-            return {
-              ...order,
-              user_name: profile?.full_name || 'Bilinmiyor',
-              user_email: profile?.email || '',
-            };
+              return {
+                ...order,
+                user_name: profile?.full_name || 'Bilinmiyor',
+                user_email: profile?.email || '',
+              };
+            }
           })
         );
 
@@ -281,8 +292,14 @@ export default function OrderManagement() {
               <div className="mb-6">
                 <h4 className="font-semibold text-gray-800 mb-3">Müşteri Bilgileri</h4>
                 <div className="bg-gray-50 rounded-lg p-4 space-y-2">
+                  {selectedOrder.is_guest_order && (
+                    <p className="text-sm text-amber-600 font-medium mb-2">Misafir Sipariş</p>
+                  )}
                   <p><span className="font-medium">Ad:</span> {selectedOrder.user_name}</p>
                   <p><span className="font-medium">E-posta:</span> {selectedOrder.user_email}</p>
+                  {selectedOrder.is_guest_order && selectedOrder.guest_phone && (
+                    <p><span className="font-medium">Telefon:</span> {selectedOrder.guest_phone}</p>
+                  )}
                 </div>
               </div>
 
