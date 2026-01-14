@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Edit2, Trash2, Save, X, Upload, Package } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, Upload, Package, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -16,6 +16,24 @@ interface Product {
   tags?: string[];
   featured: boolean;
   created_at: string;
+}
+
+interface ProductImage {
+  id: string;
+  product_id: string;
+  image_url: string;
+  is_primary: boolean;
+  display_order: number;
+}
+
+interface ProductVideo {
+  id: string;
+  product_id: string;
+  video_url: string;
+  video_type: 'uploaded' | 'youtube' | 'vimeo' | 'other';
+  title: string;
+  is_primary: boolean;
+  display_order: number;
 }
 
 interface ProductCategory {
@@ -48,6 +66,13 @@ export default function ProductManagement() {
     tags: '',
   });
 
+  const [productImages, setProductImages] = useState<ProductImage[]>([]);
+  const [productVideos, setProductVideos] = useState<ProductVideo[]>([]);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
+  const [newVideoUrl, setNewVideoUrl] = useState('');
+  const [newVideoTitle, setNewVideoTitle] = useState('');
+  const [newVideoType, setNewVideoType] = useState<'youtube' | 'vimeo' | 'other'>('youtube');
+
   const [categoryForm, setCategoryForm] = useState({
     name: '',
     description: '',
@@ -73,6 +98,149 @@ export default function ProductManagement() {
       console.error('Error loading data:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadProductMedia = async (productId: string) => {
+    try {
+      const [imagesRes, videosRes] = await Promise.all([
+        supabase.from('product_images').select('*').eq('product_id', productId).order('display_order'),
+        supabase.from('product_videos').select('*').eq('product_id', productId).order('display_order'),
+      ]);
+
+      if (imagesRes.data) setProductImages(imagesRes.data);
+      if (videosRes.data) setProductVideos(videosRes.data);
+    } catch (error) {
+      console.error('Error loading product media:', error);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    if (!editingProduct && !productForm.name) {
+      alert('Önce ürünü kaydedin, sonra görsel ekleyin');
+      return;
+    }
+
+    setUploadingMedia(true);
+    try {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('product-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('product-images')
+          .getPublicUrl(filePath);
+
+        if (editingProduct) {
+          const { error: insertError } = await supabase.from('product_images').insert({
+            product_id: editingProduct.id,
+            image_url: publicUrl,
+            is_primary: productImages.length === 0,
+            display_order: productImages.length,
+          });
+
+          if (insertError) throw insertError;
+          await loadProductMedia(editingProduct.id);
+        }
+      }
+      alert('Görseller yüklendi!');
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
+    } finally {
+      setUploadingMedia(false);
+    }
+  };
+
+  const handleDeleteImage = async (imageId: string, imageUrl: string) => {
+    if (!confirm('Bu görseli silmek istediğinizden emin misiniz?')) return;
+
+    try {
+      const fileName = imageUrl.split('/').pop();
+      if (fileName) {
+        await supabase.storage.from('product-images').remove([fileName]);
+      }
+
+      const { error } = await supabase.from('product_images').delete().eq('id', imageId);
+      if (error) throw error;
+
+      setProductImages(productImages.filter(img => img.id !== imageId));
+      alert('Görsel silindi!');
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const handleSetPrimaryImage = async (imageId: string) => {
+    if (!editingProduct) return;
+
+    try {
+      await supabase.from('product_images')
+        .update({ is_primary: false })
+        .eq('product_id', editingProduct.id);
+
+      await supabase.from('product_images')
+        .update({ is_primary: true })
+        .eq('id', imageId);
+
+      await loadProductMedia(editingProduct.id);
+      alert('Ana görsel güncellendi!');
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const handleAddVideo = async () => {
+    if (!editingProduct) {
+      alert('Önce ürünü kaydedin, sonra video ekleyin');
+      return;
+    }
+    if (!newVideoUrl.trim()) {
+      alert('Video URL giriniz');
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('product_videos').insert({
+        product_id: editingProduct.id,
+        video_url: newVideoUrl,
+        video_type: newVideoType,
+        title: newVideoTitle || 'Ürün Videosu',
+        is_primary: productVideos.length === 0,
+        display_order: productVideos.length,
+      });
+
+      if (error) throw error;
+
+      await loadProductMedia(editingProduct.id);
+      setNewVideoUrl('');
+      setNewVideoTitle('');
+      alert('Video eklendi!');
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const handleDeleteVideo = async (videoId: string) => {
+    if (!confirm('Bu videoyu silmek istediğinizden emin misiniz?')) return;
+
+    try {
+      const { error } = await supabase.from('product_videos').delete().eq('id', videoId);
+      if (error) throw error;
+
+      setProductVideos(productVideos.filter(vid => vid.id !== videoId));
+      alert('Video silindi!');
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
     }
   };
 
@@ -132,7 +300,7 @@ export default function ProductManagement() {
     }
   };
 
-  const handleEditProduct = (product: Product) => {
+  const handleEditProduct = async (product: Product) => {
     setEditingProduct(product);
     setProductForm({
       category_id: product.category_id || '',
@@ -146,6 +314,7 @@ export default function ProductManagement() {
       featured: product.featured,
       tags: product.tags?.join(', ') || '',
     });
+    await loadProductMedia(product.id);
     setShowProductModal(true);
   };
 
@@ -187,6 +356,10 @@ export default function ProductManagement() {
       tags: '',
     });
     setEditingProduct(null);
+    setProductImages([]);
+    setProductVideos([]);
+    setNewVideoUrl('');
+    setNewVideoTitle('');
   };
 
   const getCategoryName = (categoryId: string) => {
@@ -462,6 +635,150 @@ export default function ProductManagement() {
                   <span className="text-sm text-gray-700">Öne Çıkan</span>
                 </label>
               </div>
+
+              {editingProduct && (
+                <>
+                  <div className="border-t pt-4 mt-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <label className="block text-sm font-medium text-gray-700">
+                        <ImageIcon className="w-4 h-4 inline mr-2" />
+                        Ürün Görselleri
+                      </label>
+                      <label className="cursor-pointer bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 flex items-center gap-2">
+                        <Upload className="w-4 h-4" />
+                        {uploadingMedia ? 'Yükleniyor...' : 'Görsel Ekle'}
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={uploadingMedia}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    {productImages.length > 0 ? (
+                      <div className="grid grid-cols-3 gap-2">
+                        {productImages.map((img) => (
+                          <div key={img.id} className="relative group">
+                            <img
+                              src={img.image_url}
+                              alt="Product"
+                              className="w-full h-32 object-cover rounded border-2 border-gray-200"
+                            />
+                            {img.is_primary && (
+                              <span className="absolute top-1 left-1 bg-green-600 text-white text-xs px-2 py-1 rounded">
+                                Ana Görsel
+                              </span>
+                            )}
+                            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+                              {!img.is_primary && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleSetPrimaryImage(img.id)}
+                                  className="bg-green-600 text-white p-2 rounded hover:bg-green-700"
+                                  title="Ana görsel yap"
+                                >
+                                  <ImageIcon className="w-4 h-4" />
+                                </button>
+                              )}
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteImage(img.id, img.image_url)}
+                                className="bg-red-600 text-white p-2 rounded hover:bg-red-700"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 text-center py-4 border-2 border-dashed border-gray-200 rounded">
+                        Henüz görsel eklenmemiş
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="border-t pt-4 mt-4">
+                    <label className="block text-sm font-medium text-gray-700 mb-3">
+                      <VideoIcon className="w-4 h-4 inline mr-2" />
+                      Ürün Videoları
+                    </label>
+
+                    <div className="bg-gray-50 p-4 rounded-lg space-y-3 mb-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Video Tipi</label>
+                        <select
+                          value={newVideoType}
+                          onChange={(e) => setNewVideoType(e.target.value as 'youtube' | 'vimeo' | 'other')}
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-emerald-500"
+                        >
+                          <option value="youtube">YouTube</option>
+                          <option value="vimeo">Vimeo</option>
+                          <option value="other">Diğer</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Video URL</label>
+                        <input
+                          type="url"
+                          value={newVideoUrl}
+                          onChange={(e) => setNewVideoUrl(e.target.value)}
+                          placeholder="https://youtube.com/watch?v=..."
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">Video Başlığı (Opsiyonel)</label>
+                        <input
+                          type="text"
+                          value={newVideoTitle}
+                          onChange={(e) => setNewVideoTitle(e.target.value)}
+                          placeholder="Ürün tanıtım videosu"
+                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleAddVideo}
+                        className="w-full bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 flex items-center justify-center gap-2"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Video Ekle
+                      </button>
+                    </div>
+
+                    {productVideos.length > 0 ? (
+                      <div className="space-y-2">
+                        {productVideos.map((video) => (
+                          <div key={video.id} className="flex items-center justify-between bg-white border border-gray-200 p-3 rounded">
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-gray-800">{video.title}</p>
+                              <p className="text-xs text-gray-500 truncate">{video.video_url}</p>
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded mt-1 inline-block">
+                                {video.video_type}
+                              </span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteVideo(video.id)}
+                              className="ml-2 p-2 text-red-600 hover:bg-red-50 rounded"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-sm text-gray-500 text-center py-4 border-2 border-dashed border-gray-200 rounded">
+                        Henüz video eklenmemiş
+                      </p>
+                    )}
+                  </div>
+                </>
+              )}
 
               <div className="flex gap-3 pt-4">
                 <button
