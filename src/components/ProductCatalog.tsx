@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Star, Filter, Search, X } from 'lucide-react';
+import { ShoppingCart, Star, Filter, Search, X, Package } from 'lucide-react';
 
 interface Product {
   id: string;
