@@ -209,7 +209,11 @@ export default function AdminPeriodicReportsManagement() {
   const fetchReports = async () => {
     try {
       setLoading(true);
-      console.log('Fetching reports for period:', selectedPeriod);
+      console.log('=== FETCH REPORTS START ===');
+      console.log('Selected period:', selectedPeriod);
+      console.log('Status filter:', statusFilter);
+      console.log('Pending only:', pendingOnlyFilter);
+      console.log('User ID:', user?.id);
 
       let query = supabase
         .from('periodic_development_reports')
@@ -237,22 +241,35 @@ export default function AdminPeriodicReportsManagement() {
         query = query.eq('status', 'completed');
       }
 
+      console.log('Executing query...');
       const { data, error } = await query.order('created_at', { ascending: false });
 
-      console.log('Fetch reports result:', { data, error, count: data?.length });
+      console.log('=== QUERY RESULT ===');
+      console.log('Error:', error);
+      console.log('Data:', data);
+      console.log('Data length:', data?.length);
 
       if (error) {
-        console.error('Supabase query error:', error);
+        console.error('Supabase query error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
         throw error;
       }
 
       let filteredData = data || [];
+      console.log('Data before client-side filtering:', filteredData.length);
 
       if (classFilter !== 'all') {
+        console.log('Applying class filter:', classFilter);
         filteredData = filteredData.filter(r => r.children?.class_name === classFilter);
+        console.log('After class filter:', filteredData.length);
       }
 
       if (teacherFilter !== 'all') {
+        console.log('Applying teacher filter:', teacherFilter);
         filteredData = filteredData.filter(r =>
           r.teacher_id === teacherFilter ||
           r.montessori_teacher_id === teacherFilter ||
@@ -263,13 +280,19 @@ export default function AdminPeriodicReportsManagement() {
           r.art_music_teacher_id === teacherFilter ||
           r.guidance_teacher_id === teacherFilter
         );
+        console.log('After teacher filter:', filteredData.length);
       }
 
+      console.log('=== FINAL RESULT ===');
       console.log('Final filtered reports:', filteredData.length);
+      console.log('Reports:', filteredData);
       setReports(filteredData);
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-      alert('Raporlar yüklenirken hata oluştu. Konsolu kontrol edin.');
+    } catch (error: any) {
+      console.error('=== ERROR CAUGHT ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error?.message);
+      console.error('Error stack:', error?.stack);
+      alert(`Raporlar yüklenirken hata oluştu: ${error?.message || 'Bilinmeyen hata'}\n\nKonsolu (F12) açıp detayları kontrol edin.`);
     } finally {
       setLoading(false);
     }
