@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { ShoppingCart, Package, GraduationCap, Settings } from 'lucide-react';
+import ProductManagement from './ProductManagement';
 
 interface RefSection {
   id: string;
@@ -21,16 +23,20 @@ const SECTION_LABELS = {
   ref_atolye: 'Ref Atölye',
 };
 
+type RefAtolyeTab = 'content' | 'products' | 'courses' | 'admin';
+type RefDanismanlikTab = 'content' | 'applications';
+
 export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
   const { profile } = useAuth();
   const [section, setSection] = useState<RefSection | null>(null);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'content' | 'applications'>('content');
+  const [activeTab, setActiveTab] = useState<RefAtolyeTab | RefDanismanlikTab>('content');
   const [referenceApplications, setReferenceApplications] = useState<any[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
   const isAdmin = profile?.role === 'admin';
-  const showTabs = sectionType === 'ref_danismanlik' && isAdmin;
+  const showDanismanlikTabs = sectionType === 'ref_danismanlik' && isAdmin;
+  const showAtolyeTabs = sectionType === 'ref_atolye';
 
   useEffect(() => {
     loadSection();
@@ -98,7 +104,8 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
         {SECTION_LABELS[sectionType]}
       </h2>
 
-      {showTabs && (
+      {/* Ref Danışmanlık Tabs */}
+      {showDanismanlikTabs && (
         <div className="border-b border-gray-200 mb-6">
           <div className="flex space-x-8">
             <button
@@ -126,6 +133,60 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
                 </span>
               )}
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Ref Atölye Tabs */}
+      {showAtolyeTabs && (
+        <div className="border-b border-gray-200 mb-6">
+          <div className="flex flex-wrap gap-4">
+            <button
+              onClick={() => setActiveTab('content')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                activeTab === 'content'
+                  ? 'border-emerald-600 text-emerald-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              İçerik
+            </button>
+            <button
+              onClick={() => setActiveTab('products')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                activeTab === 'products'
+                  ? 'border-emerald-600 text-emerald-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Ürünler
+            </button>
+            <button
+              onClick={() => setActiveTab('courses')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                activeTab === 'courses'
+                  ? 'border-emerald-600 text-emerald-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <GraduationCap className="w-4 h-4" />
+              Online Kurslar
+            </button>
+            {isAdmin && (
+              <button
+                onClick={() => setActiveTab('admin')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'admin'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Settings className="w-4 h-4" />
+                Yönetim
+              </button>
+            )}
           </div>
         </div>
       )}
@@ -166,7 +227,36 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
         </>
       )}
 
-      {activeTab === 'applications' && showTabs && (
+      {/* Ref Atölye - Products Tab */}
+      {activeTab === 'products' && sectionType === 'ref_atolye' && (
+        <div>
+          <div className="text-center py-12">
+            <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Ürün Kataloğu</h3>
+            <p className="text-gray-500">Montessori materyalleri ve eğitim araçları yakında burada olacak.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Ref Atölye - Courses Tab */}
+      {activeTab === 'courses' && sectionType === 'ref_atolye' && (
+        <div>
+          <div className="text-center py-12">
+            <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Online Kurslar</h3>
+            <p className="text-gray-500">Eğitim kursları ve atölyeler yakında burada olacak.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Ref Atölye - Admin Tab */}
+      {activeTab === 'admin' && sectionType === 'ref_atolye' && isAdmin && (
+        <div>
+          <ProductManagement />
+        </div>
+      )}
+
+      {activeTab === 'applications' && showDanismanlikTabs && (
         <div>
           <div className="mb-6">
             <p className="text-gray-600">Son başvuru tarihi: 23 Ocak</p>
