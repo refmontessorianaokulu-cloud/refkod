@@ -224,7 +224,7 @@ export default function AdminPeriodicReportsManagement() {
             last_name,
             class_name
           ),
-          profiles (
+          profiles!teacher_id (
             full_name
           ),
           academic_periods (
