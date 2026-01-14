@@ -62,7 +62,6 @@ interface PeriodicReport {
   children?: {
     first_name: string;
     last_name: string;
-    branch: string;
     class_name: string;
   };
   profiles?: {
@@ -210,6 +209,8 @@ export default function AdminPeriodicReportsManagement() {
   const fetchReports = async () => {
     try {
       setLoading(true);
+      console.log('Fetching reports for period:', selectedPeriod);
+
       let query = supabase
         .from('periodic_development_reports')
         .select(`
@@ -238,7 +239,12 @@ export default function AdminPeriodicReportsManagement() {
 
       const { data, error } = await query.order('created_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('Fetch reports result:', { data, error, count: data?.length });
+
+      if (error) {
+        console.error('Supabase query error:', error);
+        throw error;
+      }
 
       let filteredData = data || [];
 
@@ -259,9 +265,11 @@ export default function AdminPeriodicReportsManagement() {
         );
       }
 
+      console.log('Final filtered reports:', filteredData.length);
       setReports(filteredData);
     } catch (error) {
       console.error('Error fetching reports:', error);
+      alert('Raporlar yüklenirken hata oluştu. Konsolu kontrol edin.');
     } finally {
       setLoading(false);
     }
@@ -462,7 +470,7 @@ export default function AdminPeriodicReportsManagement() {
     doc.setFont('helvetica', 'normal');
     doc.text(`${language === 'tr' ? 'Öğrenci' : 'Student'}: ${report.children?.first_name} ${report.children?.last_name}`, margin, yPos);
     yPos += 6;
-    doc.text(`${language === 'tr' ? 'Sınıf' : 'Branch'}: ${report.children?.branch || ''}`, margin, yPos);
+    doc.text(`${language === 'tr' ? 'Sınıf' : 'Class'}: ${report.children?.class_name || ''}`, margin, yPos);
     yPos += 6;
     doc.text(`${language === 'tr' ? 'Dönem' : 'Period'}: ${report.academic_periods?.name || ''}`, margin, yPos);
     yPos += 6;
