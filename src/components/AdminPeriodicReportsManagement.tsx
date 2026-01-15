@@ -160,6 +160,7 @@ export default function AdminPeriodicReportsManagement() {
     medium: { tr: 'Orta', en: 'Medium' },
     low: { tr: 'Düşük', en: 'Low' },
     founderDirector: { tr: 'Kurucu Müdür', en: 'Founder Director' },
+    institutionDirector: { tr: 'Kurum Müdürü', en: 'Institution Director' },
     signature: { tr: 'İmza', en: 'Signature' },
   };
 
@@ -670,13 +671,19 @@ export default function AdminPeriodicReportsManagement() {
       yPos += 10;
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(10);
-      const signatureX = pageWidth - margin - 50;
-      doc.line(signatureX, yPos, signatureX + 50, yPos);
-      yPos += 5;
-      doc.text(language === 'tr' ? 'Kurucu Müdür' : 'Founder Director', signatureX, yPos);
-      yPos += 5;
+
+      const leftSignatureX = margin;
+      doc.line(leftSignatureX, yPos, leftSignatureX + 50, yPos);
+      doc.text(language === 'tr' ? 'Kurum Müdürü' : 'Institution Director', leftSignatureX, yPos + 5);
       doc.setFont('helvetica', 'normal');
-      doc.text('Kubra YILDIZ', signatureX, yPos);
+      doc.text('Ramazan YILDIZ', leftSignatureX, yPos + 10);
+
+      doc.setFont('helvetica', 'bold');
+      const rightSignatureX = pageWidth - margin - 50;
+      doc.line(rightSignatureX, yPos, rightSignatureX + 50, yPos);
+      doc.text(language === 'tr' ? 'Kurucu Müdür' : 'Founder Director', rightSignatureX, yPos + 5);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Kubra YILDIZ', rightSignatureX, yPos + 10);
     }
 
     const fileName = `karne_${report.children?.first_name}_${report.children?.last_name}_${report.academic_periods?.name}.pdf`.replace(/\s+/g, '_');
@@ -1477,7 +1484,14 @@ export default function AdminPeriodicReportsManagement() {
 
               {selectedReport.status === 'approved' && (
                 <div className="border-t pt-6 mt-6">
-                  <div className="flex justify-end">
+                  <div className="flex justify-between px-8">
+                    <div className="text-center">
+                      <div className="border-t-2 border-gray-400 pt-2 w-48">
+                        <p className="text-sm font-semibold text-gray-900">{t.institutionDirector[language]}</p>
+                        <p className="text-sm text-gray-700 mt-1">Ramazan YILDIZ</p>
+                        <p className="text-xs text-gray-500 mt-2">{t.signature[language]}</p>
+                      </div>
+                    </div>
                     <div className="text-center">
                       <div className="border-t-2 border-gray-400 pt-2 w-48">
                         <p className="text-sm font-semibold text-gray-900">{t.founderDirector[language]}</p>
