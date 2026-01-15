@@ -113,7 +113,7 @@ export default function AdminPeriodicReportsManagement() {
     cancel: { tr: 'İptal', en: 'Cancel' },
     edit: { tr: 'Düzenle', en: 'Edit' },
     delete: { tr: 'Sil', en: 'Delete' },
-    reports: { tr: 'Raporlar', en: 'Reports' },
+    reports: { tr: 'Karneler', en: 'Report Cards' },
     selectPeriod: { tr: 'Dönem Seçin', en: 'Select Period' },
     allStatuses: { tr: 'Tüm Durumlar', en: 'All Statuses' },
     draft: { tr: 'Taslak', en: 'Draft' },
@@ -127,12 +127,12 @@ export default function AdminPeriodicReportsManagement() {
     approve: { tr: 'Onayla', en: 'Approve' },
     view: { tr: 'Görüntüle', en: 'View' },
     statistics: { tr: 'İstatistikler', en: 'Statistics' },
-    totalReports: { tr: 'Toplam Rapor', en: 'Total Reports' },
+    totalReports: { tr: 'Toplam Karne', en: 'Total Report Cards' },
     completedReports: { tr: 'Tamamlanan', en: 'Completed' },
     approvedReports: { tr: 'Onaylanan', en: 'Approved' },
     pendingReports: { tr: 'Bekleyen', en: 'Pending' },
     noPeriods: { tr: 'Henüz dönem bulunmuyor', en: 'No periods yet' },
-    noReports: { tr: 'Rapor bulunmuyor', en: 'No reports found' },
+    noReports: { tr: 'Karne bulunmuyor', en: 'No report cards found' },
     branch: { tr: 'Sınıf', en: 'Branch' },
     class: { tr: 'Sınıf', en: 'Class' },
     allClasses: { tr: 'Tüm Sınıflar', en: 'All Classes' },
@@ -292,7 +292,7 @@ export default function AdminPeriodicReportsManagement() {
       console.error('Error object:', error);
       console.error('Error message:', error?.message);
       console.error('Error stack:', error?.stack);
-      alert(`Raporlar yüklenirken hata oluştu: ${error?.message || 'Bilinmeyen hata'}\n\nKonsolu (F12) açıp detayları kontrol edin.`);
+      alert(`Karneler yüklenirken hata oluştu: ${error?.message || 'Bilinmeyen hata'}\n\nKonsolu (F12) açıp detayları kontrol edin.`);
     } finally {
       setLoading(false);
     }
@@ -398,7 +398,7 @@ export default function AdminPeriodicReportsManagement() {
 
       if (error) throw error;
 
-      alert(language === 'tr' ? 'Rapor onaylandı' : 'Report approved');
+      alert(language === 'tr' ? 'Karne onaylandı' : 'Report card approved');
       fetchReports();
       setSelectedReports(new Set());
     } catch (error: any) {
@@ -409,11 +409,11 @@ export default function AdminPeriodicReportsManagement() {
 
   const handleBulkApprove = async () => {
     if (selectedReports.size === 0) {
-      alert(language === 'tr' ? 'Lütfen onaylamak için rapor seçin' : 'Please select reports to approve');
+      alert(language === 'tr' ? 'Lütfen onaylamak için karne seçin' : 'Please select report cards to approve');
       return;
     }
 
-    if (!confirm(language === 'tr' ? `${selectedReports.size} raporu onaylamak istediğinizden emin misiniz?` : `Are you sure you want to approve ${selectedReports.size} reports?`)) {
+    if (!confirm(language === 'tr' ? `${selectedReports.size} karneyi onaylamak istediğinizden emin misiniz?` : `Are you sure you want to approve ${selectedReports.size} report cards?`)) {
       return;
     }
 
@@ -431,7 +431,7 @@ export default function AdminPeriodicReportsManagement() {
 
       await Promise.all(promises);
 
-      alert(language === 'tr' ? 'Raporlar onaylandı' : 'Reports approved');
+      alert(language === 'tr' ? 'Karneler onaylandı' : 'Report cards approved');
       fetchReports();
       setSelectedReports(new Set());
     } catch (error: any) {
@@ -584,7 +584,7 @@ export default function AdminPeriodicReportsManagement() {
     addSection(language === 'tr' ? 'Öğrenme Süreci Değerlendirmesi' : 'Learning Process Evaluation', report.learning_process_evaluation);
     addSection(language === 'tr' ? 'Öneriler ve Hedefler' : 'Recommendations', report.recommendations);
 
-    const fileName = `rapor_${report.children?.first_name}_${report.children?.last_name}_${report.academic_periods?.name}.pdf`.replace(/\s+/g, '_');
+    const fileName = `karne_${report.children?.first_name}_${report.children?.last_name}_${report.academic_periods?.name}.pdf`.replace(/\s+/g, '_');
     doc.save(fileName);
   };
 
@@ -1122,7 +1122,7 @@ export default function AdminPeriodicReportsManagement() {
           <div className="bg-white rounded-lg p-6 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900">
-                {language === 'tr' ? 'Rapor Detayı' : 'Report Details'}
+                {language === 'tr' ? 'Karne Detayı' : 'Report Card Details'}
               </h3>
               <button
                 onClick={() => setShowReportDetail(false)}

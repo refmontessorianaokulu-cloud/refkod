@@ -60,7 +60,7 @@ export default function PeriodicReportsParentView({ childId }: Props) {
   const t = {
     title: { tr: 'Ref Karne', en: 'Ref Report Card' },
     selectPeriod: { tr: 'Dönem Seçin', en: 'Select Period' },
-    noReports: { tr: 'Bu dönem için rapor bulunmuyor', en: 'No reports for this period' },
+    noReports: { tr: 'Bu dönem için karne bulunmuyor', en: 'No report cards for this period' },
     montessoriAreas: { tr: 'Montessori Alanları', en: 'Montessori Areas' },
     practicalLife: { tr: 'Pratik Yaşam Becerileri', en: 'Practical Life Skills' },
     sensorial: { tr: 'Duyusal Gelişim', en: 'Sensorial Development' },
@@ -90,7 +90,7 @@ export default function PeriodicReportsParentView({ childId }: Props) {
     recommendations: { tr: 'Öneriler ve Hedefler', en: 'Recommendations and Goals' },
     guidanceEvaluation: { tr: 'Rehberlik Birimi Değerlendirmesi', en: 'Guidance Unit Evaluation' },
     teacher: { tr: 'Öğretmen', en: 'Teacher' },
-    reportDate: { tr: 'Rapor Tarihi', en: 'Report Date' },
+    reportDate: { tr: 'Karne Tarihi', en: 'Report Card Date' },
     preparedBy: { tr: 'Hazırlayan', en: 'Prepared By' },
   };
 

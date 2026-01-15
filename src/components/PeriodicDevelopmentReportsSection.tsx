@@ -133,7 +133,7 @@ export default function PeriodicDevelopmentReportsSection() {
     title: { tr: 'Ref Karne', en: 'Ref Report Card' },
     selectPeriod: { tr: 'Dönem Seçin', en: 'Select Period' },
     selectChild: { tr: 'Öğrenci Seçin', en: 'Select Student' },
-    createReport: { tr: 'Yeni Rapor Oluştur', en: 'Create New Report' },
+    createReport: { tr: 'Yeni Karne Oluştur', en: 'Create New Report Card' },
     montessoriAreas: { tr: 'Montessori Alanları', en: 'Montessori Areas' },
     practicalLife: { tr: 'Pratik Yaşam Becerileri', en: 'Practical Life Skills' },
     sensorial: { tr: 'Duyusal Gelişim', en: 'Sensorial Development' },
@@ -169,7 +169,7 @@ export default function PeriodicDevelopmentReportsSection() {
     draft: { tr: 'Taslak', en: 'Draft' },
     completed: { tr: 'Tamamlandı', en: 'Completed' },
     approved: { tr: 'Onaylandı', en: 'Approved' },
-    noReports: { tr: 'Henüz rapor bulunmuyor', en: 'No reports yet' },
+    noReports: { tr: 'Henüz karne bulunmuyor', en: 'No report cards yet' },
     saveAsDraft: { tr: 'Taslak Olarak Kaydet', en: 'Save as Draft' },
     saveAsCompleted: { tr: 'Tamamlanmış Olarak Kaydet', en: 'Save as Completed' },
     student: { tr: 'Öğrenci', en: 'Student' },
@@ -187,7 +187,7 @@ export default function PeriodicDevelopmentReportsSection() {
     guidanceCounselor: { tr: 'Rehberlik Öğretmeni', en: 'Guidance Counselor' },
     allBranchesCompleted: { tr: 'Tüm branş dersleri dolduruldu', en: 'All branch courses completed' },
     waitingForBranches: { tr: 'Branş öğretmenleri bekleniyor', en: 'Waiting for branch teachers' },
-    cannotCompleteWithoutBranches: { tr: 'Tüm branş dersleri ve rehberlik değerlendirmesi doldurulmadan rapor tamamlanamaz', en: 'Report cannot be completed without all branch courses and guidance evaluation' },
+    cannotCompleteWithoutBranches: { tr: 'Tüm branş dersleri ve rehberlik değerlendirmesi doldurulmadan karne tamamlanamaz', en: 'Report card cannot be completed without all branch courses and guidance evaluation' },
     missingEvaluations: { tr: 'Eksik Değerlendirmeler', en: 'Missing Evaluations' },
   };
 
@@ -363,7 +363,7 @@ export default function PeriodicDevelopmentReportsSection() {
 
   const handleCreateNew = () => {
     if (!isClassTeacher) {
-      alert(language === 'tr' ? 'Sadece sınıf öğretmeni yeni rapor oluşturabilir' : 'Only class teacher can create new report');
+      alert(language === 'tr' ? 'Sadece sınıf öğretmeni yeni karne oluşturabilir' : 'Only class teacher can create new report card');
       return;
     }
 
@@ -567,7 +567,7 @@ export default function PeriodicDevelopmentReportsSection() {
         if (error) throw error;
       } else {
         if (!isClassTeacherForSelectedChild) {
-          alert(language === 'tr' ? 'Sadece sınıf öğretmeni yeni rapor oluşturabilir' : 'Only class teacher can create new report');
+          alert(language === 'tr' ? 'Sadece sınıf öğretmeni yeni karne oluşturabilir' : 'Only class teacher can create new report card');
           return;
         }
         reportData.teacher_id = user?.id;
@@ -580,7 +580,7 @@ export default function PeriodicDevelopmentReportsSection() {
         if (error) throw error;
       }
 
-      alert(language === 'tr' ? 'Rapor başarıyla kaydedildi' : 'Report saved successfully');
+      alert(language === 'tr' ? 'Karne başarıyla kaydedildi' : 'Report card saved successfully');
       setViewMode('list');
       fetchReports();
     } catch (error: any) {
@@ -592,7 +592,7 @@ export default function PeriodicDevelopmentReportsSection() {
   };
 
   const handleDelete = async (reportId: string) => {
-    if (!confirm(language === 'tr' ? 'Bu raporu silmek istediğinizden emin misiniz?' : 'Are you sure you want to delete this report?')) {
+    if (!confirm(language === 'tr' ? 'Bu karneyi silmek istediğinizden emin misiniz?' : 'Are you sure you want to delete this report card?')) {
       return;
     }
 
@@ -604,7 +604,7 @@ export default function PeriodicDevelopmentReportsSection() {
 
       if (error) throw error;
 
-      alert(language === 'tr' ? 'Rapor silindi' : 'Report deleted');
+      alert(language === 'tr' ? 'Karne silindi' : 'Report card deleted');
       fetchReports();
     } catch (error: any) {
       console.error('Error deleting report:', error);
@@ -776,7 +776,7 @@ export default function PeriodicDevelopmentReportsSection() {
     addSection(language === 'tr' ? 'Öğrenme Süreci Değerlendirmesi' : 'Learning Process Evaluation', report.learning_process_evaluation);
     addSection(language === 'tr' ? 'Öneriler ve Hedefler' : 'Recommendations', report.recommendations);
 
-    const fileName = `rapor_${report.children?.first_name}_${report.children?.last_name}_${report.academic_periods?.name}.pdf`.replace(/\s+/g, '_');
+    const fileName = `karne_${report.children?.first_name}_${report.children?.last_name}_${report.academic_periods?.name}.pdf`.replace(/\s+/g, '_');
     doc.save(fileName);
   };
 
@@ -855,7 +855,7 @@ export default function PeriodicDevelopmentReportsSection() {
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-blue-600" />
-            {editingReport ? (language === 'tr' ? 'Raporu Düzenle' : 'Edit Report') : t.createReport[language]}
+            {editingReport ? (language === 'tr' ? 'Karneyi Düzenle' : 'Edit Report Card') : t.createReport[language]}
           </h2>
           <button
             onClick={() => setViewMode('list')}
@@ -1131,7 +1131,7 @@ export default function PeriodicDevelopmentReportsSection() {
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <BookOpen className="w-6 h-6 text-blue-600" />
-            {language === 'tr' ? 'Rapor Detayı' : 'Report Details'}
+            {language === 'tr' ? 'Karne Detayı' : 'Report Card Details'}
           </h2>
           <div className="flex items-center gap-2">
             <button
