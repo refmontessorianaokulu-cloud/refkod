@@ -125,6 +125,7 @@ export default function AdminPeriodicReportsManagement() {
     status: { tr: 'Durum', en: 'Status' },
     actions: { tr: 'İşlemler', en: 'Actions' },
     approve: { tr: 'Onayla', en: 'Approve' },
+    revokeApproval: { tr: 'Onayı Kaldır', en: 'Revoke Approval' },
     view: { tr: 'Görüntüle', en: 'View' },
     statistics: { tr: 'İstatistikler', en: 'Statistics' },
     totalReports: { tr: 'Toplam Karne', en: 'Total Report Cards' },
@@ -435,6 +436,34 @@ export default function AdminPeriodicReportsManagement() {
       setSelectedReports(new Set());
     } catch (error: any) {
       console.error('Error approving report:', error);
+      alert(error.message || 'An error occurred');
+    }
+  };
+
+  const handleRevokeApproval = async (reportId: string) => {
+    if (!confirm(language === 'tr' ? 'Karne onayını kaldırmak istediğinizden emin misiniz?' : 'Are you sure you want to revoke the approval?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('periodic_development_reports')
+        .update({
+          status: 'completed',
+          approved_by: null,
+          approved_at: null,
+        })
+        .eq('id', reportId);
+
+      if (error) throw error;
+
+      alert(language === 'tr' ? 'Karne onayı kaldırıldı' : 'Report card approval revoked');
+      fetchReports();
+      if (selectedReport?.id === reportId) {
+        setSelectedReport({ ...selectedReport, status: 'completed' });
+      }
+    } catch (error: any) {
+      console.error('Error revoking approval:', error);
       alert(error.message || 'An error occurred');
     }
   };
@@ -1209,6 +1238,15 @@ export default function AdminPeriodicReportsManagement() {
                             <CheckCircle className="w-5 h-5" />
                           </button>
                         )}
+                        {report.status === 'approved' && (
+                          <button
+                            onClick={() => handleRevokeApproval(report.id)}
+                            className="text-red-600 hover:text-red-900"
+                            title={t.revokeApproval[language]}
+                          >
+                            <X className="w-5 h-5" />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -1503,8 +1541,19 @@ export default function AdminPeriodicReportsManagement() {
                 </div>
               )}
 
-              {selectedReport.status === 'completed' && (
-                <div className="border-t pt-4 flex justify-end">
+              <div className="border-t pt-4 flex justify-end gap-3">
+                {selectedReport.status === 'approved' && (
+                  <button
+                    onClick={() => {
+                      handleRevokeApproval(selectedReport.id);
+                    }}
+                    className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                  >
+                    <X className="w-5 h-5" />
+                    {t.revokeApproval[language]}
+                  </button>
+                )}
+                {selectedReport.status === 'completed' && (
                   <button
                     onClick={() => {
                       handleApproveReport(selectedReport.id);
@@ -1515,8 +1564,8 @@ export default function AdminPeriodicReportsManagement() {
                     <CheckCircle className="w-5 h-5" />
                     {t.approve[language]}
                   </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>
