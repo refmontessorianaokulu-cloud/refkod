@@ -100,7 +100,7 @@ export default function AdminPeriodicReportsManagement() {
   });
 
   const t = {
-    title: { tr: 'Dönem Gelişim Raporları Yönetimi', en: 'Periodic Development Reports Management' },
+    title: { tr: 'Ref Karne Yönetimi', en: 'Ref Report Card Management' },
     academicPeriods: { tr: 'Akademik Dönemler', en: 'Academic Periods' },
     createPeriod: { tr: 'Yeni Dönem Oluştur', en: 'Create New Period' },
     editPeriod: { tr: 'Dönemi Düzenle', en: 'Edit Period' },
@@ -486,7 +486,7 @@ export default function AdminPeriodicReportsManagement() {
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text(language === 'tr' ? 'Dönem Gelişim Raporu' : 'Periodic Development Report', margin, yPos);
+    doc.text(language === 'tr' ? 'Ref Karne' : 'Ref Report Card', margin, yPos);
     yPos += 10;
 
     doc.setFontSize(10);

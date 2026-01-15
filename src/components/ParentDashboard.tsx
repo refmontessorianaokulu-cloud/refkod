@@ -54,7 +54,7 @@ const parentMenuCategories: MenuCategory[] = [
     label: 'Raporlar ve Değerlendirme',
     items: [
       { id: 'daily_reports', label: 'Montessori Raporları', icon: Sparkles },
-      { id: 'periodic_reports', label: 'Dönem Gelişim Raporları', icon: BookOpen },
+      { id: 'periodic_reports', label: 'Ref Karne', icon: BookOpen },
       { id: 'branch_reports', label: 'Branş Dersleri Raporları', icon: BookOpen },
       { id: 'behavior_incidents', label: 'Davranış Raporları (KOD)', icon: AlertCircle },
     ],

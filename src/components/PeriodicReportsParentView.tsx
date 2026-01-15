@@ -58,7 +58,7 @@ export default function PeriodicReportsParentView({ childId }: Props) {
   const [selectedReport, setSelectedReport] = useState<PeriodicReport | null>(null);
 
   const t = {
-    title: { tr: 'Dönem Gelişim Raporları', en: 'Periodic Development Reports' },
+    title: { tr: 'Ref Karne', en: 'Ref Report Card' },
     selectPeriod: { tr: 'Dönem Seçin', en: 'Select Period' },
     noReports: { tr: 'Bu dönem için rapor bulunmuyor', en: 'No reports for this period' },
     montessoriAreas: { tr: 'Montessori Alanları', en: 'Montessori Areas' },

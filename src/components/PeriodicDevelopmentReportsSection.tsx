@@ -130,7 +130,7 @@ export default function PeriodicDevelopmentReportsSection() {
   });
 
   const t = {
-    title: { tr: 'Dönem Gelişim Raporları', en: 'Periodic Development Reports' },
+    title: { tr: 'Ref Karne', en: 'Ref Report Card' },
     selectPeriod: { tr: 'Dönem Seçin', en: 'Select Period' },
     selectChild: { tr: 'Öğrenci Seçin', en: 'Select Student' },
     createReport: { tr: 'Yeni Rapor Oluştur', en: 'Create New Report' },
@@ -639,7 +639,7 @@ export default function PeriodicDevelopmentReportsSection() {
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
-    doc.text(language === 'tr' ? 'Dönem Gelişim Raporu' : 'Periodic Development Report', margin, yPos);
+    doc.text(language === 'tr' ? 'Ref Karne' : 'Ref Report Card', margin, yPos);
     yPos += 10;
 
     doc.setFontSize(10);

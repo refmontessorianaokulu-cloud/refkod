@@ -55,7 +55,7 @@ const teacherMenuCategories: MenuCategory[] = [
     label: 'Raporlar ve Değerlendirme',
     items: [
       { id: 'montessori_reports', label: 'Montessori Raporları', icon: Sparkles },
-      { id: 'periodic_reports', label: 'Dönem Gelişim Raporları', icon: FileText },
+      { id: 'periodic_reports', label: 'Ref Karne', icon: FileText },
       { id: 'branch_reports', label: 'Branş Dersleri', icon: BookOpen },
       { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
     ],
