@@ -148,6 +148,19 @@ export default function AdminPeriodicReportsManagement() {
     branchCourses: { tr: 'Branş Dersleri', en: 'Branch Courses' },
     guidanceUnit: { tr: 'Rehberlik', en: 'Guidance' },
     completionRate: { tr: 'Tamamlanma Oranı', en: 'Completion Rate' },
+    developmentEvaluations: { tr: 'Gelişim Değerlendirmeleri', en: 'Development Evaluations' },
+    focusDuration: { tr: 'Odaklanma Süresi', en: 'Focus Duration' },
+    communicationSkills: { tr: 'İletişim Becerileri', en: 'Communication Skills' },
+    collaboration: { tr: 'İşbirliği', en: 'Collaboration' },
+    motivation: { tr: 'Motivasyon', en: 'Motivation' },
+    cleanlinessOrder: { tr: 'Düzen ve Temizlik', en: 'Cleanliness & Order' },
+    materialUsageSkills: { tr: 'Materyal Kullanım Becerileri', en: 'Material Usage Skills' },
+    productivity: { tr: 'Üretkenlik', en: 'Productivity' },
+    high: { tr: 'Yüksek', en: 'High' },
+    medium: { tr: 'Orta', en: 'Medium' },
+    low: { tr: 'Düşük', en: 'Low' },
+    founderDirector: { tr: 'Kurucu Müdür', en: 'Founder Director' },
+    signature: { tr: 'İmza', en: 'Signature' },
   };
 
   useEffect(() => {
@@ -311,6 +324,24 @@ export default function AdminPeriodicReportsManagement() {
 
     const completedCount = sections.filter(Boolean).length;
     return Math.round((completedCount / sections.length) * 100);
+  };
+
+  const getLikertLabel = (value: 'high' | 'medium' | 'low' | null): string => {
+    if (!value) return '-';
+    return t[value][language];
+  };
+
+  const getLikertBadgeColor = (value: 'high' | 'medium' | 'low' | null): string => {
+    switch (value) {
+      case 'high':
+        return 'bg-green-100 text-green-800';
+      case 'medium':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'low':
+        return 'bg-orange-100 text-orange-800';
+      default:
+        return 'bg-gray-100 text-gray-600';
+    }
   };
 
   const handleSavePeriod = async (e: React.FormEvent) => {
@@ -551,6 +582,52 @@ export default function AdminPeriodicReportsManagement() {
       addSection(language === 'tr' ? 'Sanat-Müzik' : 'Art-Music', report.art_music);
     }
 
+    if (report.focus_duration || report.communication_skills || report.collaboration || report.motivation ||
+        report.cleanliness_order || report.material_usage_skills || report.productivity) {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12);
+      doc.text(language === 'tr' ? 'Gelişim Değerlendirmeleri' : 'Development Evaluations', margin, yPos);
+      yPos += 8;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(9);
+
+      if (report.focus_duration) {
+        doc.text(`${language === 'tr' ? 'Odaklanma Süresi' : 'Focus Duration'}: ${getLikertLabel(report.focus_duration)}`, margin, yPos);
+        yPos += 5;
+      }
+      if (report.communication_skills) {
+        doc.text(`${language === 'tr' ? 'İletişim Becerileri' : 'Communication Skills'}: ${getLikertLabel(report.communication_skills)}`, margin, yPos);
+        yPos += 5;
+      }
+      if (report.collaboration) {
+        doc.text(`${language === 'tr' ? 'İşbirliği' : 'Collaboration'}: ${getLikertLabel(report.collaboration)}`, margin, yPos);
+        yPos += 5;
+      }
+      if (report.motivation) {
+        doc.text(`${language === 'tr' ? 'Motivasyon' : 'Motivation'}: ${getLikertLabel(report.motivation)}`, margin, yPos);
+        yPos += 5;
+      }
+      if (report.cleanliness_order) {
+        doc.text(`${language === 'tr' ? 'Düzen ve Temizlik' : 'Cleanliness & Order'}: ${getLikertLabel(report.cleanliness_order)}`, margin, yPos);
+        yPos += 5;
+      }
+      if (report.material_usage_skills) {
+        doc.text(`${language === 'tr' ? 'Materyal Kullanım Becerileri' : 'Material Usage Skills'}: ${getLikertLabel(report.material_usage_skills)}`, margin, yPos);
+        yPos += 5;
+      }
+      if (report.productivity) {
+        doc.text(`${language === 'tr' ? 'Üretkenlik' : 'Productivity'}: ${getLikertLabel(report.productivity)}`, margin, yPos);
+        yPos += 5;
+      }
+      yPos += 5;
+    }
+
     if (report.guidance_evaluation) {
       if (yPos > 250) {
         doc.addPage();
@@ -583,6 +660,24 @@ export default function AdminPeriodicReportsManagement() {
     addSection(language === 'tr' ? 'Montessori\'de İlgi Duyduğu Alanlar' : 'Areas of Interest in Montessori', report.montessori_interests);
     addSection(language === 'tr' ? 'Öğrenme Süreci Değerlendirmesi' : 'Learning Process Evaluation', report.learning_process_evaluation);
     addSection(language === 'tr' ? 'Öneriler ve Hedefler' : 'Recommendations', report.recommendations);
+
+    if (report.status === 'approved') {
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      yPos += 10;
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(10);
+      const signatureX = pageWidth - margin - 50;
+      doc.line(signatureX, yPos, signatureX + 50, yPos);
+      yPos += 5;
+      doc.text(language === 'tr' ? 'Kurucu Müdür' : 'Founder Director', signatureX, yPos);
+      yPos += 5;
+      doc.setFont('helvetica', 'normal');
+      doc.text('Kubra YILDIZ', signatureX, yPos);
+    }
 
     const fileName = `karne_${report.children?.first_name}_${report.children?.last_name}_${report.academic_periods?.name}.pdf`.replace(/\s+/g, '_');
     doc.save(fileName);
@@ -1273,6 +1368,71 @@ export default function AdminPeriodicReportsManagement() {
                 </div>
               </div>
 
+              <div className="border-t pt-4">
+                <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                  <TrendingUp className="w-5 h-5 text-purple-600" />
+                  {t.developmentEvaluations[language]}
+                </h5>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {selectedReport.focus_duration && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-700">{t.focusDuration[language]}</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getLikertBadgeColor(selectedReport.focus_duration)}`}>
+                        {getLikertLabel(selectedReport.focus_duration)}
+                      </span>
+                    </div>
+                  )}
+                  {selectedReport.communication_skills && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-700">{t.communicationSkills[language]}</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getLikertBadgeColor(selectedReport.communication_skills)}`}>
+                        {getLikertLabel(selectedReport.communication_skills)}
+                      </span>
+                    </div>
+                  )}
+                  {selectedReport.collaboration && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-700">{t.collaboration[language]}</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getLikertBadgeColor(selectedReport.collaboration)}`}>
+                        {getLikertLabel(selectedReport.collaboration)}
+                      </span>
+                    </div>
+                  )}
+                  {selectedReport.motivation && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-700">{t.motivation[language]}</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getLikertBadgeColor(selectedReport.motivation)}`}>
+                        {getLikertLabel(selectedReport.motivation)}
+                      </span>
+                    </div>
+                  )}
+                  {selectedReport.cleanliness_order && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-700">{t.cleanlinessOrder[language]}</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getLikertBadgeColor(selectedReport.cleanliness_order)}`}>
+                        {getLikertLabel(selectedReport.cleanliness_order)}
+                      </span>
+                    </div>
+                  )}
+                  {selectedReport.material_usage_skills && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-700">{t.materialUsageSkills[language]}</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getLikertBadgeColor(selectedReport.material_usage_skills)}`}>
+                        {getLikertLabel(selectedReport.material_usage_skills)}
+                      </span>
+                    </div>
+                  )}
+                  {selectedReport.productivity && (
+                    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                      <span className="text-sm font-medium text-gray-700">{t.productivity[language]}</span>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getLikertBadgeColor(selectedReport.productivity)}`}>
+                        {getLikertLabel(selectedReport.productivity)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {selectedReport.guidance_evaluation && (
                 <div className="border-t pt-4">
                   <h5 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
@@ -1314,6 +1474,20 @@ export default function AdminPeriodicReportsManagement() {
                   )}
                 </div>
               </div>
+
+              {selectedReport.status === 'approved' && (
+                <div className="border-t pt-6 mt-6">
+                  <div className="flex justify-end">
+                    <div className="text-center">
+                      <div className="border-t-2 border-gray-400 pt-2 w-48">
+                        <p className="text-sm font-semibold text-gray-900">{t.founderDirector[language]}</p>
+                        <p className="text-sm text-gray-700 mt-1">Kübra YILDIZ</p>
+                        <p className="text-xs text-gray-500 mt-2">{t.signature[language]}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {selectedReport.status === 'completed' && (
                 <div className="border-t pt-4 flex justify-end">
