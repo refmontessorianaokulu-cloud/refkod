@@ -1262,13 +1262,17 @@ export default function AdminPeriodicReportsManagement() {
           <div className="bg-white rounded-lg p-6 max-w-5xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-6">
               <h3 className="text-xl font-bold text-gray-900">
-                {language === 'tr' ? 'Karne Detayı' : 'Report Card Details'}
+                Ref Karne
               </h3>
               <button
                 onClick={() => setShowReportDetail(false)}
-                className="p-2 hover:bg-gray-100 rounded-lg"
+                className="hover:opacity-80 transition-opacity cursor-pointer"
               >
-                <X className="w-5 h-5" />
+                <img
+                  src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+                  alt="Ref Logo"
+                  className="h-16 w-auto"
+                />
               </button>
             </div>
 
@@ -1280,15 +1284,6 @@ export default function AdminPeriodicReportsManagement() {
                   </h4>
                   <p className="text-sm text-gray-600">{selectedReport.children?.class_name}</p>
                   <p className="text-sm text-gray-600">{selectedReport.academic_periods?.name}</p>
-                </div>
-                <div className="text-right">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium flex items-center gap-2 ${getStatusColor(selectedReport.status)}`}>
-                    {getStatusIcon(selectedReport.status)}
-                    {t[selectedReport.status][language]}
-                  </span>
-                  <div className="mt-2 text-sm text-gray-600">
-                    {t.completionRate[language]}: {calculateCompletionRate(selectedReport)}%
-                  </div>
                 </div>
               </div>
 
@@ -1540,32 +1535,6 @@ export default function AdminPeriodicReportsManagement() {
                   </div>
                 </div>
               )}
-
-              <div className="border-t pt-4 flex justify-end gap-3">
-                {selectedReport.status === 'approved' && (
-                  <button
-                    onClick={() => {
-                      handleRevokeApproval(selectedReport.id);
-                    }}
-                    className="flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-                  >
-                    <X className="w-5 h-5" />
-                    {t.revokeApproval[language]}
-                  </button>
-                )}
-                {selectedReport.status === 'completed' && (
-                  <button
-                    onClick={() => {
-                      handleApproveReport(selectedReport.id);
-                      setShowReportDetail(false);
-                    }}
-                    className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                  >
-                    <CheckCircle className="w-5 h-5" />
-                    {t.approve[language]}
-                  </button>
-                )}
-              </div>
             </div>
           </div>
         </div>
