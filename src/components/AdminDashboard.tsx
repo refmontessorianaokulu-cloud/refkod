@@ -1219,7 +1219,7 @@ export default function AdminDashboard() {
                   <option value="5 Yaş Sınıfı">5 Yaş Sınıfı</option>
                   <option value="4 Yaş Sınıfı">4 Yaş Sınıfı</option>
                   <option value="3 Yaş Sınıfı">3 Yaş Sınıfı</option>
-                  <option value="2 Yaş Sınıfı">2 Yaş Sınıfı</option>
+                  <option value="3 Yaş Yarım Gün Sınıfı">3 Yaş Yarım Gün Sınıfı</option>
                 </select>
               </div>
               <div>
