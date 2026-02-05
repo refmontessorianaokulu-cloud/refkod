@@ -47,6 +47,7 @@ export default function AdminDashboard() {
   const [showParentLinkModal, setShowParentLinkModal] = useState(false);
   const [showTeacherLinkModal, setShowTeacherLinkModal] = useState(false);
   const [selectedChild, setSelectedChild] = useState<string>('');
+  const [selectedTeachers, setSelectedTeachers] = useState<string[]>([]);
   const [parents, setParents] = useState<Profile[]>([]);
   const [teachers, setTeachers] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -338,18 +339,38 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleLinkTeacher = async (teacherId: string) => {
+  const handleLinkTeachers = async () => {
     try {
-      const { error } = await supabase.from('teacher_children').insert({
+      if (selectedTeachers.length < 2) {
+        alert('En az 2 öğretmen seçmelisiniz!');
+        return;
+      }
+
+      const teacherLinks = selectedTeachers.map(teacherId => ({
         teacher_id: teacherId,
         child_id: selectedChild,
-      });
+      }));
+
+      const { error } = await supabase.from('teacher_children').insert(teacherLinks);
       if (error) throw error;
+
       setShowTeacherLinkModal(false);
       setSelectedChild('');
+      setSelectedTeachers([]);
+      alert(`${selectedTeachers.length} öğretmen başarıyla bağlandı!`);
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
     }
+  };
+
+  const toggleTeacherSelection = (teacherId: string) => {
+    setSelectedTeachers(prev => {
+      if (prev.includes(teacherId)) {
+        return prev.filter(id => id !== teacherId);
+      } else {
+        return [...prev, teacherId];
+      }
+    });
   };
 
   const handleDeleteChild = async (id: string) => {
@@ -668,6 +689,7 @@ export default function AdminDashboard() {
                             <button
                               onClick={() => {
                                 setSelectedChild(child.id);
+                                setSelectedTeachers([]);
                                 setShowTeacherLinkModal(true);
                               }}
                               className="p-2 hover:bg-white rounded-lg transition-colors"
@@ -1458,25 +1480,63 @@ export default function AdminDashboard() {
       {showTeacherLinkModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl p-8 max-w-md w-full">
-            <h3 className="text-2xl font-bold text-gray-800 mb-6">Öğretmen Bağla</h3>
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {teachers.map((teacher) => (
-                <button
-                  key={teacher.id}
-                  onClick={() => handleLinkTeacher(teacher.id)}
-                  className="w-full text-left px-4 py-3 border border-gray-200 rounded-lg hover:bg-green-50 hover:border-green-300 transition-colors"
-                >
-                  <div className="font-medium text-gray-800">{teacher.full_name}</div>
-                  <div className="text-sm text-gray-500">{teacher.email}</div>
-                </button>
-              ))}
+            <h3 className="text-2xl font-bold text-gray-800 mb-4">Öğretmen Bağla</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              En az 2 öğretmen seçmelisiniz
+            </p>
+            <div className="mb-4 p-3 bg-emerald-50 rounded-lg">
+              <p className="text-sm font-medium text-emerald-800">
+                {selectedTeachers.length} öğretmen seçildi {selectedTeachers.length < 2 && '(minimum 2)'}
+              </p>
             </div>
-            <button
-              onClick={() => setShowTeacherLinkModal(false)}
-              className="w-full mt-4 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
-            >
-              İptal
-            </button>
+            <div className="space-y-2 max-h-96 overflow-y-auto mb-4">
+              {teachers.map((teacher) => {
+                const isSelected = selectedTeachers.includes(teacher.id);
+                return (
+                  <label
+                    key={teacher.id}
+                    className={`flex items-center space-x-3 px-4 py-3 border rounded-lg cursor-pointer transition-all ${
+                      isSelected
+                        ? 'bg-emerald-50 border-emerald-500'
+                        : 'border-gray-200 hover:bg-gray-50 hover:border-gray-300'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => toggleTeacherSelection(teacher.id)}
+                      className="w-5 h-5 text-emerald-600 rounded focus:ring-2 focus:ring-emerald-500"
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-gray-800">{teacher.full_name}</div>
+                      <div className="text-sm text-gray-500">{teacher.email}</div>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => {
+                  setShowTeacherLinkModal(false);
+                  setSelectedTeachers([]);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                İptal
+              </button>
+              <button
+                onClick={handleLinkTeachers}
+                disabled={selectedTeachers.length < 2}
+                className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                  selectedTeachers.length >= 2
+                    ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                }`}
+              >
+                Bağla
+              </button>
+            </div>
           </div>
         </div>
       )}
