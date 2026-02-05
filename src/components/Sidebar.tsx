@@ -55,6 +55,7 @@ export type MenuTab =
   | 'branch_reports'
   | 'periodic_reports'
   | 'teacher_assignments'
+  | 'class_teachers'
   | 'behavior_incidents'
   | 'announcements'
   | 'messages'
@@ -147,6 +148,7 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
       { id: 'periodic_reports', label: t('menu.periodicReports'), icon: FileText },
       { id: 'branch_reports', label: t('menu.branchReports'), icon: BookOpen },
       { id: 'teacher_assignments', label: t('menu.teacherAssignments'), icon: UserCheck },
+      { id: 'class_teachers', label: t('menu.classTeachers'), icon: Users },
       { id: 'behavior_incidents', label: t('menu.behaviorIncidents'), icon: AlertTriangle },
     ],
   },
