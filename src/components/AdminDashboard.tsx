@@ -341,8 +341,8 @@ export default function AdminDashboard() {
 
   const handleLinkTeachers = async () => {
     try {
-      if (selectedTeachers.length < 2) {
-        alert('En az 2 öğretmen seçmelisiniz!');
+      if (selectedTeachers.length === 0) {
+        alert('En az 1 öğretmen seçmelisiniz!');
         return;
       }
 
@@ -1482,11 +1482,11 @@ export default function AdminDashboard() {
           <div className="bg-white rounded-2xl p-8 max-w-md w-full">
             <h3 className="text-2xl font-bold text-gray-800 mb-4">Öğretmen Bağla</h3>
             <p className="text-sm text-gray-600 mb-4">
-              En az 2 öğretmen seçmelisiniz
+              Bir veya birden fazla öğretmen seçebilirsiniz
             </p>
             <div className="mb-4 p-3 bg-emerald-50 rounded-lg">
               <p className="text-sm font-medium text-emerald-800">
-                {selectedTeachers.length} öğretmen seçildi {selectedTeachers.length < 2 && '(minimum 2)'}
+                {selectedTeachers.length} öğretmen seçildi
               </p>
             </div>
             <div className="space-y-2 max-h-96 overflow-y-auto mb-4">
@@ -1527,9 +1527,9 @@ export default function AdminDashboard() {
               </button>
               <button
                 onClick={handleLinkTeachers}
-                disabled={selectedTeachers.length < 2}
+                disabled={selectedTeachers.length === 0}
                 className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                  selectedTeachers.length >= 2
+                  selectedTeachers.length > 0
                     ? 'bg-emerald-600 text-white hover:bg-emerald-700'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
