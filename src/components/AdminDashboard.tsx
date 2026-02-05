@@ -57,6 +57,7 @@ export default function AdminDashboard() {
   const [reportDateFilter, setReportDateFilter] = useState(new Date().toISOString().split('T')[0]);
   const [reportChildFilter, setReportChildFilter] = useState<string>('all');
   const [reportClassFilter, setReportClassFilter] = useState<string>('all');
+  const [teacherChildrenMap, setTeacherChildrenMap] = useState<Record<string, Array<{ id: string; teacher_id: string; teacher_name: string }>>>({});
 
   const [childForm, setChildForm] = useState({
     first_name: '',
@@ -84,6 +85,9 @@ export default function AdminDashboard() {
     loadData();
     loadParentsAndTeachers();
     loadPickupNotifications();
+    if (activeTab === 'children') {
+      loadTeacherChildrenRelationships();
+    }
   }, [activeTab]);
 
   useEffect(() => {
@@ -105,6 +109,31 @@ export default function AdminDashboard() {
       setTeachers(teacherData);
     } catch (error) {
       console.error('Error loading parents and teachers:', error);
+    }
+  };
+
+  const loadTeacherChildrenRelationships = async () => {
+    try {
+      const { data } = await supabase
+        .from('teacher_children')
+        .select('id, teacher_id, child_id, profiles!teacher_children_teacher_id_fkey(full_name)');
+
+      if (data) {
+        const map: Record<string, Array<{ id: string; teacher_id: string; teacher_name: string }>> = {};
+        data.forEach((item: any) => {
+          if (!map[item.child_id]) {
+            map[item.child_id] = [];
+          }
+          map[item.child_id].push({
+            id: item.id,
+            teacher_id: item.teacher_id,
+            teacher_name: item.profiles?.full_name || 'Bilinmeyen'
+          });
+        });
+        setTeacherChildrenMap(map);
+      }
+    } catch (error) {
+      console.error('Error loading teacher-children relationships:', error);
     }
   };
 
@@ -381,6 +410,7 @@ export default function AdminDashboard() {
       setShowTeacherLinkModal(false);
       setSelectedChild('');
       setSelectedTeachers([]);
+      loadTeacherChildrenRelationships();
 
       if (newTeacherLinks.length > 0 && alreadyLinkedCount > 0) {
         alert(`${newTeacherLinks.length} yeni öğretmen bağlandı. ${alreadyLinkedCount} öğretmen zaten bağlıydı.`);
@@ -410,6 +440,21 @@ export default function AdminDashboard() {
       const { error } = await supabase.from('children').delete().eq('id', id);
       if (error) throw error;
       loadData();
+    } catch (error) {
+      alert('Hata oluştu: ' + (error as Error).message);
+    }
+  };
+
+  const handleDeleteTeacherChildRelation = async (relationId: string) => {
+    if (!confirm('Bu öğretmen-çocuk ilişkisini silmek istediğinize emin misiniz?')) return;
+    try {
+      const { error } = await supabase
+        .from('teacher_children')
+        .delete()
+        .eq('id', relationId);
+      if (error) throw error;
+      loadTeacherChildrenRelationships();
+      alert('İlişki başarıyla silindi!');
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
     }
@@ -737,6 +782,32 @@ export default function AdminDashboard() {
                             </button>
                           </div>
                         </div>
+
+                        {teacherChildrenMap[child.id] && teacherChildrenMap[child.id].length > 0 && (
+                          <div className="mt-4 pt-4 border-t border-green-200">
+                            <h4 className="text-sm font-semibold text-gray-700 mb-2">Bağlı Öğretmenler</h4>
+                            <div className="space-y-2">
+                              {teacherChildrenMap[child.id].map((relation) => (
+                                <div
+                                  key={relation.id}
+                                  className="flex items-center justify-between bg-white rounded-lg p-2 border border-gray-200"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <GraduationCap className="w-4 h-4 text-green-600" />
+                                    <span className="text-sm text-gray-700">{relation.teacher_name}</span>
+                                  </div>
+                                  <button
+                                    onClick={() => handleDeleteTeacherChildRelation(relation.id)}
+                                    className="p-1 hover:bg-red-50 rounded transition-colors"
+                                    title="İlişkiyi Sil"
+                                  >
+                                    <Trash2 className="w-4 h-4 text-red-600" />
+                                  </button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
