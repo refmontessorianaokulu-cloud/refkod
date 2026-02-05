@@ -256,13 +256,22 @@ export default function AdminDashboard() {
       }
 
       if (newChild && childForm.teacher_id) {
-        const { error: teacherError } = await supabase
+        const { data: existingLink } = await supabase
           .from('teacher_children')
-          .insert({
-            teacher_id: childForm.teacher_id,
-            child_id: newChild.id,
-          });
-        if (teacherError) console.error('Teacher link error:', teacherError);
+          .select('id')
+          .eq('teacher_id', childForm.teacher_id)
+          .eq('child_id', newChild.id)
+          .maybeSingle();
+
+        if (!existingLink) {
+          const { error: teacherError } = await supabase
+            .from('teacher_children')
+            .insert({
+              teacher_id: childForm.teacher_id,
+              child_id: newChild.id,
+            });
+          if (teacherError) console.error('Teacher link error:', teacherError);
+        }
       }
 
       setShowChildModal(false);
@@ -346,18 +355,40 @@ export default function AdminDashboard() {
         return;
       }
 
-      const teacherLinks = selectedTeachers.map(teacherId => ({
-        teacher_id: teacherId,
-        child_id: selectedChild,
-      }));
+      const { data: existingLinks, error: fetchError } = await supabase
+        .from('teacher_children')
+        .select('teacher_id')
+        .eq('child_id', selectedChild);
 
-      const { error } = await supabase.from('teacher_children').insert(teacherLinks);
-      if (error) throw error;
+      if (fetchError) throw fetchError;
+
+      const existingTeacherIds = new Set(existingLinks?.map(link => link.teacher_id) || []);
+
+      const newTeacherLinks = selectedTeachers
+        .filter(teacherId => !existingTeacherIds.has(teacherId))
+        .map(teacherId => ({
+          teacher_id: teacherId,
+          child_id: selectedChild,
+        }));
+
+      const alreadyLinkedCount = selectedTeachers.length - newTeacherLinks.length;
+
+      if (newTeacherLinks.length > 0) {
+        const { error } = await supabase.from('teacher_children').insert(newTeacherLinks);
+        if (error) throw error;
+      }
 
       setShowTeacherLinkModal(false);
       setSelectedChild('');
       setSelectedTeachers([]);
-      alert(`${selectedTeachers.length} öğretmen başarıyla bağlandı!`);
+
+      if (newTeacherLinks.length > 0 && alreadyLinkedCount > 0) {
+        alert(`${newTeacherLinks.length} yeni öğretmen bağlandı. ${alreadyLinkedCount} öğretmen zaten bağlıydı.`);
+      } else if (newTeacherLinks.length > 0) {
+        alert(`${newTeacherLinks.length} öğretmen başarıyla bağlandı!`);
+      } else {
+        alert('Seçilen tüm öğretmenler zaten bu çocuğa bağlı.');
+      }
     } catch (error) {
       alert('Hata oluştu: ' + (error as Error).message);
     }
