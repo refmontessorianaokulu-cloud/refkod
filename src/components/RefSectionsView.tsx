@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, GraduationCap, Settings, Users } from 'lucide-react';
+import { ShoppingCart, Package, GraduationCap, Settings, Users, Menu } from 'lucide-react';
 import ProductManagement from './ProductManagement';
 import ProductCatalog from './ProductCatalog';
 
@@ -100,10 +100,22 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-8">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">
-        {SECTION_LABELS[sectionType]}
-      </h2>
+    <div className="h-full flex flex-col">
+      {/* Fixed Header */}
+      <div className="bg-white border-b border-gray-200 px-8 py-6 flex items-center">
+        <div className="flex items-center space-x-4">
+          <div className="w-10 h-10 flex items-center justify-center">
+            <Menu className="w-6 h-6 text-gray-400" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800">
+            {SECTION_LABELS[sectionType]}
+          </h2>
+        </div>
+      </div>
+
+      {/* Content Area */}
+      <div className="flex-1 overflow-y-auto bg-white">
+        <div className="p-8">
 
       {/* Ref Danışmanlık Tabs */}
       {showDanismanlikTabs && (
@@ -421,6 +433,8 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
           </div>
         </div>
       )}
+        </div>
+      </div>
     </div>
   );
 }
