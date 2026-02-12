@@ -85,11 +85,30 @@ export default function PlayGroupCalendar() {
     try {
       setSubmitting(true);
 
+      const { data: currentSession, error: sessionError } = await supabase
+        .from('play_group_sessions')
+        .select('*')
+        .eq('id', selectedSession.id)
+        .maybeSingle();
+
+      if (sessionError) {
+        console.error('Session check error:', sessionError);
+        throw new Error('Seans bilgisi alınamadı');
+      }
+
+      if (!currentSession) {
+        throw new Error('Seçilen seansı bulunamadı');
+      }
+
+      if (currentSession.booked_count >= currentSession.capacity) {
+        throw new Error('Bu oturum için kontenjan dolmuştur');
+      }
+
       const bookingData: any = {
         session_id: selectedSession.id,
-        parent_name: formData.parent_name,
-        phone_number: formData.phone_number,
-        child_name: formData.child_name,
+        parent_name: formData.parent_name.trim(),
+        phone_number: formData.phone_number.trim(),
+        child_name: formData.child_name.trim(),
         child_birth_date: formData.child_birth_date,
         status: 'pending',
       };
@@ -104,7 +123,10 @@ export default function PlayGroupCalendar() {
         .select()
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Booking insert error:', error);
+        throw new Error(`Veritabanı hatası: ${error.message}`);
+      }
 
       setBookingSuccess(true);
       setFormData({
@@ -115,9 +137,10 @@ export default function PlayGroupCalendar() {
       });
       loadSessions();
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating booking:', error);
-      alert('Rezervasyon oluşturulurken hata oluştu');
+      const errorMessage = error?.message || 'Rezervasyon oluşturulurken hata oluştu';
+      alert(errorMessage);
     } finally {
       setSubmitting(false);
     }
