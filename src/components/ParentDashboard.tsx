@@ -648,15 +648,21 @@ export default function ParentDashboard() {
         )}
 
         {activeTab === 'ref_akademi' && (
-          <RefSectionsView sectionType="ref_akademi" />
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefSectionsView sectionType="ref_akademi" />
+          </div>
         )}
 
         {activeTab === 'ref_danismanlik' && (
-          <RefSectionsView sectionType="ref_danismanlik" />
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefSectionsView sectionType="ref_danismanlik" />
+          </div>
         )}
 
         {activeTab === 'ref_atolye' && (
-          <RefSectionsView sectionType="ref_atolye" />
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefSectionsView sectionType="ref_atolye" />
+          </div>
         )}
 
         {activeTab === 'home' && (

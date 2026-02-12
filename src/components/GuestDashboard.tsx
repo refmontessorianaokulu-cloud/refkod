@@ -81,13 +81,19 @@ export default function GuestDashboard() {
           />
         )}
         {activeTab === 'ref_akademi' && (
-          <RefSectionsView sectionType="ref_akademi" />
+          <div className="p-8">
+            <RefSectionsView sectionType="ref_akademi" />
+          </div>
         )}
         {activeTab === 'ref_danismanlik' && (
-          <RefSectionsView sectionType="ref_danismanlik" />
+          <div className="p-8">
+            <RefSectionsView sectionType="ref_danismanlik" />
+          </div>
         )}
         {activeTab === 'ref_atolye' && (
-          <RefSectionsView sectionType="ref_atolye" />
+          <div className="p-8">
+            <RefSectionsView sectionType="ref_atolye" />
+          </div>
         )}
       </main>
     </div>

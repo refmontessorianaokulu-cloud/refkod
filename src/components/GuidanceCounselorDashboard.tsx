@@ -599,15 +599,21 @@ export default function GuidanceCounselorDashboard() {
           )}
 
           {activeTab === 'ref_akademi' && (
-            <RefSectionsView sectionType="ref_akademi" />
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <RefSectionsView sectionType="ref_akademi" />
+            </div>
           )}
 
           {activeTab === 'ref_danismanlik' && (
-            <RefSectionsView sectionType="ref_danismanlik" />
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <RefSectionsView sectionType="ref_danismanlik" />
+            </div>
           )}
 
           {activeTab === 'ref_atolye' && (
-            <RefSectionsView sectionType="ref_atolye" />
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <RefSectionsView sectionType="ref_atolye" />
+            </div>
           )}
         </div>
       </div>
