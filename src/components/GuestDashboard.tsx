@@ -4,7 +4,6 @@ import { useLanguage } from '../contexts/LanguageContext';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import RefSectionsView from './RefSectionsView';
-import ProductCatalog from './ProductCatalog';
 import ShoppingCartView from './ShoppingCartView';
 import SearchModal from './SearchModal';
 import LanguageToggle from './LanguageToggle';
@@ -93,7 +92,7 @@ export default function GuestDashboard() {
         )}
         {activeTab === 'ref_atolye' && (
           <div className="p-8">
-            <ProductCatalog />
+            <RefSectionsView sectionType="ref_atolye" />
           </div>
         )}
       </main>

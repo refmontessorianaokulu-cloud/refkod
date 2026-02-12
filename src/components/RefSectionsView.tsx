@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, GraduationCap, Settings } from 'lucide-react';
+import { ShoppingCart, Package, GraduationCap, Settings, Users } from 'lucide-react';
 import ProductManagement from './ProductManagement';
 import ProductCatalog from './ProductCatalog';
 
@@ -24,7 +24,7 @@ const SECTION_LABELS = {
   ref_atolye: 'Ref Atölye',
 };
 
-type RefAtolyeTab = 'content' | 'products' | 'courses' | 'admin';
+type RefAtolyeTab = 'content' | 'products' | 'courses' | 'play_groups' | 'admin';
 type RefDanismanlikTab = 'content' | 'applications';
 
 export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
@@ -175,6 +175,17 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
               <GraduationCap className="w-4 h-4" />
               Online Kurslar
             </button>
+            <button
+              onClick={() => setActiveTab('play_groups')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                activeTab === 'play_groups'
+                  ? 'border-emerald-600 text-emerald-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              Oyun Grupları
+            </button>
             {isAdmin && (
               <button
                 onClick={() => setActiveTab('admin')}
@@ -242,6 +253,17 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
             <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-700 mb-2">Online Kurslar</h3>
             <p className="text-gray-500">Eğitim kursları ve atölyeler yakında burada olacak.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Ref Atölye - Play Groups Tab */}
+      {activeTab === 'play_groups' && sectionType === 'ref_atolye' && (
+        <div>
+          <div className="text-center py-12">
+            <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Oyun Grupları</h3>
+            <p className="text-gray-500">Oyun grupları ve etkinlikler yakında burada olacak.</p>
           </div>
         </div>
       )}
