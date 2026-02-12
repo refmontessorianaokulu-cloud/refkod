@@ -126,6 +126,7 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
       { id: 'ref_akademi', label: t('menu.refAkademi'), icon: GraduationCap },
       { id: 'ref_danismanlik', label: t('menu.refDanismanlik'), icon: Briefcase },
       { id: 'ref_atolye', label: t('menu.refAtolye'), icon: Palette },
+      { id: 'ref_management', label: t('menu.refManagement'), icon: Settings },
       { id: 'shopping_cart', label: t('menu.shoppingCart'), icon: ShoppingCart },
       { id: 'my_orders', label: t('menu.myOrders'), icon: Package },
     ],

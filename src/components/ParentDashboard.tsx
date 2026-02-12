@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
-import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles, GraduationCap, Briefcase, Palette, AlertCircle, Search as SearchIcon } from 'lucide-react';
+import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles, GraduationCap, Briefcase, Palette, AlertCircle, Search as SearchIcon, ShoppingCart, Package } from 'lucide-react';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -17,6 +17,8 @@ import PeriodicReportsParentView from './PeriodicReportsParentView';
 import SearchModal from './SearchModal';
 import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
+import ShoppingCartView from './ShoppingCartView';
+import UserOrdersView from './UserOrdersView';
 
 type ChildWithLogs = Child & {
   meal_logs: MealLog[];
@@ -40,6 +42,8 @@ const parentMenuCategories: MenuCategory[] = [
       { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
       { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
       { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
+      { id: 'shopping_cart', label: 'Sepetim', icon: ShoppingCart },
+      { id: 'my_orders', label: 'Siparişlerim', icon: Package },
     ],
   },
   {
@@ -660,6 +664,18 @@ export default function ParentDashboard() {
         {activeTab === 'ref_atolye' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <RefSectionsView sectionType="ref_atolye" />
+          </div>
+        )}
+
+        {activeTab === 'shopping_cart' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <ShoppingCartView />
+          </div>
+        )}
+
+        {activeTab === 'my_orders' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <UserOrdersView />
           </div>
         )}
 
