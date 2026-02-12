@@ -32,7 +32,6 @@ import {
   Mail,
   Home,
   Info,
-  Edit,
   Settings,
   User,
   Phone,
@@ -41,7 +40,6 @@ import {
   Palette,
   Video,
   Search,
-  ShoppingCart,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -70,7 +68,6 @@ export type MenuTab =
   | 'material_requests'
   | 'inquiries'
   | 'reference_applications'
-  | 'content_management'
   | 'settings_management'
   | 'video_settings'
   | 'main'
@@ -80,10 +77,7 @@ export type MenuTab =
   | 'notifications'
   | 'ref_akademi'
   | 'ref_danismanlik'
-  | 'ref_atolye'
-  | 'ref_management'
-  | 'shopping_cart'
-  | 'my_orders';
+  | 'ref_atolye';
 
 export interface MenuItem {
   id: MenuTab;
@@ -126,9 +120,6 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
       { id: 'ref_akademi', label: t('menu.refAkademi'), icon: GraduationCap },
       { id: 'ref_danismanlik', label: t('menu.refDanismanlik'), icon: Briefcase },
       { id: 'ref_atolye', label: t('menu.refAtolye'), icon: Palette },
-      { id: 'ref_management', label: t('menu.refManagement'), icon: Settings },
-      { id: 'shopping_cart', label: t('menu.shoppingCart'), icon: ShoppingCart },
-      { id: 'my_orders', label: t('menu.myOrders'), icon: Package },
     ],
   },
   {
@@ -185,14 +176,6 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
       { id: 'cleaning', label: t('menu.cleaning'), icon: Sparkles },
       { id: 'material_requests', label: t('menu.materialRequests'), icon: Package },
       { id: 'inquiries', label: t('menu.inquiries'), icon: Bell },
-    ],
-  },
-  {
-    id: 'content',
-    label: t('menu.content'),
-    items: [
-      { id: 'content_management', label: t('menu.contentManagement'), icon: Edit },
-      { id: 'ref_management', label: t('menu.refManagement'), icon: Edit },
     ],
   },
   {

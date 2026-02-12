@@ -22,15 +22,10 @@ import BehaviorIncidentSection from './BehaviorIncidentSection';
 import AdminPeriodicReportsManagement from './AdminPeriodicReportsManagement';
 import HomePage from './HomePage';
 import AboutPage from './AboutPage';
-import AboutContentEditor from './AboutContentEditor';
 import InstagramSettings from './InstagramSettings';
-import RefSectionsManagement from './RefSectionsManagement';
 import RefSectionsView from './RefSectionsView';
 import TeacherBranchAssignments from './TeacherBranchAssignments';
 import VideoUploadSection from './VideoUploadSection';
-import ShoppingCartView from './ShoppingCartView';
-import OrderManagement from './OrderManagement';
-import UserOrdersView from './UserOrdersView';
 import SearchModal from './SearchModal';
 import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab } from './Sidebar';
@@ -612,7 +607,6 @@ export default function AdminDashboard() {
           ) : (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-20 pb-8 lg:py-8">
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                {activeTab === 'content_management' && <AboutContentEditor />}
                 {activeTab === 'settings_management' && <InstagramSettings />}
                 {activeTab === 'video_settings' && <VideoUploadSection />}
                 {activeTab === 'children' && (
@@ -1283,13 +1277,9 @@ export default function AdminDashboard() {
               />
             )}
 
-            {activeTab === 'ref_management' && <RefSectionsManagement />}
             {activeTab === 'ref_akademi' && <RefSectionsView sectionType="ref_akademi" />}
             {activeTab === 'ref_danismanlik' && <RefSectionsView sectionType="ref_danismanlik" />}
             {activeTab === 'ref_atolye' && <RefSectionsView sectionType="ref_atolye" />}
-            {activeTab === 'shopping_cart' && <ShoppingCartView />}
-            {activeTab === 'ref_management' && <OrderManagement />}
-            {activeTab === 'my_orders' && <UserOrdersView />}
               </div>
             </div>
           )}
