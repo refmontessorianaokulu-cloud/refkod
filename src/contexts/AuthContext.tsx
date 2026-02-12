@@ -10,7 +10,7 @@ type AuthContextType = {
   guestInitialTab: string | null;
   guestInitialSection: string | null;
   signIn: (email: string, password: string) => Promise<void>;
-  signInAsGuest: (initialTab?: string, initialSection?: string) => void;
+  signInAsGuest: (initialTab?: string, initialSection?: string) => Promise<void>;
   signUp: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => Promise<void>;
   signOut: () => Promise<void>;
 };
@@ -128,10 +128,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const signInAsGuest = (initialTab?: string, initialSection?: string) => {
+  const signInAsGuest = async (initialTab?: string, initialSection?: string) => {
+    await supabase.auth.signOut();
     setIsGuest(true);
     setGuestInitialTab(initialTab || null);
     setGuestInitialSection(initialSection || null);
+    setUser(null);
+    setProfile(null);
     setLoading(false);
   };
 

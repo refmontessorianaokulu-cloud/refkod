@@ -495,7 +495,7 @@ export default function Login() {
 
                 <div className="mt-3 pt-3 border-t border-gray-200">
                   <button
-                    onClick={signInAsGuest}
+                    onClick={() => signInAsGuest()}
                     className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
                   >
                     Misafir Olarak Giriş Yap
@@ -882,7 +882,7 @@ export default function Login() {
 
                 <div className="mt-4 pt-4 border-t border-gray-200">
                   <button
-                    onClick={signInAsGuest}
+                    onClick={() => signInAsGuest()}
                     className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
                   >
                     Misafir Olarak Giriş Yap
