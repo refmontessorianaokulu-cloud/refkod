@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, GraduationCap, Settings, Users } from 'lucide-react';
+import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon } from 'lucide-react';
 import ProductManagement from './ProductManagement';
 import ProductCatalog from './ProductCatalog';
+import PlayGroupManagement from './PlayGroupManagement';
+import PlayGroupCalendar from './PlayGroupCalendar';
 
 interface RefSection {
   id: string;
@@ -260,18 +262,28 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       {/* Ref Atölye - Play Groups Tab */}
       {activeTab === 'play_groups' && sectionType === 'ref_atolye' && (
         <div>
-          <div className="text-center py-12">
-            <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">Oyun Grupları</h3>
-            <p className="text-gray-500">Oyun grupları ve etkinlikler yakında burada olacak.</p>
-          </div>
+          <PlayGroupCalendar />
         </div>
       )}
 
       {/* Ref Atölye - Admin Tab */}
       {activeTab === 'admin' && sectionType === 'ref_atolye' && isAdmin && (
-        <div>
-          <ProductManagement />
+        <div className="space-y-8">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <CalendarIcon className="w-5 h-5" />
+              Oyun Grubu Yönetimi
+            </h3>
+            <PlayGroupManagement />
+          </div>
+
+          <div className="border-t border-gray-200 pt-8">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <ShoppingCart className="w-5 h-5" />
+              Ürün Yönetimi
+            </h3>
+            <ProductManagement />
+          </div>
         </div>
       )}
 
