@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Calendar, Clock, Users, Plus, Edit2, Trash2, Check, X, ExternalLink } from 'lucide-react';
+import { Calendar, Clock, Users, Plus, Edit2, Trash2, X, ExternalLink, Upload, Image as ImageIcon } from 'lucide-react';
 
 interface PlayGroupSession {
   id: string;
@@ -10,6 +10,7 @@ interface PlayGroupSession {
   theme: string;
   capacity: number;
   booked_count: number;
+  media_urls: string[];
   created_at: string;
 }
 
@@ -34,12 +35,14 @@ export default function PlayGroupManagement() {
   const [showBookingsModal, setShowBookingsModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [editingSession, setEditingSession] = useState<PlayGroupSession | null>(null);
+  const [uploadingMedia, setUploadingMedia] = useState(false);
 
   const [formData, setFormData] = useState({
     session_date: '',
     session_time: '',
     theme: '',
     capacity: 10,
+    media_urls: [] as string[],
   });
 
   const [paymentLinkData, setPaymentLinkData] = useState<{ [key: string]: string }>({});
@@ -83,6 +86,52 @@ export default function PlayGroupManagement() {
     }
   };
 
+  const handleMediaUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    try {
+      setUploadingMedia(true);
+      const uploadedUrls: string[] = [];
+
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('play_group_media')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('play_group_media')
+          .getPublicUrl(filePath);
+
+        uploadedUrls.push(publicUrl);
+      }
+
+      setFormData({
+        ...formData,
+        media_urls: [...formData.media_urls, ...uploadedUrls],
+      });
+    } catch (error) {
+      console.error('Error uploading media:', error);
+      alert('Görsel yüklenirken hata oluştu');
+    } finally {
+      setUploadingMedia(false);
+    }
+  };
+
+  const handleRemoveMedia = (urlToRemove: string) => {
+    setFormData({
+      ...formData,
+      media_urls: formData.media_urls.filter(url => url !== urlToRemove),
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -92,15 +141,18 @@ export default function PlayGroupManagement() {
     }
 
     try {
+      const sessionData = {
+        session_date: formData.session_date,
+        session_time: formData.session_time,
+        theme: formData.theme,
+        capacity: formData.capacity,
+        media_urls: formData.media_urls,
+      };
+
       if (editingSession) {
         const { error } = await supabase
           .from('play_group_sessions')
-          .update({
-            session_date: formData.session_date,
-            session_time: formData.session_time,
-            theme: formData.theme,
-            capacity: formData.capacity,
-          })
+          .update(sessionData)
           .eq('id', editingSession.id);
 
         if (error) throw error;
@@ -109,10 +161,7 @@ export default function PlayGroupManagement() {
         const { error } = await supabase
           .from('play_group_sessions')
           .insert({
-            session_date: formData.session_date,
-            session_time: formData.session_time,
-            theme: formData.theme,
-            capacity: formData.capacity,
+            ...sessionData,
             created_by: profile?.id,
           });
 
@@ -120,7 +169,7 @@ export default function PlayGroupManagement() {
         alert('Oturum başarıyla oluşturuldu');
       }
 
-      setFormData({ session_date: '', session_time: '', theme: '', capacity: 10 });
+      setFormData({ session_date: '', session_time: '', theme: '', capacity: 10, media_urls: [] });
       setEditingSession(null);
       setShowSessionForm(false);
       loadSessions();
@@ -155,6 +204,7 @@ export default function PlayGroupManagement() {
       session_time: session.session_time,
       theme: session.theme,
       capacity: session.capacity,
+      media_urls: session.media_urls || [],
     });
     setShowSessionForm(true);
   };
@@ -256,7 +306,7 @@ export default function PlayGroupManagement() {
         <button
           onClick={() => {
             setEditingSession(null);
-            setFormData({ session_date: '', session_time: '', theme: '', capacity: 10 });
+            setFormData({ session_date: '', session_time: '', theme: '', capacity: 10, media_urls: [] });
             setShowSessionForm(true);
           }}
           className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
@@ -268,35 +318,37 @@ export default function PlayGroupManagement() {
 
       {showSessionForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
+          <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6">
             <h3 className="text-xl font-semibold mb-4">
               {editingSession ? 'Oturum Düzenle' : 'Yeni Oturum Oluştur'}
             </h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tarih
-                </label>
-                <input
-                  type="date"
-                  value={formData.session_date}
-                  onChange={(e) => setFormData({ ...formData, session_date: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  required
-                />
-              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Tarih
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.session_date}
+                    onChange={(e) => setFormData({ ...formData, session_date: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Saat
-                </label>
-                <input
-                  type="time"
-                  value={formData.session_time}
-                  onChange={(e) => setFormData({ ...formData, session_time: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-                  required
-                />
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Saat
+                  </label>
+                  <input
+                    type="time"
+                    value={formData.session_time}
+                    onChange={(e) => setFormData({ ...formData, session_time: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    required
+                  />
+                </div>
               </div>
 
               <div>
@@ -327,10 +379,62 @@ export default function PlayGroupManagement() {
                 />
               </div>
 
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Görseller
+                </label>
+                <div className="space-y-3">
+                  {formData.media_urls.length > 0 && (
+                    <div className="grid grid-cols-3 gap-3">
+                      {formData.media_urls.map((url, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={url}
+                            alt={`Session media ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveMedia(url)}
+                            className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleMediaUpload}
+                      className="hidden"
+                      disabled={uploadingMedia}
+                    />
+                    <div className="flex items-center space-x-2 text-gray-600">
+                      {uploadingMedia ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                          <span>Yükleniyor...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Upload className="w-5 h-5" />
+                          <span>Görsel Yükle</span>
+                        </>
+                      )}
+                    </div>
+                  </label>
+                </div>
+              </div>
+
               <div className="flex space-x-3">
                 <button
                   type="submit"
                   className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  disabled={uploadingMedia}
                 >
                   {editingSession ? 'Güncelle' : 'Oluştur'}
                 </button>
@@ -341,6 +445,7 @@ export default function PlayGroupManagement() {
                     setEditingSession(null);
                   }}
                   className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                  disabled={uploadingMedia}
                 >
                   İptal
                 </button>
@@ -354,57 +459,75 @@ export default function PlayGroupManagement() {
         {sessions.map((session) => (
           <div
             key={session.id}
-            className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+            className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow"
           >
-            <div className="flex justify-between items-start mb-3">
-              <div className="flex-1">
-                <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
-                  <Calendar className="w-4 h-4" />
-                  <span>{formatDate(session.session_date)}</span>
+            {session.media_urls && session.media_urls.length > 0 && (
+              <div className="relative h-40 bg-gray-100">
+                <img
+                  src={session.media_urls[0]}
+                  alt={session.theme}
+                  className="w-full h-full object-cover"
+                />
+                {session.media_urls.length > 1 && (
+                  <div className="absolute bottom-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded flex items-center space-x-1">
+                    <ImageIcon className="w-3 h-3" />
+                    <span>{session.media_urls.length}</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="p-4">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex-1">
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
+                    <Calendar className="w-4 h-4" />
+                    <span>{formatDate(session.session_date)}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
+                    <Clock className="w-4 h-4" />
+                    <span>{formatTime(session.session_time)}</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-600 mb-2">
-                  <Clock className="w-4 h-4" />
-                  <span>{formatTime(session.session_time)}</span>
+                <div className="flex space-x-1">
+                  <button
+                    onClick={() => handleEditSession(session)}
+                    className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteSession(session.id)}
+                    className="p-1 text-red-600 hover:bg-red-50 rounded"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
-              <div className="flex space-x-1">
-                <button
-                  onClick={() => handleEditSession(session)}
-                  className="p-1 text-blue-600 hover:bg-blue-50 rounded"
-                >
-                  <Edit2 className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => handleDeleteSession(session.id)}
-                  className="p-1 text-red-600 hover:bg-red-50 rounded"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+
+              <h4 className="font-semibold text-gray-800 mb-3">{session.theme}</h4>
+
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center space-x-2 text-sm">
+                  <Users className="w-4 h-4 text-gray-500" />
+                  <span className={`font-medium ${session.booked_count >= session.capacity ? 'text-red-600' : 'text-gray-700'}`}>
+                    {session.booked_count} / {session.capacity}
+                  </span>
+                </div>
+                {session.booked_count >= session.capacity && (
+                  <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                    DOLU
+                  </span>
+                )}
               </div>
+
+              <button
+                onClick={() => handleViewBookings(session)}
+                className="w-full px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
+              >
+                Rezervasyonları Gör ({session.booked_count})
+              </button>
             </div>
-
-            <h4 className="font-semibold text-gray-800 mb-3">{session.theme}</h4>
-
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2 text-sm">
-                <Users className="w-4 h-4 text-gray-500" />
-                <span className={`font-medium ${session.booked_count >= session.capacity ? 'text-red-600' : 'text-gray-700'}`}>
-                  {session.booked_count} / {session.capacity}
-                </span>
-              </div>
-              {session.booked_count >= session.capacity && (
-                <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                  DOLU
-                </span>
-              )}
-            </div>
-
-            <button
-              onClick={() => handleViewBookings(session)}
-              className="w-full px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 text-sm font-medium"
-            >
-              Rezervasyonları Gör ({session.booked_count})
-            </button>
           </div>
         ))}
       </div>

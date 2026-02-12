@@ -10,6 +10,7 @@ interface PlayGroupSession {
   theme: string;
   capacity: number;
   booked_count: number;
+  media_urls: string[];
 }
 
 interface BookingFormData {
@@ -217,47 +218,66 @@ export default function PlayGroupCalendar() {
                 return (
                   <div
                     key={session.id}
-                    className={`border rounded-lg p-5 transition-all ${
+                    className={`border rounded-lg overflow-hidden transition-all ${
                       isAvailable
                         ? 'border-gray-200 bg-white hover:shadow-md cursor-pointer'
                         : 'border-gray-200 bg-gray-50 opacity-75'
                     }`}
                     onClick={() => isAvailable && handleBookingClick(session)}
                   >
-                    <div className="mb-3">
-                      <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
-                        <Calendar className="w-4 h-4" />
-                        <span className="font-medium">{formatDate(session.session_date)}</span>
+                    {session.media_urls && session.media_urls.length > 0 && (
+                      <div className="relative h-48 bg-gray-100">
+                        <img
+                          src={session.media_urls[0]}
+                          alt={session.theme}
+                          className="w-full h-full object-cover"
+                        />
+                        {!isAvailable && (
+                          <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                            <span className="bg-red-600 text-white px-4 py-2 rounded-lg font-semibold">
+                              DOLU
+                            </span>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Clock className="w-4 h-4" />
-                        <span>{formatTime(session.session_time)}</span>
-                      </div>
-                    </div>
+                    )}
 
-                    <h4 className="font-semibold text-gray-800 mb-3 text-lg">{session.theme}</h4>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2 text-sm">
-                        <Users className="w-4 h-4 text-gray-500" />
-                        <span className={`font-medium ${!isAvailable ? 'text-red-600' : 'text-gray-700'}`}>
-                          {isAvailable ? `${spotsLeft} yer kaldı` : 'Kontenjan Dolu'}
-                        </span>
+                    <div className="p-5">
+                      <div className="mb-3">
+                        <div className="flex items-center space-x-2 text-sm text-gray-600 mb-1">
+                          <Calendar className="w-4 h-4" />
+                          <span className="font-medium">{formatDate(session.session_date)}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 text-sm text-gray-600">
+                          <Clock className="w-4 h-4" />
+                          <span>{formatTime(session.session_time)}</span>
+                        </div>
                       </div>
-                      {!isAvailable && (
-                        <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                          DOLU
-                        </span>
+
+                      <h4 className="font-semibold text-gray-800 mb-3 text-lg">{session.theme}</h4>
+
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center space-x-2 text-sm">
+                          <Users className="w-4 h-4 text-gray-500" />
+                          <span className={`font-medium ${!isAvailable ? 'text-red-600' : 'text-gray-700'}`}>
+                            {isAvailable ? `${spotsLeft} yer kaldı` : 'Kontenjan Dolu'}
+                          </span>
+                        </div>
+                        {!isAvailable && !session.media_urls?.length && (
+                          <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                            DOLU
+                          </span>
+                        )}
+                      </div>
+
+                      {isAvailable && (
+                        <button
+                          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                        >
+                          Rezervasyon Yap
+                        </button>
                       )}
                     </div>
-
-                    {isAvailable && (
-                      <button
-                        className="w-full mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
-                      >
-                        Rezervasyon Yap
-                      </button>
-                    )}
                   </div>
                 );
               })}
