@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase, Child, DailyReport } from '../lib/supabase';
-import { Baby, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette, Search as SearchIcon, FileText, ShoppingCart } from 'lucide-react';
+import { Baby, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette, Search as SearchIcon, FileText } from 'lucide-react';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -42,8 +42,6 @@ const teacherMenuCategories: MenuCategory[] = [
       { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
       { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
       { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
-      { id: 'shopping_cart', label: 'Sepetim', icon: ShoppingCart },
-      { id: 'my_orders', label: 'Siparişlerim', icon: Package },
     ],
   },
   {
@@ -1017,18 +1015,6 @@ export default function TeacherDashboard() {
         {activeTab === 'ref_atolye' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <RefSectionsView sectionType="ref_atolye" />
-          </div>
-        )}
-
-        {activeTab === 'shopping_cart' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <ShoppingCartView />
-          </div>
-        )}
-
-        {activeTab === 'my_orders' && (
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <UserOrdersView />
           </div>
         )}
 
