@@ -29,6 +29,7 @@ export default function PlayGroupCalendar() {
   const [submitting, setSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [paymentLink, setPaymentLink] = useState<string | null>(null);
+  const [submittedPhone, setSubmittedPhone] = useState<string>('');
 
   const [formData, setFormData] = useState<BookingFormData>({
     parent_name: '',
@@ -72,6 +73,7 @@ export default function PlayGroupCalendar() {
     setShowBookingForm(true);
     setBookingSuccess(false);
     setPaymentLink(null);
+    setSubmittedPhone('');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -104,10 +106,11 @@ export default function PlayGroupCalendar() {
         .from('play_group_bookings')
         .insert(bookingData)
         .select()
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
+      setSubmittedPhone(formData.phone_number);
       setBookingSuccess(true);
       setFormData({
         parent_name: '',
@@ -117,28 +120,30 @@ export default function PlayGroupCalendar() {
       });
       loadSessions();
 
-      const checkPaymentLink = setInterval(async () => {
-        const { data: booking, error: bookingError } = await supabase
-          .from('play_group_bookings')
-          .select('payment_link, status')
-          .eq('id', data.id)
-          .single();
+      if (profile?.id && data) {
+        const checkPaymentLink = setInterval(async () => {
+          const { data: booking, error: bookingError } = await supabase
+            .from('play_group_bookings')
+            .select('payment_link, status')
+            .eq('id', data.id)
+            .maybeSingle();
 
-        if (bookingError) {
-          console.error('Error checking booking:', bookingError);
+          if (bookingError) {
+            console.error('Error checking booking:', bookingError);
+            clearInterval(checkPaymentLink);
+            return;
+          }
+
+          if (booking?.payment_link) {
+            setPaymentLink(booking.payment_link);
+            clearInterval(checkPaymentLink);
+          }
+        }, 3000);
+
+        setTimeout(() => {
           clearInterval(checkPaymentLink);
-          return;
-        }
-
-        if (booking?.payment_link) {
-          setPaymentLink(booking.payment_link);
-          clearInterval(checkPaymentLink);
-        }
-      }, 3000);
-
-      setTimeout(() => {
-        clearInterval(checkPaymentLink);
-      }, 60000);
+        }, 60000);
+      }
 
     } catch (error) {
       console.error('Error creating booking:', error);
@@ -299,7 +304,7 @@ export default function PlayGroupCalendar() {
                 <h3 className="text-xl font-semibold text-center mb-2">Rezervasyon Oluşturuldu!</h3>
                 <p className="text-center text-gray-600 mb-6">
                   Rezervasyonunuz başarıyla alındı. Kısa süre içinde yönetici tarafından onaylanacak
-                  ve ödeme linki gönderilecektir.
+                  ve ödeme linki {profile?.id ? 'bu sayfada görünecek' : 'telefon numaranıza gönderilecektir'}.
                 </p>
 
                 {paymentLink ? (
@@ -330,11 +335,19 @@ export default function PlayGroupCalendar() {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                      <p className="text-sm text-blue-800 text-center">
-                        Ödeme linki bekleniyor... Onaylandığında bu sayfada görünecektir.
-                      </p>
-                    </div>
+                    {profile?.id ? (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <p className="text-sm text-blue-800 text-center">
+                          Ödeme linki bekleniyor... Onaylandığında bu sayfada görünecektir.
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                        <p className="text-sm text-green-800 text-center">
+                          Rezervasyonunuz kaydedildi. Yönetici onayladıktan sonra <strong>{submittedPhone}</strong> numarasına ödeme linki gönderilecektir.
+                        </p>
+                      </div>
+                    )}
                     <button
                       onClick={() => {
                         setShowBookingForm(false);
