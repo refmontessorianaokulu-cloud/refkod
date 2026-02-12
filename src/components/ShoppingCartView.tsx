@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { ShoppingCart, Trash2, Plus, Minus, Package, CreditCard } from 'lucide-react';
+import IyzicoCreditCardForm from './IyzicoCreditCardForm';
 
 interface CartItem {
   id: string;
@@ -59,6 +60,8 @@ export default function ShoppingCartView() {
   const [cartItems, setCartItems] = useState<CartItemWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCheckout, setShowCheckout] = useState(false);
+  const [showCardForm, setShowCardForm] = useState(false);
+  const [paymentLoading, setPaymentLoading] = useState(false);
   const [sameAsBilling, setSameAsBilling] = useState(true);
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({
     shipping_address: {
@@ -187,8 +190,160 @@ export default function ShoppingCartView() {
     }, 0);
   };
 
+  const handleIyzicoPayment = async (cardDetails: any, installment: number) => {
+    setPaymentLoading(true);
+    try {
+      const orderNumber = `ORD-${Date.now()}`;
+      const conversationId = orderNumber;
+      const subtotal = calculateTotal();
+      const shippingCost = cartItems.some(item => item.product?.product_type === 'physical') ? 50 : 0;
+      const total = subtotal + shippingCost;
+
+      const billingAddress = sameAsBilling
+        ? checkoutData.shipping_address
+        : checkoutData.billing_address;
+
+      const orderData: any = {
+        order_number: orderNumber,
+        status: 'pending',
+        subtotal,
+        discount_amount: 0,
+        shipping_cost: shippingCost,
+        total_amount: total,
+        shipping_address: checkoutData.shipping_address,
+        billing_address: billingAddress,
+        notes: checkoutData.notes,
+      };
+
+      if (user) {
+        orderData.user_id = user.id;
+        orderData.is_guest_order = false;
+      } else {
+        orderData.user_id = null;
+        orderData.is_guest_order = true;
+        orderData.guest_email = checkoutData.guest_email || 'guest@example.com';
+        orderData.guest_phone = checkoutData.guest_phone || checkoutData.shipping_address.phone;
+      }
+
+      const { data: order, error: orderError } = await supabase
+        .from('orders')
+        .insert(orderData)
+        .select()
+        .single();
+
+      if (orderError) throw orderError;
+
+      const orderItems = cartItems.map((item) => ({
+        order_id: order.id,
+        product_id: item.product_id || null,
+        course_id: item.course_id || null,
+        item_name: item.product?.name || item.course?.title || '',
+        quantity: item.quantity,
+        unit_price: item.product?.base_price || item.course?.price || 0,
+        total_price: (item.product?.base_price || item.course?.price || 0) * item.quantity,
+      }));
+
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .insert(orderItems);
+
+      if (itemsError) throw itemsError;
+
+      const iyzicoOrderItems = cartItems.map((item) => ({
+        id: item.product_id || item.course_id,
+        name: item.product?.name || item.course?.title || '',
+        category: item.product ? 'Ürün' : 'Kurs',
+        itemType: item.product ? 'PHYSICAL' : 'VIRTUAL',
+        price: ((item.product?.base_price || item.course?.price || 0) * item.quantity).toFixed(2),
+      }));
+
+      const callbackUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/iyzico-callback`;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/iyzico-checkout`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+          },
+          body: JSON.stringify({
+            orderId: order.id,
+            orderItems: iyzicoOrderItems,
+            buyer: {
+              id: user?.id || 'guest',
+              name: checkoutData.shipping_address.full_name.split(' ')[0] || 'Guest',
+              surname: checkoutData.shipping_address.full_name.split(' ')[1] || 'User',
+              phone: checkoutData.shipping_address.phone,
+              email: user?.email || checkoutData.guest_email || 'guest@example.com',
+              address: checkoutData.shipping_address.address,
+              city: checkoutData.shipping_address.city,
+              country: 'Turkey',
+              ip: '85.34.78.112',
+            },
+            shippingAddress: {
+              contactName: checkoutData.shipping_address.full_name,
+              city: checkoutData.shipping_address.city,
+              country: 'Turkey',
+              address: checkoutData.shipping_address.address,
+            },
+            billingAddress: {
+              contactName: billingAddress.full_name,
+              city: billingAddress.city,
+              country: 'Turkey',
+              address: billingAddress.address,
+            },
+            price: total.toFixed(2),
+            paidPrice: total.toFixed(2),
+            installment: installment,
+            cardDetails: cardDetails,
+            conversationId: conversationId,
+            callbackUrl: callbackUrl,
+          }),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.status === 'success' && result.threeDSHtmlContent) {
+        const threeDSWindow = window.open('', '_blank', 'width=600,height=700');
+        if (threeDSWindow) {
+          threeDSWindow.document.write(result.threeDSHtmlContent);
+          threeDSWindow.document.close();
+        }
+
+        if (user) {
+          const { error: clearCartError } = await supabase
+            .from('shopping_cart')
+            .delete()
+            .eq('user_id', user.id);
+
+          if (clearCartError) console.error('Clear cart error:', clearCartError);
+        } else {
+          localStorage.removeItem('guest_cart');
+        }
+
+        alert('3D Secure doğrulaması için yeni pencere açıldı. Lütfen ödeme işlemini tamamlayın.');
+        setShowCheckout(false);
+        setShowCardForm(false);
+        loadCart();
+      } else {
+        throw new Error(result.errorMessage || 'Ödeme başlatılamadı');
+      }
+    } catch (error) {
+      alert('Ödeme hatası: ' + (error as Error).message);
+    } finally {
+      setPaymentLoading(false);
+    }
+  };
+
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (checkoutData.payment_method === 'credit_card') {
+      setShowCardForm(true);
+      return;
+    }
 
     try {
       const orderNumber = `ORD-${Date.now()}`;
@@ -373,7 +528,7 @@ export default function ShoppingCartView() {
         </div>
       </div>
 
-      {showCheckout && (
+      {showCheckout && !showCardForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setShowCheckout(false)}>
           <div className="bg-white rounded-lg max-w-3xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="p-6">
@@ -531,6 +686,39 @@ export default function ShoppingCartView() {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCardForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => { setShowCardForm(false); setShowCheckout(false); }}>
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gray-800">Kredi Kartı Bilgileri</h3>
+                <button
+                  onClick={() => { setShowCardForm(false); setShowCheckout(true); }}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  ← Geri
+                </button>
+              </div>
+
+              <div className="mb-6 p-4 bg-slate-50 rounded-lg">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-slate-600">Ödenecek Tutar:</span>
+                  <span className="text-2xl font-bold text-slate-900">
+                    {(calculateTotal() + (cartItems.some(item => item.product?.product_type === 'physical') ? 50 : 0)).toFixed(2)} TL
+                  </span>
+                </div>
+              </div>
+
+              <IyzicoCreditCardForm
+                amount={calculateTotal() + (cartItems.some(item => item.product?.product_type === 'physical') ? 50 : 0)}
+                onSubmit={handleIyzicoPayment}
+                loading={paymentLoading}
+              />
             </div>
           </div>
         </div>
