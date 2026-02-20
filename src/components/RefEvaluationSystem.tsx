@@ -123,10 +123,16 @@ export default function RefEvaluationSystem() {
 
   const loadUsersForCategory = async (categoryName: string) => {
     try {
-      let roleFilter: string[] = [];
+      let userData: Profile[] = [];
 
       if (categoryName === 'teacher') {
-        roleFilter = ['teacher'];
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, role')
+          .eq('role', 'teacher');
+
+        if (error) throw error;
+        userData = data || [];
       } else if (categoryName === 'cook') {
         const { data, error } = await supabase
           .from('profiles')
@@ -135,8 +141,7 @@ export default function RefEvaluationSystem() {
           .eq('staff_role', 'cook');
 
         if (error) throw error;
-        setUsers({ ...users, [categoryName]: data || [] });
-        return;
+        userData = data || [];
       } else if (categoryName === 'cleaning_staff') {
         const { data, error } = await supabase
           .from('profiles')
@@ -145,26 +150,34 @@ export default function RefEvaluationSystem() {
           .eq('staff_role', 'cleaning_staff');
 
         if (error) throw error;
-        setUsers({ ...users, [categoryName]: data || [] });
-        return;
+        userData = data || [];
       } else if (categoryName === 'guidance_counselor') {
-        roleFilter = ['guidance_counselor'];
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, role')
+          .eq('role', 'guidance_counselor');
+
+        if (error) throw error;
+        userData = data || [];
       } else if (categoryName === 'administration') {
-        roleFilter = ['admin'];
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, role')
+          .eq('role', 'admin');
+
+        if (error) throw error;
+        userData = data || [];
       } else if (categoryName === 'parent') {
-        roleFilter = ['parent'];
-      } else {
-        setUsers({ ...users, [categoryName]: [] });
-        return;
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, full_name, role')
+          .eq('role', 'parent');
+
+        if (error) throw error;
+        userData = data || [];
       }
 
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name, role')
-        .in('role', roleFilter);
-
-      if (error) throw error;
-      setUsers({ ...users, [categoryName]: data || [] });
+      setUsers(prev => ({ ...prev, [categoryName]: userData }));
     } catch (error) {
       console.error('Error loading users:', error);
       alert('Kullanıcılar yüklenirken hata oluştu');

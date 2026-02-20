@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Car, MapPin, Users, Clock, LogOut, Navigation, ChefHat, Sparkles, Shield, User } from 'lucide-react';
+import { Car, MapPin, Users, Clock, LogOut, Navigation, ChefHat, Sparkles, Shield, User, ClipboardList } from 'lucide-react';
+import RefEvaluationSystem from './RefEvaluationSystem';
 
 interface Vehicle {
   id: string;
@@ -29,6 +30,7 @@ interface ChildAssignment {
 
 export default function PersonelPaneli() {
   const { user, profile, signOut } = useAuth();
+  const [activeTab, setActiveTab] = useState<'main' | 'evaluation'>('main');
   const [isSharing, setIsSharing] = useState(false);
   const [myVehicle, setMyVehicle] = useState<Vehicle | null>(null);
   const [activeRoute, setActiveRoute] = useState<Route | null>(null);
@@ -201,7 +203,40 @@ export default function PersonelPaneli() {
           </button>
         </div>
 
-        {profile?.staff_role === 'bus_driver' ? (
+        {(profile?.staff_role === 'cook' || profile?.staff_role === 'cleaning_staff') && (
+          <div className="flex space-x-2 mb-6 bg-white rounded-lg p-1 shadow-sm">
+            <button
+              onClick={() => setActiveTab('main')}
+              className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-colors ${
+                activeTab === 'main'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              {getStaffIcon()}
+              <span>Ana Sayfa</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('evaluation')}
+              className={`flex-1 flex items-center justify-center space-x-2 px-4 py-3 rounded-lg font-medium transition-colors ${
+                activeTab === 'evaluation'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <ClipboardList className="w-5 h-5" />
+              <span>Değerlendirme Sistemi</span>
+            </button>
+          </div>
+        )}
+
+        {activeTab === 'evaluation' && (profile?.staff_role === 'cook' || profile?.staff_role === 'cleaning_staff') && (
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <RefEvaluationSystem />
+          </div>
+        )}
+
+        {activeTab === 'main' && profile?.staff_role === 'bus_driver' && (
           <div className="space-y-6">
             {myVehicle && (
               <div className="bg-white rounded-xl shadow-lg p-6">
@@ -334,7 +369,9 @@ export default function PersonelPaneli() {
               </div>
             )}
           </div>
-        ) : (
+        )}
+
+        {activeTab === 'main' && profile?.staff_role !== 'bus_driver' && (
           <div className="bg-white rounded-xl shadow-lg p-8 text-center">
             <div className="max-w-md mx-auto">
               <div className="bg-gradient-to-br from-blue-100 to-amber-100 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -346,6 +383,11 @@ export default function PersonelPaneli() {
               <p className="text-gray-600">
                 {getStaffMessage()}
               </p>
+              {(profile?.staff_role === 'cook' || profile?.staff_role === 'cleaning_staff') && (
+                <p className="text-sm text-gray-500 mt-4">
+                  Değerlendirme formuna ulaşmak için yukarıdaki menüyü kullanabilirsiniz.
+                </p>
+              )}
             </div>
           </div>
         )}
