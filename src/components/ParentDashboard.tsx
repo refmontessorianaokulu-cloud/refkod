@@ -19,6 +19,7 @@ import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 import ShoppingCartView from './ShoppingCartView';
 import UserOrdersView from './UserOrdersView';
+import RefEvaluationSystem from './RefEvaluationSystem';
 
 type ChildWithLogs = Child & {
   meal_logs: MealLog[];
@@ -41,6 +42,7 @@ const parentMenuCategories: MenuCategory[] = [
     items: [
       { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
       { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+      { id: 'ref_evaluation', label: 'REF Değerlendirme Sistemi', icon: Sparkles },
       { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
     ],
   },
@@ -656,6 +658,12 @@ export default function ParentDashboard() {
         {activeTab === 'ref_danismanlik' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <RefSectionsView sectionType="ref_danismanlik" />
+          </div>
+        )}
+
+        {activeTab === 'ref_evaluation' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <RefEvaluationSystem />
           </div>
         )}
 

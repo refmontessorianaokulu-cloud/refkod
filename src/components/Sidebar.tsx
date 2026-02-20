@@ -40,6 +40,7 @@ import {
   Palette,
   Video,
   Search,
+  BarChart3,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -77,7 +78,9 @@ export type MenuTab =
   | 'notifications'
   | 'ref_akademi'
   | 'ref_danismanlik'
-  | 'ref_atolye';
+  | 'ref_atolye'
+  | 'ref_evaluation'
+  | 'evaluation_analytics';
 
 export interface MenuItem {
   id: MenuTab;
@@ -119,6 +122,7 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
     items: [
       { id: 'ref_akademi', label: t('menu.refAkademi'), icon: GraduationCap },
       { id: 'ref_danismanlik', label: t('menu.refDanismanlik'), icon: Briefcase },
+      { id: 'ref_evaluation', label: 'REF Değerlendirme Sistemi', icon: ClipboardList },
       { id: 'ref_atolye', label: t('menu.refAtolye'), icon: Palette },
     ],
   },
@@ -184,6 +188,7 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
     items: [
       { id: 'settings_management', label: t('menu.instagramSettings'), icon: Settings },
       { id: 'video_settings', label: t('menu.videoSettings'), icon: Video },
+      { id: 'evaluation_analytics', label: 'Değerlendirme Analizleri', icon: BarChart3 },
     ],
   },
 ];

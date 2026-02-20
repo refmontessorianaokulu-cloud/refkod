@@ -29,6 +29,8 @@ import VideoUploadSection from './VideoUploadSection';
 import SearchModal from './SearchModal';
 import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab } from './Sidebar';
+import RefEvaluationSystem from './RefEvaluationSystem';
+import RefEvaluationAnalytics from './RefEvaluationAnalytics';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
@@ -1246,6 +1248,18 @@ export default function AdminDashboard() {
             {activeTab === 'teacher_assignments' && (
               <div>
                 <TeacherBranchAssignments />
+              </div>
+            )}
+
+            {activeTab === 'ref_evaluation' && (
+              <div>
+                <RefEvaluationSystem />
+              </div>
+            )}
+
+            {activeTab === 'evaluation_analytics' && (
+              <div>
+                <RefEvaluationAnalytics />
               </div>
             )}
 

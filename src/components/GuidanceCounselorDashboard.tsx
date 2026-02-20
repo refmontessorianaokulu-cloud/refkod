@@ -14,6 +14,7 @@ import RefSectionsView from './RefSectionsView';
 import SearchModal from './SearchModal';
 import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
+import RefEvaluationSystem from './RefEvaluationSystem';
 
 interface Appointment {
   id: string;
@@ -62,6 +63,7 @@ const guidanceMenuCategories: MenuCategory[] = [
     items: [
       { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
       { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
+      { id: 'ref_evaluation', label: 'REF Değerlendirme Sistemi', icon: ClipboardList },
       { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
     ],
   },
@@ -607,6 +609,12 @@ export default function GuidanceCounselorDashboard() {
           {activeTab === 'ref_danismanlik' && (
             <div className="bg-white rounded-2xl shadow-xl p-8">
               <RefSectionsView sectionType="ref_danismanlik" />
+            </div>
+          )}
+
+          {activeTab === 'ref_evaluation' && (
+            <div className="bg-white rounded-2xl shadow-xl p-8">
+              <RefEvaluationSystem />
             </div>
           )}
 
