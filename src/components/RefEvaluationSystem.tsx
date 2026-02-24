@@ -20,6 +20,7 @@ interface Profile {
   id: string;
   full_name: string;
   role: string;
+  staff_role?: string;
 }
 
 export default function RefEvaluationSystem() {
@@ -128,7 +129,7 @@ export default function RefEvaluationSystem() {
       if (categoryName === 'teacher') {
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, full_name, role')
+          .select('id, full_name, role, staff_role')
           .eq('role', 'teacher');
 
         if (error) throw error;
@@ -142,6 +143,7 @@ export default function RefEvaluationSystem() {
 
         if (error) throw error;
         userData = data || [];
+        console.log('Cook users loaded:', userData);
       } else if (categoryName === 'cleaning_staff') {
         const { data, error } = await supabase
           .from('profiles')
@@ -151,10 +153,11 @@ export default function RefEvaluationSystem() {
 
         if (error) throw error;
         userData = data || [];
+        console.log('Cleaning staff users loaded:', userData);
       } else if (categoryName === 'guidance_counselor') {
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, full_name, role')
+          .select('id, full_name, role, staff_role')
           .eq('role', 'guidance_counselor');
 
         if (error) throw error;
@@ -162,7 +165,7 @@ export default function RefEvaluationSystem() {
       } else if (categoryName === 'administration') {
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, full_name, role')
+          .select('id, full_name, role, staff_role')
           .eq('role', 'admin');
 
         if (error) throw error;
@@ -170,7 +173,7 @@ export default function RefEvaluationSystem() {
       } else if (categoryName === 'parent') {
         const { data, error } = await supabase
           .from('profiles')
-          .select('id, full_name, role')
+          .select('id, full_name, role, staff_role')
           .eq('role', 'parent');
 
         if (error) throw error;
