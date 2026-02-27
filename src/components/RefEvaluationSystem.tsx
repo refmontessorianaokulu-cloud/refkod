@@ -130,12 +130,14 @@ export default function RefEvaluationSystem() {
   const loadUsersForCategory = async (categoryName: string) => {
     try {
       let userData: Profile[] = [];
+      const excludedUserId = 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2';
 
       if (categoryName === 'teacher') {
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name, role, staff_role')
-          .eq('role', 'teacher');
+          .eq('role', 'teacher')
+          .neq('id', excludedUserId);
 
         if (error) throw error;
         userData = data || [];
@@ -144,7 +146,8 @@ export default function RefEvaluationSystem() {
           .from('profiles')
           .select('id, full_name, role, staff_role')
           .eq('role', 'staff')
-          .eq('staff_role', 'cook');
+          .eq('staff_role', 'cook')
+          .neq('id', excludedUserId);
 
         if (error) throw error;
         userData = data || [];
@@ -154,7 +157,8 @@ export default function RefEvaluationSystem() {
           .from('profiles')
           .select('id, full_name, role, staff_role')
           .eq('role', 'staff')
-          .eq('staff_role', 'cleaning_staff');
+          .eq('staff_role', 'cleaning_staff')
+          .neq('id', excludedUserId);
 
         if (error) throw error;
         userData = data || [];
@@ -163,7 +167,8 @@ export default function RefEvaluationSystem() {
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name, role, staff_role')
-          .eq('role', 'guidance_counselor');
+          .eq('role', 'guidance_counselor')
+          .neq('id', excludedUserId);
 
         if (error) throw error;
         userData = data || [];
@@ -171,7 +176,8 @@ export default function RefEvaluationSystem() {
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name, role, staff_role')
-          .eq('role', 'admin');
+          .eq('role', 'admin')
+          .neq('id', excludedUserId);
 
         if (error) throw error;
         userData = data || [];
@@ -179,7 +185,8 @@ export default function RefEvaluationSystem() {
         const { data, error } = await supabase
           .from('profiles')
           .select('id, full_name, role, staff_role')
-          .eq('role', 'parent');
+          .eq('role', 'parent')
+          .neq('id', excludedUserId);
 
         if (error) throw error;
         userData = data || [];

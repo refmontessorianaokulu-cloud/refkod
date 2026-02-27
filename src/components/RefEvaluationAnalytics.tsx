@@ -114,14 +114,15 @@ export default function RefEvaluationAnalytics() {
   };
 
   const calculateStatistics = () => {
-    let filteredEvaluations = evaluations;
+    const excludedUserId = 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2';
+    let filteredEvaluations = evaluations.filter(e => e.evaluated_user_id !== excludedUserId);
 
     if (selectedPeriod !== 'all') {
-      filteredEvaluations = evaluations.filter(e => e.evaluation_period === selectedPeriod);
+      filteredEvaluations = filteredEvaluations.filter(e => e.evaluation_period === selectedPeriod);
     }
 
     if (selectedCategory !== 'all') {
-      filteredEvaluations = evaluations.filter(e => e.evaluated_category === selectedCategory);
+      filteredEvaluations = filteredEvaluations.filter(e => e.evaluated_category === selectedCategory);
     }
 
     const categoryStatsMap: { [key: string]: CategoryStats } = {};
@@ -246,7 +247,7 @@ export default function RefEvaluationAnalytics() {
             </div>
             <div>
               <p className="text-sm text-gray-600">Toplam Değerlendirme</p>
-              <p className="text-2xl font-bold text-gray-800">{evaluations.length}</p>
+              <p className="text-2xl font-bold text-gray-800">{evaluations.filter(e => e.evaluated_user_id !== 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2').length}</p>
             </div>
           </div>
         </div>
@@ -381,7 +382,7 @@ export default function RefEvaluationAnalytics() {
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h4 className="text-lg font-semibold text-gray-800 mb-4">Son Değerlendirmeler</h4>
         <div className="space-y-3">
-          {evaluations.slice(0, 10).map(evaluation => {
+          {evaluations.filter(e => e.evaluated_user_id !== 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2').slice(0, 10).map(evaluation => {
             const category = categories.find(c => c.category_name === evaluation.evaluated_category);
             const scoreValues = Object.values(evaluation.scores);
             const avgScore = scoreValues.reduce((a, b) => a + b, 0) / scoreValues.length;
@@ -415,7 +416,7 @@ export default function RefEvaluationAnalytics() {
             );
           })}
 
-          {evaluations.length === 0 && (
+          {evaluations.filter(e => e.evaluated_user_id !== 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2').length === 0 && (
             <div className="text-center py-8 text-gray-500">
               Henüz değerlendirme yapılmamış
             </div>
