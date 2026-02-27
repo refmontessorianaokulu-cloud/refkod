@@ -75,11 +75,16 @@ export default function RefEvaluationSystem() {
   const determineAvailableCategories = () => {
     if (!profile) return;
 
+    if (profile.id === 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2') {
+      setAvailableCategories([]);
+      return;
+    }
+
     const categoryMap: { [key: string]: string[] } = {
       'teacher': ['teacher', 'cook', 'cleaning_staff', 'guidance_counselor', 'administration', 'parent'],
       'staff': ['teacher', 'guidance_counselor', 'cook', 'administration'],
       'parent': ['teacher', 'guidance_counselor', 'administration', 'meals', 'facility_cleanliness', 'bus_service'],
-      'admin': [],
+      'admin': ['teacher', 'cook', 'cleaning_staff', 'guidance_counselor'],
       'guidance_counselor': ['teacher', 'cook', 'cleaning_staff', 'administration']
     };
 
