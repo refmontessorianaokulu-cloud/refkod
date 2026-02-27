@@ -21,7 +21,8 @@ interface BookingFormData {
 }
 
 export default function PlayGroupCalendar() {
-  const { profile } = useAuth();
+  const auth = useAuth();
+  const profile = auth?.profile || null;
   const [sessions, setSessions] = useState<PlayGroupSession[]>([]);
   const [selectedSession, setSelectedSession] = useState<PlayGroupSession | null>(null);
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -117,6 +118,12 @@ export default function PlayGroupCalendar() {
         bookingData.user_id = profile.id;
       }
 
+      console.log('Attempting to create booking:', {
+        hasProfile: !!profile,
+        bookingData,
+        sessionId: selectedSession.id
+      });
+
       const { data, error } = await supabase
         .from('play_group_bookings')
         .insert(bookingData)
@@ -124,9 +131,17 @@ export default function PlayGroupCalendar() {
         .maybeSingle();
 
       if (error) {
-        console.error('Booking insert error:', error);
-        throw new Error(`Veritabanı hatası: ${error.message}`);
+        console.error('Booking insert error details:', {
+          error,
+          code: error.code,
+          message: error.message,
+          details: error.details,
+          hint: error.hint
+        });
+        throw new Error(`Rezervasyon oluşturulamadı: ${error.message}`);
       }
+
+      console.log('Booking created successfully:', data);
 
       setBookingSuccess(true);
       setFormData({
@@ -194,6 +209,11 @@ export default function PlayGroupCalendar() {
               Aşağıdaki takvimden uygun bir oyun grubu seansı seçin ve rezervasyon yapın.
               Yönetici sizinle iletişime geçerek ödeme işlemlerini tamamlayacaktır.
             </p>
+            {!profile && (
+              <p className="text-sm text-blue-700 mt-2 italic">
+                Not: Giriş yapmadan da rezervasyon yapabilirsiniz. Formu doldurun, yönetici sizinle iletişime geçecektir.
+              </p>
+            )}
           </div>
         </div>
       </div>
