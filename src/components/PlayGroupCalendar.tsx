@@ -86,62 +86,28 @@ export default function PlayGroupCalendar() {
     try {
       setSubmitting(true);
 
-      const { data: currentSession, error: sessionError } = await supabase
-        .from('play_group_sessions')
-        .select('*')
-        .eq('id', selectedSession.id)
-        .maybeSingle();
-
-      if (sessionError) {
-        console.error('Session check error:', sessionError);
-        throw new Error('Seans bilgisi alınamadı');
-      }
-
-      if (!currentSession) {
-        throw new Error('Seçilen seansı bulunamadı');
-      }
-
-      if (currentSession.booked_count >= currentSession.capacity) {
-        throw new Error('Bu oturum için kontenjan dolmuştur');
-      }
-
-      const bookingData: any = {
-        session_id: selectedSession.id,
-        parent_name: formData.parent_name.trim(),
-        phone_number: formData.phone_number.trim(),
-        child_name: formData.child_name.trim(),
-        child_birth_date: formData.child_birth_date,
-        status: 'pending',
-      };
-
-      if (profile?.id) {
-        bookingData.user_id = profile.id;
-      }
-
-      console.log('Attempting to create booking:', {
-        hasProfile: !!profile,
-        bookingData,
-        sessionId: selectedSession.id
+      const { data, error } = await supabase.rpc('create_play_group_booking', {
+        p_session_id: selectedSession.id,
+        p_parent_name: formData.parent_name.trim(),
+        p_phone_number: formData.phone_number.trim(),
+        p_child_name: formData.child_name.trim(),
+        p_child_birth_date: formData.child_birth_date,
+        p_user_id: profile?.id || null
       });
 
-      const { data, error } = await supabase
-        .from('play_group_bookings')
-        .insert(bookingData)
-        .select()
-        .maybeSingle();
-
       if (error) {
-        console.error('Booking insert error details:', {
-          error,
-          code: error.code,
-          message: error.message,
-          details: error.details,
-          hint: error.hint
-        });
-        throw new Error(`Rezervasyon oluşturulamadı: ${error.message}`);
+        console.error('Booking RPC error:', error);
+        throw new Error('Rezervasyon oluşturulamadı');
       }
 
-      console.log('Booking created successfully:', data);
+      if (!data.success) {
+        throw new Error(data.error || 'Rezervasyon oluşturulamadı');
+      }
+
+      console.log('Booking created successfully:', {
+        bookingId: data.booking_id,
+        hasProfile: !!profile
+      });
 
       setBookingSuccess(true);
       setFormData({
