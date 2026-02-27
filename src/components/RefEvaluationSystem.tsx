@@ -79,7 +79,7 @@ export default function RefEvaluationSystem() {
       'teacher': ['teacher', 'cook', 'cleaning_staff', 'guidance_counselor', 'administration', 'parent'],
       'staff': ['teacher', 'guidance_counselor', 'cook', 'administration'],
       'parent': ['teacher', 'guidance_counselor', 'administration', 'meals', 'facility_cleanliness', 'bus_service'],
-      'admin': ['teacher', 'cook', 'cleaning_staff', 'guidance_counselor'],
+      'admin': [],
       'guidance_counselor': ['teacher', 'cook', 'cleaning_staff', 'administration']
     };
 
