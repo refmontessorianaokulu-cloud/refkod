@@ -248,7 +248,7 @@ export default function PlayGroupManagement() {
         .eq('id', bookingId);
 
       if (error) throw error;
-      alert('Ödeme linki eklendi ve rezervasyon onaylandı');
+      alert('Ödeme linki eklendi ve rezervasyon onaylandı. WhatsApp bildirimi gönderiliyor...');
       setPaymentLinkData({ ...paymentLinkData, [bookingId]: '' });
       if (selectedSession) {
         loadBookings(selectedSession.id);
