@@ -31,14 +31,16 @@ const SECTION_LABELS = {
   ref_atolye: 'Ref Atölye',
 };
 
-type RefAtolyeTab = 'content' | 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin';
+type RefAtolyeTab = 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin';
 type RefDanismanlikTab = 'content' | 'applications';
 
 export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
   const { profile } = useAuth();
   const [sections, setSections] = useState<RefSection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<RefAtolyeTab | RefDanismanlikTab>('content');
+  const [activeTab, setActiveTab] = useState<RefAtolyeTab | RefDanismanlikTab>(
+    sectionType === 'ref_atolye' ? 'products' : 'content'
+  );
   const [referenceApplications, setReferenceApplications] = useState<any[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
 
@@ -104,7 +106,6 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
 
   const getTabLabel = (tab: RefAtolyeTab | RefDanismanlikTab) => {
     const labels = {
-      content: 'İçerik',
       products: 'Ürünler',
       courses: 'Atölyeler',
       play_groups: 'Oyun Grupları',
@@ -112,6 +113,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       favorites: 'Favorilerim',
       orders: 'Siparişlerim',
       admin: 'Yönetim',
+      content: 'İçerik',
       applications: 'Referans Öğretmen Başvuruları',
     };
     return labels[tab] || tab;
@@ -204,17 +206,6 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
           {/* Mobile Card Menu */}
           <div className="md:hidden grid grid-cols-2 gap-3 mb-6 mt-6">
             <button
-              onClick={() => setActiveTab('content')}
-              className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
-                activeTab === 'content'
-                  ? 'bg-emerald-600 text-white shadow-lg scale-105'
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <Package className="w-8 h-8 mb-2" />
-              <span className="text-sm font-medium text-center">İçerik</span>
-            </button>
-            <button
               onClick={() => setActiveTab('products')}
               className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
                 activeTab === 'products'
@@ -298,17 +289,6 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
           {/* Desktop Tabs */}
           <div className="hidden md:block border-b border-gray-200 mb-6">
             <div className="flex flex-wrap gap-4">
-              <button
-                onClick={() => setActiveTab('content')}
-                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                  activeTab === 'content'
-                    ? 'border-emerald-600 text-emerald-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                <Package className="w-4 h-4" />
-                İçerik
-              </button>
               <button
                 onClick={() => setActiveTab('products')}
                 className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
@@ -395,7 +375,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
         </>
       )}
 
-      {activeTab === 'content' && (
+      {activeTab === 'content' && sectionType !== 'ref_atolye' && (
         <>
           {sections.length === 0 ? (
             <div className="text-center py-12">
