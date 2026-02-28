@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Package, Truck, CheckCircle, X, Eye, Search, Filter, MessageCircle, Loader } from 'lucide-react';
+import { Package, Truck, CheckCircle, X, Eye, Search, Filter, MessageCircle, Loader, Trash2 } from 'lucide-react';
 
 interface Order {
   id: string;
@@ -189,6 +189,44 @@ export default function OrderManagement() {
       setSelectedOrder(updatedOrder);
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    if (!confirm('Bu siparişi silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+      return;
+    }
+
+    try {
+      // Delete order items first (foreign key constraint)
+      const { error: itemsError } = await supabase
+        .from('order_items')
+        .delete()
+        .eq('order_id', orderId);
+
+      if (itemsError) throw itemsError;
+
+      // Delete payments
+      const { error: paymentsError } = await supabase
+        .from('payments')
+        .delete()
+        .eq('order_id', orderId);
+
+      if (paymentsError) throw paymentsError;
+
+      // Delete order
+      const { error: orderError } = await supabase
+        .from('orders')
+        .delete()
+        .eq('id', orderId);
+
+      if (orderError) throw orderError;
+
+      alert('Sipariş başarıyla silindi!');
+      loadOrders();
+      setSelectedOrder(null);
+    } catch (error) {
+      alert('Sipariş silinirken hata oluştu: ' + (error as Error).message);
     }
   };
 
@@ -398,13 +436,22 @@ export default function OrderManagement() {
                       </div>
                     )}
                   </div>
-                  <button
-                    onClick={() => loadOrderDetails(order)}
-                    className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-                  >
-                    <Eye className="w-4 h-4" />
-                    Detaylar
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => loadOrderDetails(order)}
+                      className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+                    >
+                      <Eye className="w-4 h-4" />
+                      Detaylar
+                    </button>
+                    <button
+                      onClick={() => deleteOrder(order.id)}
+                      className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition-colors"
+                      title="Siparişi sil"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -664,6 +711,17 @@ export default function OrderManagement() {
                     <span>{selectedOrder.total_amount.toFixed(2)} ₺</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Delete Order Button */}
+              <div className="border-t mt-6 pt-4">
+                <button
+                  onClick={() => deleteOrder(selectedOrder.id)}
+                  className="w-full flex items-center justify-center gap-2 bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors"
+                >
+                  <Trash2 className="w-5 h-5" />
+                  Siparişi Sil
+                </button>
               </div>
             </div>
           </div>
