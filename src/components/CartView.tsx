@@ -250,7 +250,7 @@ export default function CartView() {
     }
   };
 
-  const calculateTotal = () => {
+  const calculateSubtotal = () => {
     if (!profile) {
       return guestCartItems.reduce((total, item) => {
         return total + (item.price * item.quantity);
@@ -261,6 +261,15 @@ export default function CartView() {
       const price = item.product ? item.product.base_price : item.course!.price;
       return total + (price * item.quantity);
     }, 0);
+  };
+
+  const calculateShippingCost = () => {
+    const subtotal = calculateSubtotal();
+    return subtotal < 1000 ? 79.90 : 0;
+  };
+
+  const calculateTotal = () => {
+    return calculateSubtotal() + calculateShippingCost();
   };
 
   const handleGuestOrder = () => {
@@ -285,8 +294,9 @@ export default function CartView() {
       setSubmitting(true);
 
       const orderNumber = `ORD-${Date.now()}`;
-      const subtotal = calculateTotal();
-      const total = subtotal;
+      const subtotal = calculateSubtotal();
+      const shippingCost = calculateShippingCost();
+      const total = calculateTotal();
 
       const fullAddress = `${guestInfo.addressTitle ? guestInfo.addressTitle + ' - ' : ''}${guestInfo.neighborhood}, ${guestInfo.street} Sokak, No: ${guestInfo.buildingNo}${guestInfo.apartmentNo ? ', Daire: ' + guestInfo.apartmentNo : ''}, ${guestInfo.district}/${guestInfo.city}, ${guestInfo.country}`;
 
@@ -299,7 +309,7 @@ export default function CartView() {
         status: 'pending',
         subtotal,
         discount_amount: 0,
-        shipping_cost: 0,
+        shipping_cost: shippingCost,
         total_amount: total,
         shipping_address: {
           title: guestInfo.addressTitle || null,
@@ -612,9 +622,30 @@ export default function CartView() {
           </div>
 
           <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
-            <div className="flex items-center justify-between text-2xl font-bold text-emerald-900 mb-4">
-              <span>Toplam Tutar:</span>
-              <span>{calculateTotal().toFixed(2)} ₺</span>
+            <div className="space-y-3 mb-4">
+              <div className="flex items-center justify-between text-lg text-gray-700">
+                <span>Ara Toplam:</span>
+                <span className="font-semibold">{calculateSubtotal().toFixed(2)} ₺</span>
+              </div>
+              <div className="flex items-center justify-between text-lg text-gray-700">
+                <span>Kargo Ücreti:</span>
+                <span className="font-semibold">
+                  {calculateShippingCost() === 0 ? (
+                    <span className="text-green-600">Ücretsiz</span>
+                  ) : (
+                    `${calculateShippingCost().toFixed(2)} ₺`
+                  )}
+                </span>
+              </div>
+              {calculateSubtotal() < 1000 && (
+                <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2">
+                  1000 ₺ ve üzeri siparişlerde kargo ücretsiz!
+                </p>
+              )}
+              <div className="flex items-center justify-between text-2xl font-bold text-emerald-900 pt-3 border-t border-emerald-300">
+                <span>Toplam Tutar:</span>
+                <span>{calculateTotal().toFixed(2)} ₺</span>
+              </div>
             </div>
 
             {showGuestForm && (
