@@ -306,7 +306,7 @@ export default function PlayGroupManagement() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
-      case 'confirmed': return 'bg-blue-100 text-blue-800';
+      case 'confirmed': return 'bg-emerald-100 text-emerald-800';
       case 'paid': return 'bg-green-100 text-green-800';
       case 'postponed': return 'bg-orange-100 text-orange-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
@@ -343,7 +343,7 @@ export default function PlayGroupManagement() {
             setFormData({ session_date: '', session_time: '', theme: '', capacity: 10, media_urls: [] });
             setShowSessionForm(true);
           }}
-          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
         >
           <Plus className="w-5 h-5" />
           <span>Yeni Oturum</span>
@@ -438,7 +438,7 @@ export default function PlayGroupManagement() {
                       ))}
                     </div>
                   )}
-                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-blue-500 transition-colors">
+                  <label className="flex items-center justify-center w-full px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-emerald-500 transition-colors">
                     <input
                       type="file"
                       multiple
@@ -450,7 +450,7 @@ export default function PlayGroupManagement() {
                     <div className="flex items-center space-x-2 text-gray-600">
                       {uploadingMedia ? (
                         <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600"></div>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-emerald-600"></div>
                           <span>Yükleniyor...</span>
                         </>
                       ) : (
@@ -467,7 +467,7 @@ export default function PlayGroupManagement() {
               <div className="flex space-x-3">
                 <button
                   type="submit"
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700"
                   disabled={uploadingMedia}
                 >
                   {editingSession ? 'Güncelle' : 'Oluştur'}
@@ -526,7 +526,7 @@ export default function PlayGroupManagement() {
                 <div className="flex space-x-1">
                   <button
                     onClick={() => handleEditSession(session)}
-                    className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                    className="p-1 text-emerald-600 hover:bg-emerald-50 rounded"
                   >
                     <Edit2 className="w-4 h-4" />
                   </button>
@@ -652,7 +652,7 @@ export default function PlayGroupManagement() {
                             href={booking.payment_link}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center space-x-2 text-sm text-blue-600 hover:text-blue-700"
+                            className="flex items-center space-x-2 text-sm text-emerald-600 hover:text-emerald-700"
                           >
                             <ExternalLink className="w-4 h-4" />
                             <span>Ödeme Linkini Aç</span>
@@ -725,7 +725,7 @@ export default function PlayGroupManagement() {
                             {booking.status !== 'confirmed' && booking.payment_link && (
                               <button
                                 onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')}
-                                className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
+                                className="px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 text-sm"
                               >
                                 Onaylı
                               </button>
@@ -747,7 +747,7 @@ export default function PlayGroupManagement() {
                           <div className="grid grid-cols-2 gap-2">
                             <button
                               onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')}
-                              className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
+                              className="px-3 py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 text-sm"
                             >
                               Tekrar Onayla
                             </button>
