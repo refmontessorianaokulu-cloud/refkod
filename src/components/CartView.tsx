@@ -338,10 +338,12 @@ export default function CartView() {
 
       if (profile) {
         orderData.user_id = profile.id;
+        orderData.is_guest_order = false;
       } else {
         orderData.guest_name = `${guestInfo.firstName} ${guestInfo.lastName}`;
         orderData.guest_phone = guestInfo.phone;
         orderData.guest_email = guestInfo.email || null;
+        orderData.is_guest_order = true;
       }
 
       const { data: order, error: orderError } = await supabase
