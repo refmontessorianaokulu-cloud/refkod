@@ -343,6 +343,14 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
             </h3>
             <ProductManagement />
           </div>
+
+          <div className="border-t border-gray-200 pt-8">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <ClipboardList className="w-5 h-5" />
+              Sipariş Yönetimi
+            </h3>
+            <OrderManagement />
+          </div>
         </div>
       )}
 
