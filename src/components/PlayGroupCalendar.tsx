@@ -174,7 +174,7 @@ export default function PlayGroupCalendar() {
         >
           <div className="flex items-center space-x-3">
             <AlertCircle className="w-6 h-6 text-emerald-600 flex-shrink-0" />
-            <h4 className="font-semibold text-gray-900 text-lg">Oyun Grubu Rezervasyonu Hakkında</h4>
+            <h4 className="font-semibold text-gray-900 text-lg">Ref Oyun Grubu Hakkında</h4>
           </div>
           {showInfo ? (
             <ChevronUp className="w-5 h-5 text-gray-500" />
