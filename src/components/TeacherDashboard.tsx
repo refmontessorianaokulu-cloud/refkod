@@ -42,7 +42,6 @@ const teacherMenuCategories: MenuCategory[] = [
     items: [
       { id: 'ref_akademi', label: 'Ref Akademi', icon: GraduationCap },
       { id: 'ref_danismanlik', label: 'Ref Danışmanlık', icon: Briefcase },
-      { id: 'ref_evaluation', label: 'REF Değerlendirme Sistemi', icon: ClipboardList },
       { id: 'ref_atolye', label: 'Ref Atölye', icon: Palette },
     ],
   },
@@ -62,6 +61,7 @@ const teacherMenuCategories: MenuCategory[] = [
       { id: 'periodic_reports', label: 'Ref Karne', icon: FileText },
       { id: 'branch_reports', label: 'Branş Dersleri', icon: BookOpen },
       { id: 'behavior_incidents', label: 'KOD Kayıtları', icon: AlertTriangle },
+      { id: 'ref_evaluation', label: 'REF Değerlendirme Sistemi', icon: ClipboardList },
     ],
   },
   {

@@ -123,7 +123,6 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
     items: [
       { id: 'ref_akademi', label: t('menu.refAkademi'), icon: GraduationCap },
       { id: 'ref_danismanlik', label: t('menu.refDanismanlik'), icon: Briefcase },
-      { id: 'ref_evaluation', label: 'REF Değerlendirme Sistemi', icon: ClipboardList },
       { id: 'ref_atolye', label: t('menu.refAtolye'), icon: Palette },
     ],
   },
@@ -145,6 +144,7 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
       { id: 'branch_reports', label: t('menu.branchReports'), icon: BookOpen },
       { id: 'teacher_assignments', label: t('menu.teacherAssignments'), icon: UserCheck },
       { id: 'behavior_incidents', label: t('menu.behaviorIncidents'), icon: AlertTriangle },
+      { id: 'ref_evaluation', label: 'REF Değerlendirme Sistemi', icon: ClipboardList },
     ],
   },
   {
