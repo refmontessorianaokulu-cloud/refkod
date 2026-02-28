@@ -134,7 +134,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       {showDanismanlikTabs && (
         <>
           {/* Mobile Card Menu */}
-          <div className="md:hidden grid grid-cols-2 gap-3 mb-6">
+          <div className="md:hidden grid grid-cols-2 gap-3 mb-6 mt-6">
             <button
               onClick={() => setActiveTab('content')}
               className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
@@ -201,7 +201,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       {showAtolyeTabs && (
         <>
           {/* Mobile Card Menu */}
-          <div className="md:hidden grid grid-cols-2 gap-3 mb-6">
+          <div className="md:hidden grid grid-cols-2 gap-3 mb-6 mt-6">
             <button
               onClick={() => setActiveTab('content')}
               className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
