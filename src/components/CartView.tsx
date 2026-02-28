@@ -46,6 +46,14 @@ export default function CartView() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showGuestForm, setShowGuestForm] = useState(false);
+  const [guestInfo, setGuestInfo] = useState({
+    firstName: '',
+    lastName: '',
+    phone: '',
+    email: '',
+    address: ''
+  });
 
   useEffect(() => {
     if (profile) {
@@ -229,6 +237,14 @@ export default function CartView() {
     }, 0);
   };
 
+  const handleGuestOrder = () => {
+    if (!profile) {
+      setShowGuestForm(true);
+      return;
+    }
+    confirmOrder();
+  };
+
   const confirmOrder = async () => {
     const itemsCount = profile ? cartItems.length : guestCartItems.length;
     if (itemsCount === 0) {
@@ -237,8 +253,10 @@ export default function CartView() {
     }
 
     if (!profile) {
-      setMessage({ type: 'error', text: 'Sipariş vermek için giriş yapmalısınız' });
-      return;
+      if (!guestInfo.firstName || !guestInfo.lastName || !guestInfo.phone || !guestInfo.address) {
+        setMessage({ type: 'error', text: 'Lütfen tüm zorunlu alanları doldurun' });
+        return;
+      }
     }
 
     try {
@@ -248,34 +266,69 @@ export default function CartView() {
       const subtotal = calculateTotal();
       const total = subtotal;
 
-      const { data: orderData, error: orderError } = await supabase
+      const orderData: any = {
+        order_number: orderNumber,
+        status: 'pending',
+        subtotal,
+        discount_amount: 0,
+        shipping_cost: 0,
+        total_amount: total,
+        shipping_address: profile
+          ? { address: 'Belirtilmedi' }
+          : {
+              address: guestInfo.address,
+              name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+              phone: guestInfo.phone,
+              email: guestInfo.email || ''
+            },
+        billing_address: profile
+          ? { address: 'Belirtilmedi' }
+          : {
+              address: guestInfo.address,
+              name: `${guestInfo.firstName} ${guestInfo.lastName}`,
+              phone: guestInfo.phone,
+              email: guestInfo.email || ''
+            },
+        notes: profile
+          ? 'Ref Atölye web sitesi üzerinden sipariş'
+          : `Misafir Sipariş - ${guestInfo.firstName} ${guestInfo.lastName} - Tel: ${guestInfo.phone}`
+      };
+
+      if (profile) {
+        orderData.user_id = profile.id;
+      } else {
+        orderData.guest_name = `${guestInfo.firstName} ${guestInfo.lastName}`;
+        orderData.guest_phone = guestInfo.phone;
+        orderData.guest_email = guestInfo.email || null;
+      }
+
+      const { data: order, error: orderError } = await supabase
         .from('orders')
-        .insert({
-          user_id: profile!.id,
-          order_number: orderNumber,
-          status: 'pending',
-          subtotal,
-          discount_amount: 0,
-          shipping_cost: 0,
-          total_amount: total,
-          shipping_address: { address: 'Belirtilmedi' },
-          billing_address: { address: 'Belirtilmedi' },
-          notes: 'Ref Atölye web sitesi üzerinden sipariş'
-        })
+        .insert(orderData)
         .select()
         .single();
 
       if (orderError) throw orderError;
 
-      const orderItems = cartItems.map(item => ({
-        order_id: orderData.id,
-        product_id: item.product_id,
-        course_id: item.course_id,
-        item_name: item.product ? item.product.name : item.course!.title,
-        quantity: item.quantity,
-        unit_price: item.product ? item.product.base_price : item.course!.price,
-        total_price: (item.product ? item.product.base_price : item.course!.price) * item.quantity
-      }));
+      const orderItems = profile
+        ? cartItems.map(item => ({
+            order_id: order.id,
+            product_id: item.product_id,
+            course_id: item.course_id,
+            item_name: item.product ? item.product.name : item.course!.title,
+            quantity: item.quantity,
+            unit_price: item.product ? item.product.base_price : item.course!.price,
+            total_price: (item.product ? item.product.base_price : item.course!.price) * item.quantity
+          }))
+        : guestCartItems.map(item => ({
+            order_id: order.id,
+            product_id: item.product_id || null,
+            course_id: item.course_id || null,
+            item_name: item.name,
+            quantity: item.quantity,
+            unit_price: item.price,
+            total_price: item.price * item.quantity
+          }));
 
       const { error: itemsError } = await supabase
         .from('order_items')
@@ -283,14 +336,27 @@ export default function CartView() {
 
       if (itemsError) throw itemsError;
 
-      const { error: cartClearError } = await supabase
-        .from('shopping_cart')
-        .delete()
-        .eq('user_id', profile!.id);
+      if (profile) {
+        const { error: cartClearError } = await supabase
+          .from('shopping_cart')
+          .delete()
+          .eq('user_id', profile.id);
 
-      if (cartClearError) throw cartClearError;
+        if (cartClearError) throw cartClearError;
+        setCartItems([]);
+      } else {
+        localStorage.removeItem('guestCart');
+        setGuestCartItems([]);
+        setShowGuestForm(false);
+        setGuestInfo({
+          firstName: '',
+          lastName: '',
+          phone: '',
+          email: '',
+          address: ''
+        });
+      }
 
-      setCartItems([]);
       setMessage({
         type: 'success',
         text: 'Siparişiniz alındı! Yönetici en kısa sürede sizinle iletişime geçecektir.'
@@ -495,27 +561,124 @@ export default function CartView() {
               <span>Toplam Tutar:</span>
               <span>{calculateTotal().toFixed(2)} ₺</span>
             </div>
-            <button
-              onClick={confirmOrder}
-              disabled={submitting || !profile}
-              className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
-            >
-              {submitting ? (
-                <>
-                  <Loader className="w-5 h-5 animate-spin" />
-                  <span>Sipariş Oluşturuluyor...</span>
-                </>
-              ) : (
-                <>
-                  <Package className="w-5 h-5" />
-                  <span>{profile ? 'Sepeti Onayla' : 'Sipariş vermek için giriş yapın'}</span>
-                </>
-              )}
-            </button>
+
+            {!profile && showGuestForm && (
+              <div className="bg-white rounded-lg p-4 mb-4 space-y-3">
+                <h3 className="font-semibold text-gray-900 mb-3">İletişim Bilgileri</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Ad <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={guestInfo.firstName}
+                      onChange={(e) => setGuestInfo({ ...guestInfo, firstName: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Adınız"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Soyad <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={guestInfo.lastName}
+                      onChange={(e) => setGuestInfo({ ...guestInfo, lastName: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Soyadınız"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Telefon <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    value={guestInfo.phone}
+                    onChange={(e) => setGuestInfo({ ...guestInfo, phone: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="0555 123 45 67"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    E-posta
+                  </label>
+                  <input
+                    type="email"
+                    value={guestInfo.email}
+                    onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="ornek@email.com"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Adres <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={guestInfo.address}
+                    onChange={(e) => setGuestInfo({ ...guestInfo, address: e.target.value })}
+                    rows={3}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="Teslimat adresinizi girin"
+                  />
+                </div>
+              </div>
+            )}
+
+            {!profile && showGuestForm ? (
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setShowGuestForm(false)}
+                  disabled={submitting}
+                  className="flex-1 bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 disabled:opacity-50"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={confirmOrder}
+                  disabled={submitting}
+                  className="flex-1 bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {submitting ? (
+                    <>
+                      <Loader className="w-5 h-5 animate-spin" />
+                      <span>Gönderiliyor...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Package className="w-5 h-5" />
+                      <span>Siparişi Tamamla</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={handleGuestOrder}
+                disabled={submitting}
+                className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {submitting ? (
+                  <>
+                    <Loader className="w-5 h-5 animate-spin" />
+                    <span>Sipariş Oluşturuluyor...</span>
+                  </>
+                ) : (
+                  <>
+                    <Package className="w-5 h-5" />
+                    <span>Sepeti Onayla</span>
+                  </>
+                )}
+              </button>
+            )}
+
             <p className="text-xs text-emerald-700 mt-3 text-center">
-              {profile
-                ? 'Siparişiniz onaylandıktan sonra yönetici sizinle WhatsApp üzerinden iletişime geçerek ödeme işlemlerini tamamlayacaktır.'
-                : 'Sipariş vermek için lütfen giriş yapın. Ürünleriniz sepetinizde güvenle saklanıyor.'}
+              Siparişiniz onaylandıktan sonra yönetici sizinle WhatsApp üzerinden iletişime geçerek ödeme işlemlerini tamamlayacaktır.
             </p>
           </div>
         </>
