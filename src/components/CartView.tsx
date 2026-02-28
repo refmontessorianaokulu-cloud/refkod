@@ -336,6 +336,7 @@ export default function CartView() {
         orderData.user_id = profile.id;
         orderData.is_guest_order = false;
       } else {
+        orderData.user_id = null;
         orderData.guest_name = `${guestInfo.firstName} ${guestInfo.lastName}`;
         orderData.guest_phone = guestInfo.phone;
         orderData.guest_email = guestInfo.email || null;
