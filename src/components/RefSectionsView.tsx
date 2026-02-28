@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList } from 'lucide-react';
+import { ShoppingCart, Package, Palette, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList } from 'lucide-react';
 import ProductManagement from './ProductManagement';
 import ProductCatalog from './ProductCatalog';
 import PlayGroupManagement from './PlayGroupManagement';
@@ -105,7 +105,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
     const labels = {
       content: 'İçerik',
       products: 'Ürünler',
-      courses: 'Online Kurslar',
+      courses: 'Atölyeler',
       play_groups: 'Oyun Grupları',
       cart: 'Sepetim',
       favorites: 'Favorilerim',
@@ -232,8 +232,8 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <GraduationCap className="w-8 h-8 mb-2" />
-              <span className="text-sm font-medium text-center">Kurslar</span>
+              <Palette className="w-8 h-8 mb-2" />
+              <span className="text-sm font-medium text-center">Atölyeler</span>
             </button>
             <button
               onClick={() => setActiveTab('play_groups')}
@@ -327,8 +327,8 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
                     : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                 }`}
               >
-                <GraduationCap className="w-4 h-4" />
-                Online Kurslar
+                <Palette className="w-4 h-4" />
+                Atölyeler
               </button>
               <button
                 onClick={() => setActiveTab('play_groups')}
@@ -441,9 +441,9 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       {activeTab === 'courses' && sectionType === 'ref_atolye' && (
         <div>
           <div className="text-center py-12">
-            <GraduationCap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">Online Kurslar</h3>
-            <p className="text-gray-500">Eğitim kursları ve atölyeler yakında burada olacak.</p>
+            <Palette className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Atölyeler</h3>
+            <p className="text-gray-500">Eğitim atölyeleri yakında burada olacak.</p>
           </div>
         </div>
       )}
