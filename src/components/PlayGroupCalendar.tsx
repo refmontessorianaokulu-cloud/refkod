@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Calendar, Clock, Users, AlertCircle, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, Users, AlertCircle, CheckCircle, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface PlayGroupSession {
   id: string;
@@ -29,6 +29,7 @@ export default function PlayGroupCalendar() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
 
   const [formData, setFormData] = useState<BookingFormData>({
     parent_name: '',
@@ -166,12 +167,25 @@ export default function PlayGroupCalendar() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-        <div className="flex items-start space-x-3">
-          <AlertCircle className="w-6 h-6 text-emerald-600 mt-0.5 flex-shrink-0" />
-          <div className="flex-1">
-            <h4 className="font-semibold text-gray-900 mb-3 text-lg">Oyun Grubu Rezervasyonu</h4>
-            <div className="space-y-3 text-sm text-gray-700">
+      <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+        <button
+          onClick={() => setShowInfo(!showInfo)}
+          className="w-full flex items-center justify-between p-6 hover:bg-gray-50 transition-colors"
+        >
+          <div className="flex items-center space-x-3">
+            <AlertCircle className="w-6 h-6 text-emerald-600 flex-shrink-0" />
+            <h4 className="font-semibold text-gray-900 text-lg">Oyun Grubu Rezervasyonu Hakkında</h4>
+          </div>
+          {showInfo ? (
+            <ChevronUp className="w-5 h-5 text-gray-500" />
+          ) : (
+            <ChevronDown className="w-5 h-5 text-gray-500" />
+          )}
+        </button>
+
+        {showInfo && (
+          <div className="px-6 pb-6 border-t border-gray-200">
+            <div className="pt-4 space-y-3 text-sm text-gray-700">
               <p className="leading-relaxed">
                 Oyun gruplarımız deneyimli öğretmenlerimiz tarafından gerçekleşmektedir.
               </p>
@@ -249,7 +263,7 @@ export default function PlayGroupCalendar() {
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {Object.keys(groupedSessions).length === 0 ? (
