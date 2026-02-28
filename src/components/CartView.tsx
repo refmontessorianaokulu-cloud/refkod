@@ -292,7 +292,7 @@ export default function CartView() {
 
       const customerName = profile?.full_name || `${guestInfo.firstName} ${guestInfo.lastName}`;
       const customerPhone = profile ? (profile as any).phone || guestInfo.phone : guestInfo.phone;
-      const customerEmail = profile?.email || guestInfo.email || '';
+      const customerEmail = profile?.email || guestInfo.email || null;
 
       const orderData: any = {
         order_number: orderNumber,
@@ -302,34 +302,34 @@ export default function CartView() {
         shipping_cost: 0,
         total_amount: total,
         shipping_address: {
-          title: guestInfo.addressTitle,
+          title: guestInfo.addressTitle || null,
           country: guestInfo.country,
           city: guestInfo.city,
           district: guestInfo.district,
           neighborhood: guestInfo.neighborhood,
           street: guestInfo.street,
           buildingNo: guestInfo.buildingNo,
-          apartmentNo: guestInfo.apartmentNo,
+          apartmentNo: guestInfo.apartmentNo || null,
           fullAddress: fullAddress,
           name: customerName,
           phone: customerPhone,
           email: customerEmail
         },
         billing_address: {
-          title: guestInfo.addressTitle,
+          title: guestInfo.addressTitle || null,
           country: guestInfo.country,
           city: guestInfo.city,
           district: guestInfo.district,
           neighborhood: guestInfo.neighborhood,
           street: guestInfo.street,
           buildingNo: guestInfo.buildingNo,
-          apartmentNo: guestInfo.apartmentNo,
+          apartmentNo: guestInfo.apartmentNo || null,
           fullAddress: fullAddress,
           name: customerName,
           phone: customerPhone,
           email: customerEmail
         },
-        notes: `Sipariş - ${customerName} - Tel: ${customerPhone} - ${fullAddress}`
+        notes: `Sipariş - ${customerName} - Tel: ${customerPhone}${customerEmail ? ` - Email: ${customerEmail}` : ''} - ${fullAddress}`
       };
 
       if (profile) {
@@ -348,7 +348,10 @@ export default function CartView() {
         .select()
         .single();
 
-      if (orderError) throw orderError;
+      if (orderError) {
+        console.error('Order creation error:', orderError);
+        throw new Error(`Sipariş oluşturulamadı: ${orderError.message}`);
+      }
 
       const orderItems = profile
         ? cartItems.map(item => ({
@@ -374,7 +377,10 @@ export default function CartView() {
         .from('order_items')
         .insert(orderItems);
 
-      if (itemsError) throw itemsError;
+      if (itemsError) {
+        console.error('Order items creation error:', itemsError);
+        throw new Error(`Sipariş kalemleri eklenemedi: ${itemsError.message}`);
+      }
 
       if (profile) {
         const { error: cartClearError } = await supabase
@@ -408,9 +414,10 @@ export default function CartView() {
         type: 'success',
         text: 'Siparişiniz alındı! Yönetici en kısa sürede sizinle iletişime geçecektir.'
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error confirming order:', error);
-      setMessage({ type: 'error', text: 'Sipariş oluşturulurken hata oluştu' });
+      const errorMessage = error?.message || 'Sipariş oluşturulurken hata oluştu. Lütfen tüm bilgileri kontrol edip tekrar deneyin.';
+      setMessage({ type: 'error', text: errorMessage });
     } finally {
       setSubmitting(false);
     }
