@@ -236,7 +236,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
                   }`}
                 >
                   <ClipboardList className="w-4 h-4" />
-                  Siparişler
+                  Sipariş Yönetimi
                 </button>
                 <button
                   onClick={() => setActiveTab('admin')}
