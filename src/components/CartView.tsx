@@ -638,7 +638,7 @@ export default function CartView() {
                 </span>
               </div>
               {calculateSubtotal() < 1000 && (
-                <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 rounded-lg p-2">
+                <p className="text-sm text-emerald-700 bg-emerald-100 border border-emerald-300 rounded-lg p-2">
                   1000 ₺ ve üzeri siparişlerde kargo ücretsiz!
                 </p>
               )}
