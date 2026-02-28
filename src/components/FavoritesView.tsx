@@ -24,12 +24,24 @@ interface FavoriteItem {
   };
 }
 
+interface GuestFavoriteItem {
+  id: string;
+  product_id?: string;
+  course_id?: string;
+  quantity: number;
+  name: string;
+  description: string;
+  price: number;
+  image?: string;
+}
+
 export default function FavoritesView() {
   const auth = useAuth();
   const { t } = useLanguage();
   const profile = auth?.profile;
 
   const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+  const [guestFavorites, setGuestFavorites] = useState<GuestFavoriteItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -37,9 +49,27 @@ export default function FavoritesView() {
     if (profile) {
       loadFavorites();
     } else {
-      setLoading(false);
+      loadGuestFavorites();
     }
   }, [profile]);
+
+  const loadGuestFavorites = () => {
+    try {
+      const stored = localStorage.getItem('guestFavorites');
+      if (stored) {
+        setGuestFavorites(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error('Error loading guest favorites:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveGuestFavorites = (items: GuestFavoriteItem[]) => {
+    localStorage.setItem('guestFavorites', JSON.stringify(items));
+    setGuestFavorites(items);
+  };
 
   const loadFavorites = async () => {
     try {
@@ -77,6 +107,13 @@ export default function FavoritesView() {
   };
 
   const removeFromFavorites = async (itemId: string) => {
+    if (!profile) {
+      const updated = guestFavorites.filter(item => item.id !== itemId);
+      saveGuestFavorites(updated);
+      setMessage({ type: 'success', text: 'Favorilerden çıkarıldı' });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('user_favorites')
@@ -93,11 +130,33 @@ export default function FavoritesView() {
     }
   };
 
-  const addToCart = async (item: FavoriteItem) => {
+  const addToCart = async (item: FavoriteItem | GuestFavoriteItem) => {
+    if (!profile) {
+      const guestItem = item as GuestFavoriteItem;
+      const stored = localStorage.getItem('guestCart');
+      const cart: GuestFavoriteItem[] = stored ? JSON.parse(stored) : [];
+
+      const exists = cart.some(cartItem =>
+        (cartItem.product_id && cartItem.product_id === guestItem.product_id) ||
+        (cartItem.course_id && cartItem.course_id === guestItem.course_id)
+      );
+
+      if (exists) {
+        setMessage({ type: 'error', text: 'Bu ürün zaten sepetinizde' });
+        return;
+      }
+
+      cart.push(guestItem);
+      localStorage.setItem('guestCart', JSON.stringify(cart));
+      setMessage({ type: 'success', text: 'Sepete eklendi' });
+      return;
+    }
+
     try {
-      const cartData = item.product_id
-        ? { user_id: profile!.id, product_id: item.product_id, quantity: 1 }
-        : { user_id: profile!.id, course_id: item.course_id, quantity: 1 };
+      const favItem = item as FavoriteItem;
+      const cartData = favItem.product_id
+        ? { user_id: profile!.id, product_id: favItem.product_id, quantity: 1 }
+        : { user_id: profile!.id, course_id: favItem.course_id, quantity: 1 };
 
       const { error } = await supabase
         .from('shopping_cart')
@@ -116,15 +175,6 @@ export default function FavoritesView() {
     }
   };
 
-  if (!profile) {
-    return (
-      <div className="text-center py-12 bg-gray-50 rounded-lg">
-        <AlertCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-600 text-lg">Favorileri görüntülemek için giriş yapmalısınız</p>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -133,6 +183,9 @@ export default function FavoritesView() {
     );
   }
 
+  const displayItems = profile ? favorites : guestFavorites;
+  const itemsCount = displayItems.length;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -140,7 +193,7 @@ export default function FavoritesView() {
           <Heart className="w-8 h-8 text-pink-600 fill-pink-600" />
           <h2 className="text-2xl font-bold text-gray-800">Favorilerim</h2>
         </div>
-        <span className="text-sm text-gray-600">{favorites.length} ürün</span>
+        <span className="text-sm text-gray-600">{itemsCount} ürün</span>
       </div>
 
       {message && (
@@ -160,7 +213,7 @@ export default function FavoritesView() {
         </div>
       )}
 
-      {favorites.length === 0 ? (
+      {itemsCount === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-600 text-lg">Favori ürününüz yok</p>
@@ -168,7 +221,7 @@ export default function FavoritesView() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {favorites.map(item => {
+          {profile ? favorites.map(item => {
             const isProduct = !!item.product;
             const name = isProduct ? item.product!.name : item.course!.title;
             const description = isProduct ? item.product!.description : item.course!.description;
@@ -214,7 +267,42 @@ export default function FavoritesView() {
                 </div>
               </div>
             );
-          })}
+          }) : guestFavorites.map(item => (
+            <div key={item.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-lg transition-shadow">
+              {item.image && (
+                <div className="relative h-48 overflow-hidden bg-gray-100">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    onClick={() => removeFromFavorites(item.id)}
+                    className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-lg hover:bg-red-50 text-red-600"
+                    title="Favorilerden Çıkar"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+              <div className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-2">{item.name}</h3>
+                <p className="text-sm text-gray-600 line-clamp-2 mb-3">{item.description}</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-xl font-bold text-emerald-600">
+                    {item.price.toFixed(2)} ₺
+                  </span>
+                  <button
+                    onClick={() => addToCart(item)}
+                    className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 flex items-center gap-2 text-sm"
+                  >
+                    <ShoppingCart className="w-4 h-4" />
+                    <span>Sepete Ekle</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
     </div>

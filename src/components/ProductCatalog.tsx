@@ -83,7 +83,7 @@ export default function ProductCatalog() {
           setCartCount(total);
         }
       } else {
-        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
         const total = guestCart.reduce((sum: number, item: any) => sum + item.quantity, 0);
         setCartCount(total);
       }
@@ -111,21 +111,26 @@ export default function ProductCatalog() {
           setMessage({ type: 'success', text: 'Ürün sepete eklendi!' });
         }
       } else {
-        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const primaryImage = getPrimaryImage(product.id);
+        const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
         const existingItem = guestCart.find((item: any) => item.product_id === product.id);
 
         if (existingItem) {
           existingItem.quantity += 1;
         } else {
           guestCart.push({
-            id: `guest_${Date.now()}`,
+            id: `guest_cart_${Date.now()}`,
             product_id: product.id,
             quantity: 1,
+            name: product.name,
+            description: product.description,
+            price: product.base_price,
+            image: primaryImage,
             added_at: new Date().toISOString(),
           });
         }
 
-        localStorage.setItem('guest_cart', JSON.stringify(guestCart));
+        localStorage.setItem('guestCart', JSON.stringify(guestCart));
         setMessage({ type: 'success', text: 'Ürün sepete eklendi!' });
       }
       loadCartCount();
@@ -138,25 +143,42 @@ export default function ProductCatalog() {
 
   const addToFavorites = async (product: Product) => {
     try {
-      if (!user) {
-        setMessage({ type: 'error', text: 'Favorilere eklemek için giriş yapmalısınız' });
-        setTimeout(() => setMessage(null), 3000);
-        return;
-      }
+      if (user) {
+        const { error } = await supabase.from('user_favorites').insert({
+          user_id: user.id,
+          product_id: product.id,
+        });
 
-      const { error } = await supabase.from('user_favorites').insert({
-        user_id: user.id,
-        product_id: product.id,
-      });
-
-      if (error) {
-        if (error.code === '23505') {
-          setMessage({ type: 'error', text: 'Bu ürün zaten favorilerinizde' });
+        if (error) {
+          if (error.code === '23505') {
+            setMessage({ type: 'error', text: 'Bu ürün zaten favorilerinizde' });
+          } else {
+            throw error;
+          }
         } else {
-          throw error;
+          setMessage({ type: 'success', text: 'Ürün favorilere eklendi!' });
         }
       } else {
-        setMessage({ type: 'success', text: 'Ürün favorilere eklendi!' });
+        const primaryImage = getPrimaryImage(product.id);
+        const guestFavorites = JSON.parse(localStorage.getItem('guestFavorites') || '[]');
+        const existingItem = guestFavorites.find((item: any) => item.product_id === product.id);
+
+        if (existingItem) {
+          setMessage({ type: 'error', text: 'Bu ürün zaten favorilerinizde' });
+        } else {
+          guestFavorites.push({
+            id: `guest_fav_${Date.now()}`,
+            product_id: product.id,
+            quantity: 1,
+            name: product.name,
+            description: product.description,
+            price: product.base_price,
+            image: primaryImage,
+            added_at: new Date().toISOString(),
+          });
+          localStorage.setItem('guestFavorites', JSON.stringify(guestFavorites));
+          setMessage({ type: 'success', text: 'Ürün favorilere eklendi!' });
+        }
       }
       setTimeout(() => setMessage(null), 3000);
     } catch (error) {

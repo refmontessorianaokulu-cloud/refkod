@@ -25,12 +25,24 @@ interface CartItem {
   };
 }
 
+interface GuestCartItem {
+  id: string;
+  product_id?: string;
+  course_id?: string;
+  quantity: number;
+  name: string;
+  description: string;
+  price: number;
+  image?: string;
+}
+
 export default function CartView() {
   const auth = useAuth();
   const { t } = useLanguage();
   const profile = auth?.profile;
 
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [guestCartItems, setGuestCartItems] = useState<GuestCartItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -39,9 +51,27 @@ export default function CartView() {
     if (profile) {
       loadCart();
     } else {
-      setLoading(false);
+      loadGuestCart();
     }
   }, [profile]);
+
+  const loadGuestCart = () => {
+    try {
+      const stored = localStorage.getItem('guestCart');
+      if (stored) {
+        setGuestCartItems(JSON.parse(stored));
+      }
+    } catch (error) {
+      console.error('Error loading guest cart:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveGuestCart = (items: GuestCartItem[]) => {
+    localStorage.setItem('guestCart', JSON.stringify(items));
+    setGuestCartItems(items);
+  };
 
   const loadCart = async () => {
     try {
@@ -79,6 +109,13 @@ export default function CartView() {
   };
 
   const removeFromCart = async (itemId: string) => {
+    if (!profile) {
+      const updated = guestCartItems.filter(item => item.id !== itemId);
+      saveGuestCart(updated);
+      setMessage({ type: 'success', text: 'Ürün sepetten çıkarıldı' });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('shopping_cart')
@@ -95,11 +132,36 @@ export default function CartView() {
     }
   };
 
-  const moveToFavorites = async (item: CartItem) => {
+  const moveToFavorites = async (item: CartItem | GuestCartItem) => {
+    if (!profile) {
+      const guestItem = item as GuestCartItem;
+      const stored = localStorage.getItem('guestFavorites');
+      const favorites: GuestCartItem[] = stored ? JSON.parse(stored) : [];
+
+      const exists = favorites.some(fav =>
+        (fav.product_id && fav.product_id === guestItem.product_id) ||
+        (fav.course_id && fav.course_id === guestItem.course_id)
+      );
+
+      if (exists) {
+        setMessage({ type: 'error', text: 'Bu ürün zaten favorilerinizde' });
+        return;
+      }
+
+      favorites.push(guestItem);
+      localStorage.setItem('guestFavorites', JSON.stringify(favorites));
+
+      const updated = guestCartItems.filter(i => i.id !== guestItem.id);
+      saveGuestCart(updated);
+      setMessage({ type: 'success', text: 'Ürün favorilere taşındı' });
+      return;
+    }
+
     try {
-      const favoriteData = item.product_id
-        ? { user_id: profile!.id, product_id: item.product_id }
-        : { user_id: profile!.id, course_id: item.course_id };
+      const cartItem = item as CartItem;
+      const favoriteData = cartItem.product_id
+        ? { user_id: profile!.id, product_id: cartItem.product_id }
+        : { user_id: profile!.id, course_id: cartItem.course_id };
 
       const { error: favError } = await supabase
         .from('user_favorites')
@@ -110,11 +172,11 @@ export default function CartView() {
       const { error: cartError } = await supabase
         .from('shopping_cart')
         .delete()
-        .eq('id', item.id);
+        .eq('id', cartItem.id);
 
       if (cartError) throw cartError;
 
-      setCartItems(cartItems.filter(i => i.id !== item.id));
+      setCartItems(cartItems.filter(i => i.id !== cartItem.id));
       setMessage({ type: 'success', text: 'Ürün favorilere taşındı' });
     } catch (error: any) {
       console.error('Error moving to favorites:', error);
@@ -128,6 +190,14 @@ export default function CartView() {
 
   const updateQuantity = async (itemId: string, newQuantity: number) => {
     if (newQuantity < 1) return;
+
+    if (!profile) {
+      const updated = guestCartItems.map(item =>
+        item.id === itemId ? { ...item, quantity: newQuantity } : item
+      );
+      saveGuestCart(updated);
+      return;
+    }
 
     try {
       const { error } = await supabase
@@ -147,6 +217,12 @@ export default function CartView() {
   };
 
   const calculateTotal = () => {
+    if (!profile) {
+      return guestCartItems.reduce((total, item) => {
+        return total + (item.price * item.quantity);
+      }, 0);
+    }
+
     return cartItems.reduce((total, item) => {
       const price = item.product ? item.product.base_price : item.course!.price;
       return total + (price * item.quantity);
@@ -154,8 +230,14 @@ export default function CartView() {
   };
 
   const confirmOrder = async () => {
-    if (cartItems.length === 0) {
+    const itemsCount = profile ? cartItems.length : guestCartItems.length;
+    if (itemsCount === 0) {
       setMessage({ type: 'error', text: 'Sepetiniz boş' });
+      return;
+    }
+
+    if (!profile) {
+      setMessage({ type: 'error', text: 'Sipariş vermek için giriş yapmalısınız' });
       return;
     }
 
@@ -221,15 +303,6 @@ export default function CartView() {
     }
   };
 
-  if (!profile) {
-    return (
-      <div className="text-center py-12 bg-gray-50 rounded-lg">
-        <AlertCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-        <p className="text-gray-600 text-lg">Sepeti görüntülemek için giriş yapmalısınız</p>
-      </div>
-    );
-  }
-
   if (loading) {
     return (
       <div className="flex justify-center items-center py-12">
@@ -238,6 +311,9 @@ export default function CartView() {
     );
   }
 
+  const displayItems = profile ? cartItems : guestCartItems;
+  const itemsCount = displayItems.length;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -245,7 +321,7 @@ export default function CartView() {
           <ShoppingCart className="w-8 h-8 text-emerald-600" />
           <h2 className="text-2xl font-bold text-gray-800">Sepetim</h2>
         </div>
-        <span className="text-sm text-gray-600">{cartItems.length} ürün</span>
+        <span className="text-sm text-gray-600">{itemsCount} ürün</span>
       </div>
 
       {message && (
@@ -265,7 +341,7 @@ export default function CartView() {
         </div>
       )}
 
-      {cartItems.length === 0 ? (
+      {itemsCount === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <p className="text-gray-600 text-lg">Sepetiniz boş</p>
@@ -274,7 +350,7 @@ export default function CartView() {
       ) : (
         <>
           <div className="space-y-4">
-            {cartItems.map(item => {
+            {profile ? cartItems.map(item => {
               const isProduct = !!item.product;
               const name = isProduct ? item.product!.name : item.course!.title;
               const description = isProduct ? item.product!.description : item.course!.description;
@@ -348,7 +424,70 @@ export default function CartView() {
                   </div>
                 </div>
               );
-            })}
+            }) : guestCartItems.map(item => (
+              <div key={item.id} className="bg-white rounded-lg border border-gray-200 p-4">
+                <div className="flex gap-4">
+                  {item.image && (
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-24 h-24 object-cover rounded-lg flex-shrink-0"
+                    />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">{item.name}</h3>
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">{item.description}</p>
+                        <p className="text-lg font-bold text-emerald-600 mt-2">
+                          {item.price.toFixed(2)} ₺
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-2">
+                        <button
+                          onClick={() => removeFromCart(item.id)}
+                          className="text-red-600 hover:text-red-700 p-1"
+                          title="Sepetten Çıkar"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                        <button
+                          onClick={() => moveToFavorites(item)}
+                          className="text-pink-600 hover:text-pink-700 p-1"
+                          title="Favorilere Taşı"
+                        >
+                          <Heart className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+                    {item.product_id && (
+                      <div className="flex items-center gap-2 mt-3">
+                        <span className="text-sm text-gray-600">Miktar:</span>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                            disabled={item.quantity <= 1}
+                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50"
+                          >
+                            -
+                          </button>
+                          <span className="w-12 text-center font-semibold">{item.quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                            className="w-8 h-8 flex items-center justify-center border border-gray-300 rounded hover:bg-gray-50"
+                          >
+                            +
+                          </button>
+                        </div>
+                        <span className="text-sm font-semibold text-gray-700 ml-4">
+                          Toplam: {(item.price * item.quantity).toFixed(2)} ₺
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
 
           <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
@@ -358,7 +497,7 @@ export default function CartView() {
             </div>
             <button
               onClick={confirmOrder}
-              disabled={submitting}
+              disabled={submitting || !profile}
               className="w-full bg-emerald-600 text-white py-3 rounded-lg font-semibold hover:bg-emerald-700 disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {submitting ? (
@@ -369,12 +508,14 @@ export default function CartView() {
               ) : (
                 <>
                   <Package className="w-5 h-5" />
-                  <span>Sepeti Onayla</span>
+                  <span>{profile ? 'Sepeti Onayla' : 'Sipariş vermek için giriş yapın'}</span>
                 </>
               )}
             </button>
             <p className="text-xs text-emerald-700 mt-3 text-center">
-              Siparişiniz onaylandıktan sonra yönetici sizinle WhatsApp üzerinden iletişime geçerek ödeme işlemlerini tamamlayacaktır.
+              {profile
+                ? 'Siparişiniz onaylandıktan sonra yönetici sizinle WhatsApp üzerinden iletişime geçerek ödeme işlemlerini tamamlayacaktır.'
+                : 'Sipariş vermek için lütfen giriş yapın. Ürünleriniz sepetinizde güvenle saklanıyor.'}
             </p>
           </div>
         </>
