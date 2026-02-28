@@ -17,6 +17,7 @@ interface RefSection {
   title: string;
   content: string;
   media_urls: string[];
+  display_order: number;
   created_at: string;
 }
 
@@ -35,7 +36,7 @@ type RefDanismanlikTab = 'content' | 'applications';
 
 export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
   const { profile } = useAuth();
-  const [section, setSection] = useState<RefSection | null>(null);
+  const [sections, setSections] = useState<RefSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<RefAtolyeTab | RefDanismanlikTab>('content');
   const [referenceApplications, setReferenceApplications] = useState<any[]>([]);
@@ -58,10 +59,10 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
         .from('ref_sections')
         .select('*')
         .eq('section_type', sectionType)
-        .maybeSingle();
+        .order('display_order', { ascending: true });
 
       if (error) throw error;
-      setSection(data);
+      setSections(data || []);
     } catch (error) {
       console.error('Error loading ref section:', error);
     } finally {
@@ -396,36 +397,40 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
 
       {activeTab === 'content' && (
         <>
-          {!section ? (
+          {sections.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">Bu bölüm için henüz içerik eklenmemiş.</p>
             </div>
           ) : (
-            <>
-              <h3 className="text-xl font-semibold text-gray-700 mb-4">
-                {section.title}
-              </h3>
+            <div className="space-y-8">
+              {sections.map((section, index) => (
+                <div key={section.id} className={index > 0 ? 'border-t border-gray-200 pt-8' : ''}>
+                  <h3 className="text-xl font-semibold text-gray-700 mb-4">
+                    {section.title}
+                  </h3>
 
-              <div className="prose max-w-none">
-                <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">
-                  {section.content}
-                </p>
-              </div>
+                  <div className="prose max-w-none">
+                    <p className="text-gray-600 whitespace-pre-wrap leading-relaxed">
+                      {section.content}
+                    </p>
+                  </div>
 
-              {section.media_urls && section.media_urls.length > 0 && (
-                <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {section.media_urls.map((url, index) => (
-                    <div key={index} className="rounded-lg overflow-hidden shadow-sm">
-                      <img
-                        src={url}
-                        alt={`${section.title} - ${index + 1}`}
-                        className="w-full h-48 object-cover"
-                      />
+                  {section.media_urls && section.media_urls.length > 0 && (
+                    <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {section.media_urls.map((url, idx) => (
+                        <div key={idx} className="rounded-lg overflow-hidden shadow-sm">
+                          <img
+                            src={url}
+                            alt={`${section.title} - ${idx + 1}`}
+                            className="w-full h-48 object-cover"
+                          />
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
                 </div>
-              )}
-            </>
+              ))}
+            </div>
           )}
         </>
       )}

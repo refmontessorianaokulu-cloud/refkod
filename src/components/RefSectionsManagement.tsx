@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Edit2, Trash2, Save, X } from 'lucide-react';
+import { Plus, Edit2, Trash2, Save, X, ChevronUp, ChevronDown } from 'lucide-react';
 
 interface RefSection {
   id: string;
@@ -8,6 +8,7 @@ interface RefSection {
   title: string;
   content: string;
   media_urls: string[];
+  display_order: number;
   created_at: string;
 }
 
@@ -37,7 +38,8 @@ export default function RefSectionsManagement() {
       const { data, error } = await supabase
         .from('ref_sections')
         .select('*')
-        .order('section_type', { ascending: true });
+        .order('section_type', { ascending: true })
+        .order('display_order', { ascending: true });
 
       if (error) throw error;
       setSections(data || []);
@@ -67,12 +69,23 @@ export default function RefSectionsManagement() {
         if (error) throw error;
         alert('Bölüm başarıyla güncellendi!');
       } else {
+        const { data: maxOrderData } = await supabase
+          .from('ref_sections')
+          .select('display_order')
+          .eq('section_type', formData.section_type)
+          .order('display_order', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+
+        const nextOrder = (maxOrderData?.display_order ?? -1) + 1;
+
         const { error } = await supabase
           .from('ref_sections')
           .insert({
             section_type: formData.section_type,
             title: formData.title,
             content: formData.content,
+            display_order: nextOrder,
             created_by: profile.user?.id,
           });
 
@@ -128,6 +141,54 @@ export default function RefSectionsManagement() {
     return SECTION_TYPES.find(t => t.value === type)?.label || type;
   };
 
+  const handleMoveUp = async (section: RefSection, sectionsOfType: RefSection[]) => {
+    const currentIndex = sectionsOfType.findIndex(s => s.id === section.id);
+    if (currentIndex <= 0) return;
+
+    const previousSection = sectionsOfType[currentIndex - 1];
+
+    try {
+      await supabase
+        .from('ref_sections')
+        .update({ display_order: previousSection.display_order })
+        .eq('id', section.id);
+
+      await supabase
+        .from('ref_sections')
+        .update({ display_order: section.display_order })
+        .eq('id', previousSection.id);
+
+      loadSections();
+    } catch (error) {
+      console.error('Error moving section up:', error);
+      alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const handleMoveDown = async (section: RefSection, sectionsOfType: RefSection[]) => {
+    const currentIndex = sectionsOfType.findIndex(s => s.id === section.id);
+    if (currentIndex >= sectionsOfType.length - 1) return;
+
+    const nextSection = sectionsOfType[currentIndex + 1];
+
+    try {
+      await supabase
+        .from('ref_sections')
+        .update({ display_order: nextSection.display_order })
+        .eq('id', section.id);
+
+      await supabase
+        .from('ref_sections')
+        .update({ display_order: section.display_order })
+        .eq('id', nextSection.id);
+
+      loadSections();
+    } catch (error) {
+      console.error('Error moving section down:', error);
+      alert('Hata: ' + (error as Error).message);
+    }
+  };
+
   if (loading) {
     return <div className="text-center py-8">Yükleniyor...</div>;
   }
@@ -147,39 +208,62 @@ export default function RefSectionsManagement() {
 
       <div className="grid gap-4">
         {SECTION_TYPES.map(type => {
-          const section = sections.find(s => s.section_type === type.value);
+          const sectionsOfType = sections.filter(s => s.section_type === type.value);
 
           return (
             <div key={type.value} className="bg-white rounded-lg shadow p-6">
-              <div className="flex justify-between items-start mb-4">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-800 mb-2">{type.label}</h3>
-                  {section ? (
-                    <>
-                      <h4 className="text-lg font-medium text-gray-700 mb-2">{section.title}</h4>
-                      <p className="text-gray-600 whitespace-pre-wrap">{section.content}</p>
-                    </>
-                  ) : (
-                    <p className="text-gray-400 italic">Henüz içerik eklenmemiş</p>
-                  )}
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">{type.label}</h3>
+
+              {sectionsOfType.length === 0 ? (
+                <p className="text-gray-400 italic">Henüz başlık eklenmemiş</p>
+              ) : (
+                <div className="space-y-3">
+                  {sectionsOfType.map((section, index) => (
+                    <div key={section.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex justify-between items-start gap-4">
+                        <div className="flex-1">
+                          <h4 className="text-lg font-medium text-gray-700 mb-2">{section.title}</h4>
+                          <p className="text-gray-600 whitespace-pre-wrap">{section.content}</p>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <div className="flex flex-col gap-1">
+                            <button
+                              onClick={() => handleMoveUp(section, sectionsOfType)}
+                              disabled={index === 0}
+                              className="p-1 text-gray-600 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              title="Yukarı taşı"
+                            >
+                              <ChevronUp className="w-4 h-4" />
+                            </button>
+                            <button
+                              onClick={() => handleMoveDown(section, sectionsOfType)}
+                              disabled={index === sectionsOfType.length - 1}
+                              className="p-1 text-gray-600 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                              title="Aşağı taşı"
+                            >
+                              <ChevronDown className="w-4 h-4" />
+                            </button>
+                          </div>
+                          <button
+                            onClick={() => handleEdit(section)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="Düzenle"
+                          >
+                            <Edit2 className="w-5 h-5" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(section.id)}
+                            className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Sil"
+                          >
+                            <Trash2 className="w-5 h-5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                {section && (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleEdit(section)}
-                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                    >
-                      <Edit2 className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(section.id)}
-                      className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                    >
-                      <Trash2 className="w-5 h-5" />
-                    </button>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
           );
         })}
