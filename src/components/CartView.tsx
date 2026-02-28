@@ -78,6 +78,12 @@ export default function CartView() {
   useEffect(() => {
     if (profile) {
       loadCart();
+      setGuestInfo(prev => ({
+        ...prev,
+        firstName: profile.full_name?.split(' ')[0] || '',
+        lastName: profile.full_name?.split(' ').slice(1).join(' ') || '',
+        email: profile.email || ''
+      }));
     } else {
       loadGuestCart();
     }
@@ -258,11 +264,7 @@ export default function CartView() {
   };
 
   const handleGuestOrder = () => {
-    if (!profile) {
-      setShowGuestForm(true);
-      return;
-    }
-    confirmOrder();
+    setShowGuestForm(true);
   };
 
   const confirmOrder = async () => {
@@ -272,13 +274,11 @@ export default function CartView() {
       return;
     }
 
-    if (!profile) {
-      if (!guestInfo.firstName || !guestInfo.lastName || !guestInfo.phone ||
-          !guestInfo.country || !guestInfo.city || !guestInfo.district ||
-          !guestInfo.neighborhood || !guestInfo.street || !guestInfo.buildingNo) {
-        setMessage({ type: 'error', text: 'Lütfen tüm zorunlu alanları doldurun' });
-        return;
-      }
+    if (!guestInfo.firstName || !guestInfo.lastName || !guestInfo.phone ||
+        !guestInfo.country || !guestInfo.city || !guestInfo.district ||
+        !guestInfo.neighborhood || !guestInfo.street || !guestInfo.buildingNo) {
+      setMessage({ type: 'error', text: 'Lütfen tüm zorunlu alanları doldurun' });
+      return;
     }
 
     try {
@@ -288,9 +288,11 @@ export default function CartView() {
       const subtotal = calculateTotal();
       const total = subtotal;
 
-      const fullAddress = profile
-        ? 'Belirtilmedi'
-        : `${guestInfo.addressTitle ? guestInfo.addressTitle + ' - ' : ''}${guestInfo.neighborhood}, ${guestInfo.street} Sokak, No: ${guestInfo.buildingNo}${guestInfo.apartmentNo ? ', Daire: ' + guestInfo.apartmentNo : ''}, ${guestInfo.district}/${guestInfo.city}, ${guestInfo.country}`;
+      const fullAddress = `${guestInfo.addressTitle ? guestInfo.addressTitle + ' - ' : ''}${guestInfo.neighborhood}, ${guestInfo.street} Sokak, No: ${guestInfo.buildingNo}${guestInfo.apartmentNo ? ', Daire: ' + guestInfo.apartmentNo : ''}, ${guestInfo.district}/${guestInfo.city}, ${guestInfo.country}`;
+
+      const customerName = profile?.full_name || `${guestInfo.firstName} ${guestInfo.lastName}`;
+      const customerPhone = profile ? (profile as any).phone || guestInfo.phone : guestInfo.phone;
+      const customerEmail = profile?.email || guestInfo.email || '';
 
       const orderData: any = {
         order_number: orderNumber,
@@ -299,41 +301,35 @@ export default function CartView() {
         discount_amount: 0,
         shipping_cost: 0,
         total_amount: total,
-        shipping_address: profile
-          ? { address: 'Belirtilmedi' }
-          : {
-              title: guestInfo.addressTitle,
-              country: guestInfo.country,
-              city: guestInfo.city,
-              district: guestInfo.district,
-              neighborhood: guestInfo.neighborhood,
-              street: guestInfo.street,
-              buildingNo: guestInfo.buildingNo,
-              apartmentNo: guestInfo.apartmentNo,
-              fullAddress: fullAddress,
-              name: `${guestInfo.firstName} ${guestInfo.lastName}`,
-              phone: guestInfo.phone,
-              email: guestInfo.email || ''
-            },
-        billing_address: profile
-          ? { address: 'Belirtilmedi' }
-          : {
-              title: guestInfo.addressTitle,
-              country: guestInfo.country,
-              city: guestInfo.city,
-              district: guestInfo.district,
-              neighborhood: guestInfo.neighborhood,
-              street: guestInfo.street,
-              buildingNo: guestInfo.buildingNo,
-              apartmentNo: guestInfo.apartmentNo,
-              fullAddress: fullAddress,
-              name: `${guestInfo.firstName} ${guestInfo.lastName}`,
-              phone: guestInfo.phone,
-              email: guestInfo.email || ''
-            },
-        notes: profile
-          ? 'Ref Atölye web sitesi üzerinden sipariş'
-          : `Misafir Sipariş - ${guestInfo.firstName} ${guestInfo.lastName} - Tel: ${guestInfo.phone} - ${fullAddress}`
+        shipping_address: {
+          title: guestInfo.addressTitle,
+          country: guestInfo.country,
+          city: guestInfo.city,
+          district: guestInfo.district,
+          neighborhood: guestInfo.neighborhood,
+          street: guestInfo.street,
+          buildingNo: guestInfo.buildingNo,
+          apartmentNo: guestInfo.apartmentNo,
+          fullAddress: fullAddress,
+          name: customerName,
+          phone: customerPhone,
+          email: customerEmail
+        },
+        billing_address: {
+          title: guestInfo.addressTitle,
+          country: guestInfo.country,
+          city: guestInfo.city,
+          district: guestInfo.district,
+          neighborhood: guestInfo.neighborhood,
+          street: guestInfo.street,
+          buildingNo: guestInfo.buildingNo,
+          apartmentNo: guestInfo.apartmentNo,
+          fullAddress: fullAddress,
+          name: customerName,
+          phone: customerPhone,
+          email: customerEmail
+        },
+        notes: `Sipariş - ${customerName} - Tel: ${customerPhone} - ${fullAddress}`
       };
 
       if (profile) {
@@ -613,7 +609,7 @@ export default function CartView() {
               <span>{calculateTotal().toFixed(2)} ₺</span>
             </div>
 
-            {!profile && showGuestForm && (
+            {showGuestForm && (
               <div className="bg-white rounded-lg p-4 mb-4 space-y-4 max-h-[60vh] overflow-y-auto">
                 <h3 className="font-semibold text-gray-900 mb-3 sticky top-0 bg-white py-2 z-10 border-b">
                   İletişim ve Teslimat Bilgileri
@@ -630,7 +626,8 @@ export default function CartView() {
                         type="text"
                         value={guestInfo.firstName}
                         onChange={(e) => setGuestInfo({ ...guestInfo, firstName: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        disabled={!!profile}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600"
                         placeholder="Adınız"
                       />
                     </div>
@@ -642,7 +639,8 @@ export default function CartView() {
                         type="text"
                         value={guestInfo.lastName}
                         onChange={(e) => setGuestInfo({ ...guestInfo, lastName: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        disabled={!!profile}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600"
                         placeholder="Soyadınız"
                       />
                     </div>
@@ -668,7 +666,8 @@ export default function CartView() {
                         type="email"
                         value={guestInfo.email}
                         onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        disabled={!!profile}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-600"
                         placeholder="ornek@email.com"
                       />
                     </div>
@@ -787,7 +786,7 @@ export default function CartView() {
               </div>
             )}
 
-            {!profile && showGuestForm ? (
+            {showGuestForm ? (
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowGuestForm(false)}
