@@ -21,8 +21,10 @@ interface PlayGroupBooking {
   phone_number: string;
   child_name: string;
   child_birth_date: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'paid';
+  status: 'pending' | 'confirmed' | 'cancelled' | 'paid' | 'postponed';
   payment_link: string | null;
+  admin_notes: string | null;
+  original_session_id: string | null;
   created_at: string;
 }
 
@@ -261,13 +263,30 @@ export default function PlayGroupManagement() {
   };
 
   const generateWhatsAppLink = (booking: PlayGroupBooking) => {
-    if (!booking.payment_link || !selectedSession) return '';
+    if (!selectedSession) return '';
 
     const phoneNumber = booking.phone_number.replace(/\D/g, '').startsWith('0')
       ? '90' + booking.phone_number.replace(/\D/g, '').substring(1)
       : '90' + booking.phone_number.replace(/\D/g, '');
 
-    const message = `Merhaba ${booking.parent_name}, ${booking.child_name} için ${selectedSession.theme}'lı oyun grubu rezervasyonunuz onaylanmıştır.\n\nTarih: ${formatDate(selectedSession.session_date)}\nSaat: ${formatTime(selectedSession.session_time)}\n\nÖdeme Linki: ${booking.payment_link}\n\nRef Çocuk Akademisi`;
+    let message = '';
+
+    switch (booking.status) {
+      case 'confirmed':
+        message = `Merhaba ${booking.parent_name}, ${booking.child_name} için ${selectedSession.theme}'lı oyun grubu rezervasyonunuz onaylanmıştır.\n\nTarih: ${formatDate(selectedSession.session_date)}\nSaat: ${formatTime(selectedSession.session_time)}\n\nÖdeme Linki: ${booking.payment_link}\n\nRef Çocuk Akademisi`;
+        break;
+      case 'paid':
+        message = `Merhaba ${booking.parent_name}, ${booking.child_name} için ${selectedSession.theme}'lı oyun grubu rezervasyonunuzun ödemesi alınmıştır. Teşekkür ederiz!\n\nTarih: ${formatDate(selectedSession.session_date)}\nSaat: ${formatTime(selectedSession.session_time)}\n\nRef Çocuk Akademisi`;
+        break;
+      case 'postponed':
+        message = `Merhaba ${booking.parent_name}, ${booking.child_name} için ${selectedSession.theme}'lı oyun grubu rezervasyonunuz ertelenmiştir.\n\nÖnceki Tarih: ${formatDate(selectedSession.session_date)}\nSaat: ${formatTime(selectedSession.session_time)}\n\nYeni tarih için sizinle iletişime geçeceğiz.\n\nRef Çocuk Akademisi`;
+        break;
+      case 'cancelled':
+        message = `Merhaba ${booking.parent_name}, ${booking.child_name} için ${selectedSession.theme}'lı oyun grubu rezervasyonunuz iptal edilmiştir.\n\nTarih: ${formatDate(selectedSession.session_date)}\nSaat: ${formatTime(selectedSession.session_time)}\n\nRef Çocuk Akademisi`;
+        break;
+      default:
+        message = `Merhaba ${booking.parent_name}, ${booking.child_name} için ${selectedSession.theme}'lı oyun grubu rezervasyonunuz hakkında bilgilendirme.\n\nTarih: ${formatDate(selectedSession.session_date)}\nSaat: ${formatTime(selectedSession.session_time)}\n\nRef Çocuk Akademisi`;
+    }
 
     return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
   };
@@ -289,6 +308,7 @@ export default function PlayGroupManagement() {
       case 'pending': return 'bg-yellow-100 text-yellow-800';
       case 'confirmed': return 'bg-blue-100 text-blue-800';
       case 'paid': return 'bg-green-100 text-green-800';
+      case 'postponed': return 'bg-orange-100 text-orange-800';
       case 'cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -299,6 +319,7 @@ export default function PlayGroupManagement() {
       case 'pending': return 'Beklemede';
       case 'confirmed': return 'Onaylandı';
       case 'paid': return 'Ödendi';
+      case 'postponed': return 'Ertelendi';
       case 'cancelled': return 'İptal Edildi';
       default: return status;
     }
@@ -649,12 +670,109 @@ export default function PlayGroupManagement() {
                       )}
 
                       {booking.status === 'confirmed' && (
-                        <button
-                          onClick={() => handleUpdateBookingStatus(booking.id, 'paid')}
-                          className="mt-3 w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
-                        >
-                          Ödendi Olarak İşaretle
-                        </button>
+                        <div className="mt-3 space-y-2">
+                          <button
+                            onClick={() => handleUpdateBookingStatus(booking.id, 'paid')}
+                            className="w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm"
+                          >
+                            Ödendi Olarak İşaretle
+                          </button>
+                          <div className="flex space-x-2">
+                            <button
+                              onClick={() => handleUpdateBookingStatus(booking.id, 'postponed')}
+                              className="flex-1 px-3 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 text-sm"
+                            >
+                              Ertele
+                            </button>
+                            <button
+                              onClick={() => handleUpdateBookingStatus(booking.id, 'cancelled')}
+                              className="flex-1 px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm"
+                            >
+                              İptal Et
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {(booking.status === 'paid' || booking.status === 'postponed') && (
+                        <div className="mt-3 space-y-2">
+                          <div className="text-sm font-medium text-gray-700 mb-1">Durum Değiştir:</div>
+                          <div className="grid grid-cols-2 gap-2">
+                            {booking.status !== 'paid' && (
+                              <button
+                                onClick={() => handleUpdateBookingStatus(booking.id, 'paid')}
+                                className="px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 text-sm"
+                              >
+                                Ödendi
+                              </button>
+                            )}
+                            {booking.status !== 'postponed' && (
+                              <button
+                                onClick={() => handleUpdateBookingStatus(booking.id, 'postponed')}
+                                className="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 text-sm"
+                              >
+                                Ertele
+                              </button>
+                            )}
+                            {booking.status !== 'cancelled' && (
+                              <button
+                                onClick={() => handleUpdateBookingStatus(booking.id, 'cancelled')}
+                                className="px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 text-sm"
+                              >
+                                İptal Et
+                              </button>
+                            )}
+                            {booking.status !== 'confirmed' && booking.payment_link && (
+                              <button
+                                onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')}
+                                className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
+                              >
+                                Onaylı
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {booking.admin_notes && (
+                        <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                          <p className="text-xs font-medium text-amber-800 mb-1">Admin Notu:</p>
+                          <p className="text-sm text-amber-700">{booking.admin_notes}</p>
+                        </div>
+                      )}
+
+                      {booking.status === 'cancelled' && (
+                        <div className="mt-3 space-y-2">
+                          <div className="text-sm font-medium text-gray-700 mb-1">Durum Değiştir:</div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              onClick={() => handleUpdateBookingStatus(booking.id, 'confirmed')}
+                              className="px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 text-sm"
+                            >
+                              Tekrar Onayla
+                            </button>
+                            <button
+                              onClick={() => handleUpdateBookingStatus(booking.id, 'postponed')}
+                              className="px-3 py-2 bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 text-sm"
+                            >
+                              Ertele
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {(booking.status === 'paid' || booking.status === 'postponed' || booking.status === 'cancelled') && (
+                        <div className="mt-3">
+                          <a
+                            href={generateWhatsAppLink(booking)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center space-x-2 w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            <span>WhatsApp ile Bildir</span>
+                          </a>
+                        </div>
                       )}
                     </div>
                   ))}
