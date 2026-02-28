@@ -38,6 +38,8 @@ export default function CartView() {
   useEffect(() => {
     if (profile) {
       loadCart();
+    } else {
+      setLoading(false);
     }
   }, [profile]);
 
@@ -218,6 +220,15 @@ export default function CartView() {
       setSubmitting(false);
     }
   };
+
+  if (!profile) {
+    return (
+      <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <AlertCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <p className="text-gray-600 text-lg">Sepeti görüntülemek için giriş yapmalısınız</p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

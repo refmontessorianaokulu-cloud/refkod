@@ -88,7 +88,8 @@ const CARRIER_TRACKING_URLS: { [key: string]: string } = {
 };
 
 export default function UserOrdersView() {
-  const { user } = useAuth();
+  const auth = useAuth();
+  const user = auth?.user;
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -112,6 +113,8 @@ export default function UserOrdersView() {
   useEffect(() => {
     if (user) {
       loadOrders();
+    } else {
+      setLoading(false);
     }
   }, [user]);
 
@@ -292,6 +295,15 @@ export default function UserOrdersView() {
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  if (!user) {
+    return (
+      <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <p className="text-gray-600 text-lg">Siparişleri görüntülemek için giriş yapmalısınız</p>
+      </div>
+    );
+  }
 
   if (loading) {
     return <div className="text-center py-12 text-gray-500">Yükleniyor...</div>;

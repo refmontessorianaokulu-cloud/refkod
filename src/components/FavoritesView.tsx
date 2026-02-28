@@ -36,6 +36,8 @@ export default function FavoritesView() {
   useEffect(() => {
     if (profile) {
       loadFavorites();
+    } else {
+      setLoading(false);
     }
   }, [profile]);
 
@@ -113,6 +115,15 @@ export default function FavoritesView() {
       }
     }
   };
+
+  if (!profile) {
+    return (
+      <div className="text-center py-12 bg-gray-50 rounded-lg">
+        <AlertCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <p className="text-gray-600 text-lg">Favorileri görüntülemek için giriş yapmalısınız</p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon } from 'lucide-react';
+import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon, Heart } from 'lucide-react';
 import ProductManagement from './ProductManagement';
 import ProductCatalog from './ProductCatalog';
 import PlayGroupManagement from './PlayGroupManagement';
 import PlayGroupCalendar from './PlayGroupCalendar';
+import CartView from './CartView';
+import FavoritesView from './FavoritesView';
+import UserOrdersView from './UserOrdersView';
 
 interface RefSection {
   id: string;
@@ -26,7 +29,7 @@ const SECTION_LABELS = {
   ref_atolye: 'Ref Atölye',
 };
 
-type RefAtolyeTab = 'content' | 'products' | 'courses' | 'play_groups' | 'admin';
+type RefAtolyeTab = 'content' | 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin';
 type RefDanismanlikTab = 'content' | 'applications';
 
 export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
@@ -188,6 +191,39 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
               <Users className="w-4 h-4" />
               Oyun Grupları
             </button>
+            <button
+              onClick={() => setActiveTab('cart')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                activeTab === 'cart'
+                  ? 'border-emerald-600 text-emerald-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Sepetim
+            </button>
+            <button
+              onClick={() => setActiveTab('favorites')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                activeTab === 'favorites'
+                  ? 'border-emerald-600 text-emerald-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Heart className="w-4 h-4" />
+              Favorilerim
+            </button>
+            <button
+              onClick={() => setActiveTab('orders')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                activeTab === 'orders'
+                  ? 'border-emerald-600 text-emerald-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              Siparişlerim
+            </button>
             {isAdmin && (
               <button
                 onClick={() => setActiveTab('admin')}
@@ -263,6 +299,27 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       {activeTab === 'play_groups' && sectionType === 'ref_atolye' && (
         <div>
           <PlayGroupCalendar />
+        </div>
+      )}
+
+      {/* Ref Atölye - Cart Tab */}
+      {activeTab === 'cart' && sectionType === 'ref_atolye' && (
+        <div>
+          <CartView />
+        </div>
+      )}
+
+      {/* Ref Atölye - Favorites Tab */}
+      {activeTab === 'favorites' && sectionType === 'ref_atolye' && (
+        <div>
+          <FavoritesView />
+        </div>
+      )}
+
+      {/* Ref Atölye - Orders Tab */}
+      {activeTab === 'orders' && sectionType === 'ref_atolye' && (
+        <div>
+          <UserOrdersView />
         </div>
       )}
 
