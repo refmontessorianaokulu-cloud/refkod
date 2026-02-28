@@ -137,13 +137,13 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
         <>
           {/* Mobile Header with Hamburger */}
           <div className="md:hidden mb-6">
-            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-semibold text-gray-800">
+            <div className="relative flex items-center justify-center border-b border-gray-200 pb-4">
+              <h3 className="text-lg font-semibold text-gray-800 text-center">
                 {getTabLabel(activeTab)}
               </h3>
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="absolute right-0 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="Menüyü aç"
               >
                 <Menu className="w-6 h-6 text-gray-600" />
@@ -250,13 +250,13 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
         <>
           {/* Mobile Header with Hamburger */}
           <div className="md:hidden mb-6">
-            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-semibold text-gray-800">
+            <div className="relative flex items-center justify-center border-b border-gray-200 pb-4">
+              <h3 className="text-lg font-semibold text-gray-800 text-center">
                 {getTabLabel(activeTab)}
               </h3>
               <button
                 onClick={() => setMobileMenuOpen(true)}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                className="absolute right-0 p-2 rounded-lg hover:bg-gray-100 transition-colors"
                 aria-label="Menüyü aç"
               >
                 <Menu className="w-6 h-6 text-gray-600" />
