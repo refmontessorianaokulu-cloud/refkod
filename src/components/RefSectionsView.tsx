@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon, Heart } from 'lucide-react';
+import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList } from 'lucide-react';
 import ProductManagement from './ProductManagement';
 import ProductCatalog from './ProductCatalog';
 import PlayGroupManagement from './PlayGroupManagement';
@@ -9,6 +9,7 @@ import PlayGroupCalendar from './PlayGroupCalendar';
 import CartView from './CartView';
 import FavoritesView from './FavoritesView';
 import UserOrdersView from './UserOrdersView';
+import OrderManagement from './OrderManagement';
 
 interface RefSection {
   id: string;
