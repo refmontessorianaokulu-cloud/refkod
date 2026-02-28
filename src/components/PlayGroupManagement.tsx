@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Calendar, Clock, Users, Plus, Edit2, Trash2, X, ExternalLink, Upload, Image as ImageIcon } from 'lucide-react';
+import { Calendar, Clock, Users, Plus, Edit2, Trash2, X, ExternalLink, Upload, Image as ImageIcon, MessageCircle } from 'lucide-react';
 
 interface PlayGroupSession {
   id: string;
@@ -248,15 +248,28 @@ export default function PlayGroupManagement() {
         .eq('id', bookingId);
 
       if (error) throw error;
-      alert('Ödeme linki eklendi ve rezervasyon onaylandı. WhatsApp bildirimi gönderiliyor...');
+      alert('Ödeme linki eklendi ve rezervasyon onaylandı!');
       setPaymentLinkData({ ...paymentLinkData, [bookingId]: '' });
       if (selectedSession) {
         loadBookings(selectedSession.id);
       }
+      loadSessions();
     } catch (error) {
       console.error('Error adding payment link:', error);
       alert('Ödeme linki eklenirken hata oluştu');
     }
+  };
+
+  const generateWhatsAppLink = (booking: PlayGroupBooking) => {
+    if (!booking.payment_link || !selectedSession) return '';
+
+    const phoneNumber = booking.phone_number.replace(/\D/g, '').startsWith('0')
+      ? '90' + booking.phone_number.replace(/\D/g, '').substring(1)
+      : '90' + booking.phone_number.replace(/\D/g, '');
+
+    const message = `Merhaba ${booking.parent_name}, ${booking.child_name} için ${selectedSession.theme}'lı oyun grubu rezervasyonunuz onaylanmıştır.\n\nTarih: ${formatDate(selectedSession.session_date)}\nSaat: ${formatTime(selectedSession.session_time)}\n\nÖdeme Linki: ${booking.payment_link}\n\nRef Çocuk Akademisi`;
+
+    return `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
   };
 
   const formatDate = (dateStr: string) => {
@@ -612,8 +625,8 @@ export default function PlayGroupManagement() {
                         </div>
                       )}
 
-                      {booking.payment_link && (
-                        <div className="mt-3">
+                      {booking.payment_link && booking.status === 'confirmed' && (
+                        <div className="mt-3 space-y-2">
                           <a
                             href={booking.payment_link}
                             target="_blank"
@@ -622,6 +635,15 @@ export default function PlayGroupManagement() {
                           >
                             <ExternalLink className="w-4 h-4" />
                             <span>Ödeme Linkini Aç</span>
+                          </a>
+                          <a
+                            href={generateWhatsAppLink(booking)}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center space-x-2 w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            <span>WhatsApp ile Bildir</span>
                           </a>
                         </div>
                       )}
