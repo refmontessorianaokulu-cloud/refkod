@@ -56,6 +56,12 @@ export default function GuestDashboard() {
         panelTitle={t('sidebar.guestPanel')}
         isGuestMode={true}
         onSearchClick={() => setShowSearchModal(true)}
+        mobileHeaderTitle={
+          activeTab === 'ref_atolye' ? 'Ref Atölye' :
+          activeTab === 'ref_danismanlik' ? 'Ref Danışmanlık' :
+          activeTab === 'ref_akademi' ? 'Ref Akademi' :
+          undefined
+        }
       />
 
       <SearchModal

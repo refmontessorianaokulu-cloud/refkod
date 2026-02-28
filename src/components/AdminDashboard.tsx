@@ -587,6 +587,13 @@ export default function AdminDashboard() {
         userFullName={profile?.full_name}
         pendingUsersCount={pendingUsersCount}
         onSearchClick={() => setShowSearchModal(true)}
+        mobileHeaderTitle={
+          activeTab === 'ref_atolye' ? 'Ref Atölye' :
+          activeTab === 'ref_danismanlik' ? 'Ref Danışmanlık' :
+          activeTab === 'ref_akademi' ? 'Ref Akademi' :
+          activeTab === 'ref_evaluation' ? 'REF Değerlendirme Sistemi' :
+          undefined
+        }
       />
 
       <SearchModal

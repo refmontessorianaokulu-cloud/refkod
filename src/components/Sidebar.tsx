@@ -105,6 +105,7 @@ interface SidebarProps {
   panelTitle?: string;
   isGuestMode?: boolean;
   onSearchClick?: () => void;
+  mobileHeaderTitle?: string;
 }
 
 const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory[] => [
@@ -204,6 +205,7 @@ export default function Sidebar({
   panelTitle,
   isGuestMode = false,
   onSearchClick,
+  mobileHeaderTitle,
 }: SidebarProps) {
   const { t } = useLanguage();
   const categories = menuCategories || getDefaultAdminMenuCategories(t);
@@ -544,19 +546,26 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobil Sol Üst - Hamburger */}
-      <div className="lg:hidden fixed top-3 left-4 z-50">
-        {/* Hamburger */}
+      {/* Mobil Üst Bar - Hamburger, Başlık, Logo */}
+      <div className="lg:hidden fixed top-3 left-4 right-4 z-50 flex items-center justify-between">
+        {/* Sol - Hamburger */}
         <button
           onClick={() => setIsMobileOpen(true)}
           className="w-20 h-20 flex items-center justify-center transition-all"
         >
           <Menu className="w-8 h-8 text-gray-700" />
         </button>
-      </div>
 
-      {/* Mobil Sağ Üst - Logo */}
-      <div className="lg:hidden fixed top-3 right-4 z-50">
+        {/* Orta - Başlık */}
+        {mobileHeaderTitle && (
+          <div className="absolute left-24 right-24 flex items-center justify-center">
+            <h1 className="text-base font-semibold text-gray-800 text-center truncate px-2">
+              {mobileHeaderTitle}
+            </h1>
+          </div>
+        )}
+
+        {/* Sağ - Logo */}
         <button className="w-20 h-20 flex items-center justify-center transition-all">
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"

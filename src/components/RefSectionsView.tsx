@@ -135,21 +135,6 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       {/* Ref Danışmanlık Tabs */}
       {showDanismanlikTabs && (
         <>
-          {/* Mobile Header with Hamburger */}
-          <div className="md:hidden mb-6">
-            <div className="relative flex items-center justify-center border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 text-center">
-                {getTabLabel(activeTab)}
-              </h3>
-              <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="absolute right-0 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label="Menüyü aç"
-              >
-                <Menu className="w-6 h-6 text-gray-600" />
-              </button>
-            </div>
-          </div>
 
           {/* Desktop Tabs */}
           <div className="hidden md:block border-b border-gray-200 mb-6">
@@ -248,21 +233,6 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       {/* Ref Atölye Tabs */}
       {showAtolyeTabs && (
         <>
-          {/* Mobile Header with Hamburger */}
-          <div className="md:hidden mb-6">
-            <div className="relative flex items-center justify-center border-b border-gray-200 pb-4">
-              <h3 className="text-lg font-semibold text-gray-800 text-center">
-                {getTabLabel(activeTab)}
-              </h3>
-              <button
-                onClick={() => setMobileMenuOpen(true)}
-                className="absolute right-0 p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                aria-label="Menüyü aç"
-              >
-                <Menu className="w-6 h-6 text-gray-600" />
-              </button>
-            </div>
-          </div>
 
           {/* Desktop Tabs */}
           <div className="hidden md:block border-b border-gray-200 mb-6">
