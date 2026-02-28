@@ -52,8 +52,28 @@ export default function CartView() {
     lastName: '',
     phone: '',
     email: '',
-    address: ''
+    addressTitle: '',
+    country: '',
+    city: '',
+    district: '',
+    neighborhood: '',
+    street: '',
+    buildingNo: '',
+    apartmentNo: ''
   });
+
+  const turkishCities = [
+    'Adana', 'Adıyaman', 'Afyonkarahisar', 'Ağrı', 'Aksaray', 'Amasya', 'Ankara', 'Antalya',
+    'Ardahan', 'Artvin', 'Aydın', 'Balıkesir', 'Bartın', 'Batman', 'Bayburt', 'Bilecik',
+    'Bingöl', 'Bitlis', 'Bolu', 'Burdur', 'Bursa', 'Çanakkale', 'Çankırı', 'Çorum',
+    'Denizli', 'Diyarbakır', 'Düzce', 'Edirne', 'Elazığ', 'Erzincan', 'Erzurum', 'Eskişehir',
+    'Gaziantep', 'Giresun', 'Gümüşhane', 'Hakkari', 'Hatay', 'Iğdır', 'Isparta', 'İstanbul',
+    'İzmir', 'Kahramanmaraş', 'Karabük', 'Karaman', 'Kars', 'Kastamonu', 'Kayseri', 'Kilis',
+    'Kırıkkale', 'Kırklareli', 'Kırşehir', 'Kocaeli', 'Konya', 'Kütahya', 'Malatya', 'Manisa',
+    'Mardin', 'Mersin', 'Muğla', 'Muş', 'Nevşehir', 'Niğde', 'Ordu', 'Osmaniye', 'Rize',
+    'Sakarya', 'Samsun', 'Şanlıurfa', 'Siirt', 'Sinop', 'Sivas', 'Şırnak', 'Tekirdağ',
+    'Tokat', 'Trabzon', 'Tunceli', 'Uşak', 'Van', 'Yalova', 'Yozgat', 'Zonguldak'
+  ];
 
   useEffect(() => {
     if (profile) {
@@ -253,7 +273,9 @@ export default function CartView() {
     }
 
     if (!profile) {
-      if (!guestInfo.firstName || !guestInfo.lastName || !guestInfo.phone || !guestInfo.address) {
+      if (!guestInfo.firstName || !guestInfo.lastName || !guestInfo.phone ||
+          !guestInfo.country || !guestInfo.city || !guestInfo.district ||
+          !guestInfo.neighborhood || !guestInfo.street || !guestInfo.buildingNo) {
         setMessage({ type: 'error', text: 'Lütfen tüm zorunlu alanları doldurun' });
         return;
       }
@@ -266,6 +288,10 @@ export default function CartView() {
       const subtotal = calculateTotal();
       const total = subtotal;
 
+      const fullAddress = profile
+        ? 'Belirtilmedi'
+        : `${guestInfo.addressTitle ? guestInfo.addressTitle + ' - ' : ''}${guestInfo.neighborhood}, ${guestInfo.street} Sokak, No: ${guestInfo.buildingNo}${guestInfo.apartmentNo ? ', Daire: ' + guestInfo.apartmentNo : ''}, ${guestInfo.district}/${guestInfo.city}, ${guestInfo.country}`;
+
       const orderData: any = {
         order_number: orderNumber,
         status: 'pending',
@@ -276,7 +302,15 @@ export default function CartView() {
         shipping_address: profile
           ? { address: 'Belirtilmedi' }
           : {
-              address: guestInfo.address,
+              title: guestInfo.addressTitle,
+              country: guestInfo.country,
+              city: guestInfo.city,
+              district: guestInfo.district,
+              neighborhood: guestInfo.neighborhood,
+              street: guestInfo.street,
+              buildingNo: guestInfo.buildingNo,
+              apartmentNo: guestInfo.apartmentNo,
+              fullAddress: fullAddress,
               name: `${guestInfo.firstName} ${guestInfo.lastName}`,
               phone: guestInfo.phone,
               email: guestInfo.email || ''
@@ -284,14 +318,22 @@ export default function CartView() {
         billing_address: profile
           ? { address: 'Belirtilmedi' }
           : {
-              address: guestInfo.address,
+              title: guestInfo.addressTitle,
+              country: guestInfo.country,
+              city: guestInfo.city,
+              district: guestInfo.district,
+              neighborhood: guestInfo.neighborhood,
+              street: guestInfo.street,
+              buildingNo: guestInfo.buildingNo,
+              apartmentNo: guestInfo.apartmentNo,
+              fullAddress: fullAddress,
               name: `${guestInfo.firstName} ${guestInfo.lastName}`,
               phone: guestInfo.phone,
               email: guestInfo.email || ''
             },
         notes: profile
           ? 'Ref Atölye web sitesi üzerinden sipariş'
-          : `Misafir Sipariş - ${guestInfo.firstName} ${guestInfo.lastName} - Tel: ${guestInfo.phone}`
+          : `Misafir Sipariş - ${guestInfo.firstName} ${guestInfo.lastName} - Tel: ${guestInfo.phone} - ${fullAddress}`
       };
 
       if (profile) {
@@ -353,7 +395,14 @@ export default function CartView() {
           lastName: '',
           phone: '',
           email: '',
-          address: ''
+          addressTitle: '',
+          country: '',
+          city: '',
+          district: '',
+          neighborhood: '',
+          street: '',
+          buildingNo: '',
+          apartmentNo: ''
         });
       }
 
@@ -563,69 +612,175 @@ export default function CartView() {
             </div>
 
             {!profile && showGuestForm && (
-              <div className="bg-white rounded-lg p-4 mb-4 space-y-3">
-                <h3 className="font-semibold text-gray-900 mb-3">İletişim Bilgileri</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Ad <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={guestInfo.firstName}
-                      onChange={(e) => setGuestInfo({ ...guestInfo, firstName: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Adınız"
-                    />
+              <div className="bg-white rounded-lg p-4 mb-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                <h3 className="font-semibold text-gray-900 mb-3 sticky top-0 bg-white py-2 z-10 border-b">
+                  İletişim ve Teslimat Bilgileri
+                </h3>
+
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-800 mb-2">Kişisel Bilgiler</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Ad <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={guestInfo.firstName}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, firstName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="Adınız"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Soyad <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={guestInfo.lastName}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, lastName: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="Soyadınız"
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Soyad <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={guestInfo.lastName}
-                      onChange={(e) => setGuestInfo({ ...guestInfo, lastName: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                      placeholder="Soyadınız"
-                    />
+                  <div className="grid grid-cols-2 gap-3 mt-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Telefon <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        value={guestInfo.phone}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, phone: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="0555 123 45 67"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        E-posta
+                      </label>
+                      <input
+                        type="email"
+                        value={guestInfo.email}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="ornek@email.com"
+                      />
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Telefon <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    value={guestInfo.phone}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, phone: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    placeholder="0555 123 45 67"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    E-posta
-                  </label>
-                  <input
-                    type="email"
-                    value={guestInfo.email}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, email: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    placeholder="ornek@email.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Adres <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    value={guestInfo.address}
-                    onChange={(e) => setGuestInfo({ ...guestInfo, address: e.target.value })}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                    placeholder="Teslimat adresinizi girin"
-                  />
+
+                <div className="border-t pt-4">
+                  <h4 className="text-sm font-semibold text-gray-800 mb-2">Teslimat Adresi</h4>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Adres Başlığı
+                      </label>
+                      <input
+                        type="text"
+                        value={guestInfo.addressTitle}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, addressTitle: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="Ev, İş, Diğer..."
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Ülke <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={guestInfo.country}
+                          onChange={(e) => setGuestInfo({ ...guestInfo, country: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        >
+                          <option value="">Seçiniz</option>
+                          <option value="Türkiye">Türkiye</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          İl <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          value={guestInfo.city}
+                          onChange={(e) => setGuestInfo({ ...guestInfo, city: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        >
+                          <option value="">Seçiniz</option>
+                          {turkishCities.map(city => (
+                            <option key={city} value={city}>{city}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        İlçe <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={guestInfo.district}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, district: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="İlçe adını girin"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Mahalle <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={guestInfo.neighborhood}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, neighborhood: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="Mahalle adını girin"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Sokak <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        value={guestInfo.street}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, street: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                        placeholder="Sokak adını girin"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Bina No <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          value={guestInfo.buildingNo}
+                          onChange={(e) => setGuestInfo({ ...guestInfo, buildingNo: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                          placeholder="Bina No"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Daire No
+                        </label>
+                        <input
+                          type="text"
+                          value={guestInfo.apartmentNo}
+                          onChange={(e) => setGuestInfo({ ...guestInfo, apartmentNo: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                          placeholder="Daire No"
+                        />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
