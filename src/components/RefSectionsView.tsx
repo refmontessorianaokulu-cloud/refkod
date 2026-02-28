@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList } from 'lucide-react';
+import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList, Menu, X } from 'lucide-react';
 import ProductManagement from './ProductManagement';
 import ProductCatalog from './ProductCatalog';
 import PlayGroupManagement from './PlayGroupManagement';
@@ -40,6 +40,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
   const [activeTab, setActiveTab] = useState<RefAtolyeTab | RefDanismanlikTab>('content');
   const [referenceApplications, setReferenceApplications] = useState<any[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isAdmin = profile?.role === 'admin';
   const showDanismanlikTabs = sectionType === 'ref_danismanlik' && isAdmin;
@@ -97,6 +98,26 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
     }
   };
 
+  const handleTabChange = (tab: RefAtolyeTab | RefDanismanlikTab) => {
+    setActiveTab(tab);
+    setMobileMenuOpen(false);
+  };
+
+  const getTabLabel = (tab: RefAtolyeTab | RefDanismanlikTab) => {
+    const labels = {
+      content: 'İçerik',
+      products: 'Ürünler',
+      courses: 'Online Kurslar',
+      play_groups: 'Oyun Grupları',
+      cart: 'Sepetim',
+      favorites: 'Favorilerim',
+      orders: 'Siparişlerim',
+      admin: 'Yönetim',
+      applications: 'Referans Öğretmen Başvuruları',
+    };
+    return labels[tab] || tab;
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
@@ -113,135 +134,356 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
 
       {/* Ref Danışmanlık Tabs */}
       {showDanismanlikTabs && (
-        <div className="border-b border-gray-200 mb-6">
-          <div className="flex space-x-8">
-            <button
-              onClick={() => setActiveTab('content')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'content'
-                  ? 'border-emerald-600 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              İçerik
-            </button>
-            <button
-              onClick={() => setActiveTab('applications')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'applications'
-                  ? 'border-emerald-600 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              Referans Öğretmen Başvuruları
-              {referenceApplications.length > 0 && (
-                <span className="ml-2 bg-emerald-600 text-white text-xs px-2 py-1 rounded-full">
-                  {referenceApplications.length}
-                </span>
-              )}
-            </button>
+        <>
+          {/* Mobile Header with Hamburger */}
+          <div className="md:hidden mb-6">
+            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">
+                {getTabLabel(activeTab)}
+              </h3>
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Menüyü aç"
+              >
+                <Menu className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
           </div>
-        </div>
+
+          {/* Desktop Tabs */}
+          <div className="hidden md:block border-b border-gray-200 mb-6">
+            <div className="flex space-x-8">
+              <button
+                onClick={() => setActiveTab('content')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'content'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                İçerik
+              </button>
+              <button
+                onClick={() => setActiveTab('applications')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                  activeTab === 'applications'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Referans Öğretmen Başvuruları
+                {referenceApplications.length > 0 && (
+                  <span className="ml-2 bg-emerald-600 text-white text-xs px-2 py-1 rounded-full">
+                    {referenceApplications.length}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <>
+              {/* Overlay */}
+              <div
+                className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+                onClick={() => setMobileMenuOpen(false)}
+              />
+
+              {/* Slide-in Menu */}
+              <div className="fixed top-0 right-0 bottom-0 w-80 bg-white shadow-2xl z-50 md:hidden transform transition-transform duration-300 ease-in-out">
+                <div className="flex flex-col h-full">
+                  {/* Menu Header */}
+                  <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-800">Menü</h3>
+                    <button
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      aria-label="Menüyü kapat"
+                    >
+                      <X className="w-6 h-6 text-gray-600" />
+                    </button>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="flex-1 overflow-y-auto py-4">
+                    <button
+                      onClick={() => handleTabChange('content')}
+                      className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                        activeTab === 'content'
+                          ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Package className="w-5 h-5" />
+                      <span className="font-medium">İçerik</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('applications')}
+                      className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                        activeTab === 'applications'
+                          ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <ClipboardList className="w-5 h-5" />
+                      <div className="flex-1">
+                        <span className="font-medium">Başvurular</span>
+                        {referenceApplications.length > 0 && (
+                          <span className="ml-2 bg-emerald-600 text-white text-xs px-2 py-1 rounded-full">
+                            {referenceApplications.length}
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </>
       )}
 
       {/* Ref Atölye Tabs */}
       {showAtolyeTabs && (
-        <div className="border-b border-gray-200 mb-6">
-          <div className="flex flex-wrap gap-4">
-            <button
-              onClick={() => setActiveTab('content')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                activeTab === 'content'
-                  ? 'border-emerald-600 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <Package className="w-4 h-4" />
-              İçerik
-            </button>
-            <button
-              onClick={() => setActiveTab('products')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                activeTab === 'products'
-                  ? 'border-emerald-600 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Ürünler
-            </button>
-            <button
-              onClick={() => setActiveTab('courses')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                activeTab === 'courses'
-                  ? 'border-emerald-600 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <GraduationCap className="w-4 h-4" />
-              Online Kurslar
-            </button>
-            <button
-              onClick={() => setActiveTab('play_groups')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                activeTab === 'play_groups'
-                  ? 'border-emerald-600 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              Oyun Grupları
-            </button>
-            <button
-              onClick={() => setActiveTab('cart')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                activeTab === 'cart'
-                  ? 'border-emerald-600 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Sepetim
-            </button>
-            <button
-              onClick={() => setActiveTab('favorites')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                activeTab === 'favorites'
-                  ? 'border-emerald-600 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <Heart className="w-4 h-4" />
-              Favorilerim
-            </button>
-            <button
-              onClick={() => setActiveTab('orders')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                activeTab === 'orders'
-                  ? 'border-emerald-600 text-emerald-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
-            >
-              <Package className="w-4 h-4" />
-              Siparişlerim
-            </button>
-            {isAdmin && (
-              <>
-                <button
-                  onClick={() => setActiveTab('admin')}
-                  className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                    activeTab === 'admin'
-                      ? 'border-emerald-600 text-emerald-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <Settings className="w-4 h-4" />
-                  Yönetim
-                </button>
-              </>
-            )}
+        <>
+          {/* Mobile Header with Hamburger */}
+          <div className="md:hidden mb-6">
+            <div className="flex items-center justify-between border-b border-gray-200 pb-4">
+              <h3 className="text-lg font-semibold text-gray-800">
+                {getTabLabel(activeTab)}
+              </h3>
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                aria-label="Menüyü aç"
+              >
+                <Menu className="w-6 h-6 text-gray-600" />
+              </button>
+            </div>
           </div>
-        </div>
+
+          {/* Desktop Tabs */}
+          <div className="hidden md:block border-b border-gray-200 mb-6">
+            <div className="flex flex-wrap gap-4">
+              <button
+                onClick={() => setActiveTab('content')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'content'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Package className="w-4 h-4" />
+                İçerik
+              </button>
+              <button
+                onClick={() => setActiveTab('products')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'products'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                Ürünler
+              </button>
+              <button
+                onClick={() => setActiveTab('courses')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'courses'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <GraduationCap className="w-4 h-4" />
+                Online Kurslar
+              </button>
+              <button
+                onClick={() => setActiveTab('play_groups')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'play_groups'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                Oyun Grupları
+              </button>
+              <button
+                onClick={() => setActiveTab('cart')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'cart'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <ShoppingCart className="w-4 h-4" />
+                Sepetim
+              </button>
+              <button
+                onClick={() => setActiveTab('favorites')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'favorites'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Heart className="w-4 h-4" />
+                Favorilerim
+              </button>
+              <button
+                onClick={() => setActiveTab('orders')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'orders'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Package className="w-4 h-4" />
+                Siparişlerim
+              </button>
+              {isAdmin && (
+                <>
+                  <button
+                    onClick={() => setActiveTab('admin')}
+                    className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                      activeTab === 'admin'
+                        ? 'border-emerald-600 text-emerald-600'
+                        : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    }`}
+                  >
+                    <Settings className="w-4 h-4" />
+                    Yönetim
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <>
+              {/* Overlay */}
+              <div
+                className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+                onClick={() => setMobileMenuOpen(false)}
+              />
+
+              {/* Slide-in Menu */}
+              <div className="fixed top-0 right-0 bottom-0 w-80 bg-white shadow-2xl z-50 md:hidden transform transition-transform duration-300 ease-in-out">
+                <div className="flex flex-col h-full">
+                  {/* Menu Header */}
+                  <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 className="text-lg font-semibold text-gray-800">Menü</h3>
+                    <button
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      aria-label="Menüyü kapat"
+                    >
+                      <X className="w-6 h-6 text-gray-600" />
+                    </button>
+                  </div>
+
+                  {/* Menu Items */}
+                  <div className="flex-1 overflow-y-auto py-4">
+                    <button
+                      onClick={() => handleTabChange('content')}
+                      className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                        activeTab === 'content'
+                          ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Package className="w-5 h-5" />
+                      <span className="font-medium">İçerik</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('products')}
+                      className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                        activeTab === 'products'
+                          ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                      <span className="font-medium">Ürünler</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('courses')}
+                      className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                        activeTab === 'courses'
+                          ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <GraduationCap className="w-5 h-5" />
+                      <span className="font-medium">Online Kurslar</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('play_groups')}
+                      className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                        activeTab === 'play_groups'
+                          ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Users className="w-5 h-5" />
+                      <span className="font-medium">Oyun Grupları</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('cart')}
+                      className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                        activeTab === 'cart'
+                          ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <ShoppingCart className="w-5 h-5" />
+                      <span className="font-medium">Sepetim</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('favorites')}
+                      className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                        activeTab === 'favorites'
+                          ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Heart className="w-5 h-5" />
+                      <span className="font-medium">Favorilerim</span>
+                    </button>
+                    <button
+                      onClick={() => handleTabChange('orders')}
+                      className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                        activeTab === 'orders'
+                          ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                          : 'text-gray-700 hover:bg-gray-50'
+                      }`}
+                    >
+                      <Package className="w-5 h-5" />
+                      <span className="font-medium">Siparişlerim</span>
+                    </button>
+                    {isAdmin && (
+                      <button
+                        onClick={() => handleTabChange('admin')}
+                        className={`w-full flex items-center gap-3 px-6 py-4 text-left transition-colors ${
+                          activeTab === 'admin'
+                            ? 'bg-emerald-50 text-emerald-700 border-r-4 border-emerald-600'
+                            : 'text-gray-700 hover:bg-gray-50'
+                        }`}
+                      >
+                        <Settings className="w-5 h-5" />
+                        <span className="font-medium">Yönetim</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+        </>
       )}
 
       {activeTab === 'content' && (
