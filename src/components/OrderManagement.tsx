@@ -17,6 +17,12 @@ interface Order {
   is_guest_order?: boolean;
   guest_email?: string;
   guest_phone?: string;
+  guest_name?: string;
+  shipping_carrier?: string;
+  tracking_number?: string;
+  tracking_url?: string;
+  shipped_at?: string;
+  estimated_delivery_date?: string;
   created_at: string;
 }
 
@@ -61,6 +67,10 @@ export default function OrderManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
+  const [shippingCarrier, setShippingCarrier] = useState('');
+  const [trackingNumber, setTrackingNumber] = useState('');
+  const [trackingUrl, setTrackingUrl] = useState('');
+  const [estimatedDeliveryDate, setEstimatedDeliveryDate] = useState('');
 
   useEffect(() => {
     loadOrders();
@@ -118,6 +128,12 @@ export default function OrderManagement() {
       if (itemsRes.data) setOrderItems(itemsRes.data);
       if (paymentRes.data) setPayment(paymentRes.data);
       setSelectedOrder(order);
+
+      // Load shipping info
+      setShippingCarrier(order.shipping_carrier || '');
+      setTrackingNumber(order.tracking_number || '');
+      setTrackingUrl(order.tracking_url || '');
+      setEstimatedDeliveryDate(order.estimated_delivery_date || '');
     } catch (error) {
       console.error('Error loading order details:', error);
     }
@@ -139,6 +155,102 @@ export default function OrderManagement() {
       }
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const updateShippingInfo = async () => {
+    if (!selectedOrder) return;
+
+    try {
+      const updateData: any = {
+        shipping_carrier: shippingCarrier || null,
+        tracking_number: trackingNumber || null,
+        tracking_url: trackingUrl || null,
+        estimated_delivery_date: estimatedDeliveryDate || null,
+      };
+
+      // If status is being changed to shipped, set shipped_at timestamp
+      if (selectedOrder.status === 'shipped' && !selectedOrder.shipped_at) {
+        updateData.shipped_at = new Date().toISOString();
+      }
+
+      const { error } = await supabase
+        .from('orders')
+        .update(updateData)
+        .eq('id', selectedOrder.id);
+
+      if (error) throw error;
+
+      alert('Kargo bilgileri güncellendi!');
+      loadOrders();
+
+      // Update selected order
+      const updatedOrder = { ...selectedOrder, ...updateData };
+      setSelectedOrder(updatedOrder);
+    } catch (error) {
+      alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const sendWhatsAppShippingInfo = async (order: OrderWithUser) => {
+    try {
+      setSendingWhatsApp(true);
+
+      if (!trackingNumber || !shippingCarrier) {
+        alert('Lütfen önce kargo firması ve takip numarasını girin');
+        return;
+      }
+
+      let phone = '';
+      let customerName = '';
+
+      if (order.is_guest_order) {
+        phone = order.guest_phone || '';
+        customerName = order.shipping_address?.full_name || 'Müşteri';
+      } else {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('phone_number, full_name')
+          .eq('id', order.user_id)
+          .maybeSingle();
+
+        phone = profile?.phone_number || '';
+        customerName = profile?.full_name || 'Müşteri';
+      }
+
+      if (!phone) {
+        alert('Müşteri telefon numarası bulunamadı');
+        return;
+      }
+
+      const cleanPhone = phone.replace(/\D/g, '');
+      const formattedPhone = cleanPhone.startsWith('90') ? cleanPhone : `90${cleanPhone}`;
+
+      let message = `Merhaba ${customerName},\n\nRef Atölye siparişiniz (#${order.order_number}) kargoya verilmiştir! 🎉\n\n`;
+      message += `📦 Kargo Firması: ${shippingCarrier}\n`;
+      message += `🔢 Takip Numarası: ${trackingNumber}\n`;
+
+      if (trackingUrl) {
+        message += `🔗 Takip Linki: ${trackingUrl}\n`;
+      }
+
+      if (estimatedDeliveryDate) {
+        const deliveryDate = new Date(estimatedDeliveryDate).toLocaleDateString('tr-TR');
+        message += `📅 Tahmini Teslim Tarihi: ${deliveryDate}\n`;
+      }
+
+      message += `\nSipariş Detayları:\n${orderItems.map(item => `- ${item.item_name} x${item.quantity}`).join('\n')}`;
+      message += `\n\nİyi günler dileriz! 🌟`;
+
+      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+
+      alert('WhatsApp kargo takip bilgileri açıldı. Lütfen müşteriye mesajı gönderin.');
+    } catch (error) {
+      console.error('Error sending WhatsApp:', error);
+      alert('WhatsApp gönderilirken hata oluştu');
+    } finally {
+      setSendingWhatsApp(false);
     }
   };
 
@@ -351,6 +463,104 @@ export default function OrderManagement() {
                   )}
                 </button>
               </div>
+
+              {/* Shipping Tracking Information */}
+              {selectedOrder.status === 'shipped' || selectedOrder.status === 'delivered' || selectedOrder.tracking_number ? (
+                <div className="mb-6 border border-blue-200 bg-blue-50 rounded-lg p-4">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Truck className="w-5 h-5 text-blue-600" />
+                    <h4 className="font-semibold text-gray-800">Kargo Takip Bilgileri</h4>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Kargo Firması</label>
+                      <select
+                        value={shippingCarrier}
+                        onChange={(e) => setShippingCarrier(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Seçiniz</option>
+                        <option value="Aras Kargo">Aras Kargo</option>
+                        <option value="MNG Kargo">MNG Kargo</option>
+                        <option value="Yurtiçi Kargo">Yurtiçi Kargo</option>
+                        <option value="PTT Kargo">PTT Kargo</option>
+                        <option value="Sürat Kargo">Sürat Kargo</option>
+                        <option value="UPS">UPS</option>
+                        <option value="DHL">DHL</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Takip Numarası</label>
+                      <input
+                        type="text"
+                        value={trackingNumber}
+                        onChange={(e) => setTrackingNumber(e.target.value)}
+                        placeholder="Kargo takip numarasını girin"
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Takip Linki (Opsiyonel)</label>
+                      <input
+                        type="url"
+                        value={trackingUrl}
+                        onChange={(e) => setTrackingUrl(e.target.value)}
+                        placeholder="https://..."
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Tahmini Teslim Tarihi (Opsiyonel)</label>
+                      <input
+                        type="date"
+                        value={estimatedDeliveryDate}
+                        onChange={(e) => setEstimatedDeliveryDate(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <div className="flex gap-2 pt-2">
+                      <button
+                        onClick={updateShippingInfo}
+                        className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+                      >
+                        Kargo Bilgilerini Kaydet
+                      </button>
+
+                      <button
+                        onClick={() => sendWhatsAppShippingInfo(selectedOrder)}
+                        disabled={sendingWhatsApp || !trackingNumber || !shippingCarrier}
+                        className="flex-1 bg-green-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+                      >
+                        {sendingWhatsApp ? (
+                          <>
+                            <Loader className="w-4 h-4 animate-spin" />
+                            <span>Gönderiliyor...</span>
+                          </>
+                        ) : (
+                          <>
+                            <MessageCircle className="w-4 h-4" />
+                            <span>WhatsApp Gönder</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {selectedOrder.shipped_at && (
+                    <div className="mt-3 pt-3 border-t border-blue-200 text-sm text-gray-600">
+                      <p className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        Kargoya verilme: {new Date(selectedOrder.shipped_at).toLocaleString('tr-TR')}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : null}
 
               {/* Customer Info */}
               <div className="mb-6">
