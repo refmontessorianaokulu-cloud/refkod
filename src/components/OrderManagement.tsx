@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Package, Truck, CheckCircle, X, Eye, Search, Filter } from 'lucide-react';
+import { Package, Truck, CheckCircle, X, Eye, Search, Filter, MessageCircle, Loader } from 'lucide-react';
 
 interface Order {
   id: string;
@@ -60,6 +60,7 @@ export default function OrderManagement() {
   const [payment, setPayment] = useState<Payment | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [sendingWhatsApp, setSendingWhatsApp] = useState(false);
 
   useEffect(() => {
     loadOrders();
@@ -138,6 +139,49 @@ export default function OrderManagement() {
       }
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const sendWhatsAppPaymentLink = async (order: OrderWithUser) => {
+    try {
+      setSendingWhatsApp(true);
+
+      let phone = '';
+      let customerName = '';
+
+      if (order.is_guest_order) {
+        phone = order.guest_phone || '';
+        customerName = order.shipping_address?.full_name || 'Müşteri';
+      } else {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('phone_number, full_name')
+          .eq('id', order.user_id)
+          .maybeSingle();
+
+        phone = profile?.phone_number || '';
+        customerName = profile?.full_name || 'Müşteri';
+      }
+
+      if (!phone) {
+        alert('Müşteri telefon numarası bulunamadı');
+        return;
+      }
+
+      const cleanPhone = phone.replace(/\D/g, '');
+      const formattedPhone = cleanPhone.startsWith('90') ? cleanPhone : `90${cleanPhone}`;
+
+      const message = `Merhaba ${customerName},\n\nRef Atölye siparişiniz (#${order.order_number}) alınmıştır.\n\nSipariş Detayları:\n${orderItems.map(item => `- ${item.item_name} x${item.quantity}: ${item.total_price.toFixed(2)} ₺`).join('\n')}\n\nToplam Tutar: ${order.total_amount.toFixed(2)} ₺\n\nÖdeme işlemini tamamlamak için lütfen bizimle iletişime geçin.\n\nTeşekkür ederiz!`;
+
+      const whatsappUrl = `https://wa.me/${formattedPhone}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+
+      alert('WhatsApp ödeme linki açıldı. Lütfen müşteriye mesajı gönderin.');
+    } catch (error) {
+      console.error('Error sending WhatsApp:', error);
+      alert('WhatsApp gönderilirken hata oluştu');
+    } finally {
+      setSendingWhatsApp(false);
     }
   };
 
@@ -274,18 +318,38 @@ export default function OrderManagement() {
                 </button>
               </div>
 
-              {/* Status Update */}
-              <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Sipariş Durumu</label>
-                <select
-                  value={selectedOrder.status}
-                  onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value)}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+              {/* Status Update and WhatsApp */}
+              <div className="mb-6 space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Sipariş Durumu</label>
+                  <select
+                    value={selectedOrder.status}
+                    onChange={(e) => updateOrderStatus(selectedOrder.id, e.target.value)}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                  >
+                    {STATUS_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => sendWhatsAppPaymentLink(selectedOrder)}
+                  disabled={sendingWhatsApp}
+                  className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 disabled:opacity-50 flex items-center justify-center gap-2"
                 >
-                  {STATUS_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>{option.label}</option>
-                  ))}
-                </select>
+                  {sendingWhatsApp ? (
+                    <>
+                      <Loader className="w-5 h-5 animate-spin" />
+                      <span>Gönderiliyor...</span>
+                    </>
+                  ) : (
+                    <>
+                      <MessageCircle className="w-5 h-5" />
+                      <span>WhatsApp ile Ödeme Linki Gönder</span>
+                    </>
+                  )}
+                </button>
               </div>
 
               {/* Customer Info */}

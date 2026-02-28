@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Star, Filter, Search, X, Package } from 'lucide-react';
+import { ShoppingCart, Star, Filter, Search, X, Package, Heart, CheckCircle, AlertCircle } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -44,6 +44,7 @@ export default function ProductCatalog() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartCount, setCartCount] = useState(0);
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   useEffect(() => {
     loadData();
@@ -100,8 +101,15 @@ export default function ProductCatalog() {
           quantity: 1,
         });
 
-        if (error) throw error;
-        alert('Ürün sepete eklendi!');
+        if (error) {
+          if (error.code === '23505') {
+            setMessage({ type: 'error', text: 'Bu ürün zaten sepetinizde' });
+          } else {
+            throw error;
+          }
+        } else {
+          setMessage({ type: 'success', text: 'Ürün sepete eklendi!' });
+        }
       } else {
         const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
         const existingItem = guestCart.find((item: any) => item.product_id === product.id);
@@ -118,11 +126,42 @@ export default function ProductCatalog() {
         }
 
         localStorage.setItem('guest_cart', JSON.stringify(guestCart));
-        alert('Ürün sepete eklendi!');
+        setMessage({ type: 'success', text: 'Ürün sepete eklendi!' });
       }
       loadCartCount();
+      setTimeout(() => setMessage(null), 3000);
     } catch (error) {
-      alert('Hata: ' + (error as Error).message);
+      setMessage({ type: 'error', text: 'Hata: ' + (error as Error).message });
+      setTimeout(() => setMessage(null), 3000);
+    }
+  };
+
+  const addToFavorites = async (product: Product) => {
+    try {
+      if (!user) {
+        setMessage({ type: 'error', text: 'Favorilere eklemek için giriş yapmalısınız' });
+        setTimeout(() => setMessage(null), 3000);
+        return;
+      }
+
+      const { error } = await supabase.from('user_favorites').insert({
+        user_id: user.id,
+        product_id: product.id,
+      });
+
+      if (error) {
+        if (error.code === '23505') {
+          setMessage({ type: 'error', text: 'Bu ürün zaten favorilerinizde' });
+        } else {
+          throw error;
+        }
+      } else {
+        setMessage({ type: 'success', text: 'Ürün favorilere eklendi!' });
+      }
+      setTimeout(() => setMessage(null), 3000);
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Hata: ' + (error as Error).message });
+      setTimeout(() => setMessage(null), 3000);
     }
   };
 
@@ -164,6 +203,24 @@ export default function ProductCatalog() {
           </div>
         )}
       </div>
+
+      {/* Message */}
+      {message && (
+        <div className={`p-4 rounded-lg border ${
+          message.type === 'success'
+            ? 'bg-green-50 border-green-200 text-green-800'
+            : 'bg-red-50 border-red-200 text-red-800'
+        }`}>
+          <div className="flex items-center space-x-2">
+            {message.type === 'success' ? (
+              <CheckCircle className="w-5 h-5" />
+            ) : (
+              <AlertCircle className="w-5 h-5" />
+            )}
+            <span>{message.text}</span>
+          </div>
+        </div>
+      )}
 
       {/* Search and Filters */}
       <div className="flex flex-col md:flex-row gap-4">
@@ -270,16 +327,28 @@ export default function ProductCatalog() {
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between">
                   <span className="text-xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart(product);
-                    }}
-                    className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
-                  >
-                    <ShoppingCart className="w-4 h-4" />
-                    Sepete Ekle
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToFavorites(product);
+                      }}
+                      className="p-2 border border-pink-200 text-pink-600 rounded-lg hover:bg-pink-50 transition-colors"
+                      title="Favorilere Ekle"
+                    >
+                      <Heart className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(product);
+                      }}
+                      className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+                    >
+                      <ShoppingCart className="w-4 h-4" />
+                      Sepete Ekle
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

@@ -5,10 +5,13 @@ import HomePage from './HomePage';
 import AboutPage from './AboutPage';
 import RefSectionsView from './RefSectionsView';
 import ShoppingCartView from './ShoppingCartView';
+import CartView from './CartView';
+import FavoritesView from './FavoritesView';
+import UserOrdersView from './UserOrdersView';
 import SearchModal from './SearchModal';
 import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
-import { Home, Info, GraduationCap, Briefcase, Palette } from 'lucide-react';
+import { Home, Info, GraduationCap, Briefcase, Palette, ShoppingCart, Heart, Package } from 'lucide-react';
 
 export default function GuestDashboard() {
   const { signOut, guestInitialTab, guestInitialSection } = useAuth();
@@ -42,6 +45,15 @@ export default function GuestDashboard() {
         { id: 'ref_akademi', label: t('menu.refAkademi'), icon: GraduationCap },
         { id: 'ref_danismanlik', label: t('menu.refDanismanlik'), icon: Briefcase },
         { id: 'ref_atolye', label: t('menu.refAtolye'), icon: Palette },
+      ],
+    },
+    {
+      id: 'shopping',
+      label: 'Alışveriş',
+      items: [
+        { id: 'cart', label: 'Sepetim', icon: ShoppingCart },
+        { id: 'favorites', label: 'Favorilerim', icon: Heart },
+        { id: 'my_orders', label: 'Siparişlerim', icon: Package },
       ],
     },
   ];
@@ -93,6 +105,21 @@ export default function GuestDashboard() {
         {activeTab === 'ref_atolye' && (
           <div className="p-8">
             <RefSectionsView sectionType="ref_atolye" />
+          </div>
+        )}
+        {activeTab === 'cart' && (
+          <div className="p-8">
+            <CartView />
+          </div>
+        )}
+        {activeTab === 'favorites' && (
+          <div className="p-8">
+            <FavoritesView />
+          </div>
+        )}
+        {activeTab === 'my_orders' && (
+          <div className="p-8">
+            <UserOrdersView />
           </div>
         )}
       </main>
