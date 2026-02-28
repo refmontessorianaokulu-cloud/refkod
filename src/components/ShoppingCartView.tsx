@@ -189,9 +189,16 @@ export default function ShoppingCartView() {
 
   const calculateShippingCost = () => {
     const hasPhysicalProducts = cartItems.some(item => item.product?.product_type === 'physical');
+    console.log('Has physical products:', hasPhysicalProducts);
+    console.log('Cart items:', cartItems.map(item => ({
+      name: item.product?.name || item.course?.title,
+      type: item.product?.product_type
+    })));
+
     if (!hasPhysicalProducts) return 0;
 
     const subtotal = calculateTotal();
+    console.log('Subtotal:', subtotal, 'Shipping cost:', subtotal < 1000 ? 79.90 : 0);
     return subtotal < 1000 ? 79.90 : 0;
   };
 
