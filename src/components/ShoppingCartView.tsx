@@ -187,6 +187,14 @@ export default function ShoppingCartView() {
     }, 0);
   };
 
+  const calculateShippingCost = () => {
+    const hasPhysicalProducts = cartItems.some(item => item.product?.product_type === 'physical');
+    if (!hasPhysicalProducts) return 0;
+
+    const subtotal = calculateTotal();
+    return subtotal < 1000 ? 79.90 : 0;
+  };
+
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -203,7 +211,7 @@ export default function ShoppingCartView() {
     try {
       const orderNumber = `ORD-${Date.now()}`;
       const subtotal = calculateTotal();
-      const shippingCost = cartItems.some(item => item.product?.product_type === 'physical') ? 50 : 0;
+      const shippingCost = calculateShippingCost();
       const total = subtotal + shippingCost;
 
       const billingAddress = sameAsBilling
@@ -361,15 +369,24 @@ export default function ShoppingCartView() {
                 <span>{calculateTotal().toFixed(2)} ₺</span>
               </div>
               {cartItems.some(item => item.product?.product_type === 'physical') && (
-                <div className="flex justify-between text-gray-600">
-                  <span>Kargo</span>
-                  <span>50.00 ₺</span>
-                </div>
+                <>
+                  <div className="flex justify-between text-gray-600">
+                    <span>Kargo</span>
+                    <span className={calculateShippingCost() === 0 ? 'text-green-600 font-semibold' : ''}>
+                      {calculateShippingCost() === 0 ? 'ÜCRETSİZ' : `${calculateShippingCost().toFixed(2)} ₺`}
+                    </span>
+                  </div>
+                  {calculateTotal() < 1000 && (
+                    <div className="text-xs text-amber-600 bg-amber-50 p-2 rounded">
+                      1000 ₺ ve üzeri alışverişlerde kargo ücretsiz!
+                    </div>
+                  )}
+                </>
               )}
               <div className="border-t pt-2 flex justify-between font-bold text-gray-800">
                 <span>Toplam</span>
                 <span>
-                  {(calculateTotal() + (cartItems.some(item => item.product?.product_type === 'physical') ? 50 : 0)).toFixed(2)} ₺
+                  {(calculateTotal() + calculateShippingCost()).toFixed(2)} ₺
                 </span>
               </div>
             </div>
