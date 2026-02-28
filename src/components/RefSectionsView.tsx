@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList } from 'lucide-react';
+import { ShoppingCart, Package, GraduationCap, Settings, Users, Calendar as CalendarIcon, Heart } from 'lucide-react';
 import ProductManagement from './ProductManagement';
 import ProductCatalog from './ProductCatalog';
 import PlayGroupManagement from './PlayGroupManagement';
@@ -9,7 +9,6 @@ import PlayGroupCalendar from './PlayGroupCalendar';
 import CartView from './CartView';
 import FavoritesView from './FavoritesView';
 import UserOrdersView from './UserOrdersView';
-import OrderManagement from './OrderManagement';
 
 interface RefSection {
   id: string;
@@ -30,7 +29,7 @@ const SECTION_LABELS = {
   ref_atolye: 'Ref Atölye',
 };
 
-type RefAtolyeTab = 'content' | 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin' | 'admin_orders';
+type RefAtolyeTab = 'content' | 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin';
 type RefDanismanlikTab = 'content' | 'applications';
 
 export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
@@ -228,17 +227,6 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
             {isAdmin && (
               <>
                 <button
-                  onClick={() => setActiveTab('admin_orders')}
-                  className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
-                    activeTab === 'admin_orders'
-                      ? 'border-emerald-600 text-emerald-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
-                >
-                  <ClipboardList className="w-4 h-4" />
-                  Sipariş Yönetimi
-                </button>
-                <button
                   onClick={() => setActiveTab('admin')}
                   className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
                     activeTab === 'admin'
@@ -334,17 +322,6 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       {activeTab === 'orders' && sectionType === 'ref_atolye' && (
         <div>
           <UserOrdersView />
-        </div>
-      )}
-
-      {/* Ref Atölye - Admin Orders Tab */}
-      {activeTab === 'admin_orders' && sectionType === 'ref_atolye' && isAdmin && (
-        <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-            <ClipboardList className="w-5 h-5" />
-            Sipariş Yönetimi
-          </h3>
-          <OrderManagement />
         </div>
       )}
 

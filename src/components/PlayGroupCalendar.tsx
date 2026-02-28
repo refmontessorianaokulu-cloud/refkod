@@ -166,12 +166,12 @@ export default function PlayGroupCalendar() {
 
   return (
     <div className="space-y-6">
-      <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-6">
+      <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
         <div className="flex items-start space-x-3">
           <AlertCircle className="w-6 h-6 text-emerald-600 mt-0.5 flex-shrink-0" />
           <div className="flex-1">
-            <h4 className="font-semibold text-emerald-900 mb-3 text-lg">Oyun Grubu Rezervasyonu</h4>
-            <div className="space-y-3 text-sm text-emerald-800">
+            <h4 className="font-semibold text-gray-900 mb-3 text-lg">Oyun Grubu Rezervasyonu</h4>
+            <div className="space-y-3 text-sm text-gray-700">
               <p className="leading-relaxed">
                 Oyun gruplarımız deneyimli öğretmenlerimiz tarafından gerçekleşmektedir.
               </p>
@@ -214,8 +214,8 @@ export default function PlayGroupCalendar() {
                 </li>
               </ul>
 
-              <div className="mt-4 pt-4 border-t border-emerald-200">
-                <p className="font-semibold text-emerald-900 mb-2">Oyun Grupları Akışı:</p>
+              <div className="mt-4 pt-4 border-t border-gray-200">
+                <p className="font-semibold text-gray-900 mb-2">Oyun Grupları Akışı:</p>
                 <ul className="space-y-1.5 pl-4">
                   <li className="flex items-start">
                     <span className="mr-2">•</span>
@@ -324,7 +324,7 @@ export default function PlayGroupCalendar() {
 
                       {isAvailable && (
                         <button
-                          className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium transition-colors"
+                          className="w-full px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 font-medium transition-colors"
                         >
                           Rezervasyon Yap
                         </button>

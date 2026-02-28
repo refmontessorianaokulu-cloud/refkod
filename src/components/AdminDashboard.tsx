@@ -31,6 +31,7 @@ import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab } from './Sidebar';
 import RefEvaluationSystem from './RefEvaluationSystem';
 import RefEvaluationAnalytics from './RefEvaluationAnalytics';
+import OrderManagement from './OrderManagement';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
@@ -1226,6 +1227,12 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <AdminServiceManagement />
+                </div>
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-6">
+                    Sipariş Yönetimi
+                  </h3>
+                  <OrderManagement />
                 </div>
               </div>
             )}
