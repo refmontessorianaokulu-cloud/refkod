@@ -195,6 +195,11 @@ export default function ShoppingCartView() {
       return;
     }
 
+    if (!user && (!checkoutData.guest_email || !checkoutData.guest_phone)) {
+      alert('Lütfen e-posta ve telefon bilgilerinizi girin.');
+      return;
+    }
+
     try {
       const orderNumber = `ORD-${Date.now()}`;
       const subtotal = calculateTotal();
@@ -223,8 +228,9 @@ export default function ShoppingCartView() {
       } else {
         orderData.user_id = null;
         orderData.is_guest_order = true;
-        orderData.guest_email = checkoutData.guest_email || 'guest@example.com';
-        orderData.guest_phone = checkoutData.guest_phone || checkoutData.shipping_address.phone;
+        orderData.guest_name = checkoutData.shipping_address.full_name;
+        orderData.guest_email = checkoutData.guest_email;
+        orderData.guest_phone = checkoutData.guest_phone;
       }
 
       const { data: order, error: orderError } = await supabase
