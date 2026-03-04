@@ -2,14 +2,12 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { ShoppingCart, Package, Palette, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList } from 'lucide-react';
-import ProductManagement from './ProductManagement';
 import ProductCatalog from './ProductCatalog';
-import PlayGroupManagement from './PlayGroupManagement';
 import PlayGroupCalendar from './PlayGroupCalendar';
 import CartView from './CartView';
 import FavoritesView from './FavoritesView';
 import UserOrdersView from './UserOrdersView';
-import OrderManagement from './OrderManagement';
+import RefAtolyeAdminPanel from './RefAtolyeAdminPanel';
 
 interface RefSection {
   id: string;
@@ -463,31 +461,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
 
       {/* Ref Atölye - Admin Tab */}
       {activeTab === 'admin' && sectionType === 'ref_atolye' && isAdmin && (
-        <div className="space-y-8">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <CalendarIcon className="w-5 h-5" />
-              Oyun Grubu Yönetimi
-            </h3>
-            <PlayGroupManagement />
-          </div>
-
-          <div className="border-t border-gray-200 pt-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <ShoppingCart className="w-5 h-5" />
-              Ürün Yönetimi
-            </h3>
-            <ProductManagement />
-          </div>
-
-          <div className="border-t border-gray-200 pt-8">
-            <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-              <ClipboardList className="w-5 h-5" />
-              Sipariş Yönetimi
-            </h3>
-            <OrderManagement />
-          </div>
-        </div>
+        <RefAtolyeAdminPanel />
       )}
 
       {activeTab === 'applications' && showDanismanlikTabs && (
