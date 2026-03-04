@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase, BehaviorIncident, Profile, Child } from '../lib/supabase';
-import { ClipboardList, Plus, Edit2, Trash2, Calendar, Clock, MapPin, User, FileText, CheckCircle, AlertCircle, X, Save, Baby, Upload, Image as ImageIcon } from 'lucide-react';
+import { ClipboardList, Plus, CreditCard as Edit2, Trash2, Calendar, Clock, MapPin, User, FileText, CheckCircle, AlertCircle, X, Save, Baby, Upload, Image as ImageIcon } from 'lucide-react';
 import VideoPlayer from './VideoPlayer';
 
 interface Props {
