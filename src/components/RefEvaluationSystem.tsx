@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Star, Send, CheckCircle } from 'lucide-react';
+import { Star, Send, CheckCircle, ClipboardList, TrendingUp, BarChart3 } from 'lucide-react';
+import MyEvaluationsList from './MyEvaluationsList';
+import EvaluationComparison from './EvaluationComparison';
+import RefEvaluationAnalytics from './RefEvaluationAnalytics';
 
 interface EvaluationCategory {
   id: string;
@@ -25,6 +28,7 @@ interface Profile {
 
 export default function RefEvaluationSystem() {
   const { profile } = useAuth();
+  const [activeTab, setActiveTab] = useState<'evaluate' | 'myEvaluations' | 'comparison' | 'analytics'>('evaluate');
   const [categories, setCategories] = useState<EvaluationCategory[]>([]);
   const [questions, setQuestions] = useState<{ [key: string]: EvaluationQuestion[] }>({});
   const [users, setUsers] = useState<{ [key: string]: Profile[] }>({});
@@ -296,12 +300,63 @@ export default function RefEvaluationSystem() {
     );
   }
 
+  const isAdmin = profile?.role === 'admin';
+
   return (
     <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h3 className="text-xl font-semibold text-gray-800 mb-4">REF Değerlendirme Sistemi</h3>
+      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+        <div className="flex border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('evaluate')}
+            className={`flex-1 px-6 py-4 font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${
+              activeTab === 'evaluate'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <Star className="w-5 h-5" />
+            <span>Değerlendirme Yap</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('myEvaluations')}
+            className={`flex-1 px-6 py-4 font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${
+              activeTab === 'myEvaluations'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <ClipboardList className="w-5 h-5" />
+            <span>Değerlendirmelerim</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('comparison')}
+            className={`flex-1 px-6 py-4 font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${
+              activeTab === 'comparison'
+                ? 'bg-blue-600 text-white'
+                : 'bg-white text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            <TrendingUp className="w-5 h-5" />
+            <span>Karşılaştırma</span>
+          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setActiveTab('analytics')}
+              className={`flex-1 px-6 py-4 font-medium text-sm transition-colors flex items-center justify-center space-x-2 ${
+                activeTab === 'analytics'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-white text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <BarChart3 className="w-5 h-5" />
+              <span>Analizler</span>
+            </button>
+          )}
+        </div>
 
-        <div className="space-y-4">
+        <div className="p-6">
+          {activeTab === 'evaluate' && (
+            <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Değerlendirme Kategorisi Seçin
@@ -385,6 +440,14 @@ export default function RefEvaluationSystem() {
               </button>
             </div>
           )}
+            </div>
+          )}
+
+          {activeTab === 'myEvaluations' && <MyEvaluationsList />}
+
+          {activeTab === 'comparison' && <EvaluationComparison />}
+
+          {activeTab === 'analytics' && isAdmin && <RefEvaluationAnalytics />}
         </div>
       </div>
     </div>
