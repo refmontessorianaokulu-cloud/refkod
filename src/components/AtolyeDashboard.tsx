@@ -11,7 +11,7 @@ import { Home, Info, GraduationCap, Briefcase, Palette } from 'lucide-react';
 export default function AtolyeDashboard() {
   const { signOut, guestInitialTab, guestInitialSection, user, profile } = useAuth();
   const { t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<MenuTab>('home');
+  const [activeTab, setActiveTab] = useState<MenuTab>('ref_atolye');
   const [aboutInitialSection, setAboutInitialSection] = useState<string | null>(null);
   const [showSearchModal, setShowSearchModal] = useState(false);
 
