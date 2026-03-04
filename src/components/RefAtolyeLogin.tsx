@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { ArrowLeft, Mail } from 'lucide-react';
@@ -17,7 +17,32 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const [isOAuthCallback, setIsOAuthCallback] = useState(false);
+  const { signIn, user, profile } = useAuth();
+
+  useEffect(() => {
+    const checkOAuthCallback = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+
+      if (accessToken) {
+        console.log('Google OAuth callback detected in RefAtolyeLogin');
+        setIsOAuthCallback(true);
+        setLoading(true);
+      }
+    };
+
+    checkOAuthCallback();
+  }, []);
+
+  useEffect(() => {
+    if (isOAuthCallback && user && profile) {
+      console.log('OAuth callback complete, profile created:', profile);
+      window.location.hash = '';
+      setIsOAuthCallback(false);
+      setLoading(false);
+    }
+  }, [isOAuthCallback, user, profile]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -168,6 +193,25 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
       setLoading(false);
     }
   };
+
+  if (isOAuthCallback) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center p-4">
+        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md text-center">
+          <div className="flex items-center justify-center mb-6">
+            <img
+              src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+              alt="REF Logo"
+              className="w-24 h-24 object-contain"
+            />
+          </div>
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent mb-4"></div>
+          <h2 className="text-xl font-semibold text-gray-800 mb-2">Google ile Giriş Yapılıyor</h2>
+          <p className="text-gray-600">Lütfen bekleyin, hesabınız oluşturuluyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center p-4">

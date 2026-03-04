@@ -60,16 +60,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loadProfile = async (userId: string) => {
     try {
+      console.log('[AuthContext] Loading profile for user:', userId);
+
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[AuthContext] Error fetching profile:', error);
+        throw error;
+      }
 
       if (!data) {
-        const { data: userData } = await supabase.auth.getUser();
+        console.log('[AuthContext] No profile found, creating new profile for OAuth user');
+
+        const { data: userData, error: userError } = await supabase.auth.getUser();
+
+        if (userError) {
+          console.error('[AuthContext] Error getting user data:', userError);
+          throw userError;
+        }
+
         if (userData.user) {
           const fullName =
             userData.user.user_metadata?.full_name ||
@@ -78,15 +91,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             userData.user.email?.split('@')[0] ||
             'Kullanıcı';
 
-          console.log('Creating profile for OAuth user:', {
+          console.log('[AuthContext] Creating profile with data:', {
             userId,
             email: userData.user.email,
             fullName,
             provider: userData.user.app_metadata?.provider,
-            metadata: userData.user.user_metadata
+            role: 'atolye_user',
+            approved: true
           });
 
-          const { error: insertError } = await supabase
+          const { data: insertData, error: insertError } = await supabase
             .from('profiles')
             .insert([
               {
@@ -95,34 +109,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 full_name: fullName,
                 role: 'atolye_user',
                 approved: true,
+                approved_at: new Date().toISOString(),
               },
-            ]);
+            ])
+            .select()
+            .maybeSingle();
 
           if (insertError) {
-            console.error('Profile creation error:', insertError);
+            console.error('[AuthContext] Profile creation error:', insertError);
             throw insertError;
           }
 
-          const { data: newProfile, error: fetchError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .maybeSingle();
-
-          if (fetchError) {
-            console.error('Error fetching new profile:', fetchError);
-          } else {
-            console.log('Successfully created profile:', newProfile);
-            setProfile(newProfile);
-          }
+          console.log('[AuthContext] Profile created successfully:', insertData);
+          setProfile(insertData);
+        } else {
+          console.error('[AuthContext] No user data available');
         }
       } else {
+        console.log('[AuthContext] Profile found:', data);
         setProfile(data);
       }
     } catch (error) {
-      console.error('Error loading profile:', error);
+      console.error('[AuthContext] Error in loadProfile:', error);
     } finally {
       setLoading(false);
+      console.log('[AuthContext] Profile loading complete, loading set to false');
     }
   };
 
