@@ -9,7 +9,7 @@ import Sidebar, { MenuTab, MenuCategory } from './Sidebar';
 import { Home, Info, GraduationCap, Briefcase, Palette } from 'lucide-react';
 
 export default function AtolyeDashboard() {
-  const { signOut, guestInitialTab, guestInitialSection, user } = useAuth();
+  const { signOut, guestInitialTab, guestInitialSection, user, profile } = useAuth();
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<MenuTab>('home');
   const [aboutInitialSection, setAboutInitialSection] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export default function AtolyeDashboard() {
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onSignOut={signOut}
-        userFullName={user?.full_name || 'Atölye Kullanıcısı'}
+        userFullName={profile?.full_name || 'Atölye Kullanıcısı'}
         menuCategories={menuCategories}
         panelTitle="Atölye Paneli"
         isGuestMode={false}
@@ -74,7 +74,7 @@ export default function AtolyeDashboard() {
         {activeTab === 'home' && (
           <HomePage
             onNavigateToAbout={() => setActiveTab('about')}
-            userFullName={user?.full_name || 'Atölye Kullanıcısı'}
+            userFullName={profile?.full_name || 'Atölye Kullanıcısı'}
             onSignOut={signOut}
           />
         )}

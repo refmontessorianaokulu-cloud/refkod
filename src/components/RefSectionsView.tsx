@@ -9,6 +9,7 @@ import FavoritesView from './FavoritesView';
 import UserOrdersView from './UserOrdersView';
 import RefAtolyeAdminPanel from './RefAtolyeAdminPanel';
 import RefAtolyeLogin from './RefAtolyeLogin';
+import AtolyeAccountProfile from './AtolyeAccountProfile';
 
 interface RefSection {
   id: string;
@@ -122,7 +123,15 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
   };
 
   if (showAtolyeLogin) {
-    return <RefAtolyeLogin onBack={() => setShowAtolyeLogin(false)} />;
+    return (
+      <RefAtolyeLogin
+        onBack={() => setShowAtolyeLogin(false)}
+        onLoginSuccess={() => {
+          setShowAtolyeLogin(false);
+          window.location.reload();
+        }}
+      />
+    );
   }
 
   if (loading) {
@@ -290,6 +299,19 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
                 <span className="text-sm font-medium text-center">Hesabım</span>
               </button>
             )}
+            {isAtolyeUser && (
+              <button
+                onClick={() => setActiveTab('account')}
+                className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
+                  activeTab === 'account'
+                    ? 'bg-emerald-600 text-white shadow-lg scale-105'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                }`}
+              >
+                <User className="w-8 h-8 mb-2" />
+                <span className="text-sm font-medium text-center">Hesabım</span>
+              </button>
+            )}
             {isAdmin && (
               <button
                 onClick={() => setActiveTab('admin')}
@@ -377,6 +399,19 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
               {!isAtolyeUser && (
                 <button
                   onClick={() => setShowAtolyeLogin(true)}
+                  className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                    activeTab === 'account'
+                      ? 'border-emerald-600 text-emerald-600'
+                      : 'border-transparent text-emerald-500 hover:text-emerald-700 hover:border-emerald-300'
+                  }`}
+                >
+                  <User className="w-4 h-4" />
+                  Hesabım
+                </button>
+              )}
+              {isAtolyeUser && (
+                <button
+                  onClick={() => setActiveTab('account')}
                   className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
                     activeTab === 'account'
                       ? 'border-emerald-600 text-emerald-600'
@@ -496,6 +531,11 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       {/* Ref Atölye - Admin Tab */}
       {activeTab === 'admin' && sectionType === 'ref_atolye' && isAdmin && (
         <RefAtolyeAdminPanel />
+      )}
+
+      {/* Ref Atölye - Account Tab */}
+      {activeTab === 'account' && sectionType === 'ref_atolye' && isAtolyeUser && (
+        <AtolyeAccountProfile />
       )}
 
       {activeTab === 'applications' && showDanismanlikTabs && (

@@ -5,9 +5,10 @@ import { ArrowLeft } from 'lucide-react';
 
 interface RefAtolyeLoginProps {
   onBack: () => void;
+  onLoginSuccess?: () => void;
 }
 
-export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
+export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLoginProps) {
   const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -26,6 +27,9 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
 
     try {
       await signIn(email, password);
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
     } catch (err) {
       const error = err as any;
       console.error('Login error:', error);
