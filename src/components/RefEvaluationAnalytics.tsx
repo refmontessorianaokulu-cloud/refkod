@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { BarChart3, TrendingUp, Users, Award } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Award, Eye, Search, Filter, Calendar, User } from 'lucide-react';
+import EvaluationDetailModal from './EvaluationDetailModal';
 
 interface EvaluationCategory {
   id: string;
@@ -59,6 +60,9 @@ export default function RefEvaluationAnalytics() {
   const [categoryStats, setCategoryStats] = useState<CategoryStats[]>([]);
   const [userStats, setUserStats] = useState<UserStats[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const [selectedEvaluation, setSelectedEvaluation] = useState<Evaluation | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'stats' | 'list'>('stats');
 
   useEffect(() => {
     loadData();
@@ -200,6 +204,31 @@ export default function RefEvaluationAnalytics() {
 
   const uniquePeriods = [...new Set(evaluations.map(e => e.evaluation_period))].sort().reverse();
 
+  const getFilteredEvaluations = () => {
+    const excludedUserId = 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2';
+    let filtered = evaluations.filter(e => e.evaluated_user_id !== excludedUserId);
+
+    if (selectedPeriod !== 'all') {
+      filtered = filtered.filter(e => e.evaluation_period === selectedPeriod);
+    }
+
+    if (selectedCategory !== 'all') {
+      filtered = filtered.filter(e => e.evaluated_category === selectedCategory);
+    }
+
+    if (searchTerm) {
+      const searchLower = searchTerm.toLowerCase();
+      filtered = filtered.filter(e =>
+        e.evaluator?.full_name.toLowerCase().includes(searchLower) ||
+        e.evaluated_user?.full_name.toLowerCase().includes(searchLower) ||
+        categories.find(c => c.category_name === e.evaluated_category)?.display_name.toLowerCase().includes(searchLower) ||
+        e.comments?.toLowerCase().includes(searchLower)
+      );
+    }
+
+    return filtered;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
@@ -211,7 +240,33 @@ export default function RefEvaluationAnalytics() {
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <h3 className="text-xl font-semibold text-gray-800">Değerlendirme Analizleri</h3>
+        <div>
+          <h3 className="text-xl font-semibold text-gray-800">Değerlendirme Analizleri</h3>
+          <div className="flex space-x-2 mt-2">
+            <button
+              onClick={() => setViewMode('stats')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                viewMode === 'stats'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <BarChart3 className="w-4 h-4 inline mr-1" />
+              İstatistikler
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              }`}
+            >
+              <Eye className="w-4 h-4 inline mr-1" />
+              Tüm Değerlendirmeler
+            </button>
+          </div>
+        </div>
         <div className="flex space-x-3">
           <select
             value={selectedCategory}
@@ -379,50 +434,167 @@ export default function RefEvaluationAnalytics() {
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm p-6">
-        <h4 className="text-lg font-semibold text-gray-800 mb-4">Son Değerlendirmeler</h4>
-        <div className="space-y-3">
-          {evaluations.filter(e => e.evaluated_user_id !== 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2').slice(0, 10).map(evaluation => {
-            const category = categories.find(c => c.category_name === evaluation.evaluated_category);
-            const scoreValues = Object.values(evaluation.scores);
-            const avgScore = scoreValues.reduce((a, b) => a + b, 0) / scoreValues.length;
+      {viewMode === 'stats' && (
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <h4 className="text-lg font-semibold text-gray-800 mb-4">Son Değerlendirmeler</h4>
+          <div className="space-y-3">
+            {evaluations.filter(e => e.evaluated_user_id !== 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2').slice(0, 10).map(evaluation => {
+              const category = categories.find(c => c.category_name === evaluation.evaluated_category);
+              const scoreValues = Object.values(evaluation.scores);
+              const avgScore = scoreValues.reduce((a, b) => a + b, 0) / scoreValues.length;
 
-            return (
-              <div key={evaluation.id} className="border border-gray-200 rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">
-                      {evaluation.evaluator?.full_name} → {category?.display_name}
-                      {evaluation.evaluated_user && ` (${evaluation.evaluated_user.full_name})`}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(evaluation.created_at).toLocaleDateString('tr-TR', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric',
-                      })}
-                    </p>
+              return (
+                <div key={evaluation.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <p className="text-sm font-medium text-gray-800">
+                        {evaluation.evaluator?.full_name} → {category?.display_name}
+                        {evaluation.evaluated_user && ` (${evaluation.evaluated_user.full_name})`}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(evaluation.created_at).toLocaleDateString('tr-TR', {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-lg font-semibold text-sm ${getScoreColor(avgScore)}`}>
+                      {avgScore.toFixed(1)} / 10
+                    </span>
                   </div>
-                  <span className={`px-3 py-1 rounded-lg font-semibold text-sm ${getScoreColor(avgScore)}`}>
-                    {avgScore.toFixed(1)} / 10
-                  </span>
+                  {evaluation.comments && (
+                    <p className="text-sm text-gray-600 mt-2 bg-gray-50 p-2 rounded">
+                      {evaluation.comments}
+                    </p>
+                  )}
                 </div>
-                {evaluation.comments && (
-                  <p className="text-sm text-gray-600 mt-2 bg-gray-50 p-2 rounded">
-                    {evaluation.comments}
-                  </p>
-                )}
-              </div>
-            );
-          })}
+              );
+            })}
 
-          {evaluations.filter(e => e.evaluated_user_id !== 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2').length === 0 && (
-            <div className="text-center py-8 text-gray-500">
-              Henüz değerlendirme yapılmamış
-            </div>
-          )}
+            {evaluations.filter(e => e.evaluated_user_id !== 'ba979b4e-3be3-47a2-9fc1-230072a0c4e2').length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                Henüz değerlendirme yapılmamış
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
+
+      {viewMode === 'list' && (
+        <>
+          <div className="bg-white rounded-lg shadow-sm p-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Değerlendiren, değerlendirilen veya yorum ara..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {getFilteredEvaluations().map(evaluation => {
+              const category = categories.find(c => c.category_name === evaluation.evaluated_category);
+              const scoreValues = Object.values(evaluation.scores);
+              const avgScore = scoreValues.reduce((a, b) => a + b, 0) / scoreValues.length;
+
+              return (
+                <div key={evaluation.id} className="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                  <div className="p-6">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-start space-x-3">
+                          <div className="p-2 bg-blue-100 rounded-lg">
+                            <User className="w-5 h-5 text-blue-600" />
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Değerlendiren</p>
+                            <p className="font-semibold text-gray-800">
+                              {evaluation.evaluator?.full_name || '-'}
+                            </p>
+                            <p className="text-xs text-gray-500">{evaluation.evaluator?.role}</p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Değerlendirilen</p>
+                            <p className="text-sm font-medium text-gray-700">
+                              {evaluation.evaluated_user?.full_name || 'Kendi Değerlendirmesi'}
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Kategori</p>
+                            <p className="text-sm font-medium text-gray-700">{category?.display_name}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-gray-500 mb-1">Dönem</p>
+                            <p className="text-sm font-medium text-gray-700">
+                              {new Date(evaluation.evaluation_period + '-01').toLocaleDateString('tr-TR', {
+                                year: 'numeric',
+                                month: 'long',
+                              })}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-gray-500 mb-1">Tarih</p>
+                          <p className="text-sm font-medium text-gray-700">
+                            {new Date(evaluation.created_at).toLocaleDateString('tr-TR')}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center space-y-3">
+                        <div className={`px-6 py-3 rounded-xl font-bold text-2xl ${getScoreColor(avgScore)}`}>
+                          {avgScore.toFixed(1)} / 10
+                        </div>
+                        <button
+                          onClick={() => setSelectedEvaluation(evaluation)}
+                          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span className="text-sm">Detayları Gör</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {evaluation.comments && (
+                      <div className="mt-4 bg-gray-50 rounded-lg p-3">
+                        <p className="text-sm text-gray-600 line-clamp-2">{evaluation.comments}</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+
+            {getFilteredEvaluations().length === 0 && (
+              <div className="bg-white rounded-lg shadow-sm p-12 text-center">
+                <div className="text-gray-400 mb-4">
+                  <BarChart3 className="w-16 h-16 mx-auto" />
+                </div>
+                <p className="text-gray-500 text-lg">Filtrelere uygun değerlendirme bulunamadı</p>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {selectedEvaluation && (
+        <EvaluationDetailModal
+          evaluation={selectedEvaluation}
+          categoryName={categories.find(c => c.category_name === selectedEvaluation.evaluated_category)?.display_name || ''}
+          questions={questions[selectedEvaluation.evaluated_category] || []}
+          onClose={() => setSelectedEvaluation(null)}
+          canEdit={false}
+        />
+      )}
     </div>
   );
 }
