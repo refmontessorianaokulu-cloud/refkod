@@ -80,7 +80,8 @@ export type MenuTab =
   | 'ref_danismanlik'
   | 'ref_atolye'
   | 'ref_evaluation'
-  | 'evaluation_analytics';
+  | 'evaluation_analytics'
+  | 'evaluation_management';
 
 export interface MenuItem {
   id: MenuTab;
@@ -190,6 +191,7 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
       { id: 'settings_management', label: t('menu.instagramSettings'), icon: Settings },
       { id: 'video_settings', label: t('menu.videoSettings'), icon: Video },
       { id: 'evaluation_analytics', label: 'Değerlendirme Analizleri', icon: BarChart3 },
+      { id: 'evaluation_management', label: 'Değerlendirme Yönetimi', icon: Settings },
     ],
   },
 ];

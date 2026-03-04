@@ -31,6 +31,7 @@ import LanguageToggle from './LanguageToggle';
 import Sidebar, { MenuTab } from './Sidebar';
 import RefEvaluationSystem from './RefEvaluationSystem';
 import RefEvaluationAnalytics from './RefEvaluationAnalytics';
+import RefEvaluationManagement from './RefEvaluationManagement';
 import OrderManagement from './OrderManagement';
 
 export default function AdminDashboard() {
@@ -1268,6 +1269,12 @@ export default function AdminDashboard() {
             {activeTab === 'evaluation_analytics' && (
               <div>
                 <RefEvaluationAnalytics />
+              </div>
+            )}
+
+            {activeTab === 'evaluation_management' && (
+              <div>
+                <RefEvaluationManagement />
               </div>
             )}
 
