@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Search, Filter, Eye, Edit2, Calendar, User, TrendingUp } from 'lucide-react';
+import { Search, Filter, Eye, CreditCard as Edit2, Calendar, User, TrendingUp } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';
 import EvaluationDetailModal from './EvaluationDetailModal';
 import EditEvaluationModal from './EditEvaluationModal';
