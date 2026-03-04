@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import InquiryForm from './InquiryForm';
 import ReferenceTeacherForm from './ReferenceTeacherForm';
 import ContactPage from './ContactPage';
+import RefAtolyeLogin from './RefAtolyeLogin';
 import { supabase } from '../lib/supabase';
 import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
@@ -29,6 +30,7 @@ export default function Login() {
   const [showReferenceTeacherForm, setShowReferenceTeacherForm] = useState(false);
   const [showContactPage, setShowContactPage] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [showAtolyeLogin, setShowAtolyeLogin] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resetEmail, setResetEmail] = useState('');
@@ -222,6 +224,10 @@ export default function Login() {
 
   if (showContactPage) {
     return <ContactPage onBack={() => setShowContactPage(false)} />;
+  }
+
+  if (showAtolyeLogin) {
+    return <RefAtolyeLogin onBack={() => setShowAtolyeLogin(false)} />;
   }
 
   if (showForgotPassword) {
@@ -609,6 +615,15 @@ export default function Login() {
               </button>
 
               <div className={`mt-3 space-y-2 ${openMobileCard === 'refatolye' ? 'block' : 'hidden'}`}>
+                <button
+                  onClick={() => {
+                    setShowAtolyeLogin(true);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-2 rounded-lg font-semibold hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-md hover:shadow-lg text-sm"
+                >
+                  Ref Atölye Giriş
+                </button>
                 <button
                   onClick={() => {
                     signInAsGuest('ref_atolye');
@@ -1009,6 +1024,15 @@ export default function Login() {
               </button>
 
               <div className={`mt-4 space-y-3 ${openDesktopCard === 'refatolye' ? 'block' : 'hidden'}`}>
+                <button
+                  onClick={() => {
+                    setShowAtolyeLogin(true);
+                    setIsDesktopMenuOpen(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 text-white py-2 rounded-lg font-semibold hover:from-emerald-700 hover:to-emerald-800 transition-all shadow-md hover:shadow-lg text-sm"
+                >
+                  Ref Atölye Giriş
+                </button>
                 <button
                   onClick={() => {
                     signInAsGuest('ref_atolye');

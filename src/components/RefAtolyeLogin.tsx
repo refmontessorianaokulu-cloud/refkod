@@ -81,9 +81,9 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
 
         if (profileError) throw profileError;
 
+        await supabase.auth.signOut();
+
         setSuccess('Kayıt başarılı! Şimdi giriş yapabilirsiniz.');
-        setEmail('');
-        setPassword('');
         setFullName('');
         setConfirmPassword('');
         setTimeout(() => {
@@ -129,7 +129,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-50 to-amber-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative">
         <button
           onClick={onBack}
@@ -147,8 +147,8 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
         </div>
 
         <h1 className="text-2xl font-bold text-center text-gray-800 mb-2">
-          {mode === 'login' && 'Atölye Paneli Giriş'}
-          {mode === 'register' && 'Atölye Paneli Kayıt'}
+          {mode === 'login' && 'Ref Atölyeye Hoşgeldiniz'}
+          {mode === 'register' && 'Ref Atölye Kayıt'}
           {mode === 'forgot' && 'Şifremi Unuttum'}
         </h1>
         <p className="text-center text-gray-600 mb-8">
@@ -175,7 +175,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="ornek@email.com"
               />
             </div>
@@ -190,7 +190,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
               />
             </div>
@@ -198,7 +198,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white py-3 rounded-lg font-semibold hover:from-orange-700 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
             </button>
@@ -207,14 +207,14 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
               <button
                 type="button"
                 onClick={() => setMode('forgot')}
-                className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
               >
                 Şifremi Unuttum
               </button>
               <button
                 type="button"
                 onClick={() => setMode('register')}
-                className="text-orange-600 hover:text-orange-700 font-medium transition-colors"
+                className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors"
               >
                 Kayıt Ol
               </button>
@@ -245,7 +245,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="Ad Soyad"
               />
             </div>
@@ -260,7 +260,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="ornek@email.com"
               />
             </div>
@@ -276,7 +276,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
               />
             </div>
@@ -292,7 +292,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={6}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="••••••••"
               />
             </div>
@@ -300,7 +300,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white py-3 rounded-lg font-semibold hover:from-orange-700 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {loading ? 'Kayıt yapılıyor...' : 'Kayıt Ol'}
             </button>
@@ -340,7 +340,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                 placeholder="ornek@email.com"
               />
             </div>
@@ -348,7 +348,7 @@ export default function RefAtolyeLogin({ onBack }: RefAtolyeLoginProps) {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-orange-600 to-amber-600 text-white py-3 rounded-lg font-semibold hover:from-orange-700 hover:to-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
+              className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {loading ? 'Gönderiliyor...' : 'Sıfırlama Bağlantısı Gönder'}
             </button>

@@ -282,8 +282,8 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
                 onClick={() => setShowAtolyeLogin(true)}
                 className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
                   activeTab === 'account'
-                    ? 'bg-orange-600 text-white shadow-lg scale-105'
-                    : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                    ? 'bg-emerald-600 text-white shadow-lg scale-105'
+                    : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                 }`}
               >
                 <User className="w-8 h-8 mb-2" />
@@ -379,8 +379,8 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
                   onClick={() => setShowAtolyeLogin(true)}
                   className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
                     activeTab === 'account'
-                      ? 'border-orange-600 text-orange-600'
-                      : 'border-transparent text-orange-500 hover:text-orange-700 hover:border-orange-300'
+                      ? 'border-emerald-600 text-emerald-600'
+                      : 'border-transparent text-emerald-500 hover:text-emerald-700 hover:border-emerald-300'
                   }`}
                 >
                   <User className="w-4 h-4" />
