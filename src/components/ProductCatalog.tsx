@@ -347,7 +347,7 @@ export default function ProductCatalog() {
                 <p className="text-xs text-gray-500 mb-1">{getCategoryName(product.category_id)}</p>
                 <h4 className="font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h4>
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center justify-between gap-2">
                   <span className="text-lg sm:text-xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     <button
@@ -355,7 +355,7 @@ export default function ProductCatalog() {
                         e.stopPropagation();
                         addToFavorites(product);
                       }}
-                      className="p-1.5 sm:p-2 border border-pink-200 text-pink-600 rounded-lg hover:bg-pink-50 transition-colors"
+                      className="p-1.5 sm:p-2 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors"
                       title="Favorilere Ekle"
                     >
                       <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
