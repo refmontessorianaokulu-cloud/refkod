@@ -347,28 +347,28 @@ export default function ProductCatalog() {
                 <p className="text-xs text-gray-500 mb-1">{getCategoryName(product.category_id)}</p>
                 <h4 className="font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h4>
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <span className="text-lg sm:text-xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         addToFavorites(product);
                       }}
-                      className="p-2 border border-pink-200 text-pink-600 rounded-lg hover:bg-pink-50 transition-colors"
+                      className="p-1.5 sm:p-2 border border-pink-200 text-pink-600 rounded-lg hover:bg-pink-50 transition-colors"
                       title="Favorilere Ekle"
                     >
-                      <Heart className="w-4 h-4" />
+                      <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         addToCart(product);
                       }}
-                      className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors"
+                      className="flex items-center gap-1 sm:gap-2 bg-emerald-600 text-white px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm sm:text-base"
                     >
-                      <ShoppingCart className="w-4 h-4" />
-                      Sepete Ekle
+                      <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span className="whitespace-nowrap">Sepete Ekle</span>
                     </button>
                   </div>
                 </div>
