@@ -71,24 +71,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       if (!data) {
         const { data: userData } = await supabase.auth.getUser();
         if (userData.user) {
+          const fullName =
+            userData.user.user_metadata?.full_name ||
+            userData.user.user_metadata?.name ||
+            userData.user.user_metadata?.display_name ||
+            userData.user.email?.split('@')[0] ||
+            'Kullanıcı';
+
+          console.log('Creating profile for OAuth user:', {
+            userId,
+            email: userData.user.email,
+            fullName,
+            provider: userData.user.app_metadata?.provider,
+            metadata: userData.user.user_metadata
+          });
+
           const { error: insertError } = await supabase
             .from('profiles')
             .insert([
               {
                 id: userId,
                 email: userData.user.email,
-                full_name: userData.user.user_metadata?.full_name || userData.user.email?.split('@')[0] || 'Kullanıcı',
+                full_name: fullName,
                 role: 'atolye_user',
                 approved: true,
               },
             ]);
 
-          if (!insertError) {
-            const { data: newProfile } = await supabase
-              .from('profiles')
-              .select('*')
-              .eq('id', userId)
-              .maybeSingle();
+          if (insertError) {
+            console.error('Profile creation error:', insertError);
+            throw insertError;
+          }
+
+          const { data: newProfile, error: fetchError } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', userId)
+            .maybeSingle();
+
+          if (fetchError) {
+            console.error('Error fetching new profile:', fetchError);
+          } else {
+            console.log('Successfully created profile:', newProfile);
             setProfile(newProfile);
           }
         }

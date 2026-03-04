@@ -137,10 +137,13 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log('Starting Google OAuth flow...');
+      console.log('Redirect URL:', window.location.origin);
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}`,
+          redirectTo: window.location.origin,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
@@ -148,11 +151,20 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Google OAuth error:', error);
+        throw error;
+      }
+
+      console.log('OAuth redirect initiated:', data);
     } catch (err) {
       const error = err as any;
-      console.error('Google sign in error:', error);
-      setError('Google ile giriş başarısız. Lütfen tekrar deneyin.');
+      console.error('Google sign in error details:', {
+        message: error.message,
+        status: error.status,
+        details: error
+      });
+      setError(`Google ile giriş başarısız: ${error.message || 'Bilinmeyen hata'}`);
       setLoading(false);
     }
   };
