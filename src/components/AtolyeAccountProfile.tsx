@@ -16,6 +16,11 @@ export default function AtolyeAccountProfile() {
     phone: '',
     address: '',
     city: '',
+    district: '',
+    neighborhood: '',
+    street: '',
+    building_no: '',
+    apartment_no: '',
     postal_code: '',
   });
 
@@ -27,6 +32,11 @@ export default function AtolyeAccountProfile() {
         phone: profile.phone || '',
         address: profile.address || '',
         city: profile.city || '',
+        district: (profile as any).district || '',
+        neighborhood: (profile as any).neighborhood || '',
+        street: (profile as any).street || '',
+        building_no: (profile as any).building_no || '',
+        apartment_no: (profile as any).apartment_no || '',
         postal_code: profile.postal_code || '',
       });
     }
@@ -51,6 +61,11 @@ export default function AtolyeAccountProfile() {
           phone: formData.phone,
           address: formData.address,
           city: formData.city,
+          district: formData.district,
+          neighborhood: formData.neighborhood,
+          street: formData.street,
+          building_no: formData.building_no,
+          apartment_no: formData.apartment_no,
           postal_code: formData.postal_code,
         })
         .eq('id', user?.id);
@@ -165,7 +180,7 @@ export default function AtolyeAccountProfile() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <div className="flex items-center gap-2">
                   <MapPin className="w-4 h-4" />
-                  Şehir
+                  İl
                 </div>
               </label>
               <input
@@ -176,6 +191,81 @@ export default function AtolyeAccountProfile() {
                 disabled={!isEditing}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
                 placeholder="İstanbul"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                İlçe
+              </label>
+              <input
+                type="text"
+                name="district"
+                value={formData.district}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                placeholder="Kadıköy"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Mahalle
+              </label>
+              <input
+                type="text"
+                name="neighborhood"
+                value={formData.neighborhood}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                placeholder="Moda Mahallesi"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sokak
+              </label>
+              <input
+                type="text"
+                name="street"
+                value={formData.street}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                placeholder="Atatürk Caddesi"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Bina No
+              </label>
+              <input
+                type="text"
+                name="building_no"
+                value={formData.building_no}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                placeholder="42"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Daire No
+              </label>
+              <input
+                type="text"
+                name="apartment_no"
+                value={formData.apartment_no}
+                onChange={handleInputChange}
+                disabled={!isEditing}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
+                placeholder="5"
               />
             </div>
 
@@ -196,7 +286,7 @@ export default function AtolyeAccountProfile() {
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Adres
+                Adres (Opsiyonel - Yukarıdaki alanlar doluysa bu alan otomatik oluşturulur)
               </label>
               <textarea
                 name="address"
@@ -205,7 +295,7 @@ export default function AtolyeAccountProfile() {
                 disabled={!isEditing}
                 rows={3}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all disabled:bg-gray-50 disabled:text-gray-600"
-                placeholder="Tam adres"
+                placeholder="Tam adresiniz (Opsiyonel)"
               />
             </div>
           </div>
@@ -232,6 +322,11 @@ export default function AtolyeAccountProfile() {
                       phone: profile.phone || '',
                       address: profile.address || '',
                       city: profile.city || '',
+                      district: (profile as any).district || '',
+                      neighborhood: (profile as any).neighborhood || '',
+                      street: (profile as any).street || '',
+                      building_no: (profile as any).building_no || '',
+                      apartment_no: (profile as any).apartment_no || '',
                       postal_code: profile.postal_code || '',
                     });
                   }
