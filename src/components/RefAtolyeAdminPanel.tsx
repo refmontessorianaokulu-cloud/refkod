@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CalendarIcon, ShoppingCart, ClipboardList, ChevronDown, ChevronRight } from 'lucide-react';
+import { Calendar as CalendarIcon, ShoppingCart, ClipboardList, ChevronDown, ChevronRight } from 'lucide-react';
 import PlayGroupManagement from './PlayGroupManagement';
 import ProductManagement from './ProductManagement';
 import OrderManagement from './OrderManagement';
