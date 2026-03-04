@@ -58,9 +58,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const loadProfile = async (userId: string) => {
+  const loadProfile = async (userId: string, retryCount = 0) => {
+    const MAX_RETRIES = 3;
+    const RETRY_DELAY = 1000;
+
     try {
-      console.log('[AuthContext] Loading profile for user:', userId);
+      console.log('[AuthContext] Loading profile for user:', userId, 'Retry:', retryCount);
 
       const { data, error } = await supabase
         .from('profiles')
@@ -74,7 +77,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (!data) {
-        console.log('[AuthContext] No profile found, creating new profile for OAuth user');
+        if (retryCount < MAX_RETRIES) {
+          console.log('[AuthContext] No profile found, retrying in', RETRY_DELAY, 'ms...');
+          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+          return loadProfile(userId, retryCount + 1);
+        }
+
+        console.log('[AuthContext] No profile found after retries, creating new profile for OAuth user');
 
         const { data: userData, error: userError } = await supabase.auth.getUser();
 
@@ -124,6 +133,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           setProfile(insertData);
         } else {
           console.error('[AuthContext] No user data available');
+          await supabase.auth.signOut();
+          throw new Error('Kullanıcı verisi alınamadı');
         }
       } else {
         console.log('[AuthContext] Profile found:', data);
@@ -131,6 +142,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     } catch (error) {
       console.error('[AuthContext] Error in loadProfile:', error);
+      await supabase.auth.signOut();
+      setUser(null);
+      setProfile(null);
     } finally {
       setLoading(false);
       console.log('[AuthContext] Profile loading complete, loading set to false');

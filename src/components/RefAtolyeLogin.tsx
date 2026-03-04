@@ -18,7 +18,8 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [isOAuthCallback, setIsOAuthCallback] = useState(false);
-  const { signIn, user, profile } = useAuth();
+  const [oauthError, setOauthError] = useState<string | null>(null);
+  const { signIn, user, profile, signOut } = useAuth();
 
   useEffect(() => {
     const checkOAuthCallback = async () => {
@@ -43,6 +44,22 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
       setLoading(false);
     }
   }, [isOAuthCallback, user, profile]);
+
+  useEffect(() => {
+    if (!isOAuthCallback) return;
+
+    const timeout = setTimeout(() => {
+      if (isOAuthCallback && !profile) {
+        console.error('OAuth callback timeout - profile not created');
+        setOauthError('Profil oluşturulamadı. Lütfen tekrar deneyin.');
+        setIsOAuthCallback(false);
+        setLoading(false);
+        signOut();
+      }
+    }, 15000);
+
+    return () => clearTimeout(timeout);
+  }, [isOAuthCallback, profile, signOut]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -205,9 +222,33 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
               className="w-24 h-24 object-contain"
             />
           </div>
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent mb-4"></div>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">Google ile Giriş Yapılıyor</h2>
-          <p className="text-gray-600">Lütfen bekleyin, hesabınız oluşturuluyor...</p>
+          {!oauthError ? (
+            <>
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-emerald-600 border-t-transparent mb-4"></div>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">Google ile Giriş Yapılıyor</h2>
+              <p className="text-gray-600">Lütfen bekleyin, hesabınız oluşturuluyor...</p>
+              <p className="text-sm text-gray-500 mt-4">Bu işlem 15 saniye kadar sürebilir</p>
+            </>
+          ) : (
+            <>
+              <div className="text-red-500 mb-4">
+                <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h2 className="text-xl font-semibold text-gray-800 mb-2">Giriş Başarısız</h2>
+              <p className="text-red-600 mb-4">{oauthError}</p>
+              <button
+                onClick={() => {
+                  setOauthError(null);
+                  window.location.reload();
+                }}
+                className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-6 py-2 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all"
+              >
+                Tekrar Dene
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
