@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { User, Mail, Phone, MapPin, Save, Edit2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Save, CreditCard as Edit2 } from 'lucide-react';
 
 export default function AtolyeAccountProfile() {
   const { profile, user } = useAuth();
