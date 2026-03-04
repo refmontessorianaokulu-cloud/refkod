@@ -32,11 +32,11 @@ export default function AtolyeAccountProfile() {
         phone: profile.phone || '',
         address: profile.address || '',
         city: profile.city || '',
-        district: (profile as any).district || '',
-        neighborhood: (profile as any).neighborhood || '',
-        street: (profile as any).street || '',
-        building_no: (profile as any).building_no || '',
-        apartment_no: (profile as any).apartment_no || '',
+        district: profile.district || '',
+        neighborhood: profile.neighborhood || '',
+        street: profile.street || '',
+        building_no: profile.building_no || '',
+        apartment_no: profile.apartment_no || '',
         postal_code: profile.postal_code || '',
       });
     }
@@ -322,11 +322,11 @@ export default function AtolyeAccountProfile() {
                       phone: profile.phone || '',
                       address: profile.address || '',
                       city: profile.city || '',
-                      district: (profile as any).district || '',
-                      neighborhood: (profile as any).neighborhood || '',
-                      street: (profile as any).street || '',
-                      building_no: (profile as any).building_no || '',
-                      apartment_no: (profile as any).apartment_no || '',
+                      district: profile.district || '',
+                      neighborhood: profile.neighborhood || '',
+                      street: profile.street || '',
+                      building_no: profile.building_no || '',
+                      apartment_no: profile.apartment_no || '',
                       postal_code: profile.postal_code || '',
                     });
                   }

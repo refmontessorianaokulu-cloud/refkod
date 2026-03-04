@@ -84,14 +84,14 @@ export default function CartView() {
         firstName: profile.full_name?.split(' ')[0] || '',
         lastName: profile.full_name?.split(' ').slice(1).join(' ') || '',
         email: profile.email || '',
-        phone: (profile as any).phone || '',
-        city: (profile as any).city || '',
+        phone: profile.phone || '',
+        city: profile.city || '',
         country: 'Türkiye',
-        district: (profile as any).district || '',
-        neighborhood: (profile as any).neighborhood || '',
-        street: (profile as any).street || '',
-        buildingNo: (profile as any).building_no || '',
-        apartmentNo: (profile as any).apartment_no || ''
+        district: profile.district || '',
+        neighborhood: profile.neighborhood || '',
+        street: profile.street || '',
+        buildingNo: profile.building_no || '',
+        apartmentNo: profile.apartment_no || ''
       }));
     } else {
       loadGuestCart();

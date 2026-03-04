@@ -9,12 +9,21 @@ export type Profile = {
   id: string;
   email: string;
   full_name: string;
-  role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff' | null;
+  role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff' | 'atolye_user' | null;
   created_at: string;
   approved: boolean;
   approved_at: string | null;
   approved_by: string | null;
   staff_role: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'toilet_attendant' | 'other' | null;
+  phone?: string | null;
+  address?: string | null;
+  city?: string | null;
+  district?: string | null;
+  neighborhood?: string | null;
+  street?: string | null;
+  building_no?: string | null;
+  apartment_no?: string | null;
+  postal_code?: string | null;
 };
 
 export type Child = {
