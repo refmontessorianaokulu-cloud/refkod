@@ -243,21 +243,21 @@ export default function OrderManagement() {
       let customerName = '';
 
       if (order.is_guest_order) {
-        phone = order.guest_phone || '';
-        customerName = order.shipping_address?.full_name || 'Müşteri';
+        phone = order.guest_phone || order.shipping_address?.phone || '';
+        customerName = order.guest_name || order.shipping_address?.full_name || 'Müşteri';
       } else {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('phone_number, full_name')
+          .select('phone, full_name')
           .eq('id', order.user_id)
           .maybeSingle();
 
-        phone = profile?.phone_number || '';
+        phone = profile?.phone || '';
         customerName = profile?.full_name || 'Müşteri';
       }
 
       if (!phone) {
-        alert('Müşteri telefon numarası bulunamadı');
+        alert('Müşteri telefon numarası bulunamadı. Lütfen müşterinin profil bilgilerini kontrol edin.');
         return;
       }
 
@@ -300,21 +300,21 @@ export default function OrderManagement() {
       let customerName = '';
 
       if (order.is_guest_order) {
-        phone = order.guest_phone || '';
-        customerName = order.shipping_address?.full_name || 'Müşteri';
+        phone = order.guest_phone || order.shipping_address?.phone || '';
+        customerName = order.guest_name || order.shipping_address?.full_name || 'Müşteri';
       } else {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('phone_number, full_name')
+          .select('phone, full_name')
           .eq('id', order.user_id)
           .maybeSingle();
 
-        phone = profile?.phone_number || '';
+        phone = profile?.phone || '';
         customerName = profile?.full_name || 'Müşteri';
       }
 
       if (!phone) {
-        alert('Müşteri telefon numarası bulunamadı');
+        alert('Müşteri telefon numarası bulunamadı. Lütfen müşterinin profil bilgilerini kontrol edin.');
         return;
       }
 
