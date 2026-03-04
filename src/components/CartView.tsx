@@ -79,8 +79,7 @@ export default function CartView() {
     if (profile) {
       loadCart();
 
-      setGuestInfo(prev => ({
-        ...prev,
+      setGuestInfo({
         firstName: profile.full_name?.split(' ')[0] || '',
         lastName: profile.full_name?.split(' ').slice(1).join(' ') || '',
         email: profile.email || '',
@@ -91,8 +90,9 @@ export default function CartView() {
         neighborhood: profile.neighborhood || '',
         street: profile.street || '',
         buildingNo: profile.building_no || '',
-        apartmentNo: profile.apartment_no || ''
-      }));
+        apartmentNo: profile.apartment_no || '',
+        addressTitle: ''
+      });
     } else {
       loadGuestCart();
     }
