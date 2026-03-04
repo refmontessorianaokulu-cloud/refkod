@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase, BehaviorIncident, Profile, Child } from '../lib/supabase';
 import { ClipboardList, Plus, Edit2, Trash2, Calendar, Clock, MapPin, User, FileText, CheckCircle, AlertCircle, X, Save, Baby, Upload, Image as ImageIcon } from 'lucide-react';
+import VideoPlayer from './VideoPlayer';
 
 interface Props {
   userId: string;
@@ -528,10 +529,12 @@ export default function BehaviorIncidentSection({ userId, userRole }: Props) {
                       return (
                         <div key={index} className="relative group">
                           {isVideo ? (
-                            <video
+                            <VideoPlayer
                               src={url}
-                              controls
                               className="w-full h-32 object-cover rounded-lg"
+                              autoPlay={false}
+                              loop={false}
+                              controls
                             />
                           ) : (
                             <img

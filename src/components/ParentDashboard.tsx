@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase, Child, MealLog, SleepLog, DailyReport } from '../lib/supabase';
 import { Baby, UtensilsCrossed, Moon, Calendar, BookOpen, Image as ImageIcon, Megaphone, MessageSquare, CalendarCheck, Car, X, CalendarPlus, UserCheck, MapPin, CreditCard, Home, Info, Sparkles, GraduationCap, Briefcase, Palette, AlertCircle, Search as SearchIcon } from 'lucide-react';
+import VideoPlayer from './VideoPlayer';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
 import CalendarSection from './CalendarSection';
@@ -1043,10 +1044,12 @@ export default function ParentDashboard() {
                                       return (
                                         <div key={idx} className="relative group">
                                           {isVideo ? (
-                                            <video
+                                            <VideoPlayer
                                               src={url}
-                                              controls
                                               className="w-full h-32 object-cover rounded-lg border-2 border-white shadow-md"
+                                              autoPlay={false}
+                                              loop={false}
+                                              controls
                                             />
                                           ) : (
                                             <a
@@ -1220,10 +1223,12 @@ export default function ParentDashboard() {
                                       return (
                                         <div key={idx} className="relative group">
                                           {isVideo ? (
-                                            <video
+                                            <VideoPlayer
                                               src={url}
-                                              controls
                                               className="w-full h-32 object-cover rounded-lg border-2 border-white shadow-md"
+                                              autoPlay={false}
+                                              loop={false}
+                                              controls
                                             />
                                           ) : (
                                             <a

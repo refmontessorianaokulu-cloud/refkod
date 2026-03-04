@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase, Child, DailyReport } from '../lib/supabase';
 import { Baby, Plus, UtensilsCrossed, Moon, BookOpen, Image, Video, X, Calendar, Megaphone, MessageSquare, Car, Bell, CalendarCheck, ClipboardList, UserCheck, Sparkles, Package, Edit2, Upload, AlertTriangle, Home, Info, GraduationCap, Briefcase, Palette, Search as SearchIcon, FileText } from 'lucide-react';
+import VideoPlayer from './VideoPlayer';
 import AttendanceSection from './AttendanceSection';
 import AnnouncementsSection from './AnnouncementsSection';
 import MessagesSection from './MessagesSection';
@@ -1441,7 +1442,7 @@ export default function TeacherDashboard() {
                               {url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
                                 <img src={url} alt={`Media ${index + 1}`} className="w-full h-24 object-cover" />
                               ) : (
-                                <video src={url} className="w-full h-24 object-cover" />
+                                <VideoPlayer src={url} className="w-full h-24 object-cover" autoPlay={false} loop={false} controls />
                               )}
                             </div>
                             <button

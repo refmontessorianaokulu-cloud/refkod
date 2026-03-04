@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
 import InquiryForm from './InquiryForm';
@@ -6,7 +6,7 @@ import ReferenceTeacherForm from './ReferenceTeacherForm';
 import ContactPage from './ContactPage';
 import RefAtolyeLogin from './RefAtolyeLogin';
 import { supabase } from '../lib/supabase';
-import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe } from 'lucide-react';
+import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
 import SearchModal from './SearchModal';
 
@@ -40,6 +40,13 @@ export default function Login() {
   const [videoUrl, setVideoUrl] = useState('');
   const [posterUrl, setPosterUrl] = useState('');
   const [videoEnabled, setVideoEnabled] = useState(false);
+  const [isMuted, setIsMuted] = useState(() => {
+    const saved = localStorage.getItem('videoMuted');
+    return saved !== null ? saved === 'true' : true;
+  });
+  const [showVolumeControl, setShowVolumeControl] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const forgotPasswordVideoRef = useRef<HTMLVideoElement>(null);
   const [isLoginCardOpen, setIsLoginCardOpen] = useState(false);
   const [isApplicationCardOpen, setIsApplicationCardOpen] = useState(false);
   const [isAboutCardOpen, setIsAboutCardOpen] = useState(false);
@@ -163,6 +170,19 @@ export default function Login() {
     loadRefAtolye();
   }, []);
 
+  const toggleMute = () => {
+    const newMutedState = !isMuted;
+    setIsMuted(newMutedState);
+    localStorage.setItem('videoMuted', String(newMutedState));
+
+    if (videoRef.current) {
+      videoRef.current.muted = newMutedState;
+    }
+    if (forgotPasswordVideoRef.current) {
+      forgotPasswordVideoRef.current.muted = newMutedState;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -234,11 +254,16 @@ export default function Login() {
     return (
       <div className="min-h-screen relative flex items-center justify-center p-4">
         {videoEnabled && videoUrl ? (
-          <>
+          <div
+            className="absolute inset-0"
+            onMouseEnter={() => setShowVolumeControl(true)}
+            onMouseLeave={() => setShowVolumeControl(false)}
+          >
             <video
+              ref={forgotPasswordVideoRef}
               autoPlay
               loop
-              muted
+              muted={isMuted}
               playsInline
               poster={posterUrl || undefined}
               className="absolute inset-0 w-full h-full object-cover"
@@ -246,7 +271,21 @@ export default function Login() {
               <source src={videoUrl} type="video/mp4" />
             </video>
             <div className="absolute inset-0 bg-black/30" />
-          </>
+
+            <button
+              onClick={toggleMute}
+              className={`absolute bottom-6 right-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 ${
+                showVolumeControl ? 'opacity-100' : 'opacity-0'
+              }`}
+              title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
+            >
+              {isMuted ? (
+                <VolumeX className="w-6 h-6 text-white" />
+              ) : (
+                <Volume2 className="w-6 h-6 text-white" />
+              )}
+            </button>
+          </div>
         ) : (
           <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
         )}
@@ -338,11 +377,16 @@ export default function Login() {
   return (
     <div className="min-h-screen relative flex flex-col">
       {videoEnabled && videoUrl ? (
-        <>
+        <div
+          className="absolute inset-0"
+          onMouseEnter={() => setShowVolumeControl(true)}
+          onMouseLeave={() => setShowVolumeControl(false)}
+        >
           <video
+            ref={videoRef}
             autoPlay
             loop
-            muted
+            muted={isMuted}
             playsInline
             poster={posterUrl || undefined}
             className="absolute inset-0 w-full h-full object-cover"
@@ -350,7 +394,21 @@ export default function Login() {
             <source src={videoUrl} type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-black/30" />
-        </>
+
+          <button
+            onClick={toggleMute}
+            className={`absolute bottom-6 right-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 z-10 ${
+              showVolumeControl ? 'opacity-100' : 'opacity-0'
+            }`}
+            title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
+          >
+            {isMuted ? (
+              <VolumeX className="w-6 h-6 text-white" />
+            ) : (
+              <Volume2 className="w-6 h-6 text-white" />
+            )}
+          </button>
+        </div>
       ) : (
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
       )}
