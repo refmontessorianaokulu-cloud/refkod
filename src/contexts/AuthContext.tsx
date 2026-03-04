@@ -67,7 +67,34 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .maybeSingle();
 
       if (error) throw error;
-      setProfile(data);
+
+      if (!data) {
+        const { data: userData } = await supabase.auth.getUser();
+        if (userData.user) {
+          const { error: insertError } = await supabase
+            .from('profiles')
+            .insert([
+              {
+                id: userId,
+                email: userData.user.email,
+                full_name: userData.user.user_metadata?.full_name || userData.user.email?.split('@')[0] || 'Kullanıcı',
+                role: 'atolye_user',
+                approved: true,
+              },
+            ]);
+
+          if (!insertError) {
+            const { data: newProfile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('id', userId)
+              .maybeSingle();
+            setProfile(newProfile);
+          }
+        }
+      } else {
+        setProfile(data);
+      }
     } catch (error) {
       console.error('Error loading profile:', error);
     } finally {
