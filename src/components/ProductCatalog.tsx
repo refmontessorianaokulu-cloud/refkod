@@ -348,7 +348,7 @@ export default function ProductCatalog() {
                 <h4 className="font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h4>
                 <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-lg sm:text-xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
+                  <span className="text-base sm:text-lg font-bold text-emerald-600 whitespace-nowrap">{product.base_price.toFixed(2)} ₺</span>
                   <div className="flex items-center gap-1.5 sm:gap-2">
                     <button
                       onClick={(e) => {
