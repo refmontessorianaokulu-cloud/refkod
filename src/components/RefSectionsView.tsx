@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, Palette, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList } from 'lucide-react';
+import { ShoppingCart, Package, Palette, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList, User } from 'lucide-react';
 import ProductCatalog from './ProductCatalog';
 import PlayGroupCalendar from './PlayGroupCalendar';
 import CartView from './CartView';
 import FavoritesView from './FavoritesView';
 import UserOrdersView from './UserOrdersView';
 import RefAtolyeAdminPanel from './RefAtolyeAdminPanel';
+import RefAtolyeLogin from './RefAtolyeLogin';
 
 interface RefSection {
   id: string;
@@ -21,6 +22,7 @@ interface RefSection {
 
 interface RefSectionsViewProps {
   sectionType: 'ref_akademi' | 'ref_danismanlik' | 'ref_atolye';
+  isAtolyeUser?: boolean;
 }
 
 const SECTION_LABELS = {
@@ -29,10 +31,10 @@ const SECTION_LABELS = {
   ref_atolye: 'Ref Atölye',
 };
 
-type RefAtolyeTab = 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin';
+type RefAtolyeTab = 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin' | 'account';
 type RefDanismanlikTab = 'content' | 'applications';
 
-export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
+export default function RefSectionsView({ sectionType, isAtolyeUser = false }: RefSectionsViewProps) {
   const { profile } = useAuth();
   const [sections, setSections] = useState<RefSection[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +43,7 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
   );
   const [referenceApplications, setReferenceApplications] = useState<any[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
+  const [showAtolyeLogin, setShowAtolyeLogin] = useState(false);
 
   const isAdmin = profile?.role === 'admin';
   const showDanismanlikTabs = sectionType === 'ref_danismanlik' && isAdmin;
@@ -111,11 +114,16 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
       favorites: 'Favorilerim',
       orders: 'Siparişlerim',
       admin: 'Yönetim',
+      account: 'Hesabım',
       content: 'İçerik',
       applications: 'Referans Öğretmen Başvuruları',
     };
     return labels[tab] || tab;
   };
+
+  if (showAtolyeLogin) {
+    return <RefAtolyeLogin onBack={() => setShowAtolyeLogin(false)} />;
+  }
 
   if (loading) {
     return (
@@ -269,6 +277,19 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
               <Package className="w-8 h-8 mb-2" />
               <span className="text-sm font-medium text-center">Siparişlerim</span>
             </button>
+            {!isAtolyeUser && (
+              <button
+                onClick={() => setShowAtolyeLogin(true)}
+                className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
+                  activeTab === 'account'
+                    ? 'bg-orange-600 text-white shadow-lg scale-105'
+                    : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                }`}
+              >
+                <User className="w-8 h-8 mb-2" />
+                <span className="text-sm font-medium text-center">Hesabım</span>
+              </button>
+            )}
             {isAdmin && (
               <button
                 onClick={() => setActiveTab('admin')}
@@ -353,6 +374,19 @@ export default function RefSectionsView({ sectionType }: RefSectionsViewProps) {
                 <Package className="w-4 h-4" />
                 Siparişlerim
               </button>
+              {!isAtolyeUser && (
+                <button
+                  onClick={() => setShowAtolyeLogin(true)}
+                  className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                    activeTab === 'account'
+                      ? 'border-orange-600 text-orange-600'
+                      : 'border-transparent text-orange-500 hover:text-orange-700 hover:border-orange-300'
+                  }`}
+                >
+                  <User className="w-4 h-4" />
+                  Hesabım
+                </button>
+              )}
               {isAdmin && (
                 <>
                   <button

@@ -595,20 +595,33 @@ export default function Login() {
             </div>
 
             {/* Mobil Sidebar - REF Atölye */}
-            <div
-              className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors cursor-pointer"
-              onClick={() => {
-                signInAsGuest('ref_atolye');
-                setIsMobileMenuOpen(false);
-              }}
-            >
-              <div className="w-full flex items-center justify-between">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-3 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
+              <button
+                onClick={() => setOpenMobileCard(openMobileCard === 'refatolye' ? null : 'refatolye')}
+                className="w-full flex items-center justify-between"
+              >
                 <h3 className="text-sm font-bold text-gray-800">REF Atölye</h3>
-                <ChevronDown className="w-5 h-5 text-gray-800" />
+                <ChevronDown
+                  className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                    openMobileCard === 'refatolye' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              <div className={`mt-3 space-y-2 ${openMobileCard === 'refatolye' ? 'block' : 'hidden'}`}>
+                <button
+                  onClick={() => {
+                    signInAsGuest('ref_atolye');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
+                >
+                  Misafir Olarak Gözat
+                </button>
+                <p className="text-center text-xs text-gray-700">
+                  Ürünlerimizi görüntüleyin
+                </p>
               </div>
-              <p className="text-xs text-gray-600 mt-2">
-                Ürünlerimizi görüntülemek için tıklayın
-              </p>
             </div>
 
             {/* Mobil Sidebar - REF Danışmanlık */}
@@ -982,20 +995,33 @@ export default function Login() {
             </div>
 
             {/* REF Atölye */}
-            <div
-              className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors cursor-pointer"
-              onClick={() => {
-                signInAsGuest('ref_atolye');
-                setIsDesktopMenuOpen(false);
-              }}
-            >
-              <div className="w-full flex items-center justify-between">
+            <div className="border-2 border-teal-500 rounded-xl shadow-lg p-4 bg-white hover:border-teal-600 hover:bg-gray-50 transition-colors">
+              <button
+                onClick={() => setOpenDesktopCard(openDesktopCard === 'refatolye' ? null : 'refatolye')}
+                className="w-full flex items-center justify-between"
+              >
                 <h3 className="text-base font-bold text-gray-800">REF Atölye</h3>
-                <ChevronDown className="w-5 h-5 text-gray-800" />
+                <ChevronDown
+                  className={`w-5 h-5 text-gray-800 transition-transform duration-300 ${
+                    openDesktopCard === 'refatolye' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+
+              <div className={`mt-4 space-y-3 ${openDesktopCard === 'refatolye' ? 'block' : 'hidden'}`}>
+                <button
+                  onClick={() => {
+                    signInAsGuest('ref_atolye');
+                    setIsDesktopMenuOpen(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-gray-600 to-gray-700 text-white py-2 rounded-lg font-semibold hover:from-gray-700 hover:to-gray-800 transition-all shadow-md hover:shadow-lg text-sm"
+                >
+                  Misafir Olarak Gözat
+                </button>
+                <p className="text-center text-xs text-gray-700">
+                  Ürünlerimizi görüntüleyin
+                </p>
               </div>
-              <p className="text-sm text-gray-600 mt-2">
-                Ürünlerimizi görüntülemek için tıklayın
-              </p>
             </div>
 
             {/* REF Danışmanlık */}

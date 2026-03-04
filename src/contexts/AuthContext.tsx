@@ -11,7 +11,7 @@ type AuthContextType = {
   guestInitialSection: string | null;
   signIn: (email: string, password: string) => Promise<void>;
   signInAsGuest: (initialTab?: string, initialSection?: string) => Promise<void>;
-  signUp: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => Promise<void>;
+  signUp: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff' | 'atolye_user', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -91,19 +91,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         throw new Error('Profil bulunamadı. Lütfen yönetici ile iletişime geçin.');
       }
 
-      if (!profileData.approved && profileData.role !== 'admin') {
+      if (!profileData.approved && profileData.role !== 'admin' && profileData.role !== 'atolye_user') {
         await supabase.auth.signOut();
         throw new Error('Hesabınız henüz yönetici tarafından onaylanmamış. Lütfen onay için bekleyin.');
       }
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => {
+  const signUp = async (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'parent' | 'guidance_counselor' | 'staff' | 'atolye_user', staffRole?: 'cook' | 'cleaning_staff' | 'bus_driver' | 'security_staff' | 'other') => {
     const { data, error } = await supabase.auth.signUp({ email, password });
     if (error) throw error;
 
     if (data.user) {
-      const approved = role === 'admin';
+      const approved = role === 'admin' || role === 'atolye_user';
       const profileData: any = {
         id: data.user.id,
         email,

@@ -6,6 +6,7 @@ import ParentDashboard from './components/ParentDashboard';
 import GuidanceCounselorDashboard from './components/GuidanceCounselorDashboard';
 import StaffDashboard from './components/StaffDashboard';
 import GuestDashboard from './components/GuestDashboard';
+import AtolyeDashboard from './components/AtolyeDashboard';
 import PasswordReset from './components/PasswordReset';
 
 function App() {
@@ -53,6 +54,8 @@ function App() {
       return <ParentDashboard />;
     case 'guidance_counselor':
       return <GuidanceCounselorDashboard />;
+    case 'atolye_user':
+      return <AtolyeDashboard />;
     default:
       return <Login />;
   }
