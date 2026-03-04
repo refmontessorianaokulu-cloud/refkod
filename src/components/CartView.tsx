@@ -78,11 +78,59 @@ export default function CartView() {
   useEffect(() => {
     if (profile) {
       loadCart();
+
+      const profileAddress = (profile as any).address || '';
+      let parsedAddress = {
+        district: '',
+        neighborhood: '',
+        street: '',
+        buildingNo: '',
+        apartmentNo: ''
+      };
+
+      if (profileAddress) {
+        const addressParts = profileAddress.split(',').map((part: string) => part.trim());
+
+        if (addressParts.length >= 1) {
+          parsedAddress.neighborhood = addressParts[0];
+        }
+        if (addressParts.length >= 2) {
+          const streetPart = addressParts[1].replace(/Sokak|sokak|Sk\.|Sk/gi, '').trim();
+          parsedAddress.street = streetPart;
+        }
+        if (addressParts.length >= 3) {
+          const noPart = addressParts[2];
+          const noMatch = noPart.match(/No[:\s]*(\d+)/i);
+          if (noMatch) {
+            parsedAddress.buildingNo = noMatch[1];
+          }
+          const daireMatch = noPart.match(/Daire[:\s]*(\d+)/i);
+          if (daireMatch) {
+            parsedAddress.apartmentNo = daireMatch[1];
+          }
+        }
+        if (addressParts.length >= 4) {
+          const districtCityPart = addressParts[3];
+          const districtMatch = districtCityPart.split('/')[0]?.trim();
+          if (districtMatch) {
+            parsedAddress.district = districtMatch;
+          }
+        }
+      }
+
       setGuestInfo(prev => ({
         ...prev,
         firstName: profile.full_name?.split(' ')[0] || '',
         lastName: profile.full_name?.split(' ').slice(1).join(' ') || '',
-        email: profile.email || ''
+        email: profile.email || '',
+        phone: (profile as any).phone || '',
+        city: (profile as any).city || '',
+        country: 'Türkiye',
+        district: parsedAddress.district,
+        neighborhood: parsedAddress.neighborhood,
+        street: parsedAddress.street,
+        buildingNo: parsedAddress.buildingNo,
+        apartmentNo: parsedAddress.apartmentNo
       }));
     } else {
       loadGuestCart();
