@@ -287,7 +287,7 @@ export default function Login() {
 
             <button
               onClick={toggleMute}
-              className={`absolute bottom-6 right-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 ${
+              className={`absolute bottom-6 left-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 ${
                 showVolumeControl ? 'opacity-100' : 'opacity-0'
               }`}
               title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
@@ -424,7 +424,7 @@ export default function Login() {
 
           <button
             onClick={toggleMute}
-            className={`absolute bottom-6 right-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 z-10 ${
+            className={`absolute bottom-6 left-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 z-10 ${
               showVolumeControl ? 'opacity-100' : 'opacity-0'
             }`}
             title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
@@ -1324,8 +1324,8 @@ export default function Login() {
       />
 
       {showWhatsAppModal && (
-        <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-start p-4 md:pl-20" onClick={() => setShowWhatsAppModal(false)}>
-          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm relative animate-fadeIn ml-0 md:ml-4" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 z-[70] flex items-end justify-end p-4 pb-6 pr-24" onClick={() => setShowWhatsAppModal(false)}>
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm relative animate-fadeIn" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setShowWhatsAppModal(false)}
               className="absolute top-3 right-3 p-1.5 hover:bg-gray-100 rounded-full transition-colors"
