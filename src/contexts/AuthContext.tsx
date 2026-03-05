@@ -58,13 +58,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const loadProfile = async (userId: string, retryCount = 0) => {
-    const MAX_RETRIES = 3;
-    const RETRY_DELAY = 1000;
-
+  const loadProfile = async (userId: string) => {
     try {
-      console.log('[AuthContext] Loading profile for user:', userId, 'Retry:', retryCount);
-
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -77,14 +72,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
 
       if (!data) {
-        if (retryCount < MAX_RETRIES) {
-          console.log('[AuthContext] No profile found, retrying in', RETRY_DELAY, 'ms...');
-          await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-          return loadProfile(userId, retryCount + 1);
-        }
-
-        console.log('[AuthContext] No profile found after retries, creating new profile for OAuth user');
-
         const { data: userData, error: userError } = await supabase.auth.getUser();
 
         if (userError) {
@@ -99,15 +86,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             userData.user.user_metadata?.display_name ||
             userData.user.email?.split('@')[0] ||
             'Kullanıcı';
-
-          console.log('[AuthContext] Creating profile with data:', {
-            userId,
-            email: userData.user.email,
-            fullName,
-            provider: userData.user.app_metadata?.provider,
-            role: 'atolye_user',
-            approved: true
-          });
 
           const { data: insertData, error: insertError } = await supabase
             .from('profiles')
@@ -129,7 +107,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             throw insertError;
           }
 
-          console.log('[AuthContext] Profile created successfully:', insertData);
           setProfile(insertData);
         } else {
           console.error('[AuthContext] No user data available');
@@ -137,7 +114,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           throw new Error('Kullanıcı verisi alınamadı');
         }
       } else {
-        console.log('[AuthContext] Profile found:', data);
         setProfile(data);
       }
     } catch (error) {
@@ -147,7 +123,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setProfile(null);
     } finally {
       setLoading(false);
-      console.log('[AuthContext] Profile loading complete, loading set to false');
     }
   };
 
