@@ -350,8 +350,8 @@ function ProductCatalog() {
               })}
           </div>
 
-          {/* Desktop: 5 Columns Grid */}
-          <div className="hidden md:grid md:grid-cols-5 gap-6">
+          {/* Desktop: 3 Columns Grid */}
+          <div className="hidden md:grid md:grid-cols-3 gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
