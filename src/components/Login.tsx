@@ -456,20 +456,20 @@ export default function Login() {
 
       {/* Top Header - Mobil ve Masaüstü */}
       <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
-        <div className="flex items-start justify-between md:justify-start md:gap-8">
+        <div className="flex items-center justify-between md:items-start md:justify-start md:gap-8">
           {/* Sol Üst - Hamburger */}
           <button
             onClick={() => {
               setIsMobileMenuOpen(true);
               setIsDesktopMenuOpen(true);
             }}
-            className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
+            className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 flex-shrink-0"
           >
             <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
           </button>
 
           {/* Orta - Logo (Masaüstünde hamburger ve search arasında, mobilde sağda) */}
-          <div className="md:flex-1 md:flex md:justify-center flex items-start">
+          <div className="md:flex-1 md:flex md:justify-center flex items-center md:items-start">
             <button
               onClick={() => {
                 const isMobile = window.innerWidth < 768;
