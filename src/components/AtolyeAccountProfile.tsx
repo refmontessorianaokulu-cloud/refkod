@@ -1,7 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { User, Mail, Phone, MapPin, Save, CreditCard as Edit2 } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Save, CreditCard as Edit2, ChevronDown, ChevronUp, FileText } from 'lucide-react';
+
+interface LegalDocument {
+  id: string;
+  document_type: string;
+  title: string;
+  content: string;
+  version: string;
+}
 
 export default function AtolyeAccountProfile() {
   const { profile, user } = useAuth();
@@ -9,6 +17,8 @@ export default function AtolyeAccountProfile() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [legalDocuments, setLegalDocuments] = useState<LegalDocument[]>([]);
+  const [expandedDoc, setExpandedDoc] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -41,6 +51,25 @@ export default function AtolyeAccountProfile() {
       });
     }
   }, [profile]);
+
+  useEffect(() => {
+    loadLegalDocuments();
+  }, []);
+
+  const loadLegalDocuments = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('legal_documents')
+        .select('*')
+        .eq('is_active', true)
+        .order('document_type');
+
+      if (error) throw error;
+      setLegalDocuments(data || []);
+    } catch (err) {
+      console.error('Error loading legal documents:', err);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -350,6 +379,47 @@ export default function AtolyeAccountProfile() {
               <p className="text-gray-500 mb-1">Üyelik Durumu</p>
               <p className="font-medium text-emerald-600">Aktif</p>
             </div>
+          </div>
+        </div>
+
+        <div className="mt-8 pt-8 border-t border-gray-200">
+          <div className="flex items-center gap-2 mb-4">
+            <FileText className="w-5 h-5 text-gray-600" />
+            <h3 className="text-lg font-semibold text-gray-800">Yasal Belgeler</h3>
+          </div>
+          <div className="space-y-3">
+            {legalDocuments.map((doc) => (
+              <div key={doc.id} className="border border-gray-200 rounded-lg overflow-hidden">
+                <button
+                  type="button"
+                  onClick={() => setExpandedDoc(expandedDoc === doc.id ? null : doc.id)}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                  id={doc.document_type === 'terms_conditions' ? 'terms' : 'distance-sales'}
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-5 h-5 text-emerald-600" />
+                    <div className="text-left">
+                      <p className="font-medium text-gray-800">{doc.title}</p>
+                      <p className="text-xs text-gray-500">Versiyon: {doc.version}</p>
+                    </div>
+                  </div>
+                  {expandedDoc === doc.id ? (
+                    <ChevronUp className="w-5 h-5 text-gray-400" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-gray-400" />
+                  )}
+                </button>
+                {expandedDoc === doc.id && (
+                  <div className="px-4 pb-4 bg-gray-50">
+                    <div className="prose prose-sm max-w-none">
+                      <pre className="whitespace-pre-wrap font-sans text-sm text-gray-700 leading-relaxed">
+                        {doc.content}
+                      </pre>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
       </div>

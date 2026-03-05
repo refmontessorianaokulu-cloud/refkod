@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Trash2, Plus, Minus, Package, CreditCard } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, Package, CreditCard, MapPin, Edit, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface CartItem {
   id: string;
@@ -50,16 +50,29 @@ interface CheckoutData {
     postal_code: string;
     phone: string;
   };
+  invoice_address?: {
+    company_name: string;
+    tax_id: string;
+    tax_office: string;
+    city: string;
+    district: string;
+    address: string;
+    postal_code: string;
+  };
   payment_method: 'credit_card' | 'bank_transfer' | 'cash';
   notes?: string;
+  terms_accepted: boolean;
+  distance_sales_accepted: boolean;
 }
 
 export default function ShoppingCartView() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [cartItems, setCartItems] = useState<CartItemWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCheckout, setShowCheckout] = useState(false);
   const [sameAsBilling, setSameAsBilling] = useState(true);
+  const [differentInvoiceAddress, setDifferentInvoiceAddress] = useState(false);
+  const [showAddAddress, setShowAddAddress] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({
     shipping_address: {
       full_name: '',
@@ -77,11 +90,32 @@ export default function ShoppingCartView() {
     },
     payment_method: 'credit_card',
     notes: '',
+    terms_accepted: false,
+    distance_sales_accepted: false,
   });
 
   useEffect(() => {
     loadCart();
   }, [user]);
+
+  useEffect(() => {
+    if (showCheckout && user && profile) {
+      const fullAddress = profile.street && profile.building_no
+        ? `${profile.street} No:${profile.building_no}${profile.apartment_no ? ' D:' + profile.apartment_no : ''}, ${profile.neighborhood || ''}, ${profile.district || ''}`
+        : profile.address || '';
+
+      setCheckoutData(prev => ({
+        ...prev,
+        shipping_address: {
+          full_name: profile.full_name || '',
+          address: fullAddress,
+          city: profile.city || '',
+          postal_code: profile.postal_code || '',
+          phone: profile.phone || '',
+        },
+      }));
+    }
+  }, [showCheckout, user, profile]);
 
   const loadCart = async () => {
     setLoading(true);
@@ -204,6 +238,11 @@ export default function ShoppingCartView() {
 
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!checkoutData.terms_accepted || !checkoutData.distance_sales_accepted) {
+      alert('Lütfen ön bilgilendirme koşulları ve mesafeli satış sözleşmesini okuyup onaylayın.');
+      return;
+    }
 
     if (checkoutData.payment_method === 'credit_card') {
       alert('Kredi kartı ödemesi şu anda kullanılamıyor. Lütfen banka havalesi veya kapıda ödeme seçeneğini kullanın.');
@@ -446,74 +485,291 @@ export default function ShoppingCartView() {
                 )}
 
                 <div>
-                  <h4 className="font-semibold text-gray-800 mb-4">Teslimat Adresi</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad *</label>
-                      <input
-                        type="text"
-                        required
-                        value={checkoutData.shipping_address.full_name}
-                        onChange={(e) => setCheckoutData({
-                          ...checkoutData,
-                          shipping_address: { ...checkoutData.shipping_address, full_name: e.target.value }
-                        })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Adres *</label>
-                      <textarea
-                        required
-                        rows={3}
-                        value={checkoutData.shipping_address.address}
-                        onChange={(e) => setCheckoutData({
-                          ...checkoutData,
-                          shipping_address: { ...checkoutData.shipping_address, address: e.target.value }
-                        })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Şehir *</label>
-                      <input
-                        type="text"
-                        required
-                        value={checkoutData.shipping_address.city}
-                        onChange={(e) => setCheckoutData({
-                          ...checkoutData,
-                          shipping_address: { ...checkoutData.shipping_address, city: e.target.value }
-                        })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Posta Kodu *</label>
-                      <input
-                        type="text"
-                        required
-                        value={checkoutData.shipping_address.postal_code}
-                        onChange={(e) => setCheckoutData({
-                          ...checkoutData,
-                          shipping_address: { ...checkoutData.shipping_address, postal_code: e.target.value }
-                        })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
-                    <div className="md:col-span-2">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Telefon *</label>
-                      <input
-                        type="tel"
-                        required
-                        value={checkoutData.shipping_address.phone}
-                        onChange={(e) => setCheckoutData({
-                          ...checkoutData,
-                          shipping_address: { ...checkoutData.shipping_address, phone: e.target.value }
-                        })}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
-                      />
-                    </div>
+                  <div className="flex items-center justify-between mb-4">
+                    <h4 className="font-semibold text-gray-800">İletişim ve Teslimat Bilgileri</h4>
+                    {user && !showAddAddress && (
+                      <button
+                        type="button"
+                        onClick={() => setShowAddAddress(true)}
+                        className="text-sm text-emerald-600 hover:text-emerald-700 flex items-center gap-1"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Başka Adres Ekle
+                      </button>
+                    )}
                   </div>
+
+                  {user && !showAddAddress ? (
+                    <div className="bg-emerald-50 border-2 border-emerald-200 rounded-lg p-4 space-y-2">
+                      <div className="flex items-start gap-3">
+                        <MapPin className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-800">{checkoutData.shipping_address.full_name}</p>
+                          <p className="text-sm text-gray-600 mt-1">{checkoutData.shipping_address.address}</p>
+                          <p className="text-sm text-gray-600">{checkoutData.shipping_address.city} {checkoutData.shipping_address.postal_code}</p>
+                          <p className="text-sm text-gray-600">{checkoutData.shipping_address.phone}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowAddAddress(true)}
+                          className="p-2 hover:bg-emerald-100 rounded transition-colors"
+                        >
+                          <Edit className="w-4 h-4 text-emerald-600" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Ad Soyad *</label>
+                        <input
+                          type="text"
+                          required
+                          value={checkoutData.shipping_address.full_name}
+                          onChange={(e) => setCheckoutData({
+                            ...checkoutData,
+                            shipping_address: { ...checkoutData.shipping_address, full_name: e.target.value }
+                          })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Adres *</label>
+                        <textarea
+                          required
+                          rows={3}
+                          value={checkoutData.shipping_address.address}
+                          onChange={(e) => setCheckoutData({
+                            ...checkoutData,
+                            shipping_address: { ...checkoutData.shipping_address, address: e.target.value }
+                          })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Şehir *</label>
+                        <input
+                          type="text"
+                          required
+                          value={checkoutData.shipping_address.city}
+                          onChange={(e) => setCheckoutData({
+                            ...checkoutData,
+                            shipping_address: { ...checkoutData.shipping_address, city: e.target.value }
+                          })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Posta Kodu *</label>
+                        <input
+                          type="text"
+                          required
+                          value={checkoutData.shipping_address.postal_code}
+                          onChange={(e) => setCheckoutData({
+                            ...checkoutData,
+                            shipping_address: { ...checkoutData.shipping_address, postal_code: e.target.value }
+                          })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      <div className="md:col-span-2">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Telefon *</label>
+                        <input
+                          type="tel"
+                          required
+                          value={checkoutData.shipping_address.phone}
+                          onChange={(e) => setCheckoutData({
+                            ...checkoutData,
+                            shipping_address: { ...checkoutData.shipping_address, phone: e.target.value }
+                          })}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                        />
+                      </div>
+                      {user && showAddAddress && (
+                        <div className="md:col-span-2">
+                          <button
+                            type="button"
+                            onClick={() => setShowAddAddress(false)}
+                            className="text-sm text-gray-600 hover:text-gray-800"
+                          >
+                            Kayıtlı adresimi kullan
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t pt-4">
+                  <label className="flex items-center gap-2 cursor-pointer mb-4">
+                    <input
+                      type="checkbox"
+                      checked={!differentInvoiceAddress}
+                      onChange={(e) => setDifferentInvoiceAddress(!e.target.checked)}
+                      className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                    />
+                    <span className="text-sm text-gray-700">Fatura adresi teslimat adresi ile aynı</span>
+                  </label>
+
+                  {differentInvoiceAddress && (
+                    <div className="bg-gray-50 rounded-lg p-4 space-y-4">
+                      <h4 className="font-semibold text-gray-800">Fatura Bilgileri</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Şirket/Kurum Adı</label>
+                          <input
+                            type="text"
+                            value={checkoutData.invoice_address?.company_name || ''}
+                            onChange={(e) => setCheckoutData({
+                              ...checkoutData,
+                              invoice_address: {
+                                ...checkoutData.invoice_address!,
+                                company_name: e.target.value,
+                                tax_id: checkoutData.invoice_address?.tax_id || '',
+                                tax_office: checkoutData.invoice_address?.tax_office || '',
+                                city: checkoutData.invoice_address?.city || '',
+                                district: checkoutData.invoice_address?.district || '',
+                                address: checkoutData.invoice_address?.address || '',
+                                postal_code: checkoutData.invoice_address?.postal_code || '',
+                              }
+                            })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                            placeholder="Şirket adı (opsiyonel)"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">TC Kimlik No / Vergi No *</label>
+                          <input
+                            type="text"
+                            required
+                            value={checkoutData.invoice_address?.tax_id || ''}
+                            onChange={(e) => setCheckoutData({
+                              ...checkoutData,
+                              invoice_address: {
+                                ...checkoutData.invoice_address!,
+                                company_name: checkoutData.invoice_address?.company_name || '',
+                                tax_id: e.target.value,
+                                tax_office: checkoutData.invoice_address?.tax_office || '',
+                                city: checkoutData.invoice_address?.city || '',
+                                district: checkoutData.invoice_address?.district || '',
+                                address: checkoutData.invoice_address?.address || '',
+                                postal_code: checkoutData.invoice_address?.postal_code || '',
+                              }
+                            })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Vergi Dairesi</label>
+                          <input
+                            type="text"
+                            value={checkoutData.invoice_address?.tax_office || ''}
+                            onChange={(e) => setCheckoutData({
+                              ...checkoutData,
+                              invoice_address: {
+                                ...checkoutData.invoice_address!,
+                                company_name: checkoutData.invoice_address?.company_name || '',
+                                tax_id: checkoutData.invoice_address?.tax_id || '',
+                                tax_office: e.target.value,
+                                city: checkoutData.invoice_address?.city || '',
+                                district: checkoutData.invoice_address?.district || '',
+                                address: checkoutData.invoice_address?.address || '',
+                                postal_code: checkoutData.invoice_address?.postal_code || '',
+                              }
+                            })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">İl *</label>
+                          <input
+                            type="text"
+                            required
+                            value={checkoutData.invoice_address?.city || ''}
+                            onChange={(e) => setCheckoutData({
+                              ...checkoutData,
+                              invoice_address: {
+                                ...checkoutData.invoice_address!,
+                                company_name: checkoutData.invoice_address?.company_name || '',
+                                tax_id: checkoutData.invoice_address?.tax_id || '',
+                                tax_office: checkoutData.invoice_address?.tax_office || '',
+                                city: e.target.value,
+                                district: checkoutData.invoice_address?.district || '',
+                                address: checkoutData.invoice_address?.address || '',
+                                postal_code: checkoutData.invoice_address?.postal_code || '',
+                              }
+                            })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-2">İlçe *</label>
+                          <input
+                            type="text"
+                            required
+                            value={checkoutData.invoice_address?.district || ''}
+                            onChange={(e) => setCheckoutData({
+                              ...checkoutData,
+                              invoice_address: {
+                                ...checkoutData.invoice_address!,
+                                company_name: checkoutData.invoice_address?.company_name || '',
+                                tax_id: checkoutData.invoice_address?.tax_id || '',
+                                tax_office: checkoutData.invoice_address?.tax_office || '',
+                                city: checkoutData.invoice_address?.city || '',
+                                district: e.target.value,
+                                address: checkoutData.invoice_address?.address || '',
+                                postal_code: checkoutData.invoice_address?.postal_code || '',
+                              }
+                            })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Fatura Adresi *</label>
+                          <textarea
+                            required
+                            rows={2}
+                            value={checkoutData.invoice_address?.address || ''}
+                            onChange={(e) => setCheckoutData({
+                              ...checkoutData,
+                              invoice_address: {
+                                ...checkoutData.invoice_address!,
+                                company_name: checkoutData.invoice_address?.company_name || '',
+                                tax_id: checkoutData.invoice_address?.tax_id || '',
+                                tax_office: checkoutData.invoice_address?.tax_office || '',
+                                city: checkoutData.invoice_address?.city || '',
+                                district: checkoutData.invoice_address?.district || '',
+                                address: e.target.value,
+                                postal_code: checkoutData.invoice_address?.postal_code || '',
+                              }
+                            })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-medium text-gray-700 mb-2">Posta Kodu</label>
+                          <input
+                            type="text"
+                            value={checkoutData.invoice_address?.postal_code || ''}
+                            onChange={(e) => setCheckoutData({
+                              ...checkoutData,
+                              invoice_address: {
+                                ...checkoutData.invoice_address!,
+                                company_name: checkoutData.invoice_address?.company_name || '',
+                                tax_id: checkoutData.invoice_address?.tax_id || '',
+                                tax_office: checkoutData.invoice_address?.tax_office || '',
+                                city: checkoutData.invoice_address?.city || '',
+                                district: checkoutData.invoice_address?.district || '',
+                                address: checkoutData.invoice_address?.address || '',
+                                postal_code: e.target.value,
+                              }
+                            })}
+                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div>
@@ -548,6 +804,54 @@ export default function ShoppingCartView() {
                     placeholder="Siparişiniz ile ilgili özel notlar..."
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                   />
+                </div>
+
+                <div className="bg-gray-50 rounded-lg p-4 space-y-3 border border-gray-200">
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={checkoutData.terms_accepted}
+                      onChange={(e) => setCheckoutData({ ...checkoutData, terms_accepted: e.target.checked })}
+                      className="mt-1 w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                    />
+                    <span className="text-sm text-gray-700 flex-1">
+                      <a
+                        href="#terms"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          window.open('/hesabim#terms', '_blank');
+                        }}
+                        className="text-emerald-600 hover:text-emerald-700 underline"
+                      >
+                        Ön Bilgilendirme Koşulları
+                      </a>
+                      'nı okudum, onaylıyorum. *
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={checkoutData.distance_sales_accepted}
+                      onChange={(e) => setCheckoutData({ ...checkoutData, distance_sales_accepted: e.target.checked })}
+                      className="mt-1 w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                    />
+                    <span className="text-sm text-gray-700 flex-1">
+                      <a
+                        href="#distance-sales"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          window.open('/hesabim#distance-sales', '_blank');
+                        }}
+                        className="text-emerald-600 hover:text-emerald-700 underline"
+                      >
+                        Mesafeli Satış Sözleşmesi
+                      </a>
+                      'ni okudum, onaylıyorum. *
+                    </span>
+                  </label>
                 </div>
 
                 <div className="flex gap-3 pt-4 border-t">
