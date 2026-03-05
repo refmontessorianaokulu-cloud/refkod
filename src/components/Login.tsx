@@ -402,7 +402,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen relative flex flex-col">
+    <div className="min-h-screen relative flex flex-col overflow-x-hidden">
       {videoEnabled && videoUrl ? (
         <div
           className="absolute inset-0"
