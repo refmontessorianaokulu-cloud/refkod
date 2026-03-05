@@ -66,6 +66,7 @@ export default function Login() {
   const [isDesktopMenuOpen, setIsDesktopMenuOpen] = useState(false);
   const [openMobileCard, setOpenMobileCard] = useState<string | null>(null);
   const [openDesktopCard, setOpenDesktopCard] = useState<string | null>(null);
+  const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
   const { t } = useLanguage();
 
@@ -236,9 +237,14 @@ export default function Login() {
   };
 
   const handleWhatsAppClick = () => {
-    const message = encodeURIComponent('Merhaba, size nasıl yardımcı olabiliriz?');
+    setShowWhatsAppModal(true);
+  };
+
+  const handleWhatsAppSend = () => {
+    const message = encodeURIComponent('Merhaba, Ref çocuk akademisine hoşgeldiniz. Size nasıl yardımcı olabiliriz?');
     const phoneNumber = '905315504454';
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    setShowWhatsAppModal(false);
   };
 
   if (showInquiryForm) {
@@ -1316,6 +1322,56 @@ export default function Login() {
         }}
         userRole="guest"
       />
+
+      {showWhatsAppModal && (
+        <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4" onClick={() => setShowWhatsAppModal(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setShowWhatsAppModal(false)}
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5 text-gray-700" />
+            </button>
+
+            <div className="flex items-center justify-center mb-6">
+              <div className="bg-green-100 p-4 rounded-full">
+                <MessageCircle className="w-12 h-12 text-green-600" />
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+              WhatsApp ile İletişime Geçin
+            </h2>
+
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <p className="text-gray-700 text-center leading-relaxed">
+                Merhaba, Ref çocuk akademisine hoşgeldiniz. Size nasıl yardımcı olabiliriz?
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <button
+                onClick={handleWhatsAppSend}
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-5 h-5" />
+                Mesaj Gönder
+              </button>
+
+              <button
+                onClick={() => setShowWhatsAppModal(false)}
+                className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-all"
+              >
+                İptal
+              </button>
+            </div>
+
+            <div className="mt-4 text-center text-sm text-gray-600">
+              <p>📞 0531 550 44 54</p>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
