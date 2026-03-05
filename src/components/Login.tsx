@@ -6,7 +6,7 @@ import ReferenceTeacherForm from './ReferenceTeacherForm';
 import ContactPage from './ContactPage';
 import RefAtolyeLogin from './RefAtolyeLogin';
 import { supabase } from '../lib/supabase';
-import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX, MessageCircle } from 'lucide-react';
+import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX, MessageCircle, ShoppingCart } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
 import SearchModal from './SearchModal';
 
@@ -305,11 +305,11 @@ export default function Login() {
 
         <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
           <button
-            onClick={() => setShowSearchModal(true)}
+            onClick={() => signInAsGuest('ref_atolye')}
             className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
-            title={t('search.placeholder')}
+            title="Ref Atölye"
           >
-            <SearchIcon className="w-5 h-5 text-gray-700" />
+            <ShoppingCart className="w-5 h-5 text-gray-700" />
           </button>
           <LanguageToggle />
         </div>
@@ -491,14 +491,14 @@ export default function Login() {
             </button>
           </div>
 
-          {/* Sağ - Search (Sadece masaüstünde görünür) */}
+          {/* Sağ - Sepet (Sadece masaüstünde görünür) */}
           <div className="hidden md:flex items-start gap-3">
             <button
-              onClick={() => setShowSearchModal(true)}
+              onClick={() => signInAsGuest('ref_atolye')}
               className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
-              title={t('search.placeholder')}
+              title="Ref Atölye"
             >
-              <SearchIcon className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
+              <ShoppingCart className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
             </button>
           </div>
         </div>
