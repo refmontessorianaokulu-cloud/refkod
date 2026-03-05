@@ -424,6 +424,70 @@ function ProductCatalog() {
       </div>
     );
   }
+
+  function ProductDetailModal({
+    product,
+    onClose,
+    onAddToCart,
+    getCategoryName,
+    getPrimaryImage
+  }: {
+    product: Product;
+    onClose: () => void;
+    onAddToCart: (product: Product) => void;
+    getCategoryName: (categoryId: string) => string;
+    getPrimaryImage: (productId: string) => string;
+  }) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={onClose}>
+        <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+            <h3 className="text-xl font-bold text-gray-800">{product.name}</h3>
+            <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          <div className="p-6 space-y-4">
+            <img
+              src={getPrimaryImage(product.id)}
+              alt={product.name}
+              className="w-full aspect-square object-cover rounded-lg"
+            />
+
+            <div className="space-y-2">
+              <p className="text-sm text-gray-500">{getCategoryName(product.category_id)}</p>
+              <p className="text-gray-700">{product.description}</p>
+
+              {product.tags && product.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {product.tags.map((tag, index) => (
+                    <span key={index} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+              <span className="text-2xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
+              <button
+                onClick={() => {
+                  onAddToCart(product);
+                  onClose();
+                }}
+                className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                Sepete Ekle
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
 
 export default ProductCatalog;
