@@ -59,7 +59,15 @@ export default function CartView() {
     neighborhood: '',
     street: '',
     buildingNo: '',
-    apartmentNo: ''
+    apartmentNo: '',
+    differentInvoiceAddress: false,
+    invoiceCompanyName: '',
+    invoiceTaxId: '',
+    invoiceTaxOffice: '',
+    invoiceCity: '',
+    invoiceDistrict: '',
+    invoiceAddress: '',
+    invoicePostalCode: ''
   });
 
   const turkishCities = [
@@ -299,6 +307,13 @@ export default function CartView() {
       return;
     }
 
+    if (guestInfo.differentInvoiceAddress) {
+      if (!guestInfo.invoiceTaxId || !guestInfo.invoiceCity || !guestInfo.invoiceDistrict || !guestInfo.invoiceAddress) {
+        setMessage({ type: 'error', text: 'Lütfen fatura bilgilerini eksiksiz doldurun' });
+        return;
+      }
+    }
+
     try {
       setSubmitting(true);
 
@@ -334,7 +349,19 @@ export default function CartView() {
           phone: customerPhone,
           email: customerEmail
         },
-        billing_address: {
+        billing_address: guestInfo.differentInvoiceAddress ? {
+          company_name: guestInfo.invoiceCompanyName || null,
+          tax_id: guestInfo.invoiceTaxId,
+          tax_office: guestInfo.invoiceTaxOffice || null,
+          city: guestInfo.invoiceCity,
+          district: guestInfo.invoiceDistrict,
+          address: guestInfo.invoiceAddress,
+          postal_code: guestInfo.invoicePostalCode || null,
+          fullAddress: `${guestInfo.invoiceAddress}, ${guestInfo.invoiceDistrict}/${guestInfo.invoiceCity}`,
+          name: customerName,
+          phone: customerPhone,
+          email: customerEmail
+        } : {
           title: guestInfo.addressTitle || null,
           country: guestInfo.country,
           city: guestInfo.city,
@@ -829,6 +856,119 @@ export default function CartView() {
                         />
                       </div>
                     </div>
+                  </div>
+
+                  <div className="border-t pt-4 mt-4">
+                    <label className="flex items-center gap-2 cursor-pointer mb-4">
+                      <input
+                        type="checkbox"
+                        checked={guestInfo.differentInvoiceAddress}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, differentInvoiceAddress: e.target.checked })}
+                        className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
+                      />
+                      <span className="text-sm text-gray-700 font-medium">Fatura adresim farklı</span>
+                    </label>
+
+                    {guestInfo.differentInvoiceAddress && (
+                      <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                        <h4 className="font-semibold text-gray-800 mb-3">Fatura Bilgileri</h4>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Şirket/Kurum Adı
+                          </label>
+                          <input
+                            type="text"
+                            value={guestInfo.invoiceCompanyName}
+                            onChange={(e) => setGuestInfo({ ...guestInfo, invoiceCompanyName: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            placeholder="Şirket adı (opsiyonel)"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              TC Kimlik No / Vergi No <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required={guestInfo.differentInvoiceAddress}
+                              value={guestInfo.invoiceTaxId}
+                              onChange={(e) => setGuestInfo({ ...guestInfo, invoiceTaxId: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                              placeholder="11 haneli TC veya 10 haneli Vergi No"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              Vergi Dairesi
+                            </label>
+                            <input
+                              type="text"
+                              value={guestInfo.invoiceTaxOffice}
+                              onChange={(e) => setGuestInfo({ ...guestInfo, invoiceTaxOffice: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                              placeholder="Kurumsal müşteriler için"
+                            />
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              İl <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                              required={guestInfo.differentInvoiceAddress}
+                              value={guestInfo.invoiceCity}
+                              onChange={(e) => setGuestInfo({ ...guestInfo, invoiceCity: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            >
+                              <option value="">Seçiniz</option>
+                              {turkishCities.map(city => (
+                                <option key={city} value={city}>{city}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">
+                              İlçe <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              required={guestInfo.differentInvoiceAddress}
+                              value={guestInfo.invoiceDistrict}
+                              onChange={(e) => setGuestInfo({ ...guestInfo, invoiceDistrict: e.target.value })}
+                              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                              placeholder="İlçe adını girin"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Adres <span className="text-red-500">*</span>
+                          </label>
+                          <textarea
+                            required={guestInfo.differentInvoiceAddress}
+                            rows={2}
+                            value={guestInfo.invoiceAddress}
+                            onChange={(e) => setGuestInfo({ ...guestInfo, invoiceAddress: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            placeholder="Ev, İş, Diğer..."
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                            Posta Kodu
+                          </label>
+                          <input
+                            type="text"
+                            value={guestInfo.invoicePostalCode}
+                            onChange={(e) => setGuestInfo({ ...guestInfo, invoicePostalCode: e.target.value })}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                            placeholder="Posta Kodu"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
