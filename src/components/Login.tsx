@@ -463,10 +463,9 @@ export default function Login() {
               setIsMobileMenuOpen(true);
               setIsDesktopMenuOpen(true);
             }}
-            className="flex items-center gap-2 p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
+            className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
           >
             <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
-            <span className="text-gray-700 font-medium text-sm md:text-base">MENÜ</span>
           </button>
 
           {/* Orta - Logo (Masaüstünde hamburger ve search arasında, mobilde sağda) */}
