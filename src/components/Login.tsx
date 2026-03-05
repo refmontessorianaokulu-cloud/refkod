@@ -236,7 +236,7 @@ export default function Login() {
   };
 
   const handleWhatsAppClick = () => {
-    const message = encodeURIComponent('Merhaba, Ref çocuk akademisine hoşgeldiniz. Size nasıl yardımcı olabiliriz?');
+    const message = encodeURIComponent('Merhaba, size nasıl yardımcı olabiliriz?');
     const phoneNumber = '905315504454';
     window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
   };
@@ -444,7 +444,7 @@ export default function Login() {
           1
         </span>
         <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          Bize yazın
+          Ref'e dair her şey için...
         </span>
       </button>
 
