@@ -323,24 +323,24 @@ function ProductCatalog() {
           <p className="text-gray-500">Ürün bulunamadı</p>
         </div>
       ) : (
-        <div className="space-y-8">
-          {categories
-            .filter(category => {
-              const categoryProducts = filteredProducts.filter(p => p.category_id === category.id);
-              return categoryProducts.length > 0;
-            })
-            .map(category => {
-              const categoryProducts = filteredProducts.filter(p => p.category_id === category.id);
-              return (
-                <div key={category.id} className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-xl font-bold text-gray-800">{category.name}</h4>
-                    <span className="text-sm text-gray-500">{categoryProducts.length} ürün</span>
-                  </div>
+        <>
+          {/* Mobile: Grouped by Category with Horizontal Scroll */}
+          <div className="md:hidden space-y-8">
+            {categories
+              .filter(category => {
+                const categoryProducts = filteredProducts.filter(p => p.category_id === category.id);
+                return categoryProducts.length > 0;
+              })
+              .map(category => {
+                const categoryProducts = filteredProducts.filter(p => p.category_id === category.id);
+                return (
+                  <div key={category.id} className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-xl font-bold text-gray-800">{category.name}</h4>
+                      <span className="text-sm text-gray-500">{categoryProducts.length} ürün</span>
+                    </div>
 
-                  {/* Mobile: Horizontal Scroll, Desktop: Grid */}
-                  <div className="md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6">
-                    <div className="flex md:hidden overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
+                    <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
                       {categoryProducts.map((product) => (
                         <div
                           key={product.id}
@@ -350,16 +350,18 @@ function ProductCatalog() {
                         </div>
                       ))}
                     </div>
-                    <div className="hidden md:contents">
-                      {categoryProducts.map((product) => (
-                        <ProductCard key={product.id} product={product} />
-                      ))}
-                    </div>
                   </div>
-                </div>
-              );
-            })}
-        </div>
+                );
+              })}
+          </div>
+
+          {/* Desktop: Normal Grid */}
+          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </>
       )}
 
       {/* Product Detail Modal */}
