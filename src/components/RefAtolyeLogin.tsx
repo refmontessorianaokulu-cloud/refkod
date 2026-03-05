@@ -330,12 +330,13 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
             </button>
 
             <div className="text-center mt-6">
+              <span className="text-gray-600 text-sm">Zaten hesabınız var mı? </span>
               <button
                 type="button"
                 onClick={() => setMode('login')}
-                className="text-orange-600 hover:text-orange-700 font-medium transition-colors text-sm"
+                className="text-emerald-600 hover:text-emerald-700 font-bold text-base transition-colors"
               >
-                Zaten hesabınız var mı? Giriş Yap
+                GİRİŞ YAP
               </button>
             </div>
           </form>
