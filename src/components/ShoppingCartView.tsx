@@ -605,11 +605,11 @@ export default function ShoppingCartView() {
                   <label className="flex items-center gap-2 cursor-pointer mb-4">
                     <input
                       type="checkbox"
-                      checked={!differentInvoiceAddress}
-                      onChange={(e) => setDifferentInvoiceAddress(!e.target.checked)}
+                      checked={differentInvoiceAddress}
+                      onChange={(e) => setDifferentInvoiceAddress(e.target.checked)}
                       className="w-4 h-4 text-emerald-600 rounded focus:ring-emerald-500"
                     />
-                    <span className="text-sm text-gray-700">Fatura adresi teslimat adresi ile aynı</span>
+                    <span className="text-sm text-gray-700">Fatura adresim farklı</span>
                   </label>
 
                   {differentInvoiceAddress && (
