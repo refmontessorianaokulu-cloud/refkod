@@ -144,9 +144,6 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
-      <h2 className="hidden md:block text-2xl font-bold text-gray-800 mb-6">
-        {SECTION_LABELS[sectionType]}
-      </h2>
 
       {/* Ref Danışmanlık Tabs */}
       {showDanismanlikTabs && (
