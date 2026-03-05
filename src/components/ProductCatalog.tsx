@@ -396,27 +396,27 @@ function ProductCatalog() {
           <h4 className="font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h4>
           <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-base sm:text-lg font-bold text-emerald-600 whitespace-nowrap">{product.base_price.toFixed(2)} ₺</span>
-            <div className="flex items-center gap-1.5 sm:gap-2">
+            <span className="text-sm font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
+            <div className="flex items-center gap-2">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   addToFavorites(product);
                 }}
-                className="p-1.5 sm:p-2 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors"
+                className="p-2 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors"
                 title="Favorilere Ekle"
               >
-                <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <Heart className="w-4 h-4" />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   addToCart(product);
                 }}
-                className="flex items-center gap-1 sm:gap-2 bg-emerald-600 text-white px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm sm:text-base"
+                className="p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                title="Sepete Ekle"
               >
-                <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span className="hidden sm:inline">Sepete Ekle</span>
+                <ShoppingCart className="w-4 h-4" />
               </button>
             </div>
           </div>
