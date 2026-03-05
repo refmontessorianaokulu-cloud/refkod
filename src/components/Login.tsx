@@ -463,9 +463,9 @@ export default function Login() {
               setIsMobileMenuOpen(true);
               setIsDesktopMenuOpen(true);
             }}
-            className="p-2 transition-all flex-shrink-0"
+            className="p-2 transition-all flex-shrink-0 bg-[#A8D5BA] border-2 border-[#8BC4A9] rounded-lg hover:bg-[#96C8A8] hover:border-[#7AB599]"
           >
-            <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
+            <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
           </button>
 
           {/* Orta - Logo (Masaüstünde hamburger ve search arasında, mobilde sağda) */}
@@ -495,10 +495,10 @@ export default function Login() {
           <div className="hidden md:flex items-start gap-3">
             <button
               onClick={() => setShowSearchModal(true)}
-              className="p-2 transition-all"
+              className="p-2 transition-all bg-[#A8D5BA] border-2 border-[#8BC4A9] rounded-lg hover:bg-[#96C8A8] hover:border-[#7AB599]"
               title={t('search.placeholder')}
             >
-              <SearchIcon className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
+              <SearchIcon className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
             </button>
           </div>
         </div>
