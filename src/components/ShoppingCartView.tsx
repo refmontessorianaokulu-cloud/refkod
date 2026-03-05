@@ -70,7 +70,6 @@ export default function ShoppingCartView() {
   const [cartItems, setCartItems] = useState<CartItemWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCheckout, setShowCheckout] = useState(false);
-  const [sameAsBilling, setSameAsBilling] = useState(true);
   const [differentInvoiceAddress, setDifferentInvoiceAddress] = useState(false);
   const [showAddAddress, setShowAddAddress] = useState(false);
   const [checkoutData, setCheckoutData] = useState<CheckoutData>({
@@ -260,9 +259,7 @@ export default function ShoppingCartView() {
       const shippingCost = calculateShippingCost();
       const total = subtotal + shippingCost;
 
-      const billingAddress = sameAsBilling
-        ? checkoutData.shipping_address
-        : checkoutData.billing_address;
+      const billingAddress = checkoutData.shipping_address;
 
       const orderData: any = {
         order_number: orderNumber,
@@ -285,6 +282,10 @@ export default function ShoppingCartView() {
         orderData.guest_name = checkoutData.shipping_address.full_name;
         orderData.guest_email = checkoutData.guest_email;
         orderData.guest_phone = checkoutData.guest_phone;
+      }
+
+      if (differentInvoiceAddress && checkoutData.invoice_address) {
+        orderData.invoice_address = checkoutData.invoice_address;
       }
 
       const { data: order, error: orderError } = await supabase
