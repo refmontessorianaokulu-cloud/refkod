@@ -455,7 +455,7 @@ export default function Login() {
       </button>
 
       {/* Top Header - Mobil ve Masaüstü */}
-      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
+      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3 bg-white/95 backdrop-blur-sm shadow-sm">
         <div className="flex items-center justify-between md:items-start md:justify-start md:gap-8">
           {/* Sol Üst - Hamburger */}
           <button
