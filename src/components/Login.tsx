@@ -1324,49 +1324,51 @@ export default function Login() {
       />
 
       {showWhatsAppModal && (
-        <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-center p-4" onClick={() => setShowWhatsAppModal(false)}>
-          <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md relative animate-fadeIn" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/50 z-[70] flex items-center justify-start p-4 md:pl-20" onClick={() => setShowWhatsAppModal(false)}>
+          <div className="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm relative animate-fadeIn ml-0 md:ml-4" onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setShowWhatsAppModal(false)}
-              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="absolute top-3 right-3 p-1.5 hover:bg-gray-100 rounded-full transition-colors"
             >
-              <X className="w-5 h-5 text-gray-700" />
+              <X className="w-4 h-4 text-gray-700" />
             </button>
 
-            <div className="flex items-center justify-center mb-6">
-              <div className="bg-green-100 p-4 rounded-full">
-                <MessageCircle className="w-12 h-12 text-green-600" />
-              </div>
+            <div className="flex items-center justify-center mb-4">
+              <img
+                src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+                alt="REF Logo"
+                className="w-16 h-16 object-contain"
+              />
             </div>
 
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+            <h2 className="text-lg font-bold text-center text-gray-800 mb-3">
               WhatsApp ile İletişime Geçin
             </h2>
 
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <p className="text-gray-700 text-center leading-relaxed">
+            <div className="bg-gray-50 rounded-lg p-3 mb-4">
+              <p className="text-gray-700 text-center text-sm leading-relaxed">
                 Merhaba, Ref çocuk akademisine hoşgeldiniz. Size nasıl yardımcı olabiliriz?
               </p>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <button
                 onClick={handleWhatsAppSend}
-                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-2.5 rounded-lg font-semibold hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl flex items-center justify-center gap-2 text-sm"
               >
-                <MessageCircle className="w-5 h-5" />
+                <MessageCircle className="w-4 h-4" />
                 Mesaj Gönder
               </button>
 
               <button
                 onClick={() => setShowWhatsAppModal(false)}
-                className="w-full bg-gray-200 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-all"
+                className="w-full bg-gray-200 text-gray-700 py-2.5 rounded-lg font-semibold hover:bg-gray-300 transition-all text-sm"
               >
                 İptal
               </button>
             </div>
 
-            <div className="mt-4 text-center text-sm text-gray-600">
+            <div className="mt-3 text-center text-xs text-gray-600">
               <p>📞 0531 550 44 54</p>
             </div>
           </div>
