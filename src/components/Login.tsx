@@ -293,9 +293,9 @@ export default function Login() {
               title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
             >
               {isMuted ? (
-                <VolumeX className="w-6 h-6 text-white" />
+                <VolumeX className="w-[30px] h-[30px] text-white" />
               ) : (
-                <Volume2 className="w-6 h-6 text-white" />
+                <Volume2 className="w-[30px] h-[30px] text-white" />
               )}
             </button>
           </div>
@@ -328,7 +328,7 @@ export default function Login() {
           className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 z-50 group"
           aria-label="WhatsApp ile iletişime geç"
         >
-          <MessageCircle className="w-6 h-6" />
+          <MessageCircle className="w-[30px] h-[30px]" />
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
             1
           </span>
@@ -430,9 +430,9 @@ export default function Login() {
             title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
           >
             {isMuted ? (
-              <VolumeX className="w-6 h-6 text-white" />
+              <VolumeX className="w-[30px] h-[30px] text-white" />
             ) : (
-              <Volume2 className="w-6 h-6 text-white" />
+              <Volume2 className="w-[30px] h-[30px] text-white" />
             )}
           </button>
         </div>
@@ -445,7 +445,7 @@ export default function Login() {
         className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 z-50 group"
         aria-label="WhatsApp ile iletişime geç"
       >
-        <MessageCircle className="w-6 h-6" />
+        <MessageCircle className="w-[30px] h-[30px]" />
         <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
           1
         </span>
@@ -469,7 +469,7 @@ export default function Login() {
           </button>
 
           {/* Orta - Logo (Masaüstünde hamburger ve search arasında, mobilde sağda) */}
-          <div className="md:flex-1 md:flex md:justify-center">
+          <div className="md:flex-1 md:flex md:justify-center flex items-start">
             <button
               onClick={() => {
                 const isMobile = window.innerWidth < 768;
@@ -495,10 +495,10 @@ export default function Login() {
           <div className="hidden md:flex items-start gap-3">
             <button
               onClick={() => setShowSearchModal(true)}
-              className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
+              className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
               title={t('search.placeholder')}
             >
-              <SearchIcon className="w-5 h-5 text-gray-700" />
+              <SearchIcon className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
             </button>
           </div>
         </div>
