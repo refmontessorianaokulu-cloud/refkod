@@ -454,55 +454,20 @@ export default function Login() {
         </span>
       </button>
 
-      {/* Top Header - Mobil ve Masaüstü */}
-      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3 bg-white/95 backdrop-blur-sm shadow-sm">
-        <div className="flex items-center justify-between md:items-start md:justify-start md:gap-8">
-          {/* Sol Üst - Hamburger */}
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(true);
-              setIsDesktopMenuOpen(true);
-            }}
-            className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 flex-shrink-0"
-          >
-            <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
-          </button>
-
-          {/* Orta - Logo (Masaüstünde hamburger ve search arasında, mobilde sağda) */}
-          <div className="md:flex-1 md:flex md:justify-center flex items-center md:items-start">
-            <button
-              onClick={() => {
-                const isMobile = window.innerWidth < 768;
-                if (isMobile) {
-                  setIsMobileMenuOpen(true);
-                  setOpenMobileCard('login');
-                } else {
-                  setIsDesktopMenuOpen(true);
-                  setOpenDesktopCard('login');
-                }
-              }}
-              className="transition-all"
-            >
-              <img
-                src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-                alt="REF Logo"
-                className="w-20 h-20 md:w-30 md:h-30 object-contain transition-all duration-300 hover:scale-105"
-              />
-            </button>
-          </div>
-
-          {/* Sağ - Search (Sadece masaüstünde görünür) */}
-          <div className="hidden md:flex items-start gap-3">
-            <button
-              onClick={() => setShowSearchModal(true)}
-              className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
-              title={t('search.placeholder')}
-            >
-              <SearchIcon className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
-            </button>
-          </div>
-        </div>
-      </div>
+      {/* Sol Üst Hamburger Butonu - Sabit */}
+      <button
+        onClick={() => {
+          const isMobile = window.innerWidth < 768;
+          if (isMobile) {
+            setIsMobileMenuOpen(true);
+          } else {
+            setIsDesktopMenuOpen(true);
+          }
+        }}
+        className="fixed top-4 left-4 p-3 bg-white/90 backdrop-blur-sm hover:bg-white rounded-lg shadow-lg transition-all z-50 border-2 border-emerald-600"
+      >
+        <Menu className="w-6 h-6 text-gray-700" />
+      </button>
 
       {/* Mobil Hamburger Menü - Sidebar */}
       <div
