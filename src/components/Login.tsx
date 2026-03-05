@@ -455,7 +455,7 @@ export default function Login() {
       </button>
 
       {/* Top Header - Mobil ve Masaüstü - Fixed Position */}
-      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3 bg-white/95 backdrop-blur-sm shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
         <div className="flex items-center justify-between md:items-start md:justify-start md:gap-8">
           {/* Sol Üst - Hamburger */}
           <button
@@ -463,7 +463,7 @@ export default function Login() {
               setIsMobileMenuOpen(true);
               setIsDesktopMenuOpen(true);
             }}
-            className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100 flex-shrink-0"
+            className="p-2 transition-all flex-shrink-0"
           >
             <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
           </button>
@@ -495,7 +495,7 @@ export default function Login() {
           <div className="hidden md:flex items-start gap-3">
             <button
               onClick={() => setShowSearchModal(true)}
-              className="p-2 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
+              className="p-2 transition-all"
               title={t('search.placeholder')}
             >
               <SearchIcon className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-700" />
