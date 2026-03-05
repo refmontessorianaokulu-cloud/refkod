@@ -32,7 +32,7 @@ interface ProductImage {
   display_order: number;
 }
 
-export default function ProductCatalog() {
+function ProductCatalog() {
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
@@ -323,127 +323,111 @@ export default function ProductCatalog() {
           <p className="text-gray-500">Ürün bulunamadı</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer"
-              onClick={() => setSelectedProduct(product)}
-            >
-              <div className="relative aspect-square overflow-hidden bg-gray-100">
-                <img
-                  src={getPrimaryImage(product.id)}
-                  alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                />
-                {product.featured && (
-                  <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
-                    <Star className="w-3 h-3 fill-current" />
-                    Öne Çıkan
+        <div className="space-y-8">
+          {categories
+            .filter(category => {
+              const categoryProducts = filteredProducts.filter(p => p.category_id === category.id);
+              return categoryProducts.length > 0;
+            })
+            .map(category => {
+              const categoryProducts = filteredProducts.filter(p => p.category_id === category.id);
+              return (
+                <div key={category.id} className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xl font-bold text-gray-800">{category.name}</h4>
+                    <span className="text-sm text-gray-500">{categoryProducts.length} ürün</span>
                   </div>
-                )}
-              </div>
-              <div className="p-4">
-                <p className="text-xs text-gray-500 mb-1">{getCategoryName(product.category_id)}</p>
-                <h4 className="font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h4>
-                <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-base sm:text-lg font-bold text-emerald-600 whitespace-nowrap">{product.base_price.toFixed(2)} ₺</span>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToFavorites(product);
-                      }}
-                      className="p-1.5 sm:p-2 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors"
-                      title="Favorilere Ekle"
-                    >
-                      <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        addToCart(product);
-                      }}
-                      className="flex items-center gap-1 sm:gap-2 bg-emerald-600 text-white px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm sm:text-base"
-                    >
-                      <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      <span className="whitespace-nowrap">Sepete Ekle</span>
-                    </button>
+
+                  {/* Mobile: Horizontal Scroll, Desktop: Grid */}
+                  <div className="md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-6">
+                    <div className="flex md:hidden overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
+                      {categoryProducts.map((product) => (
+                        <div
+                          key={product.id}
+                          className="flex-shrink-0 w-[280px] snap-start"
+                        >
+                          <ProductCard product={product} />
+                        </div>
+                      ))}
+                    </div>
+                    <div className="hidden md:contents">
+                      {categoryProducts.map((product) => (
+                        <ProductCard key={product.id} product={product} />
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              );
+            })}
         </div>
       )}
 
       {/* Product Detail Modal */}
       {selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50" onClick={() => setSelectedProduct(null)}>
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-            <div className="p-6">
-              <div className="flex justify-between items-start mb-6">
-                <div>
-                  <p className="text-sm text-gray-500 mb-1">{getCategoryName(selectedProduct.category_id)}</p>
-                  <h3 className="text-2xl font-bold text-gray-800">{selectedProduct.name}</h3>
-                </div>
-                <button
-                  onClick={() => setSelectedProduct(null)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-6 mb-6">
-                <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                  <img
-                    src={getPrimaryImage(selectedProduct.id)}
-                    alt={selectedProduct.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-2">Ürün Açıklaması</h4>
-                    <p className="text-gray-600">{selectedProduct.description}</p>
-                  </div>
-
-                  {selectedProduct.tags && selectedProduct.tags.length > 0 && (
-                    <div>
-                      <h4 className="font-semibold text-gray-800 mb-2">Etiketler</h4>
-                      <div className="flex flex-wrap gap-2">
-                        {selectedProduct.tags.map((tag, index) => (
-                          <span key={index} className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="border-t pt-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-3xl font-bold text-emerald-600">{selectedProduct.base_price.toFixed(2)} ₺</span>
-                    </div>
-                    <button
-                      onClick={() => {
-                        addToCart(selectedProduct);
-                        setSelectedProduct(null);
-                      }}
-                      className="w-full flex items-center justify-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors font-semibold"
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                      Sepete Ekle
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ProductDetailModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onAddToCart={addToCart}
+          getCategoryName={getCategoryName}
+          getPrimaryImage={getPrimaryImage}
+        />
       )}
     </div>
   );
+
+  function ProductCard({ product }: { product: typeof filteredProducts[0] }) {
+    return (
+      <div
+        className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer"
+        onClick={() => setSelectedProduct(product)}
+      >
+        <div className="relative aspect-square overflow-hidden bg-gray-100">
+          <img
+            src={getPrimaryImage(product.id)}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+          />
+          {product.featured && (
+            <div className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 px-2 py-1 rounded-lg text-xs font-semibold flex items-center gap-1">
+              <Star className="w-3 h-3 fill-current" />
+              Öne Çıkan
+            </div>
+          )}
+        </div>
+        <div className="p-4">
+          <p className="text-xs text-gray-500 mb-1">{getCategoryName(product.category_id)}</p>
+          <h4 className="font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3rem]">{product.name}</h4>
+          <p className="text-sm text-gray-600 mb-4 line-clamp-2">{product.description}</p>
+          <div className="flex items-center justify-between gap-2">
+            <span className="text-base sm:text-lg font-bold text-emerald-600 whitespace-nowrap">{product.base_price.toFixed(2)} ₺</span>
+            <div className="flex items-center gap-1.5 sm:gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToFavorites(product);
+                }}
+                className="p-1.5 sm:p-2 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors"
+                title="Favorilere Ekle"
+              >
+                <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(product);
+                }}
+                className="flex items-center gap-1 sm:gap-2 bg-emerald-600 text-white px-2.5 py-1.5 sm:px-4 sm:py-2 rounded-lg hover:bg-emerald-700 transition-colors text-sm sm:text-base"
+              >
+                <ShoppingCart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span className="hidden sm:inline">Sepete Ekle</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }
+
+export default ProductCatalog;
+
