@@ -586,7 +586,7 @@ export default function Sidebar({
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center w-14 h-14 bg-emerald-600 hover:bg-emerald-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group"
-          title="WhatsApp ile iletişime geç"
+          title="Ref'e dair her şey için..."
         >
           <Phone className="w-7 h-7 group-hover:scale-110 transition-transform" />
         </a>
