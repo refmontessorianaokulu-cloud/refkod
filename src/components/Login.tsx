@@ -457,52 +457,50 @@ export default function Login() {
       {/* Top Header - Mobil ve Masaüstü - Fixed Position */}
       <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
         <div className="flex items-center justify-between md:items-start md:justify-start md:gap-8">
-          {/* Sol Üst - Logo (Mobil) / Hamburger (Masaüstü) */}
+          {/* Sol Üst - Hamburger */}
           <button
             onClick={() => {
-              const isMobile = window.innerWidth < 768;
-              if (isMobile) {
-                setIsMobileMenuOpen(true);
-              } else {
-                setIsMobileMenuOpen(true);
-                setIsDesktopMenuOpen(true);
-              }
+              setIsMobileMenuOpen(true);
+              setIsDesktopMenuOpen(true);
             }}
-            className="p-2 transition-all flex-shrink-0 bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD] md:p-2"
+            className="p-2 transition-all flex-shrink-0 bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
           >
-            <img
-              src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-              alt="REF Logo"
-              className="w-14 h-14 md:hidden object-contain transition-all duration-300 hover:scale-105"
-            />
-            <Menu className="hidden md:block w-5 h-5 text-gray-800" />
+            <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
           </button>
 
-          {/* Orta - Logo (Sadece masaüstünde) */}
-          <div className="hidden md:flex md:flex-1 md:justify-center items-start">
+          {/* Orta - Logo (Masaüstünde hamburger ve search arasında, mobilde sağda) */}
+          <div className="md:flex-1 md:flex md:justify-center flex items-center md:items-start">
             <button
               onClick={() => {
-                setIsDesktopMenuOpen(true);
-                setOpenDesktopCard('login');
+                const isMobile = window.innerWidth < 768;
+                if (isMobile) {
+                  setIsMobileMenuOpen(true);
+                  setOpenMobileCard('login');
+                } else {
+                  setIsDesktopMenuOpen(true);
+                  setOpenDesktopCard('login');
+                }
               }}
               className="transition-all"
             >
               <img
                 src="/whatsapp_image_2026-01-10_at_23.02.15.png"
                 alt="REF Logo"
-                className="w-30 h-30 object-contain transition-all duration-300 hover:scale-105"
+                className="w-20 h-20 md:w-30 md:h-30 object-contain transition-all duration-300 hover:scale-105"
               />
             </button>
           </div>
 
-          {/* Sağ - Sepet */}
-          <button
-            onClick={() => signInAsGuest('ref_atolye')}
-            className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
-            title="Ref Atölye"
-          >
-            <ShoppingCart className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
-          </button>
+          {/* Sağ - Sepet (Sadece masaüstünde görünür) */}
+          <div className="hidden md:flex items-start gap-3">
+            <button
+              onClick={() => signInAsGuest('ref_atolye')}
+              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+              title="Ref Atölye"
+            >
+              <ShoppingCart className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
+            </button>
+          </div>
         </div>
       </div>
 
