@@ -548,7 +548,7 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobil Üst Bar - Hamburger, Başlık, Logo */}
+      {/* Mobil Üst Bar - Hamburger, Logo */}
       <div className="lg:hidden fixed top-3 left-4 right-4 z-50 flex items-center justify-between">
         {/* Sol - Hamburger */}
         <button
@@ -557,15 +557,6 @@ export default function Sidebar({
         >
           <Menu className="w-8 h-8 text-gray-700" />
         </button>
-
-        {/* Orta - Başlık */}
-        {mobileHeaderTitle && (
-          <div className="absolute left-24 right-24 flex items-center justify-center">
-            <h1 className="text-base font-semibold text-gray-800 text-center truncate px-2">
-              {mobileHeaderTitle}
-            </h1>
-          </div>
-        )}
 
         {/* Sağ - Logo */}
         <button className="w-20 h-20 flex items-center justify-center transition-all">
