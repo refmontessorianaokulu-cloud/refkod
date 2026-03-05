@@ -463,7 +463,7 @@ export default function Login() {
               setIsMobileMenuOpen(true);
               setIsDesktopMenuOpen(true);
             }}
-            className="p-2 transition-all flex-shrink-0 bg-[#A8D5BA] border-2 border-[#8BC4A9] rounded-lg hover:bg-[#96C8A8] hover:border-[#7AB599]"
+            className="p-2 transition-all flex-shrink-0 bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
           >
             <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
           </button>
@@ -495,7 +495,7 @@ export default function Login() {
           <div className="hidden md:flex items-start gap-3">
             <button
               onClick={() => setShowSearchModal(true)}
-              className="p-2 transition-all bg-[#A8D5BA] border-2 border-[#8BC4A9] rounded-lg hover:bg-[#96C8A8] hover:border-[#7AB599]"
+              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
               title={t('search.placeholder')}
             >
               <SearchIcon className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
