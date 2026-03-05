@@ -67,7 +67,9 @@ export default function CartView() {
     invoiceCity: '',
     invoiceDistrict: '',
     invoiceAddress: '',
-    invoicePostalCode: ''
+    invoicePostalCode: '',
+    acceptedPreInformation: false,
+    acceptedDistanceSalesContract: false
   });
 
   const turkishCities = [
@@ -312,6 +314,11 @@ export default function CartView() {
         setMessage({ type: 'error', text: 'Lütfen fatura bilgilerini eksiksiz doldurun' });
         return;
       }
+    }
+
+    if (!guestInfo.acceptedPreInformation || !guestInfo.acceptedDistanceSalesContract) {
+      setMessage({ type: 'error', text: 'Lütfen sözleşmeleri okuyup onaylayın' });
+      return;
     }
 
     try {
@@ -969,6 +976,34 @@ export default function CartView() {
                         </div>
                       </div>
                     )}
+                  </div>
+
+                  <div className="border-t pt-4 mt-4 space-y-3">
+                    <h4 className="font-semibold text-gray-800 mb-3">Sözleşme Onayları</h4>
+
+                    <label className="flex items-start gap-3 cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={guestInfo.acceptedPreInformation}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, acceptedPreInformation: e.target.checked })}
+                        className="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500 mt-0.5 flex-shrink-0"
+                      />
+                      <span className="text-sm text-gray-700">
+                        <a href="#" className="text-emerald-600 font-medium hover:underline">Ön Bilgilendirme Formu</a>'nu okudum, onaylıyorum. <span className="text-red-500">*</span>
+                      </span>
+                    </label>
+
+                    <label className="flex items-start gap-3 cursor-pointer p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={guestInfo.acceptedDistanceSalesContract}
+                        onChange={(e) => setGuestInfo({ ...guestInfo, acceptedDistanceSalesContract: e.target.checked })}
+                        className="w-5 h-5 text-emerald-600 rounded focus:ring-emerald-500 mt-0.5 flex-shrink-0"
+                      />
+                      <span className="text-sm text-gray-700">
+                        <a href="#" className="text-emerald-600 font-medium hover:underline">Mesafeli Satış Sözleşmesi</a>'ni okudum, onaylıyorum. <span className="text-red-500">*</span>
+                      </span>
+                    </label>
                   </div>
                 </div>
               </div>
