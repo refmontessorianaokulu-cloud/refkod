@@ -549,30 +549,30 @@ export default function Sidebar({
   return (
     <>
       {/* Mobil Üst Bar - Hamburger, Başlık, Logo */}
-      <div className="lg:hidden fixed top-3 left-4 right-4 z-50 flex items-center justify-between">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between bg-white/95 backdrop-blur-sm shadow-md px-4 py-3">
         {/* Sol - Hamburger */}
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="w-20 h-20 flex items-center justify-center transition-all"
+          className="flex items-center justify-center p-2 transition-all hover:bg-gray-100 rounded-lg"
         >
-          <Menu className="w-8 h-8 text-gray-700" />
+          <Menu className="w-7 h-7 text-gray-700" />
         </button>
 
         {/* Orta - Başlık */}
         {mobileHeaderTitle && (
-          <div className="absolute left-24 right-24 flex items-center justify-center">
-            <h1 className="text-base font-semibold text-gray-800 text-center truncate px-2">
+          <div className="flex-1 flex items-center justify-center mx-4">
+            <h1 className="text-base font-semibold text-gray-800 text-center truncate">
               {mobileHeaderTitle}
             </h1>
           </div>
         )}
 
         {/* Sağ - Logo */}
-        <button className="w-20 h-20 flex items-center justify-center transition-all">
+        <button className="flex items-center justify-center p-2 transition-all">
           <img
             src="/whatsapp_image_2026-01-10_at_23.02.15.png"
             alt="REF Logo"
-            className="w-14 h-14 object-contain transition-all duration-300 hover:scale-105"
+            className="w-12 h-12 object-contain transition-all duration-300 hover:scale-105"
             style={{ mixBlendMode: 'multiply' }}
           />
         </button>
