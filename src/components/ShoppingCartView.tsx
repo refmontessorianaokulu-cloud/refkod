@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Trash2, Plus, Minus, Package, CreditCard, MapPin, Edit, ChevronDown, ChevronUp } from 'lucide-react';
+import { ShoppingCart, Trash2, Plus, Minus, Package, CreditCard, MapPin, CreditCard as Edit, ChevronDown, ChevronUp } from 'lucide-react';
 
 interface CartItem {
   id: string;
