@@ -325,7 +325,7 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
           </div>
 
           {/* Desktop Tabs */}
-          <div className="hidden md:block border-b border-gray-200 mb-6">
+          <div className="hidden md:block border-b border-gray-200 mb-6 mt-8">
             <div className="flex flex-wrap gap-4">
               <button
                 onClick={() => setActiveTab('products')}
