@@ -324,8 +324,8 @@ function ProductCatalog() {
         </div>
       ) : (
         <>
-          {/* Mobile: Grouped by Category with Horizontal Scroll */}
-          <div className="md:hidden space-y-8">
+          {/* Mobile: Grouped by Category with Horizontal Scroll (No Category Names) */}
+          <div className="md:hidden space-y-6">
             {categories
               .filter(category => {
                 const categoryProducts = filteredProducts.filter(p => p.category_id === category.id);
@@ -334,12 +334,7 @@ function ProductCatalog() {
               .map(category => {
                 const categoryProducts = filteredProducts.filter(p => p.category_id === category.id);
                 return (
-                  <div key={category.id} className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-xl font-bold text-gray-800">{category.name}</h4>
-                      <span className="text-sm text-gray-500">{categoryProducts.length} ürün</span>
-                    </div>
-
+                  <div key={category.id}>
                     <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
                       {categoryProducts.map((product) => (
                         <div
@@ -355,8 +350,8 @@ function ProductCatalog() {
               })}
           </div>
 
-          {/* Desktop: Normal Grid */}
-          <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Desktop: 5 Columns Grid */}
+          <div className="hidden md:grid md:grid-cols-5 gap-6">
             {filteredProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
