@@ -474,8 +474,7 @@ export default function Login() {
               onClick={() => {
                 const isMobile = window.innerWidth < 768;
                 if (isMobile) {
-                  setIsMobileMenuOpen(true);
-                  setOpenMobileCard('login');
+                  signInAsGuest('ref_atolye');
                 } else {
                   setIsDesktopMenuOpen(true);
                   setOpenDesktopCard('login');
