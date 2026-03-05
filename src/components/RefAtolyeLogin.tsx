@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, MessageCircle } from 'lucide-react';
 
 interface RefAtolyeLoginProps {
   onBack: () => void;
@@ -132,6 +132,12 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
     }
   };
 
+  const handleWhatsAppClick = () => {
+    const message = encodeURIComponent('Merhaba, Ref çocuk akademisine hoşgeldiniz. Size nasıl yardımcı olabiliriz?');
+    const phoneNumber = '905551234567'; // Replace with actual WhatsApp number
+    window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative">
@@ -140,6 +146,20 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
           className="absolute top-4 left-4 p-2 hover:bg-gray-100 rounded-lg transition-colors"
         >
           <ArrowLeft className="w-5 h-5 text-gray-700" />
+        </button>
+
+        <button
+          onClick={handleWhatsAppClick}
+          className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 z-50 group"
+          aria-label="WhatsApp ile iletişime geç"
+        >
+          <MessageCircle className="w-6 h-6" />
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
+            1
+          </span>
+          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            Bize yazın
+          </span>
         </button>
 
         <div className="flex items-center justify-center mb-8 mt-4">
