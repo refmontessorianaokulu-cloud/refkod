@@ -41,6 +41,7 @@ import {
   Video,
   Search,
   BarChart3,
+  ShoppingCart,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -548,14 +549,19 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobil Üst Bar - Hamburger, Başlık, Logo */}
+      {/* Mobil Üst Bar - Logo, Başlık, Sepet */}
       <div className="lg:hidden fixed top-3 left-4 right-4 z-50 flex items-center justify-between">
-        {/* Sol - Hamburger */}
+        {/* Sol - Logo */}
         <button
           onClick={() => setIsMobileOpen(true)}
           className="w-20 h-20 flex items-center justify-center transition-all"
         >
-          <Menu className="w-8 h-8 text-gray-700" />
+          <img
+            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+            alt="REF Logo"
+            className="w-14 h-14 object-contain transition-all duration-300 hover:scale-105"
+            style={{ mixBlendMode: 'multiply' }}
+          />
         </button>
 
         {/* Orta - Başlık */}
@@ -567,14 +573,12 @@ export default function Sidebar({
           </div>
         )}
 
-        {/* Sağ - Logo */}
-        <button className="w-20 h-20 flex items-center justify-center transition-all">
-          <img
-            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-            alt="REF Logo"
-            className="w-14 h-14 object-contain transition-all duration-300 hover:scale-105"
-            style={{ mixBlendMode: 'multiply' }}
-          />
+        {/* Sağ - Sepet İkonu */}
+        <button
+          onClick={() => onTabChange('ref_atolye')}
+          className="w-20 h-20 flex items-center justify-center transition-all"
+        >
+          <ShoppingCart className="w-8 h-8 text-gray-700" />
         </button>
       </div>
 
