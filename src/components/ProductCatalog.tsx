@@ -511,14 +511,14 @@ function ProductCatalog() {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 whitespace-nowrap overflow-hidden">
               {product.discounted_price ? (
                 <>
-                  <span className="text-xs text-gray-400 line-through">{product.base_price.toFixed(2)} ₺</span>
-                  <span className="text-base font-bold text-emerald-600">{product.discounted_price.toFixed(2)} ₺</span>
+                  <span className="text-xs text-gray-400 line-through flex-shrink-0">{product.base_price.toFixed(2)} ₺</span>
+                  <span className="text-base font-bold text-emerald-600 flex-shrink-0">{product.discounted_price.toFixed(2)} ₺</span>
                 </>
               ) : (
-                <span className="text-sm font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
+                <span className="text-sm font-bold text-emerald-600 flex-shrink-0">{product.base_price.toFixed(2)} ₺</span>
               )}
             </div>
 
