@@ -241,7 +241,7 @@ export default function UserOrdersView() {
 
   const handleSubmitReview = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedItemForReview || !user) return;
+    if (!selectedItemForReview || !user || !selectedOrder) return;
 
     setSubmittingReview(true);
     try {
@@ -249,18 +249,16 @@ export default function UserOrdersView() {
         .from('product_reviews')
         .insert({
           product_id: selectedItemForReview.product_id || null,
-          course_id: selectedItemForReview.course_id || null,
           user_id: user.id,
+          order_id: selectedOrder.id,
           rating: reviewData.rating,
-          title: reviewData.title || null,
           comment: reviewData.comment,
           is_verified_purchase: true,
-          is_approved: false,
         });
 
       if (error) throw error;
 
-      alert('Değerlendirmeniz başarıyla gönderildi. Onaylandıktan sonra yayınlanacaktır.');
+      alert('Değerlendirmeniz başarıyla gönderildi!');
       setShowReviewModal(false);
       setSelectedItemForReview(null);
       setReviewData({ rating: 5, title: '', comment: '' });

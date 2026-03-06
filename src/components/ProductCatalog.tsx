@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Star, Filter, Search, X, Package, Heart, CheckCircle, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Star, Filter, Search, X, Package, Heart, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Truck } from 'lucide-react';
+import ProductReviewsModal from './ProductReviewsModal';
 
 interface Product {
   id: string;
@@ -16,6 +17,8 @@ interface Product {
   tags?: string[];
   featured: boolean;
   created_at: string;
+  average_rating?: number;
+  review_count?: number;
 }
 
 interface ProductCategory {
@@ -46,6 +49,8 @@ function ProductCatalog() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [cartCount, setCartCount] = useState(0);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [showReviewsModal, setShowReviewsModal] = useState(false);
+  const [selectedProductForReviews, setSelectedProductForReviews] = useState<Product | null>(null);
 
   useEffect(() => {
     loadData();
@@ -55,13 +60,24 @@ function ProductCatalog() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [productsRes, categoriesRes, imagesRes] = await Promise.all([
+      const [productsRes, categoriesRes, imagesRes, ratingsRes] = await Promise.all([
         supabase.from('products').select('*').eq('is_active', true).order('featured', { ascending: false }),
         supabase.from('product_categories').select('*').eq('is_active', true).order('name', { ascending: true }),
         supabase.from('product_images').select('*').order('display_order', { ascending: true }),
+        supabase.from('product_ratings').select('*'),
       ]);
 
-      if (productsRes.data) setProducts(productsRes.data);
+      if (productsRes.data && ratingsRes.data) {
+        const productsWithRatings = productsRes.data.map(product => {
+          const rating = ratingsRes.data.find((r: any) => r.product_id === product.id);
+          return {
+            ...product,
+            average_rating: rating?.average_rating || 0,
+            review_count: rating?.review_count || 0,
+          };
+        });
+        setProducts(productsWithRatings);
+      }
       if (categoriesRes.data) setCategories(categoriesRes.data);
       if (imagesRes.data) setImages(imagesRes.data);
     } catch (error) {
@@ -359,6 +375,17 @@ function ProductCatalog() {
           getPrimaryImage={getPrimaryImage}
         />
       )}
+
+      {/* Product Reviews Modal */}
+      {showReviewsModal && selectedProductForReviews && (
+        <ProductReviewsModal
+          product={selectedProductForReviews}
+          onClose={() => {
+            setShowReviewsModal(false);
+            setSelectedProductForReviews(null);
+          }}
+        />
+      )}
     </div>
   );
 
@@ -458,18 +485,50 @@ function ProductCatalog() {
           )}
         </div>
         <div className="p-2.5">
-          <p className="text-xs text-gray-500 mb-1">{getCategoryName(product.category_id)}</p>
           <h4 className="font-semibold text-gray-800 text-sm mb-1.5 line-clamp-2 min-h-[2.5rem]">{product.name}</h4>
-          <p className="text-xs text-gray-600 mb-2.5 line-clamp-1">{product.description}</p>
+
+          <div
+            className="flex items-center gap-1 mb-2 cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedProductForReviews(product);
+              setShowReviewsModal(true);
+            }}
+          >
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star
+                key={star}
+                className={`w-3.5 h-3.5 ${
+                  star <= (product.average_rating || 0)
+                    ? 'fill-yellow-400 text-yellow-400'
+                    : 'text-gray-300'
+                }`}
+              />
+            ))}
+            <span className="text-xs text-gray-500 ml-1">
+              ({product.review_count || 0})
+            </span>
+          </div>
+
           <div className="space-y-2">
-            {product.discounted_price ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400 line-through">{product.base_price.toFixed(2)} ₺</span>
-                <span className="text-base font-bold text-red-600">{product.discounted_price.toFixed(2)} ₺</span>
+            <div className="flex items-center gap-2">
+              {product.discounted_price ? (
+                <>
+                  <span className="text-xs text-gray-400 line-through">{product.base_price.toFixed(2)} ₺</span>
+                  <span className="text-base font-bold text-emerald-600">{product.discounted_price.toFixed(2)} ₺</span>
+                </>
+              ) : (
+                <span className="text-sm font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
+              )}
+            </div>
+
+            {(product.discounted_price || product.base_price) >= 1000 && (
+              <div className="flex items-center gap-1 text-emerald-600 text-xs">
+                <Truck className="w-3.5 h-3.5" />
+                <span className="font-medium">Ücretsiz Kargo</span>
               </div>
-            ) : (
-              <div className="text-sm font-semibold text-emerald-600">{product.base_price.toFixed(2)} ₺</div>
             )}
+
             <div className="flex items-center gap-1.5">
               <button
                 onClick={(e) => {
@@ -511,6 +570,39 @@ function ProductCatalog() {
     getCategoryName: (categoryId: string) => string;
     getPrimaryImage: (productId: string) => string;
   }) {
+    const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+
+    useEffect(() => {
+      loadSimilarProducts();
+    }, [product.id]);
+
+    const loadSimilarProducts = async () => {
+      try {
+        const { data } = await supabase
+          .from('products')
+          .select('*')
+          .eq('is_active', true)
+          .neq('id', product.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (data) {
+          const { data: ratingsData } = await supabase.from('product_ratings').select('*');
+          const productsWithRatings = data.map(p => {
+            const rating = ratingsData?.find((r: any) => r.product_id === p.id);
+            return {
+              ...p,
+              average_rating: rating?.average_rating || 0,
+              review_count: rating?.review_count || 0,
+            };
+          });
+          setSimilarProducts(productsWithRatings);
+        }
+      } catch (error) {
+        console.error('Error loading similar products:', error);
+      }
+    };
+
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" onClick={onClose}>
         <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
@@ -548,7 +640,7 @@ function ProductCatalog() {
                 {product.discounted_price ? (
                   <>
                     <span className="text-lg text-gray-400 line-through">{product.base_price.toFixed(2)} ₺</span>
-                    <span className="text-3xl font-bold text-red-600">{product.discounted_price.toFixed(2)} ₺</span>
+                    <span className="text-3xl font-bold text-emerald-600">{product.discounted_price.toFixed(2)} ₺</span>
                   </>
                 ) : (
                   <span className="text-2xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
@@ -565,6 +657,53 @@ function ProductCatalog() {
                 Sepete Ekle
               </button>
             </div>
+
+            {similarProducts.length > 0 && (
+              <div className="pt-6 border-t border-gray-200">
+                <h4 className="text-lg font-semibold text-gray-800 mb-4">Benzer Ürünler</h4>
+                <div className="grid grid-cols-3 gap-3">
+                  {similarProducts.map((similar) => (
+                    <div
+                      key={similar.id}
+                      className="border border-gray-200 rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => {
+                        onClose();
+                        setSelectedProduct(similar);
+                      }}
+                    >
+                      <img
+                        src={getPrimaryImage(similar.id)}
+                        alt={similar.name}
+                        className="w-full aspect-square object-cover"
+                      />
+                      <div className="p-2">
+                        <h5 className="text-xs font-semibold text-gray-800 line-clamp-2 mb-1">{similar.name}</h5>
+                        <div className="flex items-center gap-1 mb-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <Star
+                              key={star}
+                              className={`w-2.5 h-2.5 ${
+                                star <= (similar.average_rating || 0)
+                                  ? 'fill-yellow-400 text-yellow-400'
+                                  : 'text-gray-300'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                        {similar.discounted_price ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-[10px] text-gray-400 line-through">{similar.base_price.toFixed(2)} ₺</span>
+                            <span className="text-xs font-bold text-emerald-600">{similar.discounted_price.toFixed(2)} ₺</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs font-bold text-emerald-600">{similar.base_price.toFixed(2)} ₺</span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
