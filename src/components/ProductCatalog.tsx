@@ -402,31 +402,32 @@ function ProductCatalog() {
         {showLeftArrow && (
           <button
             onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 transition-all"
+            className="absolute left-1 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-md rounded-full p-1.5 transition-all"
             aria-label="Önceki ürünler"
           >
-            <ChevronLeft className="w-6 h-6 text-gray-800" />
+            <ChevronLeft className="w-4 h-4 text-gray-800" />
           </button>
         )}
 
         {showRightArrow && (
           <button
             onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 transition-all"
+            className="absolute right-1 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-md rounded-full p-1.5 transition-all"
             aria-label="Sonraki ürünler"
           >
-            <ChevronRight className="w-6 h-6 text-gray-800" />
+            <ChevronRight className="w-4 h-4 text-gray-800" />
           </button>
         )}
 
         <div
           ref={scrollRef}
-          className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4"
+          className="grid grid-cols-2 gap-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-4 px-4"
+          style={{ gridAutoFlow: 'column', gridAutoColumns: 'calc(50% - 6px)' }}
         >
           {products.map((product) => (
             <div
               key={product.id}
-              className="flex-shrink-0 w-[280px] snap-start"
+              className="snap-start"
             >
               <ProductCard product={product} />
             </div>
