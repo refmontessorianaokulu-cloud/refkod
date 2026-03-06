@@ -456,32 +456,32 @@ function ProductCatalog() {
             </div>
           )}
         </div>
-        <div className="p-3">
+        <div className="p-2.5">
           <p className="text-xs text-gray-500 mb-1">{getCategoryName(product.category_id)}</p>
-          <h4 className="font-semibold text-gray-800 text-sm mb-2 line-clamp-2 min-h-[2.5rem]">{product.name}</h4>
-          <p className="text-xs text-gray-600 mb-3 line-clamp-2">{product.description}</p>
-          <div className="flex items-center justify-between gap-2">
-            <span className="text-base font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
+          <h4 className="font-semibold text-gray-800 text-sm mb-1.5 line-clamp-2 min-h-[2.5rem]">{product.name}</h4>
+          <p className="text-xs text-gray-600 mb-2.5 line-clamp-1">{product.description}</p>
+          <div className="space-y-2">
+            <div className="text-lg font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</div>
             <div className="flex items-center gap-1.5">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   addToFavorites(product);
                 }}
-                className="p-1.5 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors"
+                className="flex-1 p-2 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-center"
                 title="Favorilere Ekle"
               >
-                <Heart className="w-3.5 h-3.5" />
+                <Heart className="w-4 h-4" />
               </button>
               <button
                 onClick={(e) => {
                   e.stopPropagation();
                   addToCart(product);
                 }}
-                className="p-1.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                className="flex-1 p-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center"
                 title="Sepete Ekle"
               >
-                <ShoppingCart className="w-3.5 h-3.5" />
+                <ShoppingCart className="w-4 h-4" />
               </button>
             </div>
           </div>
