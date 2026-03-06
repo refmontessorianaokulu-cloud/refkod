@@ -485,7 +485,7 @@ function ProductCatalog() {
           )}
         </div>
         <div className="p-2.5">
-          <h4 className="font-semibold text-gray-800 text-sm mb-1.5 line-clamp-2 min-h-[2.5rem]">{product.name}</h4>
+          <h4 className="font-semibold text-gray-800 text-xs mb-1.5 line-clamp-2 min-h-[2.5rem]">{product.name}</h4>
 
           <div
             className="flex items-center gap-1 mb-2 cursor-pointer"
@@ -498,7 +498,7 @@ function ProductCatalog() {
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`w-3.5 h-3.5 ${
+                className={`w-3 h-3 ${
                   star <= (product.average_rating || 0)
                     ? 'fill-yellow-400 text-yellow-400'
                     : 'text-gray-300'
@@ -511,14 +511,14 @@ function ProductCatalog() {
           </div>
 
           <div className="space-y-2">
-            <div className="flex items-center gap-2 whitespace-nowrap overflow-hidden">
+            <div className="flex items-baseline gap-1.5">
               {product.discounted_price ? (
                 <>
-                  <span className="text-xs text-gray-400 line-through flex-shrink-0">{product.base_price.toFixed(2)} ₺</span>
-                  <span className="text-base font-bold text-emerald-600 flex-shrink-0">{product.discounted_price.toFixed(2)} ₺</span>
+                  <span className="text-[11px] text-gray-400 line-through">{product.base_price.toFixed(2)} ₺</span>
+                  <span className="text-sm font-bold text-green-600">{product.discounted_price.toFixed(2)} ₺</span>
                 </>
               ) : (
-                <span className="text-sm font-bold text-emerald-600 flex-shrink-0">{product.base_price.toFixed(2)} ₺</span>
+                <span className="text-sm font-bold text-green-600">{product.base_price.toFixed(2)} ₺</span>
               )}
             </div>
 
