@@ -67,9 +67,9 @@ function ProductCatalog() {
         supabase.from('product_ratings').select('*'),
       ]);
 
-      if (productsRes.data && ratingsRes.data) {
+      if (productsRes.data) {
         const productsWithRatings = productsRes.data.map(product => {
-          const rating = ratingsRes.data.find((r: any) => r.product_id === product.id);
+          const rating = ratingsRes.data?.find((r: any) => r.product_id === product.id);
           return {
             ...product,
             average_rating: rating?.average_rating || 0,
