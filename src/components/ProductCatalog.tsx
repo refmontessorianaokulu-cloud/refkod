@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Star, Filter, Search, X, Package, Heart, CheckCircle, AlertCircle } from 'lucide-react';
+import { ShoppingCart, Star, Filter, Search, X, Package, Heart, CheckCircle, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Product {
   id: string;
@@ -334,18 +334,7 @@ function ProductCatalog() {
               .map(category => {
                 const categoryProducts = filteredProducts.filter(p => p.category_id === category.id);
                 return (
-                  <div key={category.id}>
-                    <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4">
-                      {categoryProducts.map((product) => (
-                        <div
-                          key={product.id}
-                          className="flex-shrink-0 w-[280px] snap-start"
-                        >
-                          <ProductCard product={product} />
-                        </div>
-                      ))}
-                    </div>
-                  </div>
+                  <CategoryScrollSection key={category.id} products={categoryProducts} />
                 );
               })}
           </div>
@@ -371,6 +360,81 @@ function ProductCatalog() {
       )}
     </div>
   );
+
+  function CategoryScrollSection({ products }: { products: Product[] }) {
+    const scrollRef = useRef<HTMLDivElement>(null);
+    const [showLeftArrow, setShowLeftArrow] = useState(false);
+    const [showRightArrow, setShowRightArrow] = useState(true);
+
+    const checkScrollPosition = () => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        setShowLeftArrow(scrollLeft > 10);
+        setShowRightArrow(scrollLeft < scrollWidth - clientWidth - 10);
+      }
+    };
+
+    useEffect(() => {
+      checkScrollPosition();
+      const scrollElement = scrollRef.current;
+      if (scrollElement) {
+        scrollElement.addEventListener('scroll', checkScrollPosition);
+        return () => scrollElement.removeEventListener('scroll', checkScrollPosition);
+      }
+    }, [products]);
+
+    const scroll = (direction: 'left' | 'right') => {
+      if (scrollRef.current) {
+        const scrollAmount = 300;
+        const newScrollLeft = direction === 'left'
+          ? scrollRef.current.scrollLeft - scrollAmount
+          : scrollRef.current.scrollLeft + scrollAmount;
+
+        scrollRef.current.scrollTo({
+          left: newScrollLeft,
+          behavior: 'smooth'
+        });
+      }
+    };
+
+    return (
+      <div className="relative">
+        {showLeftArrow && (
+          <button
+            onClick={() => scroll('left')}
+            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 transition-all"
+            aria-label="Önceki ürünler"
+          >
+            <ChevronLeft className="w-6 h-6 text-gray-800" />
+          </button>
+        )}
+
+        {showRightArrow && (
+          <button
+            onClick={() => scroll('right')}
+            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white shadow-lg rounded-full p-2 transition-all"
+            aria-label="Sonraki ürünler"
+          >
+            <ChevronRight className="w-6 h-6 text-gray-800" />
+          </button>
+        )}
+
+        <div
+          ref={scrollRef}
+          className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide -mx-4 px-4"
+        >
+          {products.map((product) => (
+            <div
+              key={product.id}
+              className="flex-shrink-0 w-[280px] snap-start"
+            >
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   function ProductCard({ product }: { product: typeof filteredProducts[0] }) {
     return (
