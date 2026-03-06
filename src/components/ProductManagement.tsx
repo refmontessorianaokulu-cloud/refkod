@@ -9,6 +9,7 @@ interface Product {
   description: string;
   product_type: 'physical' | 'digital';
   base_price: number;
+  discounted_price?: number | null;
   is_active: boolean;
   sku: string;
   weight?: number;
@@ -59,6 +60,7 @@ export default function ProductManagement() {
     description: '',
     product_type: 'physical' as 'physical' | 'digital',
     base_price: '',
+    discounted_price: '',
     sku: '',
     weight: '',
     is_active: true,
@@ -256,6 +258,7 @@ export default function ProductManagement() {
         description: productForm.description,
         product_type: productForm.product_type,
         base_price: parseFloat(productForm.base_price),
+        discounted_price: productForm.discounted_price ? parseFloat(productForm.discounted_price) : null,
         sku: productForm.sku,
         weight: productForm.weight ? parseFloat(productForm.weight) : null,
         is_active: productForm.is_active,
@@ -308,6 +311,7 @@ export default function ProductManagement() {
       description: product.description,
       product_type: product.product_type,
       base_price: product.base_price.toString(),
+      discounted_price: product.discounted_price?.toString() || '',
       sku: product.sku,
       weight: product.weight?.toString() || '',
       is_active: product.is_active,
@@ -349,6 +353,7 @@ export default function ProductManagement() {
       description: '',
       product_type: 'physical',
       base_price: '',
+      discounted_price: '',
       sku: '',
       weight: '',
       is_active: true,
@@ -565,7 +570,7 @@ export default function ProductManagement() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Fiyat (₺) *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Normal Fiyat (₺) *</label>
                   <input
                     type="number"
                     step="0.01"
@@ -574,6 +579,19 @@ export default function ProductManagement() {
                     onChange={(e) => setProductForm({ ...productForm, base_price: e.target.value })}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
                   />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">İndirimli Fiyat (₺)</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={productForm.discounted_price}
+                    onChange={(e) => setProductForm({ ...productForm, discounted_price: e.target.value })}
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500"
+                    placeholder="Kampanya yoksa boş bırakın"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">İndirimli fiyat normal fiyattan düşük olmalıdır</p>
                 </div>
               </div>
 

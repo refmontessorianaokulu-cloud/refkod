@@ -10,6 +10,7 @@ interface Product {
   description: string;
   product_type: 'physical' | 'digital';
   base_price: number;
+  discounted_price?: number | null;
   is_active: boolean;
   sku: string;
   tags?: string[];
@@ -461,7 +462,14 @@ function ProductCatalog() {
           <h4 className="font-semibold text-gray-800 text-sm mb-1.5 line-clamp-2 min-h-[2.5rem]">{product.name}</h4>
           <p className="text-xs text-gray-600 mb-2.5 line-clamp-1">{product.description}</p>
           <div className="space-y-2">
-            <div className="text-lg font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</div>
+            {product.discounted_price ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-400 line-through">{product.base_price.toFixed(2)} ₺</span>
+                <span className="text-base font-bold text-red-600">{product.discounted_price.toFixed(2)} ₺</span>
+              </div>
+            ) : (
+              <div className="text-sm font-semibold text-emerald-600">{product.base_price.toFixed(2)} ₺</div>
+            )}
             <div className="flex items-center gap-1.5">
               <button
                 onClick={(e) => {
@@ -536,7 +544,16 @@ function ProductCatalog() {
             </div>
 
             <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-              <span className="text-2xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
+              <div className="flex items-center gap-3">
+                {product.discounted_price ? (
+                  <>
+                    <span className="text-lg text-gray-400 line-through">{product.base_price.toFixed(2)} ₺</span>
+                    <span className="text-3xl font-bold text-red-600">{product.discounted_price.toFixed(2)} ₺</span>
+                  </>
+                ) : (
+                  <span className="text-2xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
+                )}
+              </div>
               <button
                 onClick={() => {
                   onAddToCart(product);

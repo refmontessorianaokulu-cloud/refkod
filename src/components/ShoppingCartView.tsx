@@ -18,6 +18,7 @@ interface Product {
   name: string;
   description: string;
   base_price: number;
+  discounted_price?: number | null;
   product_type: 'physical' | 'digital';
 }
 
@@ -141,7 +142,7 @@ export default function ShoppingCartView() {
             if (item.product_id) {
               const { data } = await supabase
                 .from('products')
-                .select('id, name, description, base_price, product_type')
+                .select('id, name, description, base_price, discounted_price, product_type')
                 .eq('id', item.product_id)
                 .maybeSingle();
               product = data;
@@ -215,7 +216,7 @@ export default function ShoppingCartView() {
 
   const calculateTotal = () => {
     return cartItems.reduce((total, item) => {
-      const price = item.product?.base_price || item.course?.price || 0;
+      const price = item.product?.discounted_price || item.product?.base_price || item.course?.price || 0;
       return total + price * item.quantity;
     }, 0);
   };
@@ -302,8 +303,8 @@ export default function ShoppingCartView() {
         course_id: item.course_id || null,
         item_name: item.product?.name || item.course?.title || '',
         quantity: item.quantity,
-        unit_price: item.product?.base_price || item.course?.price || 0,
-        total_price: (item.product?.base_price || item.course?.price || 0) * item.quantity,
+        unit_price: item.product?.discounted_price || item.product?.base_price || item.course?.price || 0,
+        total_price: (item.product?.discounted_price || item.product?.base_price || item.course?.price || 0) * item.quantity,
       }));
 
       const { error: itemsError } = await supabase
@@ -364,7 +365,8 @@ export default function ShoppingCartView() {
           {cartItems.map((item) => {
             const name = item.product?.name || item.course?.title || '';
             const description = item.product?.description || item.course?.description || '';
-            const price = item.product?.base_price || item.course?.price || 0;
+            const price = item.product?.discounted_price || item.product?.base_price || item.course?.price || 0;
+            const hasDiscount = item.product?.discounted_price && item.product?.base_price;
             const isProduct = !!item.product;
 
             return (
@@ -374,7 +376,14 @@ export default function ShoppingCartView() {
                     <h4 className="font-semibold text-gray-800 mb-1">{name}</h4>
                     <p className="text-sm text-gray-600 mb-3">{description}</p>
                     <div className="flex items-center justify-between">
-                      <span className="text-lg font-bold text-emerald-600">{price.toFixed(2)} ₺</span>
+                      {hasDiscount ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-gray-400 line-through">{item.product!.base_price.toFixed(2)} ₺</span>
+                          <span className="text-lg font-bold text-red-600">{price.toFixed(2)} ₺</span>
+                        </div>
+                      ) : (
+                        <span className="text-lg font-bold text-emerald-600">{price.toFixed(2)} ₺</span>
+                      )}
                       {isProduct && (
                         <div className="flex items-center gap-2">
                           <button

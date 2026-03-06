@@ -13,6 +13,7 @@ interface FavoriteItem {
     name: string;
     description: string;
     base_price: number;
+    discounted_price?: number | null;
     product_images: { image_url: string; is_primary: boolean }[];
   };
   course?: {
@@ -83,6 +84,7 @@ export default function FavoritesView() {
             name,
             description,
             base_price,
+            discounted_price,
             product_images(image_url, is_primary)
           ),
           course:online_courses(
@@ -225,7 +227,8 @@ export default function FavoritesView() {
             const isProduct = !!item.product;
             const name = isProduct ? item.product!.name : item.course!.title;
             const description = isProduct ? item.product!.description : item.course!.description;
-            const price = isProduct ? item.product!.base_price : item.course!.price;
+            const price = isProduct ? (item.product!.discounted_price || item.product!.base_price) : item.course!.price;
+            const hasDiscount = isProduct && item.product!.discounted_price && item.product!.base_price;
             const image = isProduct
               ? item.product!.product_images?.find(img => img.is_primary)?.image_url ||
                 item.product!.product_images?.[0]?.image_url
@@ -253,9 +256,16 @@ export default function FavoritesView() {
                   <h3 className="font-semibold text-gray-900 mb-2">{name}</h3>
                   <p className="text-sm text-gray-600 line-clamp-2 mb-3">{description}</p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-emerald-600">
-                      {price.toFixed(2)} ₺
-                    </span>
+                    {hasDiscount ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-400 line-through">{item.product!.base_price.toFixed(2)} ₺</span>
+                        <span className="text-lg font-bold text-red-600">{price.toFixed(2)} ₺</span>
+                      </div>
+                    ) : (
+                      <span className="text-xl font-bold text-emerald-600">
+                        {price.toFixed(2)} ₺
+                      </span>
+                    )}
                     <button
                       onClick={() => addToCart(item)}
                       className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 flex items-center gap-2 text-sm"
