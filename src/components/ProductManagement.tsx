@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Plus, Edit2, Trash2, Save, X, Upload, Package, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
+import { Plus, CreditCard as Edit2, Trash2, Save, X, Upload, Package, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
 
 interface Product {
   id: string;
