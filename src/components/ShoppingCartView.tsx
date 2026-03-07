@@ -189,6 +189,7 @@ export default function ShoppingCartView() {
         }
       }
       loadCart();
+      window.dispatchEvent(new Event('cart-updated'));
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
     }
@@ -209,6 +210,7 @@ export default function ShoppingCartView() {
         localStorage.setItem('guest_cart', JSON.stringify(filteredCart));
       }
       loadCart();
+      window.dispatchEvent(new Event('cart-updated'));
     } catch (error) {
       alert('Hata: ' + (error as Error).message);
     }
@@ -335,6 +337,7 @@ export default function ShoppingCartView() {
         localStorage.removeItem('guest_cart');
       }
 
+      window.dispatchEvent(new Event('cart-updated'));
       alert(`Siparişiniz alındı! Sipariş numaranız: ${orderNumber}`);
       setShowCheckout(false);
       loadCart();

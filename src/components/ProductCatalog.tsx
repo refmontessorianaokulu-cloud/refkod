@@ -152,10 +152,11 @@ function ProductCatalog({ initialCategoryId }: ProductCatalogProps) {
           }
         } else {
           setMessage({ type: 'success', text: 'Ürün sepete eklendi!' });
+          window.dispatchEvent(new Event('cart-updated'));
         }
       } else {
         const primaryImage = getPrimaryImage(product.id);
-        const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+        const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
         const existingItem = guestCart.find((item: any) => item.product_id === product.id);
 
         if (existingItem) {
@@ -173,8 +174,9 @@ function ProductCatalog({ initialCategoryId }: ProductCatalogProps) {
           });
         }
 
-        localStorage.setItem('guestCart', JSON.stringify(guestCart));
+        localStorage.setItem('guest_cart', JSON.stringify(guestCart));
         setMessage({ type: 'success', text: 'Ürün sepete eklendi!' });
+        window.dispatchEvent(new Event('cart-updated'));
       }
       loadCartCount();
       setTimeout(() => setMessage(null), 3000);
