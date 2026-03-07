@@ -511,7 +511,7 @@ function ProductCatalog() {
           )}
         </div>
         <div className="p-2.5">
-          <h4 className="font-semibold text-gray-800 text-sm mb-1.5 line-clamp-1 overflow-hidden text-ellipsis whitespace-nowrap">{product.name}</h4>
+          <h4 className="font-semibold text-gray-800 text-sm mb-1.5 line-clamp-2 sm:line-clamp-1 sm:overflow-hidden sm:text-ellipsis sm:whitespace-nowrap">{product.name}</h4>
 
           <div
             className="flex items-center gap-1 mb-2 cursor-pointer"
