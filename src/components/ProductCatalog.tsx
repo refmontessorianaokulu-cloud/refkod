@@ -662,12 +662,12 @@ function ProductCatalog() {
               )}
             </div>
 
-            <div className="flex items-center justify-between pt-4 border-t border-gray-200">
-              <div className="flex items-center gap-3">
+            <div className="pt-4 border-t border-gray-200 space-y-3">
+              <div className="flex items-baseline gap-3">
                 {product.discounted_price ? (
                   <>
+                    <span className="text-2xl font-bold text-emerald-600">{product.discounted_price.toFixed(2)} ₺</span>
                     <span className="text-lg text-gray-400 line-through">{product.base_price.toFixed(2)} ₺</span>
-                    <span className="text-3xl font-bold text-emerald-600">{product.discounted_price.toFixed(2)} ₺</span>
                   </>
                 ) : (
                   <span className="text-2xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
@@ -676,20 +676,20 @@ function ProductCatalog() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => addToFavorites(product)}
-                  className="p-3 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors"
-                  title="Favorilere Ekle"
+                  className="flex-1 p-3 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors flex items-center justify-center gap-2"
                 >
                   <Heart className="w-5 h-5" />
+                  <span className="font-medium">Favorilere Ekle</span>
                 </button>
                 <button
                   onClick={() => {
                     onAddToCart(product);
                     onClose();
                   }}
-                  className="p-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
-                  title="Sepete Ekle"
+                  className="flex-1 p-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors flex items-center justify-center gap-2"
                 >
                   <ShoppingCart className="w-5 h-5" />
+                  <span className="font-medium">Sepete Ekle</span>
                 </button>
               </div>
             </div>
