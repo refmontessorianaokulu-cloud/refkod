@@ -553,7 +553,7 @@ export default function Sidebar({
   return (
     <>
       {/* Mobil Üst Bar - Hamburger, Logo, Hesabım */}
-      <div className={`lg:hidden fixed left-4 right-4 z-50 flex items-center justify-between bg-white rounded-full shadow-lg px-2 py-2 ${
+      <div className={`lg:hidden fixed left-4 right-4 z-50 flex items-center justify-between px-2 py-2 ${
         mobileHeaderTitle === 'Ref Atölye' ? 'top-3' : 'top-3'
       }`}>
         {/* Sol - Hamburger */}
