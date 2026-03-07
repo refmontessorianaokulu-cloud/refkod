@@ -173,7 +173,7 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
       {/* Search Overlay - closes search when clicking outside */}
       {showSearchResults && (
         <div
-          className="fixed inset-0 z-40"
+          className="fixed inset-0 z-[60] bg-black/20"
           onClick={() => {
             setShowSearchResults(false);
             setSearchQuery('');
@@ -182,7 +182,7 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
       )}
 
       {/* Search Bar */}
-      <div className="mb-6 relative">
+      <div className="mb-6 relative z-[70]">
         <div className="relative">
           <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
             <Search className="h-5 w-5 text-gray-400" />
@@ -197,7 +197,7 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center"
+              className="absolute inset-y-0 right-0 pr-4 flex items-center z-10"
             >
               <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
             </button>
@@ -206,7 +206,7 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
 
         {/* Search Results Dropdown */}
         {showSearchResults && (
-          <div className="absolute z-50 left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-96 overflow-y-auto">
+          <div className="absolute z-[80] left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-200 max-h-96 overflow-y-auto">
             {isSearching ? (
               <div className="p-8 text-center">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-emerald-600 border-t-transparent"></div>
