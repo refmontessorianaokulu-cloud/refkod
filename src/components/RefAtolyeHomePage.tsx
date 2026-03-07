@@ -183,7 +183,7 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
       )}
 
       {/* Search Bar - Mobile at top, Desktop integrated */}
-      <div className="mb-6 relative z-[70] lg:mt-0 -mt-4">
+      <div className="mb-6 relative z-[70] lg:mt-0 mt-16">
         <TypewriterInput
           value={searchQuery}
           onChange={(value) => setSearchQuery(value)}

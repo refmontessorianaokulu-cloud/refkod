@@ -553,11 +553,13 @@ export default function Sidebar({
   return (
     <>
       {/* Mobil Üst Bar - Hamburger, Logo, Hesabım */}
-      <div className="lg:hidden fixed top-3 left-4 right-4 z-50 flex items-center justify-between">
+      <div className={`lg:hidden fixed left-4 right-4 z-50 flex items-center justify-between bg-white rounded-full shadow-lg px-2 py-2 ${
+        mobileHeaderTitle === 'Ref Atölye' ? 'top-3' : 'top-3'
+      }`}>
         {/* Sol - Hamburger */}
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-lg hover:shadow-xl transition-all"
+          className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-all"
         >
           <Menu className="w-6 h-6 text-gray-700" />
         </button>
@@ -566,17 +568,17 @@ export default function Sidebar({
         {mobileHeaderTitle === 'Ref Atölye' ? (
           <button
             onClick={() => onTabChange('ref_atolye')}
-            className="flex items-center justify-center transition-all"
+            className="flex items-center justify-center transition-all flex-1"
           >
             <img
               src="/whatsapp_image_2026-01-10_at_23.02.15.png"
               alt="REF Logo"
-              className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
+              className="h-10 w-auto object-contain transition-all duration-300 hover:scale-105"
               style={{ mixBlendMode: 'multiply' }}
             />
           </button>
         ) : mobileHeaderTitle ? (
-          <div className="absolute left-20 right-20 flex items-center justify-center">
+          <div className="flex items-center justify-center flex-1">
             <h1 className="text-base font-semibold text-gray-800 text-center truncate px-2">
               {mobileHeaderTitle}
             </h1>
@@ -584,12 +586,12 @@ export default function Sidebar({
         ) : (
           <button
             onClick={() => onTabChange('home')}
-            className="flex items-center justify-center transition-all"
+            className="flex items-center justify-center transition-all flex-1"
           >
             <img
               src="/whatsapp_image_2026-01-10_at_23.02.15.png"
               alt="REF Logo"
-              className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
+              className="h-10 w-auto object-contain transition-all duration-300 hover:scale-105"
               style={{ mixBlendMode: 'multiply' }}
             />
           </button>
@@ -602,7 +604,7 @@ export default function Sidebar({
               const event = new CustomEvent('navigate-to-account');
               window.dispatchEvent(event);
             }}
-            className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-lg hover:shadow-xl transition-all"
+            className="w-10 h-10 flex items-center justify-center hover:bg-gray-100 rounded-full transition-all"
           >
             <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors">
               <User className="w-4 h-4 text-white" />
