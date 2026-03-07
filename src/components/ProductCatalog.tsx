@@ -93,6 +93,16 @@ function ProductCatalog() {
     }
   };
 
+  const [cameraColor, setCameraColor] = useState('#3B82F6');
+  const colors = ['#3B82F6', '#EF4444', '#10B981', '#F97316'];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCameraColor(colors[Math.floor(Math.random() * colors.length)]);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   const loadCartCount = async () => {
     try {
       if (user) {
@@ -542,7 +552,9 @@ function ProductCatalog() {
               ({product.review_count || 0})
             </span>
             {product.has_photo_reviews && (
-              <Camera className="w-4 h-4 text-blue-500 ml-1" />
+              <Camera className="w-4 h-4 ml-1 transition-colors duration-500" style={{
+                color: cameraColor
+              }} />
             )}
           </div>
 
@@ -787,7 +799,9 @@ function ProductCatalog() {
                                 ))}
                               </div>
                               {review.images && review.images.length > 0 && (
-                                <Camera className="w-5 h-5 text-blue-500" />
+                                <Camera className="w-5 h-5 transition-colors duration-500" style={{
+                                  color: cameraColor
+                                }} />
                               )}
                             </div>
                           </div>
