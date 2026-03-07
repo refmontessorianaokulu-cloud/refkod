@@ -118,38 +118,6 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
 
   return (
     <div className="pb-20">
-      {/* Quick Access Cards */}
-      <div className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-center gap-2">
-          <TrendingUp className="w-5 h-5 text-emerald-600" />
-          Hızlı Erişim
-        </h2>
-        <div className="grid grid-cols-1 gap-3">
-          {quickAccessCards.map((card) => {
-            const Icon = card.icon;
-            return (
-              <button
-                key={card.id}
-                onClick={() => onNavigate(card.id)}
-                className={`bg-gradient-to-br ${card.color} rounded-xl p-6 text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-95`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="bg-white/20 backdrop-blur-sm p-3 rounded-xl">
-                      <Icon className="w-7 h-7" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="text-lg font-bold">{card.title}</h3>
-                      <p className="text-white/80 text-sm">{card.description}</p>
-                    </div>
-                  </div>
-                  <ArrowRight className="w-6 h-6" />
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      </div>
 
       {/* Featured Products */}
       {featuredProducts.length > 0 && (
