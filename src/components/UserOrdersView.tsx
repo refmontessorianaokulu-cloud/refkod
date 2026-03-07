@@ -323,6 +323,7 @@ export default function UserOrdersView() {
           comment: reviewData.comment,
           images: reviewData.images || [],
           is_verified_purchase: true,
+          is_approved: true,
         });
 
       if (error) throw error;

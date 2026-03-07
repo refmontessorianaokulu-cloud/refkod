@@ -257,6 +257,7 @@ function WriteReviewForm({
         comment,
         images: imageUrls,
         is_verified_purchase: true,
+        is_approved: true,
       });
 
       if (error) throw error;
