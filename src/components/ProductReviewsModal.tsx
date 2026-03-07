@@ -53,6 +53,7 @@ export default function ProductReviewsModal({ product, onClose }: ProductReviews
           )
         `)
         .eq('product_id', product.id)
+        .eq('is_approved', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
