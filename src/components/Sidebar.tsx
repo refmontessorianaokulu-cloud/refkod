@@ -549,37 +549,61 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobil Üst Bar - Hamburger, Başlık, Logo */}
+      {/* Mobil Üst Bar - Hamburger, Logo, Hesabım */}
       <div className="lg:hidden fixed top-3 left-4 right-4 z-50 flex items-center justify-between">
         {/* Sol - Hamburger */}
         <button
           onClick={() => setIsMobileOpen(true)}
-          className="w-20 h-20 flex items-center justify-center transition-all"
+          className="w-16 h-16 flex items-center justify-center transition-all"
         >
-          <Menu className="w-8 h-8 text-gray-700" />
+          <Menu className="w-7 h-7 text-gray-700" />
         </button>
 
-        {/* Orta - Başlık */}
-        {mobileHeaderTitle && (
-          <div className="absolute left-24 right-24 flex items-center justify-center">
+        {/* Orta - Logo (Ref Atölye için) veya Başlık */}
+        {mobileHeaderTitle === 'Ref Atölye' ? (
+          <button
+            onClick={() => onTabChange('ref_atolye')}
+            className="flex items-center justify-center transition-all"
+          >
+            <img
+              src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+              alt="REF Logo"
+              className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
+              style={{ mixBlendMode: 'multiply' }}
+            />
+          </button>
+        ) : mobileHeaderTitle ? (
+          <div className="absolute left-20 right-20 flex items-center justify-center">
             <h1 className="text-base font-semibold text-gray-800 text-center truncate px-2">
               {mobileHeaderTitle}
             </h1>
           </div>
+        ) : (
+          <button
+            onClick={() => onTabChange('home')}
+            className="flex items-center justify-center transition-all"
+          >
+            <img
+              src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+              alt="REF Logo"
+              className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
+              style={{ mixBlendMode: 'multiply' }}
+            />
+          </button>
         )}
 
-        {/* Sağ - Logo */}
-        <button className="w-20 h-20 flex items-center justify-center transition-all">
-          <img
-            src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-            alt="REF Logo"
-            className="w-14 h-14 object-contain transition-all duration-300 hover:scale-105"
-            style={{ mixBlendMode: 'multiply' }}
-          />
+        {/* Sağ - Hesabım İkonu */}
+        <button
+          onClick={() => onTabChange('ref_atolye')}
+          className="w-16 h-16 flex items-center justify-center transition-all"
+        >
+          <div className="w-10 h-10 bg-emerald-600 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors">
+            <User className="w-5 h-5 text-white" />
+          </div>
         </button>
       </div>
 
-      {/* Mobil Alt Bar - WhatsApp (En Sol), Kullanıcı Adı ve Çıkış (En Sağ) */}
+      {/* Mobil Alt Bar - WhatsApp (Sol), Sepet (Sağ), Kullanıcı Adı ve Çıkış (Orta Sağ) */}
       <div className="lg:hidden fixed bottom-4 left-4 right-4 z-50 flex items-center justify-between">
         {/* WhatsApp - En Solda */}
         <a
@@ -592,22 +616,35 @@ export default function Sidebar({
           <Phone className="w-7 h-7 group-hover:scale-110 transition-transform" />
         </a>
 
-        {/* Kullanıcı Adı ve Çıkış - En Sağda */}
-        {userFullName && !isGuestMode && (
-          <div className="flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-2 py-1.5">
-            <div className="flex items-center space-x-1">
-              <User className="w-3.5 h-3.5 text-emerald-700" />
-              <span className="text-[10px] font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
+        {/* Orta Alan - Kullanıcı Adı ve Çıkış */}
+        <div className="flex-1 flex justify-center px-2">
+          {userFullName && !isGuestMode && (
+            <div className="flex items-center space-x-1 bg-emerald-50/95 backdrop-blur-sm shadow-lg rounded-lg px-2 py-1.5">
+              <div className="flex items-center space-x-1">
+                <User className="w-3.5 h-3.5 text-emerald-700" />
+                <span className="text-[10px] font-medium text-emerald-900">{capitalizeWords(userFullName)}</span>
+              </div>
+              <button
+                onClick={onSignOut}
+                className="flex items-center space-x-0.5 px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] rounded-md transition-colors"
+                title="Çıkış Yap"
+              >
+                <LogOut className="w-3 h-3" />
+                <span>Çıkış</span>
+              </button>
             </div>
-            <button
-              onClick={onSignOut}
-              className="flex items-center space-x-0.5 px-1.5 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] rounded-md transition-colors"
-              title="Çıkış Yap"
-            >
-              <LogOut className="w-3 h-3" />
-              <span>Çıkış</span>
-            </button>
-          </div>
+          )}
+        </div>
+
+        {/* Sepet - En Sağda (Sadece Ref Atölye sayfasında görünür) */}
+        {mobileHeaderTitle === 'Ref Atölye' && (
+          <button
+            onClick={() => onTabChange('ref_atolye')}
+            className="flex items-center justify-center w-14 h-14 bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group relative"
+            title="Sepetim"
+          >
+            <ShoppingCart className="w-6 h-6 group-hover:scale-110 transition-transform" />
+          </button>
         )}
       </div>
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, Palette, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList, User } from 'lucide-react';
+import { ShoppingCart, Package, Palette, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList, User, Home } from 'lucide-react';
 import ProductCatalog from './ProductCatalog';
 import PlayGroupCalendar from './PlayGroupCalendar';
 import CartView from './CartView';
@@ -10,6 +10,8 @@ import UserOrdersView from './UserOrdersView';
 import RefAtolyeAdminPanel from './RefAtolyeAdminPanel';
 import RefAtolyeLogin from './RefAtolyeLogin';
 import AtolyeAccountProfile from './AtolyeAccountProfile';
+import RefAtolyeHomePage from './RefAtolyeHomePage';
+import TypewriterSearch from './TypewriterSearch';
 
 interface RefSection {
   id: string;
@@ -32,7 +34,7 @@ const SECTION_LABELS = {
   ref_atolye: 'Ref Atölye',
 };
 
-type RefAtolyeTab = 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin' | 'account';
+type RefAtolyeTab = 'home' | 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin' | 'account';
 type RefDanismanlikTab = 'content' | 'applications';
 
 export default function RefSectionsView({ sectionType, isAtolyeUser = false }: RefSectionsViewProps) {
@@ -40,8 +42,9 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
   const [sections, setSections] = useState<RefSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<RefAtolyeTab | RefDanismanlikTab>(
-    sectionType === 'ref_atolye' ? 'products' : 'content'
+    sectionType === 'ref_atolye' ? 'home' : 'content'
   );
+  const [searchQuery, setSearchQuery] = useState('');
   const [referenceApplications, setReferenceApplications] = useState<any[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [showAtolyeLogin, setShowAtolyeLogin] = useState(false);
@@ -108,6 +111,7 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
 
   const getTabLabel = (tab: RefAtolyeTab | RefDanismanlikTab) => {
     const labels = {
+      home: 'Ana Sayfa',
       products: 'Ürünler',
       courses: 'Atölyeler',
       play_groups: 'Oyun Grupları',
@@ -120,6 +124,11 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       applications: 'Referans Öğretmen Başvuruları',
     };
     return labels[tab] || tab;
+  };
+
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setActiveTab('products');
   };
 
   if (showAtolyeLogin) {
@@ -144,6 +153,12 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
+      {/* Mobil Arama Kutusu - Sadece Ref Atölye için */}
+      {showAtolyeTabs && (
+        <div className="md:hidden mb-6 pt-20">
+          <TypewriterSearch onSearch={handleSearch} />
+        </div>
+      )}
 
       {/* Ref Danışmanlık Tabs */}
       {showDanismanlikTabs && (
@@ -216,7 +231,18 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       {showAtolyeTabs && (
         <>
           {/* Mobile Card Menu */}
-          <div className="md:hidden grid grid-cols-2 gap-3 mb-6 mt-10">
+          <div className="md:hidden grid grid-cols-2 gap-3 mb-6">
+            <button
+              onClick={() => setActiveTab('home')}
+              className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
+                activeTab === 'home'
+                  ? 'bg-emerald-600 text-white shadow-lg scale-105'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <Home className="w-8 h-8 mb-2" />
+              <span className="text-sm font-medium text-center">Ana Sayfa</span>
+            </button>
             <button
               onClick={() => setActiveTab('products')}
               className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
@@ -328,6 +354,17 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
           <div className="hidden md:block border-b border-gray-200 mb-6 mt-8">
             <div className="flex flex-wrap gap-4">
               <button
+                onClick={() => setActiveTab('home')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'home'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <Home className="w-4 h-4" />
+                Ana Sayfa
+              </button>
+              <button
                 onClick={() => setActiveTab('products')}
                 className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
                   activeTab === 'products'
@@ -437,6 +474,13 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
             </div>
           </div>
         </>
+      )}
+
+      {/* Ref Atölye - Home Tab */}
+      {activeTab === 'home' && sectionType === 'ref_atolye' && (
+        <div>
+          <RefAtolyeHomePage onNavigate={handleTabChange} />
+        </div>
       )}
 
       {activeTab === 'content' && sectionType !== 'ref_atolye' && (
