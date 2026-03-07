@@ -598,9 +598,12 @@ function ProductCatalog() {
     getPrimaryImage: (productId: string) => string;
   }) {
     const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+    const [reviews, setReviews] = useState<any[]>([]);
+    const [reviewsLoading, setReviewsLoading] = useState(true);
 
     useEffect(() => {
       loadSimilarProducts();
+      loadReviews();
     }, [product.id]);
 
     const loadSimilarProducts = async () => {
@@ -628,6 +631,39 @@ function ProductCatalog() {
       } catch (error) {
         console.error('Error loading similar products:', error);
       }
+    };
+
+    const loadReviews = async () => {
+      setReviewsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('product_reviews')
+          .select(`
+            *,
+            profiles:user_id (
+              full_name
+            )
+          `)
+          .eq('product_id', product.id)
+          .eq('is_approved', true)
+          .order('created_at', { ascending: false })
+          .limit(5);
+
+        if (error) throw error;
+        setReviews(data || []);
+      } catch (error) {
+        console.error('Error loading reviews:', error);
+      } finally {
+        setReviewsLoading(false);
+      }
+    };
+
+    const maskName = (fullName: string): string => {
+      const parts = fullName.trim().split(' ');
+      return parts.map(part => {
+        if (part.length === 0) return '';
+        return part[0] + '*'.repeat(part.length - 1);
+      }).join(' ');
     };
 
     return (
@@ -697,6 +733,73 @@ function ProductCatalog() {
                 </div>
               </div>
             </div>
+
+            {reviews.length > 0 && (
+              <div className="pt-6 border-t border-gray-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-lg font-semibold text-gray-800">Değerlendirmeler</h4>
+                  <button
+                    onClick={() => {
+                      setShowReviewsModal(true);
+                      setSelectedProductForReviews(product);
+                    }}
+                    className="text-sm text-emerald-600 hover:text-emerald-700 font-medium"
+                  >
+                    Tümünü Gör
+                  </button>
+                </div>
+                <div className="space-y-4">
+                  {reviewsLoading ? (
+                    <div className="text-center py-8 text-gray-500">Yükleniyor...</div>
+                  ) : (
+                    reviews.slice(0, 3).map((review) => (
+                      <div key={review.id} className="border-b border-gray-100 pb-4 last:border-0">
+                        <div className="flex items-start justify-between mb-2">
+                          <div>
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-medium text-gray-800">{maskName(review.profiles.full_name)}</span>
+                              {review.is_verified_purchase && (
+                                <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
+                                  Onaylı Alıcı
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-1">
+                              {[1, 2, 3, 4, 5].map((star) => (
+                                <Star
+                                  key={star}
+                                  className={`w-4 h-4 ${
+                                    star <= review.rating
+                                      ? 'fill-yellow-400 text-yellow-400'
+                                      : 'text-gray-300'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                          </div>
+                          <span className="text-xs text-gray-500">
+                            {new Date(review.created_at).toLocaleDateString('tr-TR')}
+                          </span>
+                        </div>
+                        <p className="text-sm text-gray-700">{review.comment}</p>
+                        {review.images && review.images.length > 0 && (
+                          <div className="flex gap-2 mt-2">
+                            {review.images.slice(0, 3).map((img: string, idx: number) => (
+                              <img
+                                key={idx}
+                                src={img}
+                                alt={`Review ${idx + 1}`}
+                                className="w-16 h-16 object-cover rounded-lg"
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
 
             {similarProducts.length > 0 && (
               <div className="pt-6 border-t border-gray-200">
