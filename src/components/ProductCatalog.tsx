@@ -511,7 +511,7 @@ function ProductCatalog() {
           )}
         </div>
         <div className="p-2.5">
-          <h4 className="font-semibold text-gray-800 text-sm mb-1.5 line-clamp-2">{product.name}</h4>
+          <h4 className="font-semibold text-gray-800 text-sm mb-1.5 line-clamp-1 overflow-hidden text-ellipsis whitespace-nowrap">{product.name}</h4>
 
           <div
             className="flex items-center gap-1 mb-2 cursor-pointer"
@@ -540,11 +540,11 @@ function ProductCatalog() {
             <div className="flex items-center gap-1.5">
               {product.discounted_price ? (
                 <>
-                  <span className="text-xs text-gray-400 line-through whitespace-nowrap">{product.base_price.toFixed(2)} ₺</span>
-                  <span className="text-base font-bold text-green-600 whitespace-nowrap">{product.discounted_price.toFixed(2)} ₺</span>
+                  <span className="text-[10px] sm:text-xs text-gray-400 line-through whitespace-nowrap">{product.base_price.toFixed(2)} ₺</span>
+                  <span className="text-sm sm:text-base font-bold text-green-600 whitespace-nowrap">{product.discounted_price.toFixed(2)} ₺</span>
                 </>
               ) : (
-                <span className="text-base font-bold text-green-600 whitespace-nowrap">{product.base_price.toFixed(2)} ₺</span>
+                <span className="text-sm sm:text-base font-bold text-green-600 whitespace-nowrap">{product.base_price.toFixed(2)} ₺</span>
               )}
             </div>
 
