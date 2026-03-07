@@ -203,36 +203,6 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
         </div>
       )}
 
-      {/* Montessori Materyalleri */}
-      {categories.length > 0 && (
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 text-center">Montessori Materyalleri</h2>
-          <div className="grid grid-cols-2 gap-3">
-            {categories.slice(0, 6).map((category) => {
-              const categoryProducts = featuredProducts.filter(p => p.category_id === category.id);
-              return (
-                <button
-                  key={category.id}
-                  onClick={() => onNavigate('products', category.id)}
-                  className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 border-2 border-gray-100"
-                >
-                  <div className="text-center">
-                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
-                      <ShoppingCart className="w-6 h-6 text-emerald-600" />
-                    </div>
-                    <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
-                      {category.name}
-                    </h3>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {category.age_group === 'all' ? 'Tüm Yaşlar' : `${category.age_group} yaş`}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
