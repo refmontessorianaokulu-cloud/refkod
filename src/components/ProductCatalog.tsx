@@ -542,7 +542,7 @@ function ProductCatalog() {
               ({product.review_count || 0})
             </span>
             {product.has_photo_reviews && (
-              <Camera className="w-3 h-3 text-gray-500 ml-0.5" />
+              <Camera className="w-4 h-4 text-blue-500 ml-1" />
             )}
           </div>
 
@@ -787,7 +787,7 @@ function ProductCatalog() {
                                 ))}
                               </div>
                               {review.images && review.images.length > 0 && (
-                                <Camera className="w-4 h-4 text-gray-500" />
+                                <Camera className="w-5 h-5 text-blue-500" />
                               )}
                             </div>
                           </div>
