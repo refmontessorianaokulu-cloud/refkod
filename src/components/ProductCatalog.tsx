@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Star, Filter, Search, X, Package, Heart, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Truck } from 'lucide-react';
+import { ShoppingCart, Star, Filter, Search, X, Package, Heart, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Truck, Zap, CreditCard } from 'lucide-react';
 import ProductReviewsModal from './ProductReviewsModal';
 
 interface Product {
@@ -466,6 +466,32 @@ function ProductCatalog() {
   }
 
   function ProductCard({ product }: { product: typeof filteredProducts[0] }) {
+    const [featureIndex, setFeatureIndex] = useState(0);
+    const price = product.discounted_price || product.base_price;
+
+    const featuresAbove1000 = [
+      { icon: Truck, text: 'Ücretsiz Kargo', color: 'text-emerald-600' },
+      { icon: CreditCard, text: 'Kapıda Ödeme', color: 'text-blue-600' },
+      { icon: Zap, text: 'Fırsat Ürünü', color: 'text-orange-600' },
+    ];
+
+    const featuresBelow1000 = [
+      { icon: CreditCard, text: 'Kapıda Ödeme', color: 'text-blue-600' },
+      { icon: Zap, text: 'Fırsat Ürünü', color: 'text-orange-600' },
+    ];
+
+    const features = price >= 1000 ? featuresAbove1000 : featuresBelow1000;
+
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setFeatureIndex((prev) => (prev + 1) % features.length);
+      }, 3000);
+      return () => clearInterval(interval);
+    }, [features.length]);
+
+    const currentFeature = features[featureIndex];
+    const FeatureIcon = currentFeature.icon;
+
     return (
       <div
         className="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group cursor-pointer"
@@ -522,12 +548,12 @@ function ProductCatalog() {
               )}
             </div>
 
-            {(product.discounted_price || product.base_price) >= 1000 && (
-              <div className="flex items-center gap-1 text-emerald-600 text-xs">
-                <Truck className="w-3.5 h-3.5" />
-                <span className="font-medium">Ücretsiz Kargo</span>
+            <div className="h-5 flex items-center">
+              <div className={`flex items-center gap-1 text-xs transition-opacity duration-500 ${currentFeature.color}`}>
+                <FeatureIcon className="w-3.5 h-3.5" />
+                <span className="font-medium">{currentFeature.text}</span>
               </div>
-            )}
+            </div>
 
             <div className="flex items-center gap-1.5">
               <button
