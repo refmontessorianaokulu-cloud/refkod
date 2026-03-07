@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { X, Star, Upload, Image as ImageIcon, Trash2, Edit2 } from 'lucide-react';
+import { X, Star, Upload, Image as ImageIcon, Trash2, CreditCard as Edit2 } from 'lucide-react';
 
 interface Review {
   id: string;
