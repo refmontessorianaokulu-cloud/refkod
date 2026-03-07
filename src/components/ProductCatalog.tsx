@@ -19,6 +19,7 @@ interface Product {
   created_at: string;
   average_rating?: number;
   review_count?: number;
+  has_photo_reviews?: boolean;
 }
 
 interface ProductCategory {
@@ -60,20 +61,25 @@ function ProductCatalog() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [productsRes, categoriesRes, imagesRes, ratingsRes] = await Promise.all([
+      const [productsRes, categoriesRes, imagesRes, ratingsRes, reviewsRes] = await Promise.all([
         supabase.from('products').select('*').eq('is_active', true).order('featured', { ascending: false }),
         supabase.from('product_categories').select('*').eq('is_active', true).order('name', { ascending: true }),
         supabase.from('product_images').select('*').order('display_order', { ascending: true }),
         supabase.from('product_ratings').select('*'),
+        supabase.from('product_reviews').select('product_id, images').eq('is_approved', true),
       ]);
 
       if (productsRes.data) {
         const productsWithRatings = productsRes.data.map(product => {
           const rating = ratingsRes.data?.find((r: any) => r.product_id === product.id);
+          const hasPhotoReviews = reviewsRes.data?.some(
+            (r: any) => r.product_id === product.id && r.images && r.images.length > 0
+          );
           return {
             ...product,
             average_rating: rating?.average_rating || 0,
             review_count: rating?.review_count || 0,
+            has_photo_reviews: hasPhotoReviews || false,
           };
         });
         setProducts(productsWithRatings);
@@ -535,6 +541,9 @@ function ProductCatalog() {
             <span className="text-xs text-gray-500 ml-1">
               ({product.review_count || 0})
             </span>
+            {product.has_photo_reviews && (
+              <Camera className="w-3 h-3 text-gray-500 ml-0.5" />
+            )}
           </div>
 
           <div className="space-y-2">
