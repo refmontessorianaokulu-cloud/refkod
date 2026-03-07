@@ -26,6 +26,15 @@ interface ProductReviewsModalProps {
   onClose: () => void;
 }
 
+const maskName = (fullName: string): string => {
+  const parts = fullName.trim().split(' ');
+
+  return parts.map(part => {
+    if (part.length === 0) return '';
+    return part[0] + '*'.repeat(part.length - 1);
+  }).join(' ');
+};
+
 export default function ProductReviewsModal({ product, onClose }: ProductReviewsModalProps) {
   const { user, profile } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -210,7 +219,7 @@ export default function ProductReviewsModal({ product, onClose }: ProductReviews
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        <p className="font-semibold text-gray-800">{review.profiles.full_name}</p>
+                        <p className="font-semibold text-gray-800">{maskName(review.profiles.full_name)}</p>
                         {review.is_verified_purchase && (
                           <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded">
                             Doğrulanmış Alışveriş
