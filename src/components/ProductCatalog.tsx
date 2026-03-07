@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Star, Filter, Search, X, Package, Heart, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Truck, Zap, CreditCard } from 'lucide-react';
+import { ShoppingCart, Star, Filter, Search, X, Package, Heart, CheckCircle, AlertCircle, ChevronLeft, ChevronRight, Truck, Zap, CreditCard, Camera } from 'lucide-react';
 import ProductReviewsModal from './ProductReviewsModal';
 
 interface Product {
@@ -764,17 +764,22 @@ function ProductCatalog() {
                                 </span>
                               )}
                             </div>
-                            <div className="flex items-center gap-1">
-                              {[1, 2, 3, 4, 5].map((star) => (
-                                <Star
-                                  key={star}
-                                  className={`w-4 h-4 ${
-                                    star <= review.rating
-                                      ? 'fill-yellow-400 text-yellow-400'
-                                      : 'text-gray-300'
-                                  }`}
-                                />
-                              ))}
+                            <div className="flex items-center gap-2">
+                              <div className="flex items-center gap-1">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    className={`w-4 h-4 ${
+                                      star <= review.rating
+                                        ? 'fill-yellow-400 text-yellow-400'
+                                        : 'text-gray-300'
+                                    }`}
+                                  />
+                                ))}
+                              </div>
+                              {review.images && review.images.length > 0 && (
+                                <Camera className="w-4 h-4 text-gray-500" />
+                              )}
                             </div>
                           </div>
                           <span className="text-xs text-gray-500">
