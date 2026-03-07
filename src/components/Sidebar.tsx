@@ -552,65 +552,63 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Mobil Üst Bar - Hamburger, Logo, Hesabım (Beyaz Card İçinde) */}
-      <div className="lg:hidden fixed top-3 left-4 right-4 z-50">
-        <div className="bg-white rounded-2xl shadow-lg px-4 py-3 flex items-center justify-between">
-          {/* Sol - Hamburger */}
+      {/* Mobil Üst Bar - Hamburger, Logo, Hesabım */}
+      <div className="lg:hidden fixed top-3 left-4 right-4 z-50 flex items-center justify-between">
+        {/* Sol - Hamburger */}
+        <button
+          onClick={() => setIsMobileOpen(true)}
+          className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-lg hover:shadow-xl transition-all"
+        >
+          <Menu className="w-6 h-6 text-gray-700" />
+        </button>
+
+        {/* Orta - Logo (Ref Atölye için) veya Başlık */}
+        {mobileHeaderTitle === 'Ref Atölye' ? (
           <button
-            onClick={() => setIsMobileOpen(true)}
-            className="p-2 hover:bg-gray-100 rounded-lg transition-all"
+            onClick={() => onTabChange('ref_atolye')}
+            className="flex items-center justify-center transition-all"
           >
-            <Menu className="w-6 h-6 text-gray-700" />
+            <img
+              src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+              alt="REF Logo"
+              className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
+              style={{ mixBlendMode: 'multiply' }}
+            />
           </button>
+        ) : mobileHeaderTitle ? (
+          <div className="absolute left-20 right-20 flex items-center justify-center">
+            <h1 className="text-base font-semibold text-gray-800 text-center truncate px-2">
+              {mobileHeaderTitle}
+            </h1>
+          </div>
+        ) : (
+          <button
+            onClick={() => onTabChange('home')}
+            className="flex items-center justify-center transition-all"
+          >
+            <img
+              src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+              alt="REF Logo"
+              className="h-14 w-auto object-contain transition-all duration-300 hover:scale-105"
+              style={{ mixBlendMode: 'multiply' }}
+            />
+          </button>
+        )}
 
-          {/* Orta - Logo (Ref Atölye için) veya Başlık */}
-          {mobileHeaderTitle === 'Ref Atölye' ? (
-            <button
-              onClick={() => onTabChange('ref_atolye')}
-              className="flex items-center justify-center transition-all"
-            >
-              <img
-                src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-                alt="REF Logo"
-                className="h-10 w-auto object-contain transition-all duration-300 hover:scale-105"
-                style={{ mixBlendMode: 'multiply' }}
-              />
-            </button>
-          ) : mobileHeaderTitle ? (
-            <div className="flex items-center justify-center flex-1 px-2">
-              <h1 className="text-base font-semibold text-gray-800 text-center truncate">
-                {mobileHeaderTitle}
-              </h1>
+        {/* Sağ - Hesabım İkonu */}
+        {mobileHeaderTitle === 'Ref Atölye' && (
+          <button
+            onClick={() => {
+              const event = new CustomEvent('navigate-to-account');
+              window.dispatchEvent(event);
+            }}
+            className="w-12 h-12 flex items-center justify-center bg-white rounded-full shadow-lg hover:shadow-xl transition-all"
+          >
+            <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors">
+              <User className="w-4 h-4 text-white" />
             </div>
-          ) : (
-            <button
-              onClick={() => onTabChange('home')}
-              className="flex items-center justify-center transition-all"
-            >
-              <img
-                src="/whatsapp_image_2026-01-10_at_23.02.15.png"
-                alt="REF Logo"
-                className="h-10 w-auto object-contain transition-all duration-300 hover:scale-105"
-                style={{ mixBlendMode: 'multiply' }}
-              />
-            </button>
-          )}
-
-          {/* Sağ - Hesabım İkonu */}
-          {mobileHeaderTitle === 'Ref Atölye' && (
-            <button
-              onClick={() => {
-                const event = new CustomEvent('navigate-to-account');
-                window.dispatchEvent(event);
-              }}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-all"
-            >
-              <div className="w-8 h-8 bg-emerald-600 rounded-full flex items-center justify-center hover:bg-emerald-700 transition-colors">
-                <User className="w-4 h-4 text-white" />
-              </div>
-            </button>
-          )}
-        </div>
+          </button>
+        )}
       </div>
 
       {/* Mobil Alt Bar - WhatsApp (Sol), Sepet (Sağ), Kullanıcı Adı ve Çıkış (Orta Sağ) */}
