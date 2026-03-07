@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { ShoppingCart, Palette, Users, Star, ArrowRight, Heart, Sparkles, Gift, TrendingUp, Search, X } from 'lucide-react';
+import { ShoppingCart, Palette, Users, Star, ArrowRight, Heart, Sparkles, Gift, TrendingUp } from 'lucide-react';
+import TypewriterInput from './TypewriterInput';
 
 interface Product {
   id: string;
@@ -169,7 +170,7 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
   }
 
   return (
-    <div className="pb-20 pt-20 lg:pt-0">
+    <div className="pb-20">
       {/* Search Overlay - closes search when clicking outside */}
       {showSearchResults && (
         <div
@@ -181,28 +182,13 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
         />
       )}
 
-      {/* Search Bar */}
-      <div className="mb-6 relative z-[70]">
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
-          </div>
-          <input
-            type="text"
-            placeholder="Ürün ara..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full pl-12 pr-12 py-3 border border-gray-300 rounded-xl leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-base"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery('')}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center z-10"
-            >
-              <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
-            </button>
-          )}
-        </div>
+      {/* Search Bar - Mobile at top, Desktop integrated */}
+      <div className="mb-6 relative z-[70] lg:mt-0 -mt-4">
+        <TypewriterInput
+          value={searchQuery}
+          onChange={(value) => setSearchQuery(value)}
+          onClear={() => setSearchQuery('')}
+        />
 
         {/* Search Results Dropdown */}
         {showSearchResults && (

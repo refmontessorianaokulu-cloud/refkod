@@ -240,7 +240,7 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       {showAtolyeTabs && (
         <>
           {/* Mobile Card Menu */}
-          <div className="md:hidden grid grid-cols-2 gap-3 mb-6">
+          <div className="md:hidden grid grid-cols-2 gap-3 mb-6 mt-20">
             <button
               onClick={() => setActiveTab('home')}
               className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
