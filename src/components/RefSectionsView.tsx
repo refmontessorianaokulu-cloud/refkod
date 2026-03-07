@@ -61,6 +61,24 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
     }
   }, [sectionType]);
 
+  useEffect(() => {
+    const handleNavigateToCart = () => {
+      setActiveTab('cart');
+    };
+
+    const handleNavigateToAccount = () => {
+      setActiveTab('account');
+    };
+
+    window.addEventListener('navigate-to-cart', handleNavigateToCart);
+    window.addEventListener('navigate-to-account', handleNavigateToAccount);
+
+    return () => {
+      window.removeEventListener('navigate-to-cart', handleNavigateToCart);
+      window.removeEventListener('navigate-to-account', handleNavigateToAccount);
+    };
+  }, []);
+
   const loadSection = async () => {
     try {
       const { data, error } = await supabase
