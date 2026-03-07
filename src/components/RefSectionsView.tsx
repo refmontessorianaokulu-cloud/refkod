@@ -11,7 +11,6 @@ import RefAtolyeAdminPanel from './RefAtolyeAdminPanel';
 import RefAtolyeLogin from './RefAtolyeLogin';
 import AtolyeAccountProfile from './AtolyeAccountProfile';
 import RefAtolyeHomePage from './RefAtolyeHomePage';
-import TypewriterSearch from './TypewriterSearch';
 
 interface RefSection {
   id: string;
@@ -148,11 +147,6 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
     return labels[tab] || tab;
   };
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    setActiveTab('products');
-  };
-
   if (showAtolyeLogin) {
     return (
       <RefAtolyeLogin
@@ -175,13 +169,6 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 md:p-8">
-      {/* Mobil Arama Kutusu - Sadece Ref Atölye için */}
-      {showAtolyeTabs && (
-        <div className="md:hidden mb-6 pt-20">
-          <TypewriterSearch onSearch={handleSearch} />
-        </div>
-      )}
-
       {/* Ref Danışmanlık Tabs */}
       {showDanismanlikTabs && (
         <>

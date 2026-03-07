@@ -169,7 +169,7 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
   }
 
   return (
-    <div className="pb-20">
+    <div className="pb-20 pt-20 lg:pt-0">
       {/* Search Overlay - closes search when clicking outside */}
       {showSearchResults && (
         <div
