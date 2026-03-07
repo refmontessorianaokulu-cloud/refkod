@@ -49,7 +49,7 @@ export default function ProductReviewsModal({ product, onClose }: ProductReviews
     if (user) {
       checkCanReview();
     }
-  }, [product.id, user]);
+  }, [product.id]);
 
   const loadReviews = async () => {
     setLoading(true);
