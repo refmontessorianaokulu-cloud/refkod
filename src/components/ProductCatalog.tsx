@@ -37,7 +37,11 @@ interface ProductImage {
   display_order: number;
 }
 
-function ProductCatalog() {
+interface ProductCatalogProps {
+  initialCategoryId?: string | null;
+}
+
+function ProductCatalog({ initialCategoryId }: ProductCatalogProps) {
   const { user } = useAuth();
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<ProductCategory[]>([]);
@@ -52,6 +56,12 @@ function ProductCatalog() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [showReviewsModal, setShowReviewsModal] = useState(false);
   const [selectedProductForReviews, setSelectedProductForReviews] = useState<Product | null>(null);
+
+  useEffect(() => {
+    if (initialCategoryId) {
+      setSelectedCategory(initialCategoryId);
+    }
+  }, [initialCategoryId]);
 
   useEffect(() => {
     loadData();

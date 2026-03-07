@@ -28,7 +28,7 @@ interface ProductCategory {
 }
 
 interface RefAtolyeHomePageProps {
-  onNavigate: (tab: string) => void;
+  onNavigate: (tab: string, categoryId?: string) => void;
 }
 
 export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps) {
@@ -118,23 +118,9 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
 
   return (
     <div className="pb-20">
-      {/* Hero Banner */}
-      <div className="bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 rounded-2xl p-6 mb-6 text-white shadow-lg">
-        <div className="flex items-center gap-2 mb-3">
-          <Sparkles className="w-6 h-6" />
-          <span className="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
-            Hoş Geldiniz
-          </span>
-        </div>
-        <h1 className="text-2xl font-bold mb-2">Ref Atölye</h1>
-        <p className="text-emerald-50 text-sm">
-          Çocuğunuzun gelişimi için özel tasarlanmış ürünler ve aktiviteler
-        </p>
-      </div>
-
       {/* Quick Access Cards */}
       <div className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-center gap-2">
           <TrendingUp className="w-5 h-5 text-emerald-600" />
           Hızlı Erişim
         </h2>
@@ -249,53 +235,36 @@ export default function RefAtolyeHomePage({ onNavigate }: RefAtolyeHomePageProps
         </div>
       )}
 
-      {/* Categories */}
+      {/* Montessori Materyalleri */}
       {categories.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Kategoriler</h2>
+          <h2 className="text-lg font-semibold text-gray-800 mb-4 text-center">Montessori Materyalleri</h2>
           <div className="grid grid-cols-2 gap-3">
-            {categories.slice(0, 6).map((category) => (
-              <button
-                key={category.id}
-                onClick={() => onNavigate('products')}
-                className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 border-2 border-gray-100"
-              >
-                <div className="text-center">
-                  <div className="bg-gradient-to-br from-emerald-50 to-teal-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
-                    <ShoppingCart className="w-6 h-6 text-emerald-600" />
+            {categories.slice(0, 6).map((category) => {
+              const categoryProducts = featuredProducts.filter(p => p.category_id === category.id);
+              return (
+                <button
+                  key={category.id}
+                  onClick={() => onNavigate('products', category.id)}
+                  className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-[1.02] active:scale-95 border-2 border-gray-100"
+                >
+                  <div className="text-center">
+                    <div className="bg-gradient-to-br from-emerald-50 to-teal-50 w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-2">
+                      <ShoppingCart className="w-6 h-6 text-emerald-600" />
+                    </div>
+                    <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
+                      {category.name}
+                    </h3>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {category.age_group === 'all' ? 'Tüm Yaşlar' : `${category.age_group} yaş`}
+                    </p>
                   </div>
-                  <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">
-                    {category.name}
-                  </h3>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {category.age_group === 'all' ? 'Tüm Yaşlar' : `${category.age_group} yaş`}
-                  </p>
-                </div>
-              </button>
-            ))}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
-
-      {/* Promotional Banner */}
-      <div className="bg-gradient-to-br from-orange-500 to-pink-500 rounded-2xl p-6 text-white shadow-lg">
-        <div className="flex items-center gap-2 mb-3">
-          <Gift className="w-6 h-6" />
-          <span className="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
-            Özel Fırsat
-          </span>
-        </div>
-        <h3 className="text-xl font-bold mb-2">İlk Alışverişinize Özel!</h3>
-        <p className="text-white/90 text-sm mb-4">
-          Seçili ürünlerde %20'ye varan indirimler
-        </p>
-        <button
-          onClick={() => onNavigate('products')}
-          className="bg-white text-orange-600 px-6 py-2 rounded-lg font-semibold hover:bg-orange-50 transition-colors"
-        >
-          Ürünleri İncele
-        </button>
-      </div>
     </div>
   );
 }

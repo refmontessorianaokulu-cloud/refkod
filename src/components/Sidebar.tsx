@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageToggle from './LanguageToggle';
+import AnimatedCartButton from './AnimatedCartButton';
 import {
   Baby,
   Users,
@@ -42,6 +43,7 @@ import {
   Search,
   BarChart3,
   ShoppingCart,
+  Heart,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -80,6 +82,7 @@ export type MenuTab =
   | 'ref_akademi'
   | 'ref_danismanlik'
   | 'ref_atolye'
+  | 'ref_atolye_cart'
   | 'ref_evaluation'
   | 'evaluation_analytics'
   | 'evaluation_management';
@@ -638,13 +641,7 @@ export default function Sidebar({
 
         {/* Sepet - En Sağda (Sadece Ref Atölye sayfasında görünür) */}
         {mobileHeaderTitle === 'Ref Atölye' && (
-          <button
-            onClick={() => onTabChange('ref_atolye')}
-            className="flex items-center justify-center w-14 h-14 bg-orange-500 hover:bg-orange-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-110 group relative"
-            title="Sepetim"
-          >
-            <ShoppingCart className="w-6 h-6 group-hover:scale-110 transition-transform" />
-          </button>
+          <AnimatedCartButton onClick={() => onTabChange('ref_atolye_cart')} />
         )}
       </div>
 

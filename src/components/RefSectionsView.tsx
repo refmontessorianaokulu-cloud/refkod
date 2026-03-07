@@ -45,6 +45,7 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
     sectionType === 'ref_atolye' ? 'home' : 'content'
   );
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string | null>(null);
   const [referenceApplications, setReferenceApplications] = useState<any[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [showAtolyeLogin, setShowAtolyeLogin] = useState(false);
@@ -105,8 +106,11 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
     }
   };
 
-  const handleTabChange = (tab: RefAtolyeTab | RefDanismanlikTab) => {
+  const handleTabChange = (tab: RefAtolyeTab | RefDanismanlikTab, categoryId?: string) => {
     setActiveTab(tab);
+    if (categoryId) {
+      setSelectedCategoryId(categoryId);
+    }
   };
 
   const getTabLabel = (tab: RefAtolyeTab | RefDanismanlikTab) => {
@@ -526,7 +530,7 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       {/* Ref Atölye - Products Tab */}
       {activeTab === 'products' && sectionType === 'ref_atolye' && (
         <div>
-          <ProductCatalog />
+          <ProductCatalog initialCategoryId={selectedCategoryId} />
         </div>
       )}
 
