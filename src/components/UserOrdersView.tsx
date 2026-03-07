@@ -11,7 +11,9 @@ import {
   XCircle,
   ExternalLink,
   Star,
-  MessageSquare
+  MessageSquare,
+  Upload,
+  Image as ImageIcon
 } from 'lucide-react';
 
 interface Order {
@@ -68,6 +70,7 @@ interface Review {
   rating: number;
   title: string;
   comment: string;
+  images?: string[];
 }
 
 const STATUS_OPTIONS = [
@@ -107,8 +110,10 @@ export default function UserOrdersView() {
     rating: 5,
     title: '',
     comment: '',
+    images: [],
   });
   const [submittingReview, setSubmittingReview] = useState(false);
+  const [uploadingImages, setUploadingImages] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -235,8 +240,70 @@ export default function UserOrdersView() {
       rating: 5,
       title: '',
       comment: '',
+      images: [],
     });
     setShowReviewModal(true);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !user) return;
+
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    if ((reviewData.images?.length || 0) + files.length > 5) {
+      alert('En fazla 5 görsel yükleyebilirsiniz.');
+      return;
+    }
+
+    setUploadingImages(true);
+    try {
+      const uploadedUrls: string[] = [];
+
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) {
+          alert('Sadece görsel dosyaları yükleyebilirsiniz.');
+          continue;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+          alert('Görsel boyutu en fazla 5MB olabilir.');
+          continue;
+        }
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { data, error } = await supabase.storage
+          .from('review-media')
+          .upload(fileName, file);
+
+        if (error) throw error;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('review-media')
+          .getPublicUrl(data.path);
+
+        uploadedUrls.push(publicUrl);
+      }
+
+      setReviewData(prev => ({
+        ...prev,
+        images: [...(prev.images || []), ...uploadedUrls],
+      }));
+    } catch (error) {
+      console.error('Error uploading images:', error);
+      alert('Görseller yüklenirken hata oluştu: ' + (error as Error).message);
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setReviewData(prev => ({
+      ...prev,
+      images: prev.images?.filter((_, i) => i !== index) || [],
+    }));
   };
 
   const handleSubmitReview = async (e: React.FormEvent) => {
@@ -252,7 +319,9 @@ export default function UserOrdersView() {
           user_id: user.id,
           order_id: selectedOrder.id,
           rating: reviewData.rating,
+          title: reviewData.title || null,
           comment: reviewData.comment,
+          images: reviewData.images || [],
           is_verified_purchase: true,
         });
 
@@ -261,7 +330,7 @@ export default function UserOrdersView() {
       alert('Değerlendirmeniz başarıyla gönderildi!');
       setShowReviewModal(false);
       setSelectedItemForReview(null);
-      setReviewData({ rating: 5, title: '', comment: '' });
+      setReviewData({ rating: 5, title: '', comment: '', images: [] });
     } catch (error) {
       console.error('Error submitting review:', error);
       alert('Değerlendirme gönderilirken hata oluştu: ' + (error as Error).message);
@@ -650,6 +719,56 @@ export default function UserOrdersView() {
                   rows={4}
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
                 />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Görseller (İsteğe Bağlı - En fazla 5)
+                </label>
+
+                {reviewData.images && reviewData.images.length > 0 && (
+                  <div className="grid grid-cols-3 gap-2 mb-3">
+                    {reviewData.images.map((url, index) => (
+                      <div key={index} className="relative aspect-square">
+                        <img
+                          src={url}
+                          alt={`Review ${index + 1}`}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {(!reviewData.images || reviewData.images.length < 5) && (
+                  <label className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-emerald-500 transition-colors">
+                    <div className="flex flex-col items-center justify-center">
+                      {uploadingImages ? (
+                        <div className="text-sm text-gray-500">Yükleniyor...</div>
+                      ) : (
+                        <>
+                          <Upload className="w-6 h-6 text-gray-400 mb-1" />
+                          <span className="text-sm text-gray-500">Görsel Ekle</span>
+                        </>
+                      )}
+                    </div>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageUpload}
+                      disabled={uploadingImages}
+                      className="hidden"
+                    />
+                  </label>
+                )}
               </div>
 
               <div className="flex gap-3 pt-2">

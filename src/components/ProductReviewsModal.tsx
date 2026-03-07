@@ -237,13 +237,13 @@ function WriteReviewForm({
         const fileName = `${user!.id}/${Date.now()}-${Math.random()}.${fileExt}`;
 
         const { error: uploadError } = await supabase.storage
-          .from('report-media')
+          .from('review-media')
           .upload(fileName, image);
 
         if (uploadError) throw uploadError;
 
         const { data: { publicUrl } } = supabase.storage
-          .from('report-media')
+          .from('review-media')
           .getPublicUrl(fileName);
 
         imageUrls.push(publicUrl);
