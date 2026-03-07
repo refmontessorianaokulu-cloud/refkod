@@ -673,16 +673,25 @@ function ProductCatalog() {
                   <span className="text-2xl font-bold text-emerald-600">{product.base_price.toFixed(2)} ₺</span>
                 )}
               </div>
-              <button
-                onClick={() => {
-                  onAddToCart(product);
-                  onClose();
-                }}
-                className="flex items-center gap-2 bg-emerald-600 text-white px-6 py-3 rounded-lg hover:bg-emerald-700 transition-colors"
-              >
-                <ShoppingCart className="w-5 h-5" />
-                Sepete Ekle
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => addToFavorites(product)}
+                  className="p-3 border border-emerald-200 text-emerald-600 rounded-lg hover:bg-emerald-50 transition-colors"
+                  title="Favorilere Ekle"
+                >
+                  <Heart className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => {
+                    onAddToCart(product);
+                    onClose();
+                  }}
+                  className="p-3 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+                  title="Sepete Ekle"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                </button>
+              </div>
             </div>
 
             {similarProducts.length > 0 && (
