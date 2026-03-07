@@ -517,8 +517,9 @@ function ProductCatalog() {
             className="flex items-center gap-1 mb-2 cursor-pointer"
             onClick={(e) => {
               e.stopPropagation();
-              setSelectedProductForReviews(product);
+              e.preventDefault();
               setShowReviewsModal(true);
+              setSelectedProductForReviews(product);
             }}
           >
             {[1, 2, 3, 4, 5].map((star) => (

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { X, Star, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Star, Upload, Image as ImageIcon, Trash2, Edit2 } from 'lucide-react';
 
 interface Review {
   id: string;
@@ -27,12 +27,13 @@ interface ProductReviewsModalProps {
 }
 
 export default function ProductReviewsModal({ product, onClose }: ProductReviewsModalProps) {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
   const [showWriteReview, setShowWriteReview] = useState(false);
   const [canReview, setCanReview] = useState(false);
   const [deliveredOrders, setDeliveredOrders] = useState<any[]>([]);
+  const [editingReview, setEditingReview] = useState<Review | null>(null);
 
   useEffect(() => {
     loadReviews();
@@ -67,6 +68,18 @@ export default function ProductReviewsModal({ product, onClose }: ProductReviews
 
   const checkCanReview = async () => {
     try {
+      const { data: existingReview } = await supabase
+        .from('product_reviews')
+        .select('*')
+        .eq('user_id', user!.id)
+        .eq('product_id', product.id)
+        .maybeSingle();
+
+      if (existingReview) {
+        setCanReview(false);
+        return;
+      }
+
       const { data, error } = await supabase
         .from('orders')
         .select(`
@@ -88,6 +101,35 @@ export default function ProductReviewsModal({ product, onClose }: ProductReviews
     } catch (error) {
       console.error('Error checking review eligibility:', error);
     }
+  };
+
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!confirm('Bu değerlendirmeyi silmek istediğinizden emin misiniz?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('product_reviews')
+        .delete()
+        .eq('id', reviewId);
+
+      if (error) throw error;
+
+      alert('Değerlendirme başarıyla silindi');
+      loadReviews();
+      if (user) {
+        checkCanReview();
+      }
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      alert('Hata: ' + (error as Error).message);
+    }
+  };
+
+  const handleEditReview = (review: Review) => {
+    setEditingReview(review);
+    setShowWriteReview(false);
   };
 
   return (
@@ -138,8 +180,22 @@ export default function ProductReviewsModal({ product, onClose }: ProductReviews
               onSuccess={() => {
                 setShowWriteReview(false);
                 loadReviews();
+                if (user) {
+                  checkCanReview();
+                }
               }}
               onCancel={() => setShowWriteReview(false)}
+            />
+          )}
+
+          {editingReview && (
+            <EditReviewForm
+              review={editingReview}
+              onSuccess={() => {
+                setEditingReview(null);
+                loadReviews();
+              }}
+              onCancel={() => setEditingReview(null)}
             />
           )}
 
@@ -152,7 +208,7 @@ export default function ProductReviewsModal({ product, onClose }: ProductReviews
               reviews.map((review) => (
                 <div key={review.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-start justify-between mb-2">
-                    <div>
+                    <div className="flex-1">
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-gray-800">{review.profiles.full_name}</p>
                         {review.is_verified_purchase && (
@@ -174,9 +230,31 @@ export default function ProductReviewsModal({ product, onClose }: ProductReviews
                         ))}
                       </div>
                     </div>
-                    <span className="text-sm text-gray-500">
-                      {new Date(review.created_at).toLocaleDateString('tr-TR')}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">
+                        {new Date(review.created_at).toLocaleDateString('tr-TR')}
+                      </span>
+                      {(user?.id === review.user_id || profile?.role === 'admin') && (
+                        <div className="flex gap-1">
+                          {user?.id === review.user_id && (
+                            <button
+                              onClick={() => handleEditReview(review)}
+                              className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              title="Düzenle"
+                            >
+                              <Edit2 className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => handleDeleteReview(review.id)}
+                            className="p-1.5 text-red-600 hover:bg-red-50 rounded transition-colors"
+                            title="Sil"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <p className="text-gray-700 mb-3">{review.comment}</p>
                   {review.images && review.images.length > 0 && (
@@ -365,6 +443,202 @@ function WriteReviewForm({
           disabled={uploading}
         >
           {uploading ? 'Gönderiliyor...' : 'Gönder'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function EditReviewForm({
+  review,
+  onSuccess,
+  onCancel
+}: {
+  review: Review;
+  onSuccess: () => void;
+  onCancel: () => void;
+}) {
+  const { user } = useAuth();
+  const [rating, setRating] = useState(review.rating);
+  const [comment, setComment] = useState(review.comment);
+  const [images, setImages] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<string[]>(review.images || []);
+  const [uploading, setUploading] = useState(false);
+  const [hoveredStar, setHoveredStar] = useState(0);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newImages = Array.from(e.target.files);
+      const totalImages = existingImages.length + images.length + newImages.length;
+      if (totalImages > 5) {
+        alert('Maksimum 5 fotoğraf yükleyebilirsiniz');
+        return;
+      }
+      setImages([...images, ...newImages]);
+    }
+  };
+
+  const removeExistingImage = (index: number) => {
+    setExistingImages(existingImages.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUploading(true);
+
+    try {
+      const imageUrls: string[] = [...existingImages];
+
+      for (const image of images) {
+        const fileExt = image.name.split('.').pop();
+        const fileName = `${user!.id}/${Date.now()}-${Math.random()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('review-media')
+          .upload(fileName, image);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('review-media')
+          .getPublicUrl(fileName);
+
+        imageUrls.push(publicUrl);
+      }
+
+      const { error } = await supabase
+        .from('product_reviews')
+        .update({
+          rating,
+          comment,
+          images: imageUrls,
+        })
+        .eq('id', review.id);
+
+      if (error) throw error;
+
+      alert('Değerlendirmeniz başarıyla güncellendi!');
+      onSuccess();
+    } catch (error) {
+      console.error('Error updating review:', error);
+      alert('Hata: ' + (error as Error).message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="border border-gray-200 rounded-lg p-4 mb-6">
+      <h4 className="font-semibold text-gray-800 mb-4">Değerlendirmenizi Düzenleyin</h4>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Puanınız</label>
+        <div className="flex items-center gap-1">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button
+              key={star}
+              type="button"
+              onClick={() => setRating(star)}
+              onMouseEnter={() => setHoveredStar(star)}
+              onMouseLeave={() => setHoveredStar(0)}
+              className="transition-colors"
+            >
+              <Star
+                className={`w-8 h-8 ${
+                  star <= (hoveredStar || rating)
+                    ? 'fill-yellow-400 text-yellow-400'
+                    : 'text-gray-300'
+                }`}
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Yorumunuz</label>
+        <textarea
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+          rows={4}
+          placeholder="Ürün hakkındaki görüşlerinizi paylaşın..."
+          required
+        />
+      </div>
+
+      <div className="mb-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Fotoğraflar (Opsiyonel, maksimum 5)
+        </label>
+
+        {existingImages.length + images.length < 5 && (
+          <label className="flex items-center justify-center gap-2 border-2 border-dashed border-gray-300 rounded-lg p-4 cursor-pointer hover:border-emerald-500 transition-colors mb-2">
+            <ImageIcon className="w-5 h-5 text-gray-400" />
+            <span className="text-sm text-gray-600">Fotoğraf Ekle</span>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageSelect}
+              className="hidden"
+            />
+          </label>
+        )}
+
+        {(existingImages.length > 0 || images.length > 0) && (
+          <div className="flex gap-2 flex-wrap">
+            {existingImages.map((image, index) => (
+              <div key={`existing-${index}`} className="relative">
+                <img
+                  src={image}
+                  alt={`Existing ${index + 1}`}
+                  className="w-20 h-20 object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeExistingImage(index)}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+            {images.map((image, index) => (
+              <div key={`new-${index}`} className="relative">
+                <img
+                  src={URL.createObjectURL(image)}
+                  alt={`New ${index + 1}`}
+                  className="w-20 h-20 object-cover rounded-lg"
+                />
+                <button
+                  type="button"
+                  onClick={() => setImages(images.filter((_, i) => i !== index))}
+                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+          disabled={uploading}
+        >
+          İptal
+        </button>
+        <button
+          type="submit"
+          className="flex-1 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:bg-gray-300"
+          disabled={uploading}
+        >
+          {uploading ? 'Güncelleniyor...' : 'Güncelle'}
         </button>
       </div>
     </form>
