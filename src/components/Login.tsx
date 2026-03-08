@@ -262,8 +262,7 @@ export default function Login() {
 
       switch (route) {
         case 'playgroup':
-          setOpenMobileCard('playgroup');
-          setOpenDesktopCard('playgroup');
+          signInAsGuest('play_group');
           break;
         case 'atolye':
           setShowAtolyeLogin(true);
