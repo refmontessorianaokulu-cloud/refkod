@@ -114,7 +114,7 @@ export default function AnnouncementBanner() {
               </button>
             )}
 
-            <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-3 min-h-[32px]">
+            <div className="flex-1 flex flex-row items-center justify-center gap-2 md:gap-3 min-h-[32px]">
               <p className="text-xs md:text-sm text-white font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full px-2">
                 {message}
               </p>
