@@ -328,15 +328,15 @@ export default function Login() {
         />
 
         {/* Mobil - Alt Butonlar */}
-        <div className="md:hidden fixed bottom-6 left-0 right-0 flex items-center justify-center gap-3 z-50 px-6">
+        <div className="md:hidden fixed bottom-6 left-0 right-0 flex items-center justify-between z-50 px-6">
           <button
-            onClick={handleWhatsAppClick}
-            className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5 animate-wave"
-            aria-label="WhatsApp ile iletişime geç"
+            onClick={() => setShowRefAssistant(true)}
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5"
+            aria-label="Ref Asistan"
           >
-            <MessageCircle className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse w-4 h-4">
-              1
+            <Bot className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
+              !
             </span>
           </button>
 
@@ -350,6 +350,17 @@ export default function Login() {
             ) : (
               <Volume2 className="w-4 h-4 text-white" />
             )}
+          </button>
+
+          <button
+            onClick={handleWhatsAppClick}
+            className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5 animate-wave"
+            aria-label="WhatsApp ile iletişime geç"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse w-4 h-4">
+              1
+            </span>
           </button>
         </div>
 
@@ -472,15 +483,15 @@ export default function Login() {
       )}
 
       {/* Mobil - Alt Butonlar */}
-      <div className="md:hidden fixed bottom-6 left-0 right-0 flex items-center justify-center gap-3 z-50 px-6">
+      <div className="md:hidden fixed bottom-6 left-0 right-0 flex items-center justify-between z-50 px-6">
         <button
-          onClick={handleWhatsAppClick}
-          className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5 animate-wave"
-          aria-label="WhatsApp ile iletişime geç"
+          onClick={() => setShowRefAssistant(true)}
+          className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5"
+          aria-label="Ref Asistan"
         >
-          <MessageCircle className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse w-4 h-4">
-            1
+          <Bot className="w-5 h-5" />
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
+            !
           </span>
         </button>
 
@@ -494,6 +505,17 @@ export default function Login() {
           ) : (
             <Volume2 className="w-4 h-4 text-white" />
           )}
+        </button>
+
+        <button
+          onClick={handleWhatsAppClick}
+          className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5 animate-wave"
+          aria-label="WhatsApp ile iletişime geç"
+        >
+          <MessageCircle className="w-5 h-5" />
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse w-4 h-4">
+            1
+          </span>
         </button>
       </div>
 
@@ -565,27 +587,20 @@ export default function Login() {
           </div>
 
           {/* Mobil - Sağ İkonlar */}
-          <div className="md:hidden flex items-center gap-1.5">
-            <button
-              onClick={() => setShowRefAssistant(true)}
-              className="p-1 transition-all"
-              title="Ref Asistan"
-            >
-              <Bot className="w-4 h-4 text-gray-800" />
-            </button>
+          <div className="md:hidden flex items-center gap-2">
             <button
               onClick={() => setShowTypewriterSearch(true)}
               className="p-1 transition-all"
               title="Arama"
             >
-              <SearchIcon className="w-4 h-4 text-gray-800" />
+              <SearchIcon className="w-5 h-5 text-white" />
             </button>
             <button
               onClick={() => signInAsGuest('ref_atolye')}
               className="p-1 transition-all"
               title="Sepetim"
             >
-              <ShoppingBag className="w-4 h-4 text-gray-800" />
+              <ShoppingBag className="w-5 h-5 text-white" />
             </button>
             <button
               onClick={() => {
@@ -595,7 +610,7 @@ export default function Login() {
               className="p-1 transition-all"
               title="Hesabım"
             >
-              <UserCircle className="w-4 h-4 text-gray-800" />
+              <UserCircle className="w-5 h-5 text-white" />
             </button>
             <button
               onClick={() => {
@@ -603,7 +618,7 @@ export default function Login() {
               }}
               className="p-1 transition-all"
             >
-              <Menu className="w-4 h-4 text-gray-800" />
+              <Menu className="w-5 h-5 text-white" />
             </button>
           </div>
 
