@@ -344,9 +344,7 @@ export default function Login() {
 
           <button
             onClick={toggleMute}
-            className={`p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all ${
-              showVolumeControl ? 'opacity-100' : 'opacity-0 pointer-events-none'
-            }`}
+            className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all"
             title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
           >
             {isMuted ? (
@@ -501,9 +499,7 @@ export default function Login() {
 
         <button
           onClick={toggleMute}
-          className={`p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all ${
-            showVolumeControl ? 'opacity-100' : 'opacity-0 pointer-events-none'
-          }`}
+          className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all"
           title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
         >
           {isMuted ? (
