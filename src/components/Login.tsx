@@ -293,7 +293,7 @@ export default function Login() {
               onClick={toggleMute}
               className={`absolute bottom-6 left-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 ${
                 showVolumeControl ? 'opacity-100' : 'opacity-0'
-              }`}
+              } hidden md:block`}
               title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
             >
               {isMuted ? (
@@ -327,9 +327,36 @@ export default function Login() {
           userRole="guest"
         />
 
+        {/* Mobil - Alt Butonlar */}
+        <div className="md:hidden fixed bottom-6 left-0 right-0 flex items-center justify-center gap-3 z-50 px-6">
+          <button
+            onClick={handleWhatsAppClick}
+            className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5 animate-wave"
+            aria-label="WhatsApp ile iletişime geç"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse w-4 h-4">
+              1
+            </span>
+          </button>
+
+          <button
+            onClick={toggleMute}
+            className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all"
+            title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
+          >
+            {isMuted ? (
+              <VolumeX className="w-4 h-4 text-white" />
+            ) : (
+              <Volume2 className="w-4 h-4 text-white" />
+            )}
+          </button>
+        </div>
+
+        {/* Masaüstü - Sağ Alt WhatsApp Butonu */}
         <button
           onClick={handleWhatsAppClick}
-          className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 z-50 group"
+          className="hidden md:block fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 z-50 group"
           aria-label="WhatsApp ile iletişime geç"
         >
           <MessageCircle className="w-[30px] h-[30px]" />
@@ -430,7 +457,7 @@ export default function Login() {
             onClick={toggleMute}
             className={`absolute bottom-6 left-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 z-10 ${
               showVolumeControl ? 'opacity-100' : 'opacity-0'
-            }`}
+            } hidden md:block`}
             title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
           >
             {isMuted ? (
@@ -444,35 +471,46 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
       )}
 
-      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+      {/* Mobil - Alt Butonlar */}
+      <div className="md:hidden fixed bottom-6 left-0 right-0 flex items-center justify-center gap-3 z-50 px-6">
         <button
-          onClick={() => setShowRefAssistant(true)}
-          className="md:hidden bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-full p-2.5 shadow-xl hover:shadow-2xl transition-all transform hover:scale-110 group relative"
-          aria-label="Ref Asistan"
+          onClick={handleWhatsAppClick}
+          className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5 animate-wave"
+          aria-label="WhatsApp ile iletişime geç"
         >
-          <Bot className="w-5 h-5" />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
-            !
-          </span>
-          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            Ref Asistan
+          <MessageCircle className="w-5 h-5" />
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse w-4 h-4">
+            1
           </span>
         </button>
 
         <button
-          onClick={handleWhatsAppClick}
-          className="bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5 md:p-4 animate-wave md:animate-none md:hover:scale-110 md:transform"
-          aria-label="WhatsApp ile iletişime geç"
+          onClick={toggleMute}
+          className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all"
+          title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
         >
-          <MessageCircle className="w-5 h-5 md:w-[30px] md:h-[30px]" />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse w-4 h-4 md:w-5 md:h-5">
-            1
-          </span>
-          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            Ref'e dair her şey için...
-          </span>
+          {isMuted ? (
+            <VolumeX className="w-4 h-4 text-white" />
+          ) : (
+            <Volume2 className="w-4 h-4 text-white" />
+          )}
         </button>
       </div>
+
+      {/* Masaüstü - Sağ Alt WhatsApp Butonu */}
+      <button
+        onClick={handleWhatsAppClick}
+        className="hidden md:block fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-4 hover:scale-110 transform z-50"
+        aria-label="WhatsApp ile iletişime geç"
+      >
+        <MessageCircle className="w-[30px] h-[30px]" />
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse w-5 h-5">
+          1
+        </span>
+        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+          Ref'e dair her şey için...
+        </span>
+      </button>
 
       {/* Top Header - Mobil ve Masaüstü - Fixed Position */}
       <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
@@ -527,38 +565,45 @@ export default function Login() {
           </div>
 
           {/* Mobil - Sağ İkonlar */}
-          <div className="md:hidden flex items-center gap-2">
+          <div className="md:hidden flex items-center gap-1.5">
+            <button
+              onClick={() => setShowRefAssistant(true)}
+              className="p-1 transition-all"
+              title="Ref Asistan"
+            >
+              <Bot className="w-4 h-4 text-gray-800" />
+            </button>
             <button
               onClick={() => setShowTypewriterSearch(true)}
-              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+              className="p-1 transition-all"
               title="Arama"
             >
-              <SearchIcon className="w-5 h-5 text-gray-800" />
+              <SearchIcon className="w-4 h-4 text-gray-800" />
             </button>
             <button
               onClick={() => signInAsGuest('ref_atolye')}
-              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+              className="p-1 transition-all"
               title="Sepetim"
             >
-              <ShoppingBag className="w-5 h-5 text-gray-800" />
+              <ShoppingBag className="w-4 h-4 text-gray-800" />
             </button>
             <button
               onClick={() => {
                 setIsMobileMenuOpen(true);
                 setOpenMobileCard('login');
               }}
-              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+              className="p-1 transition-all"
               title="Hesabım"
             >
-              <UserCircle className="w-5 h-5 text-gray-800" />
+              <UserCircle className="w-4 h-4 text-gray-800" />
             </button>
             <button
               onClick={() => {
                 setIsMobileMenuOpen(true);
               }}
-              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+              className="p-1 transition-all"
             >
-              <Menu className="w-5 h-5 text-gray-800" />
+              <Menu className="w-4 h-4 text-gray-800" />
             </button>
           </div>
 
