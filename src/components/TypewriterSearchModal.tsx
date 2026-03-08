@@ -7,9 +7,28 @@ interface TypewriterSearchModalProps {
   onSearch?: (query: string) => void;
 }
 
+const searchSuggestions = [
+  'Montessori',
+  'Montessori Eğitimi',
+  'Eğitim Materyalleri',
+  'Ref Akademi',
+  'Ref Danışmanlık',
+  'Ref Atölye',
+  'Başvuru Formu',
+  'İletişim',
+  'Kreş',
+  'Anaokulu',
+  'Gelişim Raporları',
+  'Öğretmen',
+  'Rehber Öğretmen',
+  'Ücretler',
+  'Kayıt',
+];
+
 export default function TypewriterSearchModal({ isOpen, onClose, onSearch }: TypewriterSearchModalProps) {
   const [searchValue, setSearchValue] = useState('');
   const [placeholder, setPlaceholder] = useState('');
+  const [filteredSuggestions, setFilteredSuggestions] = useState<string[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const fullText = 'Ne arıyorsunuz?';
 
@@ -17,6 +36,7 @@ export default function TypewriterSearchModal({ isOpen, onClose, onSearch }: Typ
     if (isOpen) {
       setPlaceholder('');
       setSearchValue('');
+      setFilteredSuggestions([]);
 
       setTimeout(() => {
         inputRef.current?.focus();
@@ -37,20 +57,37 @@ export default function TypewriterSearchModal({ isOpen, onClose, onSearch }: Typ
       return () => clearInterval(typeInterval);
     } else {
       setPlaceholder('');
+      setFilteredSuggestions([]);
     }
   }, [isOpen]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (onSearch && searchValue.trim()) {
-      onSearch(searchValue);
+  useEffect(() => {
+    if (searchValue.trim()) {
+      const filtered = searchSuggestions.filter(suggestion =>
+        suggestion.toLowerCase().includes(searchValue.toLowerCase())
+      ).slice(0, 5);
+      setFilteredSuggestions(filtered);
+    } else {
+      setFilteredSuggestions([]);
+    }
+  }, [searchValue]);
+
+  const handleSearch = (query: string) => {
+    if (onSearch && query.trim()) {
+      onSearch(query);
       onClose();
     }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setSearchValue(suggestion);
+    handleSearch(suggestion);
   };
 
   const handleClose = () => {
     setSearchValue('');
     setPlaceholder('');
+    setFilteredSuggestions([]);
     onClose();
   };
 
@@ -76,48 +113,39 @@ export default function TypewriterSearchModal({ isOpen, onClose, onSearch }: Typ
             </button>
           </div>
 
-          <form onSubmit={handleSearch}>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <Search className="w-5 h-5 text-emerald-500" />
-              </div>
-              <input
-                ref={inputRef}
-                type="text"
-                value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
-                placeholder={placeholder}
-                className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none text-gray-700 placeholder-gray-400 text-lg"
-              />
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search className="w-5 h-5 text-emerald-500" />
             </div>
+            <input
+              ref={inputRef}
+              type="text"
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && searchValue.trim()) {
+                  handleSearch(searchValue);
+                }
+              }}
+              placeholder={placeholder}
+              className="w-full pl-12 pr-4 py-4 bg-gray-50 border-2 border-gray-200 rounded-xl focus:border-emerald-500 focus:ring-4 focus:ring-emerald-100 transition-all outline-none text-gray-700 placeholder-gray-400 text-lg"
+            />
+          </div>
 
-            {searchValue && (
-              <button
-                type="submit"
-                className="w-full mt-4 px-6 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
-              >
-                Ara
-              </button>
-            )}
-          </form>
-
-          <div className="mt-6 pt-6 border-t border-gray-200">
-            <p className="text-sm text-gray-600 mb-3 font-medium">Popüler Aramalar:</p>
-            <div className="flex flex-wrap gap-2">
-              {['Montessori', 'Eğitim Materyalleri', 'Ref Akademi', 'Başvuru', 'İletişim'].map((keyword) => (
+          {filteredSuggestions.length > 0 && (
+            <div className="mt-2 bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+              {filteredSuggestions.map((suggestion, index) => (
                 <button
-                  key={keyword}
-                  onClick={() => {
-                    setSearchValue(keyword);
-                    inputRef.current?.focus();
-                  }}
-                  className="px-4 py-2 bg-gray-100 hover:bg-emerald-50 text-gray-700 hover:text-emerald-700 rounded-full text-sm font-medium transition-all border border-gray-200 hover:border-emerald-300"
+                  key={index}
+                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="w-full px-4 py-3 text-left hover:bg-emerald-50 transition-colors border-b border-gray-200 last:border-b-0 flex items-center gap-3"
                 >
-                  {keyword}
+                  <Search className="w-4 h-4 text-gray-400" />
+                  <span className="text-gray-700">{suggestion}</span>
                 </button>
               ))}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>

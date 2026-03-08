@@ -5,6 +5,7 @@ import InquiryForm from './InquiryForm';
 import ReferenceTeacherForm from './ReferenceTeacherForm';
 import ContactPage from './ContactPage';
 import RefAtolyeLogin from './RefAtolyeLogin';
+import CartView from './CartView';
 import { supabase } from '../lib/supabase';
 import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX, MessageCircle, ShoppingBag, CircleUser as UserCircle, Bot } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
@@ -71,6 +72,7 @@ export default function Login() {
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
   const [showTypewriterSearch, setShowTypewriterSearch] = useState(false);
   const [showRefAssistant, setShowRefAssistant] = useState(false);
+  const [showCart, setShowCart] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
   const { t } = useLanguage();
 
@@ -596,7 +598,7 @@ export default function Login() {
               <SearchIcon className="w-5 h-5 text-white" />
             </button>
             <button
-              onClick={() => signInAsGuest('ref_atolye')}
+              onClick={() => setShowCart(true)}
               className="p-1 transition-all"
               title="Sepetim"
             >
@@ -1521,6 +1523,25 @@ export default function Login() {
           signInAsGuest(destination);
         }}
       />
+
+      {showCart && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-800">Sepetim</h2>
+              <button
+                onClick={() => setShowCart(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-700" />
+              </button>
+            </div>
+            <div className="p-6">
+              <CartView />
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
