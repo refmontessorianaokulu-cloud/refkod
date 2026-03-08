@@ -522,11 +522,11 @@ export default function Login() {
       {/* Masaüstü - Sağ Alt WhatsApp Butonu */}
       <button
         onClick={handleWhatsAppClick}
-        className="hidden md:block fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-4 hover:scale-110 transform z-50"
+        className="hidden md:block fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 z-50 group"
         aria-label="WhatsApp ile iletişime geç"
       >
         <MessageCircle className="w-[30px] h-[30px]" />
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full flex items-center justify-center font-bold animate-pulse w-5 h-5">
+        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
           1
         </span>
         <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
