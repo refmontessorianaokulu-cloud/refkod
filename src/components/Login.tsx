@@ -254,6 +254,48 @@ export default function Login() {
     setShowWhatsAppModal(false);
   };
 
+  useEffect(() => {
+    const handleNavigateToPage = (event: CustomEvent) => {
+      const route = event.detail;
+      setIsMobileMenuOpen(false);
+      setIsDesktopMenuOpen(false);
+
+      switch (route) {
+        case 'playgroup':
+          setOpenMobileCard('playgroup');
+          setOpenDesktopCard('playgroup');
+          break;
+        case 'atolye':
+          setShowAtolyeLogin(true);
+          break;
+        case 'ref_akademi':
+          setIsRefAkademiCardOpen(true);
+          break;
+        case 'ref_danismanlik':
+          setOpenMobileCard('ref_danismanlik');
+          setOpenDesktopCard('ref_danismanlik');
+          break;
+        case 'contact':
+          setShowContactPage(true);
+          break;
+        case 'login':
+          setIsLoginCardOpen(true);
+          break;
+        case 'application':
+          setIsApplicationCardOpen(true);
+          break;
+        case 'about':
+          setIsAboutCardOpen(true);
+          break;
+      }
+    };
+
+    window.addEventListener('navigateToPage', handleNavigateToPage as EventListener);
+    return () => {
+      window.removeEventListener('navigateToPage', handleNavigateToPage as EventListener);
+    };
+  }, []);
+
   if (showInquiryForm) {
     return <InquiryForm onBack={() => setShowInquiryForm(false)} />;
   }

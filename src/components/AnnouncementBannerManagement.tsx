@@ -6,7 +6,7 @@ import { Plus, Trash2, CreditCard as EditIcon, ChevronUp, ChevronDown, Save, X }
 interface AnnouncementBanner {
   id: string;
   message_tr: string;
-  message_en: string;
+  message_en: string | null;
   link_url: string | null;
   link_text_tr: string | null;
   link_text_en: string | null;
@@ -60,7 +60,7 @@ export default function AnnouncementBannerManagement() {
           .from('announcement_banners')
           .update({
             message_tr: formData.message_tr,
-            message_en: formData.message_en,
+            message_en: formData.message_en || null,
             link_url: formData.link_url || null,
             link_text_tr: formData.link_text_tr || null,
             link_text_en: formData.link_text_en || null,
@@ -77,7 +77,7 @@ export default function AnnouncementBannerManagement() {
           .from('announcement_banners')
           .insert([{
             message_tr: formData.message_tr,
-            message_en: formData.message_en,
+            message_en: formData.message_en || null,
             link_url: formData.link_url || null,
             link_text_tr: formData.link_text_tr || null,
             link_text_en: formData.link_text_en || null,
@@ -108,7 +108,7 @@ export default function AnnouncementBannerManagement() {
   const handleEdit = (banner: AnnouncementBanner) => {
     setFormData({
       message_tr: banner.message_tr,
-      message_en: banner.message_en,
+      message_en: banner.message_en || '',
       link_url: banner.link_url || '',
       link_text_tr: banner.link_text_tr || '',
       link_text_en: banner.link_text_en || '',
@@ -232,29 +232,39 @@ export default function AnnouncementBannerManagement() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Duyuru Metni (İngilizce) *
+                Duyuru Metni (İngilizce)
               </label>
               <input
                 type="text"
                 value={formData.message_en}
                 onChange={(e) => setFormData({ ...formData, message_en: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="Single line announcement text"
-                required
+                placeholder="Single line announcement text (optional)"
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Bağlantı URL (Opsiyonel)
+                Sayfa Bağlantısı (Opsiyonel)
               </label>
-              <input
-                type="url"
+              <select
                 value={formData.link_url}
                 onChange={(e) => setFormData({ ...formData, link_url: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                placeholder="https://..."
-              />
+              >
+                <option value="">Bağlantı Seçiniz</option>
+                <option value="playgroup">Oyun Grubu</option>
+                <option value="atolye">Ref Atölye</option>
+                <option value="ref_akademi">Ref Akademi</option>
+                <option value="ref_danismanlik">Ref Danışmanlık</option>
+                <option value="contact">İletişim</option>
+                <option value="login">Giriş Yap</option>
+                <option value="application">Başvuru</option>
+                <option value="about">Hakkımızda</option>
+              </select>
+              <p className="text-xs text-gray-500 mt-1">
+                Site içi sayfaya yönlendirme için yukarıdan seçim yapın
+              </p>
             </div>
 
             {formData.link_url && (
@@ -362,15 +372,20 @@ export default function AnnouncementBannerManagement() {
                 <p className="text-gray-900 font-medium mb-1">
                   🇹🇷 {banner.message_tr}
                 </p>
-                <p className="text-gray-700 mb-2">
-                  🇬🇧 {banner.message_en}
-                </p>
+                {banner.message_en && (
+                  <p className="text-gray-700 mb-2">
+                    🇬🇧 {banner.message_en}
+                  </p>
+                )}
                 {banner.link_url && (
-                  <div className="text-sm text-gray-600">
-                    <span className="font-medium">Bağlantı:</span> {banner.link_url}
+                  <div className="text-sm text-gray-600 mt-2">
+                    <span className="font-medium">Bağlantı:</span>{' '}
+                    <span className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
+                      {banner.link_url}
+                    </span>
                     {banner.link_text_tr && (
                       <span className="ml-2">
-                        (🇹🇷 "{banner.link_text_tr}" | 🇬🇧 "{banner.link_text_en}")
+                        (🇹🇷 "{banner.link_text_tr}"{banner.link_text_en && ` | 🇬🇧 "${banner.link_text_en}"`})
                       </span>
                     )}
                   </div>

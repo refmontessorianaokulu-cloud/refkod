@@ -6,7 +6,7 @@ import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 interface AnnouncementBanner {
   id: string;
   message_tr: string;
-  message_en: string;
+  message_en: string | null;
   link_url: string | null;
   link_text_tr: string | null;
   link_text_en: string | null;
@@ -21,6 +21,7 @@ export default function AnnouncementBanner() {
   const [isVisible, setIsVisible] = useState(true);
   const [isClosing, setIsClosing] = useState(false);
   const bannerRef = useRef<HTMLDivElement>(null);
+  const [onLinkClick, setOnLinkClick] = useState<((route: string) => void) | null>(null);
 
   useEffect(() => {
     loadBanners();
@@ -87,83 +88,92 @@ export default function AnnouncementBanner() {
     setCurrentIndex((prev) => (prev + 1) % banners.length);
   };
 
+  const handleLinkClick = (e: React.MouseEvent, url: string) => {
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      e.preventDefault();
+      const event = new CustomEvent('navigateToPage', { detail: url });
+      window.dispatchEvent(event);
+    }
+  };
+
   if (!isVisible || banners.length === 0) return null;
 
   const currentBanner = banners[currentIndex];
-  const message = language === 'tr' ? currentBanner.message_tr : currentBanner.message_en;
-  const linkText = language === 'tr' ? currentBanner.link_text_tr : currentBanner.link_text_en;
+  const message = language === 'tr' ? currentBanner.message_tr : (currentBanner.message_en || currentBanner.message_tr);
+  const linkText = language === 'tr' ? currentBanner.link_text_tr : (currentBanner.link_text_en || currentBanner.link_text_tr);
 
   return (
-    <div
-      ref={bannerRef}
-      className={`bg-green-50 border-b border-green-200 transition-all duration-300 ${
-        isClosing ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
-      }`}
-    >
-      <div className="max-w-7xl mx-auto px-4 py-3">
-        <div className="flex items-center justify-between gap-4">
-          {banners.length > 1 && (
-            <button
-              onClick={handlePrev}
-              className="flex-shrink-0 p-1 hover:bg-green-100 rounded-full transition-colors"
-              aria-label="Previous announcement"
-            >
-              <ChevronLeft className="w-4 h-4 text-green-700" />
-            </button>
-          )}
-
-          <div className="flex-1 flex items-center justify-center gap-3 min-h-[32px]">
-            <p className="text-sm md:text-base text-green-800 font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis">
-              {message}
-            </p>
-
-            {currentBanner.link_url && linkText && (
-              <a
-                href={currentBanner.link_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-shrink-0 px-3 py-1 bg-green-600 text-white text-xs md:text-sm font-medium rounded-full hover:bg-green-700 transition-colors whitespace-nowrap"
-              >
-                {linkText}
-              </a>
-            )}
-          </div>
-
-          {banners.length > 1 && (
-            <button
-              onClick={handleNext}
-              className="flex-shrink-0 p-1 hover:bg-green-100 rounded-full transition-colors"
-              aria-label="Next announcement"
-            >
-              <ChevronRight className="w-4 h-4 text-green-700" />
-            </button>
-          )}
-
-          <button
-            onClick={handleClose}
-            className="flex-shrink-0 p-1 hover:bg-green-100 rounded-full transition-colors"
-            aria-label="Close announcement"
-          >
-            <X className="w-4 h-4 text-green-700" />
-          </button>
-        </div>
-
-        {banners.length > 1 && (
-          <div className="flex justify-center gap-1.5 mt-2">
-            {banners.map((_, index) => (
+    <div className="pt-2 px-2">
+      <div
+        ref={bannerRef}
+        className={`bg-green-600/20 backdrop-blur-sm rounded-2xl transition-all duration-300 ${
+          isClosing ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 py-3">
+          <div className="flex items-center justify-between gap-2 md:gap-4">
+            {banners.length > 1 && (
               <button
-                key={index}
-                onClick={() => handleDotClick(index)}
-                className={`w-2 h-2 rounded-full transition-all ${
-                  index === currentIndex
-                    ? 'bg-green-600 w-6'
-                    : 'bg-green-300 hover:bg-green-400'
-                }`}
-                aria-label={`Go to announcement ${index + 1}`}
-              />
-            ))}
+                onClick={handlePrev}
+                className="flex-shrink-0 p-1.5 hover:bg-white/20 rounded-full transition-colors"
+                aria-label="Previous announcement"
+              >
+                <ChevronLeft className="w-4 h-4 text-white" />
+              </button>
+            )}
+
+            <div className="flex-1 flex flex-col md:flex-row items-center justify-center gap-2 md:gap-3 min-h-[32px]">
+              <p className="text-xs md:text-sm text-white font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full px-2">
+                {message}
+              </p>
+
+              {currentBanner.link_url && linkText && (
+                <a
+                  href={currentBanner.link_url}
+                  onClick={(e) => handleLinkClick(e, currentBanner.link_url!)}
+                  className="flex-shrink-0 px-3 py-1 bg-white/90 text-green-700 text-xs md:text-sm font-semibold rounded-full hover:bg-white transition-colors whitespace-nowrap shadow-sm"
+                >
+                  {linkText}
+                </a>
+              )}
+            </div>
+
+            {banners.length > 1 && (
+              <button
+                onClick={handleNext}
+                className="flex-shrink-0 p-1.5 hover:bg-white/20 rounded-full transition-colors"
+                aria-label="Next announcement"
+              >
+                <ChevronRight className="w-4 h-4 text-white" />
+              </button>
+            )}
+
+            <button
+              onClick={handleClose}
+              className="flex-shrink-0 p-1.5 hover:bg-white/20 rounded-full transition-colors"
+              aria-label="Close announcement"
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
           </div>
-        )}
+
+          {banners.length > 1 && (
+            <div className="flex justify-center gap-1.5 mt-2">
+              {banners.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleDotClick(index)}
+                  className={`h-1.5 rounded-full transition-all ${
+                    index === currentIndex
+                      ? 'bg-white w-6'
+                      : 'bg-white/50 hover:bg-white/70 w-1.5'
+                  }`}
+                  aria-label={`Go to announcement ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
