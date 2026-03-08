@@ -6,7 +6,7 @@ import ReferenceTeacherForm from './ReferenceTeacherForm';
 import ContactPage from './ContactPage';
 import RefAtolyeLogin from './RefAtolyeLogin';
 import { supabase } from '../lib/supabase';
-import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX, MessageCircle, ShoppingBag, UserCircle, Bot } from 'lucide-react';
+import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX, MessageCircle, ShoppingBag, CircleUser as UserCircle, Bot } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
 import SearchModal from './SearchModal';
 import TypewriterSearchModal from './TypewriterSearchModal';
