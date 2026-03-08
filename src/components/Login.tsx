@@ -1537,7 +1537,12 @@ export default function Login() {
               </button>
             </div>
             <div className="p-6">
-              <CartView />
+              <CartView
+                onStartShopping={() => {
+                  setShowCart(false);
+                  signInAsGuest('ref_atolye');
+                }}
+              />
             </div>
           </div>
         </div>

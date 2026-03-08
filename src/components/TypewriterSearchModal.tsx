@@ -63,9 +63,11 @@ export default function TypewriterSearchModal({ isOpen, onClose, onSearch }: Typ
 
   useEffect(() => {
     if (searchValue.trim()) {
+      const searchLower = searchValue.toLowerCase();
       const filtered = searchSuggestions.filter(suggestion =>
-        suggestion.toLowerCase().includes(searchValue.toLowerCase())
+        suggestion.toLowerCase().includes(searchLower)
       ).slice(0, 5);
+      console.log('Arama:', searchValue, 'Sonuçlar:', filtered);
       setFilteredSuggestions(filtered);
     } else {
       setFilteredSuggestions([]);

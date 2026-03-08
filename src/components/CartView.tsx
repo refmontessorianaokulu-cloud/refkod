@@ -36,7 +36,11 @@ interface GuestCartItem {
   image?: string;
 }
 
-export default function CartView() {
+interface CartViewProps {
+  onStartShopping?: () => void;
+}
+
+export default function CartView({ onStartShopping }: CartViewProps = {}) {
   const auth = useAuth();
   const { t } = useLanguage();
   const profile = auth?.profile;
@@ -518,8 +522,16 @@ export default function CartView() {
       {itemsCount === 0 ? (
         <div className="text-center py-12 bg-gray-50 rounded-lg">
           <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-          <p className="text-gray-600 text-lg">Sepetiniz boş</p>
-          <p className="text-gray-500 text-sm mt-2">Ürünleri sepete ekleyerek alışverişe başlayabilirsiniz</p>
+          <p className="text-gray-600 text-lg font-semibold">Sepetiniz boş</p>
+          <p className="text-gray-500 text-sm mt-2 mb-6">Ürünleri sepete ekleyerek alışverişe başlayabilirsiniz</p>
+          {onStartShopping && (
+            <button
+              onClick={onStartShopping}
+              className="px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
+            >
+              Alışverişe Başla
+            </button>
+          )}
         </div>
       ) : (
         <>
