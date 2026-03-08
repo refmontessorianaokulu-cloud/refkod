@@ -1514,6 +1514,20 @@ export default function Login() {
         onSearch={(query) => {
           console.log('Arama:', query);
         }}
+        onNavigate={(section) => {
+          setShowTypewriterSearch(false);
+          if (section === 'about') {
+            signInAsGuest('about');
+          } else if (section === 'contact') {
+            setShowContactPage(true);
+          } else if (section === 'ref_atolye') {
+            signInAsGuest('ref_atolye');
+          } else if (section === 'play_group') {
+            signInAsGuest('play_group');
+          } else if (section === 'home') {
+            signInAsGuest();
+          }
+        }}
       />
 
       <RefAssistantModal
