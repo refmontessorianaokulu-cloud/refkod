@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
-import { Plus, Trash2, Edit as EditIcon, ChevronUp, ChevronDown, Save, X } from 'lucide-react';
+import { Plus, Trash2, CreditCard as EditIcon, ChevronUp, ChevronDown, Save, X } from 'lucide-react';
 
 interface AnnouncementBanner {
   id: string;
