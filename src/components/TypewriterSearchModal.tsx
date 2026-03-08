@@ -1,11 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import { X, Search } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface TypewriterSearchModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSearch?: (query: string) => void;
   onNavigate?: (section: string) => void;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  category: string;
 }
 
 interface SearchItem {
@@ -36,8 +43,37 @@ export default function TypewriterSearchModal({ isOpen, onClose, onSearch, onNav
   const [searchValue, setSearchValue] = useState('');
   const [placeholder, setPlaceholder] = useState('');
   const [filteredSuggestions, setFilteredSuggestions] = useState<SearchItem[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [allSearchItems, setAllSearchItems] = useState<SearchItem[]>(searchItems);
   const inputRef = useRef<HTMLInputElement>(null);
   const fullText = 'Ne arıyorsunuz?';
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name, category')
+        .eq('is_active', true);
+
+      if (data && !error) {
+        setProducts(data);
+
+        const productSearchItems: SearchItem[] = data.map(product => ({
+          title: product.name,
+          keywords: [
+            product.name.toLowerCase(),
+            product.category.toLowerCase(),
+            ...product.name.toLowerCase().split(' ')
+          ],
+          section: 'ref_atolye'
+        }));
+
+        setAllSearchItems([...searchItems, ...productSearchItems]);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     if (isOpen) {
@@ -72,20 +108,20 @@ export default function TypewriterSearchModal({ isOpen, onClose, onSearch, onNav
     if (searchValue.trim()) {
       const searchLower = searchValue.toLowerCase().trim();
 
-      const filtered = searchItems.filter(item => {
+      const filtered = allSearchItems.filter(item => {
         const titleMatch = item.title.toLowerCase().includes(searchLower);
         const keywordMatch = item.keywords.some(keyword =>
           keyword.toLowerCase().includes(searchLower)
         );
         return titleMatch || keywordMatch;
-      }).slice(0, 6);
+      }).slice(0, 8);
 
       console.log('Arama:', searchValue, 'Sonuçlar:', filtered);
       setFilteredSuggestions(filtered);
     } else {
       setFilteredSuggestions([]);
     }
-  }, [searchValue]);
+  }, [searchValue, allSearchItems]);
 
   const handleSearch = (query: string) => {
     if (onSearch && query.trim()) {
