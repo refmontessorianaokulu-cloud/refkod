@@ -33,6 +33,7 @@ import RefEvaluationSystem from './RefEvaluationSystem';
 import RefEvaluationAnalytics from './RefEvaluationAnalytics';
 import RefEvaluationManagement from './RefEvaluationManagement';
 import OrderManagement from './OrderManagement';
+import AnnouncementBannerManagement from './AnnouncementBannerManagement';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
@@ -1181,8 +1182,11 @@ export default function AdminDashboard() {
             )}
 
             {activeTab === 'announcements' && (
-              <div>
-                <AnnouncementsSection userId={profile?.id || ''} userRole="admin" children={children} />
+              <div className="space-y-8">
+                <AnnouncementBannerManagement />
+                <div className="border-t pt-8">
+                  <AnnouncementsSection userId={profile?.id || ''} userRole="admin" children={children} />
+                </div>
               </div>
             )}
 
