@@ -6,9 +6,11 @@ import ReferenceTeacherForm from './ReferenceTeacherForm';
 import ContactPage from './ContactPage';
 import RefAtolyeLogin from './RefAtolyeLogin';
 import { supabase } from '../lib/supabase';
-import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX, MessageCircle, ShoppingCart } from 'lucide-react';
+import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX, MessageCircle, ShoppingBag, UserCircle, Bot } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
 import SearchModal from './SearchModal';
+import TypewriterSearchModal from './TypewriterSearchModal';
+import RefAssistantModal from './RefAssistantModal';
 
 interface AboutSection {
   id: string;
@@ -67,6 +69,8 @@ export default function Login() {
   const [openMobileCard, setOpenMobileCard] = useState<string | null>(null);
   const [openDesktopCard, setOpenDesktopCard] = useState<string | null>(null);
   const [showWhatsAppModal, setShowWhatsAppModal] = useState(false);
+  const [showTypewriterSearch, setShowTypewriterSearch] = useState(false);
+  const [showRefAssistant, setShowRefAssistant] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
   const { t } = useLanguage();
 
@@ -287,15 +291,15 @@ export default function Login() {
 
             <button
               onClick={toggleMute}
-              className={`absolute bottom-6 left-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 ${
+              className={`absolute bottom-6 left-6 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 ${
                 showVolumeControl ? 'opacity-100' : 'opacity-0'
               }`}
               title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
             >
               {isMuted ? (
-                <VolumeX className="w-[30px] h-[30px] text-white" />
+                <VolumeX className="w-5 h-5 text-white" />
               ) : (
-                <Volume2 className="w-[30px] h-[30px] text-white" />
+                <Volume2 className="w-5 h-5 text-white" />
               )}
             </button>
           </div>
@@ -309,7 +313,7 @@ export default function Login() {
             className="p-3 transition-all border-2 border-emerald-600 bg-emerald-50 rounded-lg hover:bg-emerald-100"
             title="Ref Atölye"
           >
-            <ShoppingCart className="w-5 h-5 text-gray-700" />
+            <ShoppingBag className="w-5 h-5 text-gray-700" />
           </button>
           <LanguageToggle />
         </div>
@@ -323,19 +327,35 @@ export default function Login() {
           userRole="guest"
         />
 
-        <button
-          onClick={handleWhatsAppClick}
-          className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 z-50 group"
-          aria-label="WhatsApp ile iletişime geç"
-        >
-          <MessageCircle className="w-[30px] h-[30px]" />
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
-            1
-          </span>
-          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-            Ref'e dair her şey için...
-          </span>
-        </button>
+        <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+          <button
+            onClick={() => setShowRefAssistant(true)}
+            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-full p-2.5 shadow-xl hover:shadow-2xl transition-all transform hover:scale-110 group relative"
+            aria-label="Ref Asistan"
+          >
+            <Bot className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
+              !
+            </span>
+            <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              Ref Asistan
+            </span>
+          </button>
+
+          <button
+            onClick={handleWhatsAppClick}
+            className="bg-green-500 hover:bg-green-600 text-white rounded-full p-2.5 shadow-xl hover:shadow-2xl transition-all animate-wave group relative"
+            aria-label="WhatsApp ile iletişime geç"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
+              1
+            </span>
+            <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+              Ref'e dair her şey için...
+            </span>
+          </button>
+        </div>
 
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative z-10">
           <div className="flex items-center justify-center mb-8 mt-4">
@@ -424,15 +444,15 @@ export default function Login() {
 
           <button
             onClick={toggleMute}
-            className={`absolute bottom-6 left-6 p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 z-10 ${
+            className={`absolute bottom-6 left-6 p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-300 z-10 ${
               showVolumeControl ? 'opacity-100' : 'opacity-0'
             }`}
             title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
           >
             {isMuted ? (
-              <VolumeX className="w-[30px] h-[30px] text-white" />
+              <VolumeX className="w-5 h-5 text-white" />
             ) : (
-              <Volume2 className="w-[30px] h-[30px] text-white" />
+              <Volume2 className="w-5 h-5 text-white" />
             )}
           </button>
         </div>
@@ -440,64 +460,126 @@ export default function Login() {
         <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
       )}
 
-      <button
-        onClick={handleWhatsAppClick}
-        className="fixed bottom-6 right-6 bg-green-500 hover:bg-green-600 text-white rounded-full p-4 shadow-2xl hover:shadow-3xl transition-all transform hover:scale-110 z-50 group"
-        aria-label="WhatsApp ile iletişime geç"
-      >
-        <MessageCircle className="w-[30px] h-[30px]" />
-        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold animate-pulse">
-          1
-        </span>
-        <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-          Ref'e dair her şey için...
-        </span>
-      </button>
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+        <button
+          onClick={() => setShowRefAssistant(true)}
+          className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white rounded-full p-2.5 shadow-xl hover:shadow-2xl transition-all transform hover:scale-110 group relative"
+          aria-label="Ref Asistan"
+        >
+          <Bot className="w-5 h-5" />
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
+            !
+          </span>
+          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            Ref Asistan
+          </span>
+        </button>
+
+        <button
+          onClick={handleWhatsAppClick}
+          className="bg-green-500 hover:bg-green-600 text-white rounded-full p-2.5 shadow-xl hover:shadow-2xl transition-all animate-wave group relative"
+          aria-label="WhatsApp ile iletişime geç"
+        >
+          <MessageCircle className="w-5 h-5" />
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
+            1
+          </span>
+          <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            Ref'e dair her şey için...
+          </span>
+        </button>
+      </div>
 
       {/* Top Header - Mobil ve Masaüstü - Fixed Position */}
       <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
-        <div className="flex items-center justify-between md:items-start md:justify-start md:gap-8">
-          {/* Sol Üst - Hamburger */}
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(true);
-              setIsDesktopMenuOpen(true);
-            }}
-            className="p-2 transition-all flex-shrink-0 bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
-          >
-            <Menu className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
-          </button>
-
-          {/* Orta - Logo (Masaüstünde hamburger ve search arasında, mobilde sağda) */}
-          <div className="md:flex-1 md:flex md:justify-center flex items-center md:items-start">
+        <div className="flex items-center justify-between">
+          {/* Mobil - Logo Sol */}
+          <div className="md:hidden flex items-center">
             <button
               onClick={() => {
-                const isMobile = window.innerWidth < 768;
-                if (isMobile) {
-                  signInAsGuest('ref_atolye');
-                } else {
-                  setIsDesktopMenuOpen(true);
-                  setOpenDesktopCard('login');
-                }
+                setIsMobileMenuOpen(true);
               }}
               className="transition-all"
             >
               <img
                 src="/whatsapp_image_2026-01-10_at_23.02.15.png"
                 alt="REF Logo"
-                className="w-20 h-20 md:w-30 md:h-30 object-contain transition-all duration-300 hover:scale-105"
+                className="w-16 h-16 object-contain transition-all duration-300 hover:scale-105"
               />
             </button>
           </div>
 
-          {/* Sağ - Sepet (Sadece masaüstünde görünür) */}
+          {/* Masaüstü - Sol Hamburger */}
+          <button
+            onClick={() => {
+              setIsDesktopMenuOpen(true);
+            }}
+            className="hidden md:block p-2 transition-all flex-shrink-0 bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+          >
+            <Menu className="w-5 h-5 text-gray-800" />
+          </button>
+
+          {/* Masaüstü - Orta Logo */}
+          <div className="hidden md:flex md:flex-1 md:justify-center">
+            <button
+              onClick={() => {
+                setIsDesktopMenuOpen(true);
+                setOpenDesktopCard('login');
+              }}
+              className="transition-all"
+            >
+              <img
+                src="/whatsapp_image_2026-01-10_at_23.02.15.png"
+                alt="REF Logo"
+                className="w-30 h-30 object-contain transition-all duration-300 hover:scale-105"
+              />
+            </button>
+          </div>
+
+          {/* Mobil - Sağ İkonlar */}
+          <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={() => setShowTypewriterSearch(true)}
+              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+              title="Arama"
+            >
+              <SearchIcon className="w-5 h-5 text-gray-800" />
+            </button>
+            <button
+              onClick={() => signInAsGuest('ref_atolye')}
+              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+              title="Sepetim"
+            >
+              <ShoppingBag className="w-5 h-5 text-gray-800" />
+            </button>
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(true);
+                setOpenMobileCard('login');
+              }}
+              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+              title="Hesabım"
+            >
+              <UserCircle className="w-5 h-5 text-gray-800" />
+            </button>
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(true);
+              }}
+              className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
+            >
+              <Menu className="w-5 h-5 text-gray-800" />
+            </button>
+          </div>
+
+          {/* Masaüstü - Sağ Sepet */}
           <div className="hidden md:flex items-start gap-3">
             <button
               onClick={() => signInAsGuest('ref_atolye')}
               className="p-2 transition-all bg-[#C8E6D4] border-2 border-[#B5DCCA] rounded-lg hover:bg-[#B8E0CA] hover:border-[#A5D3BD]"
               title="Ref Atölye"
             >
-              <ShoppingCart className="w-[30px] h-[30px] md:w-5 md:h-5 text-gray-800" />
+              <ShoppingBag className="w-5 h-5 text-gray-800" />
             </button>
           </div>
         </div>
@@ -1373,6 +1455,22 @@ export default function Login() {
           </div>
         </div>
       )}
+
+      <TypewriterSearchModal
+        isOpen={showTypewriterSearch}
+        onClose={() => setShowTypewriterSearch(false)}
+        onSearch={(query) => {
+          console.log('Arama:', query);
+        }}
+      />
+
+      <RefAssistantModal
+        isOpen={showRefAssistant}
+        onClose={() => setShowRefAssistant(false)}
+        onNavigate={(destination) => {
+          signInAsGuest(destination);
+        }}
+      />
 
     </div>
   );
