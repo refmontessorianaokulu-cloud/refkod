@@ -28,15 +28,6 @@ export default function AnnouncementBanner() {
   }, []);
 
   useEffect(() => {
-    const dismissed = localStorage.getItem('announcementBannerDismissed');
-    console.log('Banner dismissed status:', dismissed);
-    console.log('Banners count:', banners.length);
-    if (dismissed === 'true') {
-      setIsVisible(false);
-    }
-  }, [banners.length]);
-
-  useEffect(() => {
     if (bannerRef.current && isVisible && !isClosing) {
       const height = bannerRef.current.offsetHeight;
       document.documentElement.style.setProperty('--banner-height', `${height}px`);
@@ -74,7 +65,6 @@ export default function AnnouncementBanner() {
     setIsClosing(true);
     setTimeout(() => {
       setIsVisible(false);
-      localStorage.setItem('announcementBannerDismissed', 'true');
     }, 300);
   };
 
