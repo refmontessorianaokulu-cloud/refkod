@@ -29,10 +29,12 @@ export default function AnnouncementBanner() {
 
   useEffect(() => {
     const dismissed = localStorage.getItem('announcementBannerDismissed');
+    console.log('Banner dismissed status:', dismissed);
+    console.log('Banners count:', banners.length);
     if (dismissed === 'true') {
       setIsVisible(false);
     }
-  }, []);
+  }, [banners.length]);
 
   useEffect(() => {
     if (bannerRef.current && isVisible && !isClosing) {
