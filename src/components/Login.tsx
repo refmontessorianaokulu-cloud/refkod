@@ -581,9 +581,9 @@ export default function Login() {
 
       {/* Top Header - Mobil ve Masaüstü - Fixed Position */}
       <div className="fixed left-0 right-0 z-40 px-4 py-3" style={{ top: 'var(--banner-height, 0px)' }}>
-        <div className="flex items-center justify-between md:items-start md:justify-start md:gap-8">
-          {/* Mobil - Logo Sol */}
-          <div className="md:hidden flex items-center">
+        <div className="flex items-center md:items-start md:justify-start md:gap-8">
+          {/* Mobil - Logo Sağ */}
+          <div className="md:hidden flex items-center ml-auto">
             <button
               onClick={() => {
                 setIsMobileMenuOpen(true);
