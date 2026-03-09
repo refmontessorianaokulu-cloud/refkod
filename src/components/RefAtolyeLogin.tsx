@@ -230,7 +230,7 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
             <button
               type="button"
               onClick={handleGuestLogin}
-              className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-all border border-gray-300"
+              className="w-full bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all border border-gray-300"
             >
               Misafir Olarak Giriş Yap
             </button>
