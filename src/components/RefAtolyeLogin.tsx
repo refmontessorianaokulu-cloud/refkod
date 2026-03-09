@@ -17,7 +17,7 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, signInAsGuest } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -132,6 +132,17 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
     }
   };
 
+  const handleGuestLogin = async () => {
+    try {
+      await signInAsGuest('ref_atolye');
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      }
+    } catch (err) {
+      setError('Misafir girişi başarısız.');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 to-teal-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md relative">
@@ -205,6 +216,23 @@ export default function RefAtolyeLogin({ onBack, onLoginSuccess }: RefAtolyeLogi
               className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-3 rounded-lg font-semibold hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl"
             >
               {loading ? 'Giriş yapılıyor...' : 'Giriş Yap'}
+            </button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-white text-gray-500">veya</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGuestLogin}
+              className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition-all border border-gray-300"
+            >
+              Misafir Olarak Giriş Yap
             </button>
 
             <div className="flex justify-between text-sm">
