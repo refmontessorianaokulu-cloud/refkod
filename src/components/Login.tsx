@@ -347,9 +347,7 @@ export default function Login() {
               )}
             </button>
           </div>
-        ) : (
-          <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
-        )}
+        ) : null}
 
         <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
           <button
@@ -522,9 +520,7 @@ export default function Login() {
             )}
           </button>
         </div>
-      ) : (
-        <div className="absolute inset-0 bg-gradient-to-br from-green-50 to-emerald-50" />
-      )}
+      ) : null}
 
       {/* Mobil - Alt Butonlar */}
       <div className="md:hidden fixed bottom-6 left-0 right-0 flex items-center justify-between z-50 px-6">

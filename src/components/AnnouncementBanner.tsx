@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { supabase } from '../lib/supabase';
-import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X } from 'lucide-react';
 
 interface AnnouncementBanner {
   id: string;
@@ -72,14 +72,6 @@ export default function AnnouncementBanner() {
     setCurrentIndex(index);
   };
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev - 1 + banners.length) % banners.length);
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % banners.length);
-  };
-
   const handleLinkClick = (e: React.MouseEvent, url: string) => {
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
       e.preventDefault();
@@ -103,19 +95,9 @@ export default function AnnouncementBanner() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between gap-2 md:gap-4">
-            {banners.length > 1 && (
-              <button
-                onClick={handlePrev}
-                className="flex-shrink-0 p-1.5 hover:bg-white/20 rounded-full transition-colors"
-                aria-label="Previous announcement"
-              >
-                <ChevronLeft className="w-4 h-4 text-white" />
-              </button>
-            )}
-
-            <div className="flex-1 flex flex-row items-center justify-center gap-2 md:gap-3 min-h-[32px]">
-              <p className="text-xs md:text-sm text-white font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full px-2">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex-1 flex flex-row items-center justify-center gap-3 min-h-[32px]">
+              <p className="text-xs md:text-sm text-white font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
                 {message}
               </p>
 
@@ -130,41 +112,33 @@ export default function AnnouncementBanner() {
               )}
             </div>
 
-            {banners.length > 1 && (
+            <div className="flex items-center gap-2">
+              {banners.length > 1 && (
+                <div className="flex gap-1.5">
+                  {banners.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleDotClick(index)}
+                      className={`h-1.5 rounded-full transition-all ${
+                        index === currentIndex
+                          ? 'bg-white w-6'
+                          : 'bg-white/50 hover:bg-white/70 w-1.5'
+                      }`}
+                      aria-label={`Go to announcement ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              )}
+
               <button
-                onClick={handleNext}
+                onClick={handleClose}
                 className="flex-shrink-0 p-1.5 hover:bg-white/20 rounded-full transition-colors"
-                aria-label="Next announcement"
+                aria-label="Close announcement"
               >
-                <ChevronRight className="w-4 h-4 text-white" />
+                <X className="w-4 h-4 text-white" />
               </button>
-            )}
-
-            <button
-              onClick={handleClose}
-              className="flex-shrink-0 p-1.5 hover:bg-white/20 rounded-full transition-colors"
-              aria-label="Close announcement"
-            >
-              <X className="w-4 h-4 text-white" />
-            </button>
-          </div>
-
-          {banners.length > 1 && (
-            <div className="flex justify-center gap-1.5 mt-2">
-              {banners.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleDotClick(index)}
-                  className={`h-1.5 rounded-full transition-all ${
-                    index === currentIndex
-                      ? 'bg-white w-6'
-                      : 'bg-white/50 hover:bg-white/70 w-1.5'
-                  }`}
-                  aria-label={`Go to announcement ${index + 1}`}
-                />
-              ))}
             </div>
-          )}
+          </div>
         </div>
       </div>
     </div>
