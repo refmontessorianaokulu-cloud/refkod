@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
-import { X, Send, Bot, Sparkles, Home, Book, ShoppingBag, Phone, FileText } from 'lucide-react';
+import { X, Send, Bot, Sparkles, Home, Book, ShoppingBag, Phone, FileText, RefreshCw } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface Message {
   id: string;
   text: string;
   sender: 'user' | 'bot';
   timestamp: Date;
+  hasNavigation?: boolean;
+  navigationDestination?: string;
+  navigationLabel?: string;
 }
 
 interface QuickAction {
@@ -25,6 +29,7 @@ export default function RefAssistantModal({ isOpen, onClose, onNavigate }: RefAs
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputText, setInputText] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [playGroupSessions, setPlayGroupSessions] = useState<any[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -37,7 +42,20 @@ export default function RefAssistantModal({ isOpen, onClose, onNavigate }: RefAs
   }, [messages]);
 
   useEffect(() => {
+    const fetchPlayGroupData = async () => {
+      const { data } = await supabase
+        .from('play_group_sessions')
+        .select('*')
+        .order('session_date', { ascending: true });
+
+      if (data) {
+        setPlayGroupSessions(data);
+      }
+    };
+
     if (isOpen) {
+      fetchPlayGroupData();
+
       const savedMessages = localStorage.getItem('ref-assistant-messages');
       if (savedMessages) {
         const parsed = JSON.parse(savedMessages);
@@ -66,6 +84,16 @@ export default function RefAssistantModal({ isOpen, onClose, onNavigate }: RefAs
       localStorage.setItem('ref-assistant-messages', JSON.stringify(messages));
     }
   }, [messages]);
+
+  const handleResetChat = () => {
+    setMessages([{
+      id: Date.now().toString(),
+      text: 'Merhaba! Ben Ref Asistan. Size nasıl yardımcı olabilirim?',
+      sender: 'bot',
+      timestamp: new Date()
+    }]);
+    localStorage.removeItem('ref-assistant-messages');
+  };
 
   const quickActions: QuickAction[] = [
     {
@@ -153,6 +181,21 @@ export default function RefAssistantModal({ isOpen, onClose, onNavigate }: RefAs
     }, 1000);
   };
 
+  const handleNavigationResponse = (accept: boolean, destination: string) => {
+    if (accept) {
+      onNavigate(destination);
+      onClose();
+    } else {
+      const botMsg: Message = {
+        id: Date.now().toString(),
+        text: 'Anladım. Başka nasıl yardımcı olabilirim?',
+        sender: 'bot',
+        timestamp: new Date()
+      };
+      setMessages(prev => [...prev, botMsg]);
+    }
+  };
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -166,36 +209,91 @@ export default function RefAssistantModal({ isOpen, onClose, onNavigate }: RefAs
     };
 
     setMessages(prev => [...prev, userMsg]);
+    const currentQuestion = inputText;
     setInputText('');
     setIsTyping(true);
 
     setTimeout(() => {
-      const lowerText = inputText.toLowerCase();
+      const lowerText = currentQuestion.toLowerCase();
       let botResponse = '';
+      let hasNavigation = false;
+      let navigationDestination = '';
+      let navigationLabel = '';
 
-      if (lowerText.includes('hakkımızda') || lowerText.includes('hakkında')) {
-        botResponse = 'Ref Çocuk Akademisi hakkında bilgi almak için yukarıdaki hızlı eylem butonlarını kullanabilirsiniz.';
+      if (lowerText.includes('oyun grup') || lowerText.includes('play group')) {
+        if (playGroupSessions.length > 0) {
+          const uniqueDays = [...new Set(playGroupSessions.map(s => {
+            const date = new Date(s.session_date);
+            return date.toLocaleDateString('tr-TR', { weekday: 'long' });
+          }))];
+
+          const upcomingSessions = playGroupSessions
+            .filter(s => new Date(s.session_date) >= new Date())
+            .slice(0, 3);
+
+          botResponse = `Evet, oyun gruplarımız var! 🎨\n\n`;
+
+          if (uniqueDays.length > 0) {
+            botResponse += `📅 Günler: ${uniqueDays.join(', ')}\n\n`;
+          }
+
+          if (upcomingSessions.length > 0) {
+            botResponse += `Yaklaşan seanslar:\n`;
+            upcomingSessions.forEach(session => {
+              const date = new Date(session.session_date);
+              const dayName = date.toLocaleDateString('tr-TR', { weekday: 'long', day: 'numeric', month: 'long' });
+              botResponse += `• ${dayName} (${session.capacity - session.current_bookings} kişi kaldı)\n`;
+            });
+          }
+
+          botResponse += `\nOyun grupları sayfasına gitmek ister misiniz?`;
+          hasNavigation = true;
+          navigationDestination = 'playgroup';
+          navigationLabel = 'Oyun Grupları Sayfası';
+        } else {
+          botResponse = 'Üzgünüm, şu anda oyun grupları hakkında bilgi bulunamadı.';
+        }
+      } else if (lowerText.includes('hakkımızda') || lowerText.includes('hakkında')) {
+        botResponse = 'Ref Çocuk Akademisi, Montessori eğitim felsefesini benimseyen bir okuldur. Çocukların doğal öğrenme süreçlerini destekleyen, özgür ve keşfedici bir ortam sunuyoruz.\n\nHakkımızda sayfasına gitmek ister misiniz?';
+        hasNavigation = true;
+        navigationDestination = 'about';
+        navigationLabel = 'Hakkımızda';
       } else if (lowerText.includes('akademi')) {
-        botResponse = 'Ref Akademi Montessori eğitim metodolojisini kullanan bir okuldur. Daha fazla bilgi için "Ref Akademi Nedir?" butonuna tıklayabilirsiniz.';
+        botResponse = 'Ref Akademi, Montessori eğitim metodolojisini kullanan bir okuldur. Çocukların bireysel gelişimlerini destekleyen, yaratıcı ve özgür bir öğrenme ortamı sunuyoruz.\n\nRef Akademi sayfasına gitmek ister misiniz?';
+        hasNavigation = true;
+        navigationDestination = 'ref_akademi';
+        navigationLabel = 'Ref Akademi';
       } else if (lowerText.includes('atölye') || lowerText.includes('ürün')) {
-        botResponse = 'Ref Atölye\'de birçok eğitim materyali ve ürün bulunmaktadır. Ürünleri görüntülemek için "Ref Atölye Ürünleri" butonuna tıklayabilirsiniz.';
+        botResponse = 'Ref Atölye\'de Montessori eğitim materyalleri, özel tasarım ürünler ve daha fazlasını bulabilirsiniz.\n\nRef Atölye sayfasına gitmek ister misiniz?';
+        hasNavigation = true;
+        navigationDestination = 'ref_atolye';
+        navigationLabel = 'Ref Atölye';
       } else if (lowerText.includes('iletişim') || lowerText.includes('telefon') || lowerText.includes('adres')) {
-        botResponse = 'İletişim bilgilerimiz:\n📍 Arnavutköy - İstanbul\n📞 0531 550 44 54\n✉️ bilgi@refcocukakademisi.com';
+        botResponse = 'İletişim bilgilerimiz:\n📍 Arnavutköy - İstanbul\n📞 0531 550 44 54\n✉️ bilgi@refcocukakademisi.com\n\nİletişim sayfasına gitmek ister misiniz?';
+        hasNavigation = true;
+        navigationDestination = 'contact';
+        navigationLabel = 'İletişim';
       } else if (lowerText.includes('başvuru') || lowerText.includes('kayıt')) {
-        botResponse = 'Başvuru yapmak için "Başvuru Yap" butonuna tıklayabilirsiniz. Size başvuru formunu göstereceğim.';
+        botResponse = 'Okulumuz veya programlarımız için başvuru yapmak isterseniz başvuru formumuzu doldurabilirsiniz.\n\nBaşvuru formuna gitmek ister misiniz?';
+        hasNavigation = true;
+        navigationDestination = 'application';
+        navigationLabel = 'Başvuru Formu';
       } else if (lowerText.includes('merhaba') || lowerText.includes('selam')) {
-        botResponse = 'Merhaba! Size nasıl yardımcı olabilirim? Yukarıdaki hızlı eylem butonlarından birini seçebilir veya doğrudan soru sorabilirsiniz.';
+        botResponse = 'Merhaba! Size nasıl yardımcı olabilirim? Oyun grupları, eğitim programları, iletişim bilgileri gibi konularda soru sorabilirsiniz.';
       } else if (lowerText.includes('teşekkür')) {
         botResponse = 'Rica ederim! Başka bir konuda yardımcı olabilir miyim?';
       } else {
-        botResponse = 'Anladım! Yukarıdaki hızlı eylem butonlarından size en uygun olanı seçebilir veya daha spesifik bir soru sorabilirsiniz. Size nasıl yardımcı olabilirim?';
+        botResponse = 'Size daha iyi yardımcı olabilmem için lütfen sorunuzu biraz daha detaylandırır mısınız? Oyun grupları, eğitim programları, iletişim bilgileri gibi konularda size yardımcı olabilirim.';
       }
 
       const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         text: botResponse,
         sender: 'bot',
-        timestamp: new Date()
+        timestamp: new Date(),
+        hasNavigation,
+        navigationDestination,
+        navigationLabel
       };
 
       setMessages(prev => [...prev, botMsg]);
@@ -230,12 +328,21 @@ export default function RefAssistantModal({ isOpen, onClose, onNavigate }: RefAs
               <p className="text-emerald-100 text-xs">Aktif</p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-white/20 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5 text-white" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleResetChat}
+              className="p-2 hover:bg-white/20 rounded-full transition-colors"
+              title="Sohbeti Yenile"
+            >
+              <RefreshCw className="w-5 h-5 text-white" />
+            </button>
+            <button
+              onClick={onClose}
+              className="p-2 hover:bg-white/20 rounded-full transition-colors"
+            >
+              <X className="w-5 h-5 text-white" />
+            </button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
@@ -262,7 +369,7 @@ export default function RefAssistantModal({ isOpen, onClose, onNavigate }: RefAs
           {messages.map((message) => (
             <div
               key={message.id}
-              className={`flex ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex flex-col ${message.sender === 'user' ? 'items-end' : 'items-start'}`}
             >
               <div
                 className={`max-w-[80%] rounded-2xl px-4 py-2 ${
@@ -283,6 +390,23 @@ export default function RefAssistantModal({ isOpen, onClose, onNavigate }: RefAs
                   })}
                 </p>
               </div>
+
+              {message.hasNavigation && message.navigationDestination && (
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={() => handleNavigationResponse(true, message.navigationDestination!)}
+                    className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white text-sm rounded-lg transition-colors shadow-sm"
+                  >
+                    Evet, götür
+                  </button>
+                  <button
+                    onClick={() => handleNavigationResponse(false, message.navigationDestination!)}
+                    className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm rounded-lg transition-colors"
+                  >
+                    Hayır
+                  </button>
+                </div>
+              )}
             </div>
           ))}
 
