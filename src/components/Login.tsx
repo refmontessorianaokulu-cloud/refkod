@@ -313,7 +313,7 @@ export default function Login() {
 
   if (showForgotPassword) {
     return (
-      <div className="min-h-screen relative flex items-center justify-center p-4">
+      <div className="min-h-screen relative flex items-center justify-center p-4 bg-black overflow-hidden">
         {videoEnabled && videoUrl ? (
           <div
             className="absolute inset-0"
@@ -486,7 +486,7 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen relative flex flex-col">
+    <div className="min-h-screen relative flex flex-col bg-black overflow-hidden">
       {videoEnabled && videoUrl ? (
         <div
           className="absolute inset-0"
@@ -688,7 +688,7 @@ export default function Login() {
         onClick={() => setIsMobileMenuOpen(false)}
       >
         <div
-          className={`fixed left-0 top-0 bottom-0 w-80 bg-white shadow-2xl transform transition-transform duration-300 ${
+          className={`fixed left-0 top-0 bottom-0 w-80 bg-white/95 backdrop-blur-sm shadow-2xl transform transition-transform duration-300 ${
             isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}
@@ -1098,7 +1098,7 @@ export default function Login() {
         onClick={() => setIsDesktopMenuOpen(false)}
       >
         <div
-          className={`fixed left-0 top-0 bottom-0 w-96 bg-white shadow-2xl transform transition-transform duration-300 ${
+          className={`fixed left-0 top-0 bottom-0 w-96 bg-white/95 backdrop-blur-sm shadow-2xl transform transition-transform duration-300 ${
             isDesktopMenuOpen ? 'translate-x-0' : '-translate-x-full'
           }`}
           onClick={(e) => e.stopPropagation()}

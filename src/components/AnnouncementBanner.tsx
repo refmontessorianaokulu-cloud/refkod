@@ -94,10 +94,10 @@ export default function AnnouncementBanner() {
           isClosing ? 'opacity-0 -translate-y-full' : 'opacity-100 translate-y-0'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 py-3">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex-1 flex flex-row items-center justify-center gap-3 min-h-[32px]">
-              <p className="text-xs md:text-sm text-white font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
+        <div className="max-w-7xl mx-auto px-2 py-2">
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex-1 flex flex-row items-center justify-center gap-2 min-h-[28px]">
+              <p className="text-[10px] md:text-sm text-white font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis max-w-full">
                 {message}
               </p>
 
@@ -105,24 +105,24 @@ export default function AnnouncementBanner() {
                 <a
                   href={currentBanner.link_url}
                   onClick={(e) => handleLinkClick(e, currentBanner.link_url!)}
-                  className="flex-shrink-0 px-4 py-2 bg-white/90 text-amber-800 text-xs md:text-sm font-semibold rounded-full hover:bg-white transition-colors whitespace-nowrap shadow-sm touch-manipulation cursor-pointer"
+                  className="flex-shrink-0 px-2.5 py-1 bg-white/90 text-amber-800 text-[10px] md:text-sm font-semibold rounded-full hover:bg-white transition-colors whitespace-nowrap shadow-sm touch-manipulation cursor-pointer"
                 >
                   {linkText}
                 </a>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {banners.length > 1 && (
-                <div className="flex gap-1.5">
+                <div className="flex gap-1">
                   {banners.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => handleDotClick(index)}
-                      className={`h-1.5 rounded-full transition-all ${
+                      className={`h-1 rounded-full transition-all ${
                         index === currentIndex
-                          ? 'bg-white w-6'
-                          : 'bg-white/50 hover:bg-white/70 w-1.5'
+                          ? 'bg-white w-4'
+                          : 'bg-white/50 hover:bg-white/70 w-1'
                       }`}
                       aria-label={`Go to announcement ${index + 1}`}
                     />
@@ -132,10 +132,10 @@ export default function AnnouncementBanner() {
 
               <button
                 onClick={handleClose}
-                className="flex-shrink-0 p-1.5 hover:bg-white/20 rounded-full transition-colors"
+                className="flex-shrink-0 p-1 hover:bg-white/20 rounded-full transition-colors"
                 aria-label="Close announcement"
               >
-                <X className="w-4 h-4 text-white" />
+                <X className="w-3.5 h-3.5 text-white" />
               </button>
             </div>
           </div>
