@@ -446,6 +446,22 @@ export default function AdminDashboard() {
     }
   };
 
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Bu kullanıcıyı silmek istediğinize emin misiniz? Bu işlem geri alınamaz ve kullanıcının tüm verileri silinecektir.')) return;
+    try {
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+
+      if (authError) throw authError;
+
+      alert('Kullanıcı başarıyla silindi!');
+      loadData();
+      loadParentsAndTeachers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      alert('Kullanıcı silinirken hata oluştu: ' + (error as Error).message);
+    }
+  };
+
   const handleDeleteTeacherChildRelation = async (relationId: string) => {
     if (!confirm('Bu öğretmen-çocuk ilişkisini silmek istediğinize emin misiniz?')) return;
     try {
@@ -952,6 +968,9 @@ export default function AdminDashboard() {
                               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                 Durum
                               </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                İşlemler
+                              </th>
                             </tr>
                           </thead>
                           <tbody className="bg-white divide-y divide-gray-200">
@@ -1002,6 +1021,18 @@ export default function AdminDashboard() {
                                     >
                                       {user.approved || user.role === 'admin' ? 'Onaylı' : 'Bekliyor'}
                                     </span>
+                                  </td>
+                                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                                    {user.id !== profile?.id && (
+                                      <button
+                                        onClick={() => handleDeleteUser(user.id)}
+                                        className="flex items-center space-x-1 px-3 py-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                                        title="Kullanıcıyı Sil"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                        <span>Sil</span>
+                                      </button>
+                                    )}
                                   </td>
                                 </tr>
                               );
