@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { Calendar, Clock, Users, Plus, Edit2, Trash2, X, ExternalLink, Upload, Image as ImageIcon, MessageCircle } from 'lucide-react';
+import { Calendar, Clock, Users, Plus, CreditCard as Edit2, Trash2, X, ExternalLink, Upload, Image as ImageIcon, MessageCircle, CheckSquare, Square, Send } from 'lucide-react';
 
 interface PlayGroupSession {
   id: string;
@@ -48,6 +48,9 @@ export default function PlayGroupManagement() {
   });
 
   const [paymentLinkData, setPaymentLinkData] = useState<{ [key: string]: string }>({});
+  const [selectedBookings, setSelectedBookings] = useState<Set<string>>(new Set());
+  const [bulkPaymentLink, setBulkPaymentLink] = useState('');
+  const [bulkProcessing, setBulkProcessing] = useState(false);
 
   useEffect(() => {
     loadSessions();
@@ -215,6 +218,8 @@ export default function PlayGroupManagement() {
     setSelectedSession(session);
     loadBookings(session.id);
     setShowBookingsModal(true);
+    setSelectedBookings(new Set());
+    setBulkPaymentLink('');
   };
 
   const handleUpdateBookingStatus = async (bookingId: string, status: string) => {
@@ -260,6 +265,96 @@ export default function PlayGroupManagement() {
       console.error('Error adding payment link:', error);
       alert('Ödeme linki eklenirken hata oluştu');
     }
+  };
+
+  const toggleBookingSelection = (bookingId: string) => {
+    const newSelection = new Set(selectedBookings);
+    if (newSelection.has(bookingId)) {
+      newSelection.delete(bookingId);
+    } else {
+      newSelection.add(bookingId);
+    }
+    setSelectedBookings(newSelection);
+  };
+
+  const selectAllBookings = () => {
+    const eligibleBookings = bookings.filter(b => b.status === 'pending');
+    setSelectedBookings(new Set(eligibleBookings.map(b => b.id)));
+  };
+
+  const clearSelection = () => {
+    setSelectedBookings(new Set());
+  };
+
+  const handleBulkPaymentLink = async () => {
+    if (selectedBookings.size === 0) {
+      alert('Lütfen en az bir rezervasyon seçin');
+      return;
+    }
+
+    if (!bulkPaymentLink.trim()) {
+      alert('Lütfen ödeme linkini girin');
+      return;
+    }
+
+    try {
+      setBulkProcessing(true);
+
+      const updatePromises = Array.from(selectedBookings).map(bookingId =>
+        supabase
+          .from('play_group_bookings')
+          .update({
+            payment_link: bulkPaymentLink.trim(),
+            status: 'confirmed'
+          })
+          .eq('id', bookingId)
+      );
+
+      const results = await Promise.all(updatePromises);
+
+      const errors = results.filter(r => r.error);
+      if (errors.length > 0) {
+        throw new Error('Bazı rezervasyonlar güncellenemedi');
+      }
+
+      alert(`${selectedBookings.size} rezervasyon başarıyla güncellendi ve onaylandı!`);
+      setBulkPaymentLink('');
+      setSelectedBookings(new Set());
+
+      if (selectedSession) {
+        loadBookings(selectedSession.id);
+      }
+      loadSessions();
+    } catch (error) {
+      console.error('Error bulk updating payment links:', error);
+      alert('Toplu ödeme linki eklenirken hata oluştu');
+    } finally {
+      setBulkProcessing(false);
+    }
+  };
+
+  const handleBulkWhatsApp = () => {
+    if (selectedBookings.size === 0) {
+      alert('Lütfen en az bir rezervasyon seçin');
+      return;
+    }
+
+    const selectedBookingsList = bookings.filter(b => selectedBookings.has(b.id));
+
+    if (selectedBookingsList.some(b => !b.payment_link)) {
+      if (!confirm('Bazı seçili rezervasyonların ödeme linki bulunmuyor. Yine de devam etmek istiyor musunuz?')) {
+        return;
+      }
+    }
+
+    if (!confirm(`${selectedBookings.size} kişiye WhatsApp mesajı gönderilecek. Devam etmek istiyor musunuz?`)) {
+      return;
+    }
+
+    selectedBookingsList.forEach(booking => {
+      const link = generateWhatsAppLink(booking);
+      window.open(link, '_blank');
+    });
   };
 
   const generateWhatsAppLink = (booking: PlayGroupBooking) => {
@@ -598,20 +693,96 @@ export default function PlayGroupManagement() {
                   Bu oturum için henüz rezervasyon yok
                 </div>
               ) : (
-                <div className="space-y-4">
-                  {bookings.map((booking) => (
-                    <div key={booking.id} className="border border-gray-200 rounded-lg p-4">
-                      <div className="flex justify-between items-start mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <h4 className="font-semibold text-gray-800">{booking.parent_name}</h4>
-                            <span className={`text-xs px-2 py-1 rounded ${getStatusColor(booking.status)}`}>
-                              {getStatusText(booking.status)}
-                            </span>
-                          </div>
-                          <p className="text-sm text-gray-600">Telefon: {booking.phone_number}</p>
+                <>
+                  {bookings.filter(b => b.status === 'pending').length > 0 && (
+                    <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="font-semibold text-emerald-900">Toplu İşlemler</h4>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-emerald-700">
+                            {selectedBookings.size} seçili
+                          </span>
+                          {selectedBookings.size > 0 && (
+                            <button
+                              onClick={clearSelection}
+                              className="text-xs text-emerald-600 hover:text-emerald-800 underline"
+                            >
+                              Temizle
+                            </button>
+                          )}
                         </div>
                       </div>
+
+                      <div className="flex items-center space-x-2 mb-3">
+                        <button
+                          onClick={selectAllBookings}
+                          className="text-sm px-3 py-1.5 bg-emerald-600 text-white rounded hover:bg-emerald-700"
+                        >
+                          Bekleyen Tümünü Seç
+                        </button>
+                      </div>
+
+                      {selectedBookings.size > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex space-x-2">
+                            <input
+                              type="url"
+                              placeholder="Toplu ödeme linki girin"
+                              value={bulkPaymentLink}
+                              onChange={(e) => setBulkPaymentLink(e.target.value)}
+                              className="flex-1 px-3 py-2 border border-emerald-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500"
+                              disabled={bulkProcessing}
+                            />
+                            <button
+                              onClick={handleBulkPaymentLink}
+                              disabled={bulkProcessing}
+                              className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium disabled:bg-gray-400"
+                            >
+                              <Send className="w-4 h-4" />
+                              <span>{bulkProcessing ? 'Gönderiliyor...' : 'Toplu Gönder'}</span>
+                            </button>
+                          </div>
+                          <button
+                            onClick={handleBulkWhatsApp}
+                            disabled={bulkProcessing}
+                            className="flex items-center justify-center space-x-2 w-full px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 text-sm font-medium disabled:bg-gray-400"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                            <span>Seçililere WhatsApp Gönder ({selectedBookings.size})</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="space-y-4">
+                    {bookings.map((booking) => (
+                      <div key={booking.id} className="border border-gray-200 rounded-lg p-4">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="flex items-center space-x-3 flex-1">
+                            {booking.status === 'pending' && (
+                              <button
+                                onClick={() => toggleBookingSelection(booking.id)}
+                                className="text-emerald-600 hover:text-emerald-700"
+                              >
+                                {selectedBookings.has(booking.id) ? (
+                                  <CheckSquare className="w-5 h-5" />
+                                ) : (
+                                  <Square className="w-5 h-5" />
+                                )}
+                              </button>
+                            )}
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <h4 className="font-semibold text-gray-800">{booking.parent_name}</h4>
+                                <span className={`text-xs px-2 py-1 rounded ${getStatusColor(booking.status)}`}>
+                                  {getStatusText(booking.status)}
+                                </span>
+                              </div>
+                              <p className="text-sm text-gray-600">Telefon: {booking.phone_number}</p>
+                            </div>
+                          </div>
+                        </div>
 
                       <div className="bg-gray-50 rounded p-3 mb-3">
                         <p className="text-sm text-gray-700"><strong>Çocuk:</strong> {booking.child_name}</p>
@@ -776,7 +947,8 @@ export default function PlayGroupManagement() {
                       )}
                     </div>
                   ))}
-                </div>
+                  </div>
+                </>
               )}
             </div>
           </div>
