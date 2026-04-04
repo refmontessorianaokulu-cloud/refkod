@@ -169,6 +169,10 @@ export default function AppointmentBooking() {
       const date = new Date(selectedDate!);
       const dayOfWeek = date.getDay() === 0 ? 6 : date.getDay() - 1;
 
+      console.log('=== RANDEVU SAAT YÜKLEME DEBUG ===');
+      console.log('Seçilen Tarih:', selectedDate);
+      console.log('Gün (0=Pzt, 6=Paz):', dayOfWeek);
+
       const { data, error: err } = await supabase
         .from('appointment_slots')
         .select('id, start_time')
@@ -177,18 +181,25 @@ export default function AppointmentBooking() {
 
       if (err) throw err;
 
+      console.log('Tüm Slotlar:', data);
+
       const { data: bookings } = await supabase
         .from('appointment_bookings')
         .select('slot_id')
         .eq('appointment_date', selectedDate)
         .in('status', ['pending', 'approved']);
 
+      console.log('Dolu Randevular:', bookings);
+
       const bookedSlotIds = new Set(bookings?.map(b => b.slot_id) || []);
+      console.log('Dolu Slot ID\'leri:', Array.from(bookedSlotIds));
 
       const allSlots = (data || []).map(slot => ({
         ...slot,
         isBooked: bookedSlotIds.has(slot.id)
       }));
+
+      console.log('İşlenmiş Slotlar:', allSlots);
 
       setTimeSlots(allSlots);
       setSelectedTime(null);
