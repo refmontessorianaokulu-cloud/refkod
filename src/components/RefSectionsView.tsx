@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, Palette, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList, User, Home } from 'lucide-react';
+import { ShoppingCart, Package, Palette, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList, User, Home, Search } from 'lucide-react';
 import ProductCatalog from './ProductCatalog';
 import PlayGroupCalendar from './PlayGroupCalendar';
 import CartView from './CartView';
@@ -130,6 +130,37 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
     }
   };
 
+  const handleGlobalSearch = async (query: string) => {
+    const lowerQuery = query.toLowerCase();
+
+    try {
+      const { data: products } = await supabase
+        .from('products')
+        .select('name, category_id')
+        .ilike('name', `%${query}%`)
+        .limit(1);
+
+      const { data: playGroups } = await supabase
+        .from('play_group_sessions')
+        .select('title, theme')
+        .or(`title.ilike.%${query}%,theme.ilike.%${query}%`)
+        .limit(1);
+
+      if (products && products.length > 0) {
+        setActiveTab('products');
+        if (products[0].category_id) {
+          setSelectedCategoryId(products[0].category_id);
+        }
+      } else if (playGroups && playGroups.length > 0) {
+        setActiveTab('play_groups');
+      } else {
+        alert(`"${query}" için sonuç bulunamadı`);
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+    }
+  };
+
   const getTabLabel = (tab: RefAtolyeTab | RefDanismanlikTab) => {
     const labels = {
       home: 'Ana Sayfa',
@@ -239,185 +270,278 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       {/* Ref Atölye Tabs */}
       {showAtolyeTabs && (
         <>
-          {/* Mobile Card Menu - Inline Content View */}
+          {/* Mobile View */}
           <div className="md:hidden mt-16">
-            {/* Selected Tab Card at Top (when not home) */}
+            {/* Home Page: Search Bar + Grid Cards */}
+            {activeTab === 'home' && (
+              <>
+                {/* Global Search Bar */}
+                <div className="mb-6 relative">
+                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 z-10" />
+                  <input
+                    type="text"
+                    placeholder="Ürün, oyun grubu, atölye ara..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      const query = e.target.value;
+                      setSearchQuery(query);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && searchQuery.trim()) {
+                        handleGlobalSearch(searchQuery);
+                      }
+                    }}
+                    className="w-full pl-12 pr-12 py-3 bg-white border-2 border-emerald-200 rounded-xl focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all"
+                  />
+                  {searchQuery.trim() && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 z-10 text-xl"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+
+                {/* Grid Cards - All Same Size */}
+                <div className="grid grid-cols-2 gap-3 mb-6">
+                  <button
+                    onClick={() => setActiveTab('products')}
+                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 text-gray-700 rounded-xl hover:shadow-lg transition-all"
+                  >
+                    <ShoppingCart className="w-7 h-7 mb-2 text-emerald-600" />
+                    <span className="text-sm font-semibold">Ürünler</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('courses')}
+                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 text-gray-700 rounded-xl hover:shadow-lg transition-all"
+                  >
+                    <Palette className="w-7 h-7 mb-2 text-emerald-600" />
+                    <span className="text-sm font-semibold">Atölyeler</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('play_groups')}
+                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 text-gray-700 rounded-xl hover:shadow-lg transition-all"
+                  >
+                    <Users className="w-7 h-7 mb-2 text-emerald-600" />
+                    <span className="text-sm font-semibold">Oyun Grupları</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('cart')}
+                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 text-gray-700 rounded-xl hover:shadow-lg transition-all"
+                  >
+                    <ShoppingCart className="w-7 h-7 mb-2 text-emerald-600" />
+                    <span className="text-sm font-semibold">Sepetim</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('favorites')}
+                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 text-gray-700 rounded-xl hover:shadow-lg transition-all"
+                  >
+                    <Heart className="w-7 h-7 mb-2 text-emerald-600" />
+                    <span className="text-sm font-semibold">Favorilerim</span>
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('orders')}
+                    className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 text-gray-700 rounded-xl hover:shadow-lg transition-all"
+                  >
+                    <Package className="w-7 h-7 mb-2 text-emerald-600" />
+                    <span className="text-sm font-semibold">Siparişlerim</span>
+                  </button>
+                  {!isAtolyeUser && (
+                    <button
+                      onClick={() => setShowAtolyeLogin(true)}
+                      className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-emerald-100 to-teal-100 border-2 border-emerald-300 text-emerald-700 rounded-xl hover:shadow-lg transition-all"
+                    >
+                      <User className="w-7 h-7 mb-2" />
+                      <span className="text-sm font-semibold">Hesabım</span>
+                    </button>
+                  )}
+                  {isAtolyeUser && (
+                    <button
+                      onClick={() => setActiveTab('account')}
+                      className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-emerald-100 to-teal-100 border-2 border-emerald-300 text-emerald-700 rounded-xl hover:shadow-lg transition-all"
+                    >
+                      <User className="w-7 h-7 mb-2" />
+                      <span className="text-sm font-semibold">Hesabım</span>
+                    </button>
+                  )}
+                  {isAdmin && (
+                    <button
+                      onClick={() => setActiveTab('admin')}
+                      className="flex flex-col items-center justify-center p-5 bg-gradient-to-br from-emerald-50 to-teal-50 border-2 border-emerald-200 text-gray-700 rounded-xl hover:shadow-lg transition-all"
+                    >
+                      <Settings className="w-7 h-7 mb-2 text-emerald-600" />
+                      <span className="text-sm font-semibold">Yönetim</span>
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* Other Pages: Mini Grid Cards at Top → Content Below */}
             {activeTab !== 'home' && (
-              <div className="mb-4 animate-slideInFromTop">
-                <button
-                  onClick={() => setActiveTab('home')}
-                  className="w-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl p-5 shadow-2xl border-2 border-emerald-400"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
-                        {activeTab === 'products' && <ShoppingCart className="w-6 h-6" />}
-                        {activeTab === 'courses' && <Palette className="w-6 h-6" />}
-                        {activeTab === 'play_groups' && <Users className="w-6 h-6" />}
-                        {activeTab === 'cart' && <ShoppingCart className="w-6 h-6" />}
-                        {activeTab === 'favorites' && <Heart className="w-6 h-6" />}
-                        {activeTab === 'orders' && <Package className="w-6 h-6" />}
-                        {activeTab === 'account' && <User className="w-6 h-6" />}
-                        {activeTab === 'admin' && <Settings className="w-6 h-6" />}
-                      </div>
-                      <div className="text-left">
-                        <h2 className="text-xl font-bold">{getTabLabel(activeTab)}</h2>
-                        <p className="text-emerald-100 text-xs">İçeriği görüntüle</p>
-                      </div>
-                    </div>
+              <>
+                {/* Mini Grid Cards - Single Row */}
+                <div className="mb-4 overflow-x-auto pb-2">
+                  <div className="flex gap-2 min-w-max">
+                    <button
+                      onClick={() => setActiveTab('home')}
+                      className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-emerald-300 transition-all"
+                    >
+                      <Home className="w-5 h-5 text-gray-600" />
+                      <span className="text-sm font-medium text-gray-700">Ana Sayfa</span>
+                    </button>
+                    {activeTab !== 'products' && (
+                      <button
+                        onClick={() => setActiveTab('products')}
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-emerald-300 transition-all"
+                      >
+                        <ShoppingCart className="w-5 h-5 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Ürünler</span>
+                      </button>
+                    )}
+                    {activeTab !== 'courses' && (
+                      <button
+                        onClick={() => setActiveTab('courses')}
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-emerald-300 transition-all"
+                      >
+                        <Palette className="w-5 h-5 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Atölyeler</span>
+                      </button>
+                    )}
+                    {activeTab !== 'play_groups' && (
+                      <button
+                        onClick={() => setActiveTab('play_groups')}
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-emerald-300 transition-all"
+                      >
+                        <Users className="w-5 h-5 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Oyun Grupları</span>
+                      </button>
+                    )}
+                    {activeTab !== 'cart' && (
+                      <button
+                        onClick={() => setActiveTab('cart')}
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-emerald-300 transition-all"
+                      >
+                        <ShoppingCart className="w-5 h-5 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Sepetim</span>
+                      </button>
+                    )}
+                    {activeTab !== 'favorites' && (
+                      <button
+                        onClick={() => setActiveTab('favorites')}
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-emerald-300 transition-all"
+                      >
+                        <Heart className="w-5 h-5 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Favorilerim</span>
+                      </button>
+                    )}
+                    {activeTab !== 'orders' && (
+                      <button
+                        onClick={() => setActiveTab('orders')}
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-emerald-300 transition-all"
+                      >
+                        <Package className="w-5 h-5 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Siparişlerim</span>
+                      </button>
+                    )}
+                    {activeTab !== 'account' && isAtolyeUser && (
+                      <button
+                        onClick={() => setActiveTab('account')}
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border-2 border-emerald-200 rounded-xl hover:border-emerald-300 transition-all"
+                      >
+                        <User className="w-5 h-5 text-emerald-600" />
+                        <span className="text-sm font-medium text-emerald-700">Hesabım</span>
+                      </button>
+                    )}
+                    {activeTab !== 'account' && !isAtolyeUser && (
+                      <button
+                        onClick={() => setShowAtolyeLogin(true)}
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-emerald-50 border-2 border-emerald-200 rounded-xl hover:border-emerald-300 transition-all"
+                      >
+                        <User className="w-5 h-5 text-emerald-600" />
+                        <span className="text-sm font-medium text-emerald-700">Hesabım</span>
+                      </button>
+                    )}
+                    {activeTab !== 'admin' && isAdmin && (
+                      <button
+                        onClick={() => setActiveTab('admin')}
+                        className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-emerald-300 transition-all"
+                      >
+                        <Settings className="w-5 h-5 text-gray-600" />
+                        <span className="text-sm font-medium text-gray-700">Yönetim</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Selected Tab Header */}
+                <div className="mb-4 bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl p-5 shadow-xl border-2 border-emerald-400">
+                  <div className="flex items-center gap-3">
                     <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      {activeTab === 'products' && <ShoppingCart className="w-6 h-6" />}
+                      {activeTab === 'courses' && <Palette className="w-6 h-6" />}
+                      {activeTab === 'play_groups' && <Users className="w-6 h-6" />}
+                      {activeTab === 'cart' && <ShoppingCart className="w-6 h-6" />}
+                      {activeTab === 'favorites' && <Heart className="w-6 h-6" />}
+                      {activeTab === 'orders' && <Package className="w-6 h-6" />}
+                      {activeTab === 'account' && <User className="w-6 h-6" />}
+                      {activeTab === 'admin' && <Settings className="w-6 h-6" />}
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold">{getTabLabel(activeTab)}</h2>
+                      <p className="text-emerald-100 text-xs">İçeriği görüntüle</p>
                     </div>
                   </div>
-                </button>
-              </div>
-            )}
+                </div>
 
-            {/* Content Section - Rendered Right After Selected Card */}
-            {activeTab !== 'home' && (
-              <div className="mb-6 animate-fadeIn">
-                {activeTab === 'products' && (
-                  <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-emerald-100">
-                    <ProductCatalog initialCategoryId={selectedCategoryId} />
-                  </div>
-                )}
-                {activeTab === 'courses' && (
-                  <div className="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-emerald-100">
-                    <Palette className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-700 mb-2">Atölyeler</h3>
-                    <p className="text-gray-500">Eğitim atölyeleri yakında burada olacak.</p>
-                  </div>
-                )}
-                {activeTab === 'play_groups' && (
-                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
-                    <PlayGroupCalendar />
-                  </div>
-                )}
-                {activeTab === 'cart' && (
-                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
-                    <CartView />
-                  </div>
-                )}
-                {activeTab === 'favorites' && (
-                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
-                    <FavoritesView />
-                  </div>
-                )}
-                {activeTab === 'orders' && (
-                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
-                    <UserOrdersView />
-                  </div>
-                )}
-                {activeTab === 'account' && isAtolyeUser && (
-                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
-                    <AtolyeAccountProfile />
-                  </div>
-                )}
-                {activeTab === 'admin' && isAdmin && (
-                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
-                    <RefAtolyeAdminPanel />
-                  </div>
-                )}
-              </div>
+                {/* Content Section */}
+                <div className="mb-6 animate-fadeIn">
+                  {activeTab === 'products' && (
+                    <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-emerald-100">
+                      <ProductCatalog initialCategoryId={selectedCategoryId} />
+                    </div>
+                  )}
+                  {activeTab === 'courses' && (
+                    <div className="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-emerald-100">
+                      <Palette className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <h3 className="text-xl font-semibold text-gray-700 mb-2">Atölyeler</h3>
+                      <p className="text-gray-500">Eğitim atölyeleri yakında burada olacak.</p>
+                    </div>
+                  )}
+                  {activeTab === 'play_groups' && (
+                    <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                      <PlayGroupCalendar />
+                    </div>
+                  )}
+                  {activeTab === 'cart' && (
+                    <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                      <CartView />
+                    </div>
+                  )}
+                  {activeTab === 'favorites' && (
+                    <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                      <FavoritesView />
+                    </div>
+                  )}
+                  {activeTab === 'orders' && (
+                    <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                      <UserOrdersView />
+                    </div>
+                  )}
+                  {activeTab === 'account' && isAtolyeUser && (
+                    <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                      <AtolyeAccountProfile />
+                    </div>
+                  )}
+                  {activeTab === 'admin' && isAdmin && (
+                    <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                      <RefAtolyeAdminPanel />
+                    </div>
+                  )}
+                </div>
+              </>
             )}
-
-            {/* All Other Cards - Single Column Below Content */}
-            <div className={`space-y-3 mb-6 transition-all duration-300 ${
-              activeTab === 'home' ? 'opacity-100' : 'opacity-70'
-            }`}>
-              {activeTab === 'home' && (
-                <button
-                  onClick={() => setActiveTab('home')}
-                  className="w-full flex items-center gap-4 p-5 bg-emerald-600 text-white rounded-xl shadow-lg"
-                >
-                  <Home className="w-7 h-7" />
-                  <span className="text-base font-semibold">Ana Sayfa</span>
-                </button>
-              )}
-              {activeTab !== 'products' && (
-                <button
-                  onClick={() => setActiveTab('products')}
-                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
-                >
-                  <ShoppingCart className="w-6 h-6" />
-                  <span className="text-sm font-medium">Ürünler</span>
-                </button>
-              )}
-              {activeTab !== 'courses' && (
-                <button
-                  onClick={() => setActiveTab('courses')}
-                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
-                >
-                  <Palette className="w-6 h-6" />
-                  <span className="text-sm font-medium">Atölyeler</span>
-                </button>
-              )}
-              {activeTab !== 'play_groups' && (
-                <button
-                  onClick={() => setActiveTab('play_groups')}
-                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
-                >
-                  <Users className="w-6 h-6" />
-                  <span className="text-sm font-medium">Oyun Grupları</span>
-                </button>
-              )}
-              {activeTab !== 'cart' && (
-                <button
-                  onClick={() => setActiveTab('cart')}
-                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
-                >
-                  <ShoppingCart className="w-6 h-6" />
-                  <span className="text-sm font-medium">Sepetim</span>
-                </button>
-              )}
-              {activeTab !== 'favorites' && (
-                <button
-                  onClick={() => setActiveTab('favorites')}
-                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
-                >
-                  <Heart className="w-6 h-6" />
-                  <span className="text-sm font-medium">Favorilerim</span>
-                </button>
-              )}
-              {activeTab !== 'orders' && (
-                <button
-                  onClick={() => setActiveTab('orders')}
-                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
-                >
-                  <Package className="w-6 h-6" />
-                  <span className="text-sm font-medium">Siparişlerim</span>
-                </button>
-              )}
-              {!isAtolyeUser && activeTab !== 'account' && (
-                <button
-                  onClick={() => setShowAtolyeLogin(true)}
-                  className="w-full flex items-center gap-4 p-4 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 hover:shadow-md transition-all"
-                >
-                  <User className="w-6 h-6" />
-                  <span className="text-sm font-medium">Hesabım</span>
-                </button>
-              )}
-              {isAtolyeUser && activeTab !== 'account' && (
-                <button
-                  onClick={() => setActiveTab('account')}
-                  className="w-full flex items-center gap-4 p-4 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 hover:shadow-md transition-all"
-                >
-                  <User className="w-6 h-6" />
-                  <span className="text-sm font-medium">Hesabım</span>
-                </button>
-              )}
-              {isAdmin && activeTab !== 'admin' && (
-                <button
-                  onClick={() => setActiveTab('admin')}
-                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
-                >
-                  <Settings className="w-6 h-6" />
-                  <span className="text-sm font-medium">Yönetim</span>
-                </button>
-              )}
-            </div>
           </div>
 
           {/* Desktop Tabs */}
