@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, AlertCircle, CheckCircle } from 'lucide-react';
+import { Calendar, AlertCircle, CheckCircle, Globe, Flag } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -49,6 +49,41 @@ export default function AppointmentBooking() {
     }
     return days;
   };
+
+  const getCurrentMonthDays = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+
+    const firstDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+
+    const days = [];
+
+    for (let i = 0; i < firstDayOfWeek; i++) {
+      const date = new Date(year, month, 1 - (firstDayOfWeek - i));
+      days.push({ date, isCurrentMonth: false });
+    }
+
+    for (let i = 1; i <= lastDay.getDate(); i++) {
+      const date = new Date(year, month, i);
+      days.push({ date, isCurrentMonth: true });
+    }
+
+    const remainingDays = 7 - (days.length % 7);
+    if (remainingDays < 7) {
+      for (let i = 1; i <= remainingDays; i++) {
+        const date = new Date(year, month + 1, i);
+        days.push({ date, isCurrentMonth: false });
+      }
+    }
+
+    return days;
+  };
+
+  const monthDays = getCurrentMonthDays();
 
   useEffect(() => {
     if (selectedDate) {
@@ -137,8 +172,20 @@ export default function AppointmentBooking() {
     );
   }
 
+  const today = new Date();
+  const currentMonth = today.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
+
   return (
     <div className="p-6">
+      {/* Karşılama Başlığı */}
+      <div className="flex items-center justify-center gap-2 mb-8">
+        <Globe className="w-6 h-6 text-teal-600" />
+        <h1 className="text-xl md:text-2xl font-bold text-gray-900 text-center">
+          REF Çocuk Akademisine Hoşgeldiniz
+        </h1>
+        <Flag className="w-6 h-6 text-red-600" />
+      </div>
+
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex gap-3">
           <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
@@ -148,29 +195,54 @@ export default function AppointmentBooking() {
 
       {step === 1 ? (
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">1. Tarih Seçiniz</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {nextDays.map((date) => {
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Lütfen Randevu İçin Tarih Seçiniz</h2>
+
+          {/* Ay Başlığı */}
+          <div className="text-center mb-4">
+            <h3 className="text-lg font-bold text-teal-700 capitalize">{currentMonth}</h3>
+          </div>
+
+          {/* Hafta Günleri */}
+          <div className="grid grid-cols-7 gap-1 mb-2">
+            {['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'].map((day) => (
+              <div key={day} className="text-center text-xs font-semibold text-gray-600 py-2">
+                {day}
+              </div>
+            ))}
+          </div>
+
+          {/* Takvim Günleri */}
+          <div className="grid grid-cols-7 gap-1">
+            {monthDays.map(({ date, isCurrentMonth }, index) => {
               const dateStr = date.toISOString().split('T')[0];
-              const dayName = DAYS_OF_WEEK[date.getDay()];
               const isSelected = selectedDate === dateStr;
+              const isPast = date < today && date.toDateString() !== today.toDateString();
+              const isToday = date.toDateString() === today.toDateString();
+
               return (
                 <button
-                  key={dateStr}
+                  key={index}
                   onClick={() => {
-                    setSelectedDate(dateStr);
-                    setStep(2);
+                    if (!isPast && isCurrentMonth) {
+                      setSelectedDate(dateStr);
+                      setStep(2);
+                    }
                   }}
-                  className={`p-3 rounded-lg border-2 transition-all text-center ${
+                  disabled={isPast || !isCurrentMonth}
+                  className={`aspect-square p-1 rounded-lg border transition-all text-center ${
                     isSelected
-                      ? 'border-green-600 bg-green-50'
-                      : 'border-gray-200 hover:border-green-300 bg-white'
+                      ? 'border-2 border-green-600 bg-green-50'
+                      : isPast || !isCurrentMonth
+                      ? 'border-gray-100 bg-gray-50 text-gray-300 cursor-not-allowed'
+                      : isToday
+                      ? 'border-2 border-teal-500 bg-teal-50 text-teal-900 font-bold hover:bg-teal-100'
+                      : 'border border-gray-200 bg-white hover:border-green-300 hover:bg-green-50'
                   }`}
                 >
-                  <div className="text-xs font-semibold text-gray-600">{dayName}</div>
-                  <div className="text-lg font-bold text-gray-900">{date.getDate()}</div>
-                  <div className="text-xs text-gray-500">
-                    {date.toLocaleString('tr-TR', { month: 'short' })}
+                  <div className={`text-sm font-semibold ${
+                    isCurrentMonth && !isPast ? 'text-gray-900' : 'text-gray-300'
+                  }`}>
+                    {date.getDate()}
                   </div>
                 </button>
               );
@@ -196,8 +268,8 @@ export default function AppointmentBooking() {
             </div>
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">2. Saat Seçiniz</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 mb-8">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">Lütfen Randevu Saati Seçiniz</h2>
+          <div className="grid grid-cols-4 gap-2 mb-8">
             {timeSlots.map((slot) => (
               <button
                 key={slot.id}
@@ -213,7 +285,7 @@ export default function AppointmentBooking() {
             ))}
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-900 mb-6">3. Bilgileri Doldurunuz</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">İletişim Bilgileriniz</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid md:grid-cols-2 gap-4">
               <div>
