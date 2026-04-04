@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Trash2, MessageSquare, MessageCircle, Send } from 'lucide-react';
+import { Calendar, Trash2, MessageSquare, MessageCircle, Send, Clock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface Appointment {
@@ -41,6 +41,10 @@ export default function AppointmentManagement() {
   const [showReminderModal, setShowReminderModal] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [reminderMessage, setReminderMessage] = useState('');
+  const [showRescheduleModal, setShowRescheduleModal] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState('');
+  const [availableSlots, setAvailableSlots] = useState<TimeSlot[]>([]);
+  const [rescheduleSlotId, setRescheduleSlotId] = useState('');
 
   useEffect(() => {
     loadAppointments();
@@ -194,6 +198,70 @@ Ref Montessori School
     setSelectedAppointment(null);
   };
 
+  const handleReschedule = async (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    setRescheduleDate(appointment.appointment_date);
+    await loadAvailableSlotsForDate(appointment.appointment_date);
+    setShowRescheduleModal(true);
+  };
+
+  const loadAvailableSlotsForDate = async (date: string) => {
+    try {
+      const dayOfWeek = new Date(date).getDay();
+      const { data: slots } = await supabase
+        .from('appointment_slots')
+        .select('*')
+        .eq('day_of_week', dayOfWeek)
+        .eq('is_active', true)
+        .order('start_time');
+
+      const { data: bookings } = await supabase
+        .from('appointment_bookings')
+        .select('slot_id')
+        .eq('appointment_date', date)
+        .in('status', ['pending', 'approved']);
+
+      const bookedSlotIds = new Set(bookings?.map(b => b.slot_id) || []);
+      const availableSlotsList = (slots || []).filter(slot => !bookedSlotIds.has(slot.id));
+
+      setAvailableSlots(availableSlotsList);
+    } catch (err) {
+      console.error('Error loading slots:', err);
+    }
+  };
+
+  const confirmReschedule = async () => {
+    if (!selectedAppointment || !rescheduleDate || !rescheduleSlotId) {
+      alert('Lütfen yeni tarih ve saat seçin');
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('appointment_bookings')
+        .update({
+          appointment_date: rescheduleDate,
+          slot_id: rescheduleSlotId,
+          status: 'approved',
+          admin_notes: `Randevu ${new Date().toLocaleDateString('tr-TR')} tarihinde ertelendi`,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedAppointment.id);
+
+      if (error) throw error;
+
+      alert('Randevu başarıyla ertelendi');
+      setShowRescheduleModal(false);
+      setRescheduleDate('');
+      setRescheduleSlotId('');
+      setSelectedAppointment(null);
+      loadAppointments();
+    } catch (err) {
+      console.error('Error rescheduling:', err);
+      alert('Erteleme başarısız: ' + (err as Error).message);
+    }
+  };
+
   if (loading) {
     return <div className="p-6 text-center text-gray-500">Yükleniyor...</div>;
   }
@@ -311,6 +379,13 @@ Ref Montessori School
                             <MessageSquare className="w-4 h-4" />
                           </button>
                           <button
+                            onClick={() => handleReschedule(appointment)}
+                            className="text-orange-600 hover:text-orange-700"
+                            title="Başka Saate Ertele"
+                          >
+                            <Clock className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handleSendWhatsAppReminder(appointment)}
                             className="text-green-600 hover:text-green-700"
                             title="WhatsApp Hatırlatma Gönder"
@@ -407,6 +482,99 @@ Ref Montessori School
                 >
                   <Send className="w-4 h-4" />
                   <span>WhatsApp ile Gönder</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRescheduleModal && selectedAppointment && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-lg">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">Randevuyu Başka Saate Ertele</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedAppointment.guest_name} - {selectedAppointment.child_name}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowRescheduleModal(false);
+                  setSelectedAppointment(null);
+                  setRescheduleDate('');
+                  setRescheduleSlotId('');
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Yeni Tarih Seçin
+                </label>
+                <input
+                  type="date"
+                  value={rescheduleDate}
+                  min={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => {
+                    setRescheduleDate(e.target.value);
+                    setRescheduleSlotId('');
+                    loadAvailableSlotsForDate(e.target.value);
+                  }}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                />
+              </div>
+
+              {rescheduleDate && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Yeni Saat Seçin
+                  </label>
+                  {availableSlots.length === 0 ? (
+                    <p className="text-sm text-red-600">Bu tarihte uygun slot bulunmamaktadır</p>
+                  ) : (
+                    <div className="grid grid-cols-3 gap-2">
+                      {availableSlots.map((slot: any) => (
+                        <button
+                          key={slot.id}
+                          onClick={() => setRescheduleSlotId(slot.id)}
+                          className={`p-2 rounded-lg text-sm font-semibold transition-all ${
+                            rescheduleSlotId === slot.id
+                              ? 'bg-green-500 text-white'
+                              : 'bg-gray-100 hover:bg-gray-200 text-gray-700'
+                          }`}
+                        >
+                          {slot.start_time.substring(0, 5)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-4">
+                <button
+                  onClick={() => {
+                    setShowRescheduleModal(false);
+                    setSelectedAppointment(null);
+                    setRescheduleDate('');
+                    setRescheduleSlotId('');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={confirmReschedule}
+                  disabled={!rescheduleDate || !rescheduleSlotId}
+                  className="flex-1 px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 disabled:bg-gray-300 disabled:cursor-not-allowed font-semibold"
+                >
+                  Randevuyu Ertele
                 </button>
               </div>
             </div>
