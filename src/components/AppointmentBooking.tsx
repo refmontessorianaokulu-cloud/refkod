@@ -17,6 +17,7 @@ const DAYS_OF_WEEK = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', '
 interface TimeSlot {
   id: string;
   start_time: string;
+  isBooked?: boolean;
 }
 
 export default function AppointmentBooking() {
@@ -181,9 +182,13 @@ export default function AppointmentBooking() {
         .eq('appointment_date', selectedDate);
 
       const bookedSlotIds = new Set(bookings?.map(b => b.slot_id) || []);
-      const available = (data || []).filter(slot => !bookedSlotIds.has(slot.id));
 
-      setTimeSlots(available);
+      const allSlots = (data || []).map(slot => ({
+        ...slot,
+        isBooked: bookedSlotIds.has(slot.id)
+      }));
+
+      setTimeSlots(allSlots);
       setSelectedTime(null);
     } catch (err) {
       console.error('Error loading slots:', err);
@@ -372,9 +377,12 @@ export default function AppointmentBooking() {
             {timeSlots.map((slot) => (
               <button
                 key={slot.id}
-                onClick={() => setSelectedTime(slot.id)}
+                onClick={() => !slot.isBooked && setSelectedTime(slot.id)}
+                disabled={slot.isBooked}
                 className={`p-3 rounded-xl text-sm font-semibold transition-all ${
-                  selectedTime === slot.id
+                  slot.isBooked
+                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    : selectedTime === slot.id
                     ? 'bg-gradient-to-br from-green-500 to-lime-500 text-white shadow-md'
                     : 'bg-gradient-to-br from-green-50 to-lime-50 text-gray-700 hover:from-green-100 hover:to-lime-100 hover:shadow'
                 }`}
