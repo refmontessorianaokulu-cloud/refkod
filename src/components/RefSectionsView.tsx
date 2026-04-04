@@ -239,12 +239,15 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       {/* Ref Atölye Tabs */}
       {showAtolyeTabs && (
         <>
-          {/* Mobile Card Menu - Expanded View with Content */}
+          {/* Mobile Card Menu - Inline Content View */}
           <div className="md:hidden mt-16">
-            {/* Selected Tab Content (Top) */}
+            {/* Selected Tab Card at Top (when not home) */}
             {activeTab !== 'home' && (
-              <div className="mb-6 animate-slideInFromTop">
-                <div className="bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl p-5 shadow-2xl border-2 border-emerald-400">
+              <div className="mb-4 animate-slideInFromTop">
+                <button
+                  onClick={() => setActiveTab('home')}
+                  className="w-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl p-5 shadow-2xl border-2 border-emerald-400"
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
@@ -257,142 +260,161 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
                         {activeTab === 'account' && <User className="w-6 h-6" />}
                         {activeTab === 'admin' && <Settings className="w-6 h-6" />}
                       </div>
-                      <div>
+                      <div className="text-left">
                         <h2 className="text-xl font-bold">{getTabLabel(activeTab)}</h2>
                         <p className="text-emerald-100 text-xs">İçeriği görüntüle</p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => setActiveTab('home')}
-                      className="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl transition-all backdrop-blur-sm hover:scale-110"
-                    >
+                    <div className="bg-white/20 p-2.5 rounded-xl backdrop-blur-sm">
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                       </svg>
-                    </button>
+                    </div>
                   </div>
-                </div>
+                </button>
               </div>
             )}
 
-            {/* Collapsed Menu Grid (Bottom) */}
-            <div className={`grid grid-cols-2 gap-3 mb-6 transition-all duration-500 ease-out ${
-              activeTab === 'home' ? 'opacity-100 scale-100' : 'opacity-50 scale-90'
+            {/* Content Section - Rendered Right After Selected Card */}
+            {activeTab !== 'home' && (
+              <div className="mb-6 animate-fadeIn">
+                {activeTab === 'products' && (
+                  <div className="bg-white rounded-xl shadow-lg p-4 border-2 border-emerald-100">
+                    <ProductCatalog initialCategoryId={selectedCategoryId} />
+                  </div>
+                )}
+                {activeTab === 'courses' && (
+                  <div className="bg-white rounded-xl shadow-lg p-8 text-center border-2 border-emerald-100">
+                    <Palette className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-700 mb-2">Atölyeler</h3>
+                    <p className="text-gray-500">Eğitim atölyeleri yakında burada olacak.</p>
+                  </div>
+                )}
+                {activeTab === 'play_groups' && (
+                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                    <PlayGroupCalendar />
+                  </div>
+                )}
+                {activeTab === 'cart' && (
+                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                    <CartView />
+                  </div>
+                )}
+                {activeTab === 'favorites' && (
+                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                    <FavoritesView />
+                  </div>
+                )}
+                {activeTab === 'orders' && (
+                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                    <UserOrdersView />
+                  </div>
+                )}
+                {activeTab === 'account' && isAtolyeUser && (
+                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                    <AtolyeAccountProfile />
+                  </div>
+                )}
+                {activeTab === 'admin' && isAdmin && (
+                  <div className="bg-white rounded-xl shadow-lg border-2 border-emerald-100">
+                    <RefAtolyeAdminPanel />
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* All Other Cards - Single Column Below Content */}
+            <div className={`space-y-3 mb-6 transition-all duration-300 ${
+              activeTab === 'home' ? 'opacity-100' : 'opacity-70'
             }`}>
-              <button
-                onClick={() => setActiveTab('home')}
-                className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                  activeTab === 'home'
-                    ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105 animate-scaleIn'
-                    : 'p-4 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
-                }`}
-              >
-                <Home className={`${activeTab === 'home' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                <span className={`${activeTab === 'home' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Ana Sayfa</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('products')}
-                className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                  activeTab === 'products'
-                    ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105'
-                    : 'p-4 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
-                }`}
-              >
-                <ShoppingCart className={`${activeTab === 'products' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                <span className={`${activeTab === 'products' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Ürünler</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('courses')}
-                className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                  activeTab === 'courses'
-                    ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105'
-                    : 'p-4 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
-                }`}
-              >
-                <Palette className={`${activeTab === 'courses' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                <span className={`${activeTab === 'courses' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Atölyeler</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('play_groups')}
-                className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                  activeTab === 'play_groups'
-                    ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105'
-                    : 'p-4 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
-                }`}
-              >
-                <Users className={`${activeTab === 'play_groups' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                <span className={`${activeTab === 'play_groups' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Oyun Grupları</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('cart')}
-                className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                  activeTab === 'cart'
-                    ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105'
-                    : 'p-4 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
-                }`}
-              >
-                <ShoppingCart className={`${activeTab === 'cart' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                <span className={`${activeTab === 'cart' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Sepetim</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('favorites')}
-                className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                  activeTab === 'favorites'
-                    ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105'
-                    : 'p-4 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
-                }`}
-              >
-                <Heart className={`${activeTab === 'favorites' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                <span className={`${activeTab === 'favorites' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Favorilerim</span>
-              </button>
-              <button
-                onClick={() => setActiveTab('orders')}
-                className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                  activeTab === 'orders'
-                    ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105'
-                    : 'p-4 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
-                }`}
-              >
-                <Package className={`${activeTab === 'orders' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                <span className={`${activeTab === 'orders' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Siparişlerim</span>
-              </button>
-              {!isAtolyeUser && (
+              {activeTab === 'home' && (
+                <button
+                  onClick={() => setActiveTab('home')}
+                  className="w-full flex items-center gap-4 p-5 bg-emerald-600 text-white rounded-xl shadow-lg"
+                >
+                  <Home className="w-7 h-7" />
+                  <span className="text-base font-semibold">Ana Sayfa</span>
+                </button>
+              )}
+              {activeTab !== 'products' && (
+                <button
+                  onClick={() => setActiveTab('products')}
+                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
+                >
+                  <ShoppingCart className="w-6 h-6" />
+                  <span className="text-sm font-medium">Ürünler</span>
+                </button>
+              )}
+              {activeTab !== 'courses' && (
+                <button
+                  onClick={() => setActiveTab('courses')}
+                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
+                >
+                  <Palette className="w-6 h-6" />
+                  <span className="text-sm font-medium">Atölyeler</span>
+                </button>
+              )}
+              {activeTab !== 'play_groups' && (
+                <button
+                  onClick={() => setActiveTab('play_groups')}
+                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
+                >
+                  <Users className="w-6 h-6" />
+                  <span className="text-sm font-medium">Oyun Grupları</span>
+                </button>
+              )}
+              {activeTab !== 'cart' && (
+                <button
+                  onClick={() => setActiveTab('cart')}
+                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
+                >
+                  <ShoppingCart className="w-6 h-6" />
+                  <span className="text-sm font-medium">Sepetim</span>
+                </button>
+              )}
+              {activeTab !== 'favorites' && (
+                <button
+                  onClick={() => setActiveTab('favorites')}
+                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
+                >
+                  <Heart className="w-6 h-6" />
+                  <span className="text-sm font-medium">Favorilerim</span>
+                </button>
+              )}
+              {activeTab !== 'orders' && (
+                <button
+                  onClick={() => setActiveTab('orders')}
+                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
+                >
+                  <Package className="w-6 h-6" />
+                  <span className="text-sm font-medium">Siparişlerim</span>
+                </button>
+              )}
+              {!isAtolyeUser && activeTab !== 'account' && (
                 <button
                   onClick={() => setShowAtolyeLogin(true)}
-                  className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                    activeTab === 'account'
-                      ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105'
-                      : 'p-4 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:shadow-md'
-                  }`}
+                  className="w-full flex items-center gap-4 p-4 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 hover:shadow-md transition-all"
                 >
-                  <User className={`${activeTab === 'account' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                  <span className={`${activeTab === 'account' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Hesabım</span>
+                  <User className="w-6 h-6" />
+                  <span className="text-sm font-medium">Hesabım</span>
                 </button>
               )}
-              {isAtolyeUser && (
+              {isAtolyeUser && activeTab !== 'account' && (
                 <button
                   onClick={() => setActiveTab('account')}
-                  className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                    activeTab === 'account'
-                      ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105'
-                      : 'p-4 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:shadow-md'
-                  }`}
+                  className="w-full flex items-center gap-4 p-4 bg-emerald-50 text-emerald-700 rounded-xl hover:bg-emerald-100 hover:shadow-md transition-all"
                 >
-                  <User className={`${activeTab === 'account' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                  <span className={`${activeTab === 'account' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Hesabım</span>
+                  <User className="w-6 h-6" />
+                  <span className="text-sm font-medium">Hesabım</span>
                 </button>
               )}
-              {isAdmin && (
+              {isAdmin && activeTab !== 'admin' && (
                 <button
                   onClick={() => setActiveTab('admin')}
-                  className={`flex flex-col items-center justify-center rounded-xl transition-all duration-300 ${
-                    activeTab === 'admin'
-                      ? 'p-6 bg-emerald-600 text-white shadow-lg scale-105'
-                      : 'p-4 bg-gray-50 text-gray-700 hover:bg-gray-100 hover:shadow-md'
-                  }`}
+                  className="w-full flex items-center gap-4 p-4 bg-gray-50 text-gray-700 rounded-xl hover:bg-gray-100 hover:shadow-md transition-all"
                 >
-                  <Settings className={`${activeTab === 'admin' ? 'w-8 h-8' : 'w-6 h-6'} mb-2 transition-all duration-300`} />
-                  <span className={`${activeTab === 'admin' ? 'text-sm' : 'text-xs'} font-medium text-center transition-all duration-300`}>Yönetim</span>
+                  <Settings className="w-6 h-6" />
+                  <span className="text-sm font-medium">Yönetim</span>
                 </button>
               )}
             </div>
@@ -524,10 +546,63 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
         </>
       )}
 
-      {/* Ref Atölye - Home Tab */}
+      {/* Ref Atölye - Home Tab - Only shown on Desktop or when home is active on mobile */}
       {activeTab === 'home' && sectionType === 'ref_atolye' && (
-        <div>
+        <div className="md:block">
           <RefAtolyeHomePage onNavigate={handleTabChange} />
+        </div>
+      )}
+
+      {/* Desktop Content Sections - Hidden on Mobile */}
+      {activeTab === 'products' && sectionType === 'ref_atolye' && (
+        <div className="hidden md:block">
+          <ProductCatalog initialCategoryId={selectedCategoryId} />
+        </div>
+      )}
+
+      {activeTab === 'courses' && sectionType === 'ref_atolye' && (
+        <div className="hidden md:block">
+          <div className="text-center py-12">
+            <Palette className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">Atölyeler</h3>
+            <p className="text-gray-500">Eğitim atölyeleri yakında burada olacak.</p>
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'play_groups' && sectionType === 'ref_atolye' && (
+        <div className="hidden md:block">
+          <PlayGroupCalendar />
+        </div>
+      )}
+
+      {activeTab === 'cart' && sectionType === 'ref_atolye' && (
+        <div className="hidden md:block">
+          <CartView />
+        </div>
+      )}
+
+      {activeTab === 'favorites' && sectionType === 'ref_atolye' && (
+        <div className="hidden md:block">
+          <FavoritesView />
+        </div>
+      )}
+
+      {activeTab === 'orders' && sectionType === 'ref_atolye' && (
+        <div className="hidden md:block">
+          <UserOrdersView />
+        </div>
+      )}
+
+      {activeTab === 'admin' && sectionType === 'ref_atolye' && isAdmin && (
+        <div className="hidden md:block">
+          <RefAtolyeAdminPanel />
+        </div>
+      )}
+
+      {activeTab === 'account' && sectionType === 'ref_atolye' && isAtolyeUser && (
+        <div className="hidden md:block">
+          <AtolyeAccountProfile />
         </div>
       )}
 
@@ -571,61 +646,6 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
         </>
       )}
 
-      {/* Ref Atölye - Products Tab */}
-      {activeTab === 'products' && sectionType === 'ref_atolye' && (
-        <div>
-          <ProductCatalog initialCategoryId={selectedCategoryId} />
-        </div>
-      )}
-
-      {/* Ref Atölye - Courses Tab */}
-      {activeTab === 'courses' && sectionType === 'ref_atolye' && (
-        <div>
-          <div className="text-center py-12">
-            <Palette className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">Atölyeler</h3>
-            <p className="text-gray-500">Eğitim atölyeleri yakında burada olacak.</p>
-          </div>
-        </div>
-      )}
-
-      {/* Ref Atölye - Play Groups Tab */}
-      {activeTab === 'play_groups' && sectionType === 'ref_atolye' && (
-        <div>
-          <PlayGroupCalendar />
-        </div>
-      )}
-
-      {/* Ref Atölye - Cart Tab */}
-      {activeTab === 'cart' && sectionType === 'ref_atolye' && (
-        <div>
-          <CartView />
-        </div>
-      )}
-
-      {/* Ref Atölye - Favorites Tab */}
-      {activeTab === 'favorites' && sectionType === 'ref_atolye' && (
-        <div>
-          <FavoritesView />
-        </div>
-      )}
-
-      {/* Ref Atölye - Orders Tab */}
-      {activeTab === 'orders' && sectionType === 'ref_atolye' && (
-        <div>
-          <UserOrdersView />
-        </div>
-      )}
-
-      {/* Ref Atölye - Admin Tab */}
-      {activeTab === 'admin' && sectionType === 'ref_atolye' && isAdmin && (
-        <RefAtolyeAdminPanel />
-      )}
-
-      {/* Ref Atölye - Account Tab */}
-      {activeTab === 'account' && sectionType === 'ref_atolye' && isAtolyeUser && (
-        <AtolyeAccountProfile />
-      )}
 
       {activeTab === 'applications' && showDanismanlikTabs && (
         <div>
