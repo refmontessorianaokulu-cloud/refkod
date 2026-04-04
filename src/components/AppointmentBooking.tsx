@@ -181,11 +181,18 @@ export default function AppointmentBooking() {
 
   const loadTimeSlots = async () => {
     try {
-      const date = new Date(selectedDate!);
+      console.log('=== RANDEVU SAAT YÜKLEME BAŞLADI ===');
+      console.log('selectedDate:', selectedDate);
+
+      if (!selectedDate) {
+        console.error('selectedDate boş!');
+        return;
+      }
+
+      const date = new Date(selectedDate + 'T12:00:00');
       const dayOfWeek = date.getDay() === 0 ? 6 : date.getDay() - 1;
 
-      console.log('=== RANDEVU SAAT YÜKLEME DEBUG ===');
-      console.log('Seçilen Tarih:', selectedDate);
+      console.log('Tarih objesi:', date);
       console.log('Gün (0=Pzt, 6=Paz):', dayOfWeek);
 
       const { data, error: err } = await supabase
@@ -194,32 +201,43 @@ export default function AppointmentBooking() {
         .eq('day_of_week', dayOfWeek)
         .order('start_time', { ascending: true });
 
-      if (err) throw err;
+      if (err) {
+        console.error('Slot yükleme hatası:', err);
+        throw err;
+      }
 
-      console.log('Tüm Slotlar:', data);
+      console.log(`${data?.length || 0} adet slot bulundu:`, data);
 
-      const { data: bookings } = await supabase
+      const { data: bookings, error: bookingErr } = await supabase
         .from('appointment_bookings')
-        .select('slot_id')
+        .select('slot_id, status')
         .eq('appointment_date', selectedDate)
         .in('status', ['pending', 'approved']);
 
-      console.log('Dolu Randevular:', bookings);
+      if (bookingErr) {
+        console.error('Randevu yükleme hatası:', bookingErr);
+      }
+
+      console.log(`${bookings?.length || 0} adet dolu randevu:`, bookings);
 
       const bookedSlotIds = new Set(bookings?.map(b => b.slot_id) || []);
-      console.log('Dolu Slot ID\'leri:', Array.from(bookedSlotIds));
+      console.log('Dolu slot ID seti:', Array.from(bookedSlotIds));
 
-      const allSlots = (data || []).map(slot => ({
-        ...slot,
-        isBooked: bookedSlotIds.has(slot.id)
-      }));
+      const allSlots = (data || []).map(slot => {
+        const isBooked = bookedSlotIds.has(slot.id);
+        console.log(`Slot ${slot.start_time} (${slot.id}): ${isBooked ? 'DOLU' : 'BOŞ'}`);
+        return {
+          ...slot,
+          isBooked
+        };
+      });
 
-      console.log('İşlenmiş Slotlar:', allSlots);
+      console.log('SONUÇ - İşlenmiş slotlar:', allSlots);
 
       setTimeSlots(allSlots);
       setSelectedTime(null);
     } catch (err) {
-      console.error('Error loading slots:', err);
+      console.error('HATA:', err);
     }
   };
 
