@@ -61,12 +61,13 @@ export default function AppointmentBooking() {
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
 
-    const firstDayOfWeek = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+    const firstDayOfWeek = firstDay.getDay();
+    const paddingDays = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
 
     const days = [];
 
-    for (let i = 0; i < firstDayOfWeek; i++) {
-      const date = new Date(year, month, 1 - (firstDayOfWeek - i));
+    for (let i = 0; i < paddingDays; i++) {
+      const date = new Date(year, month, 1 - (paddingDays - i));
       days.push({ date, isCurrentMonth: false });
     }
 
@@ -164,8 +165,8 @@ export default function AppointmentBooking() {
 
       const fullyBookedDates = new Set<string>();
       Object.entries(bookingsByDate).forEach(([date, bookedSlots]) => {
-        const dateObj = new Date(date);
-        const dayOfWeek = dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1;
+        const dateObj = new Date(date + 'T12:00:00');
+        const dayOfWeek = dateObj.getDay();
         const totalSlots = slotsByDay[dayOfWeek]?.length || 0;
 
         if (totalSlots > 0 && bookedSlots.size >= totalSlots) {
@@ -181,19 +182,10 @@ export default function AppointmentBooking() {
 
   const loadTimeSlots = async () => {
     try {
-      console.log('=== RANDEVU SAAT YÜKLEME BAŞLADI ===');
-      console.log('selectedDate:', selectedDate);
-
-      if (!selectedDate) {
-        console.error('selectedDate boş!');
-        return;
-      }
+      if (!selectedDate) return;
 
       const date = new Date(selectedDate + 'T12:00:00');
-      const dayOfWeek = date.getDay() === 0 ? 6 : date.getDay() - 1;
-
-      console.log('Tarih objesi:', date);
-      console.log('Gün (0=Pzt, 6=Paz):', dayOfWeek);
+      const dayOfWeek = date.getDay();
 
       const { data, error: err } = await supabase
         .from('appointment_slots')
@@ -201,43 +193,25 @@ export default function AppointmentBooking() {
         .eq('day_of_week', dayOfWeek)
         .order('start_time', { ascending: true });
 
-      if (err) {
-        console.error('Slot yükleme hatası:', err);
-        throw err;
-      }
+      if (err) throw err;
 
-      console.log(`${data?.length || 0} adet slot bulundu:`, data);
-
-      const { data: bookings, error: bookingErr } = await supabase
+      const { data: bookings } = await supabase
         .from('appointment_bookings')
-        .select('slot_id, status')
+        .select('slot_id')
         .eq('appointment_date', selectedDate)
         .in('status', ['pending', 'approved']);
 
-      if (bookingErr) {
-        console.error('Randevu yükleme hatası:', bookingErr);
-      }
-
-      console.log(`${bookings?.length || 0} adet dolu randevu:`, bookings);
-
       const bookedSlotIds = new Set(bookings?.map(b => b.slot_id) || []);
-      console.log('Dolu slot ID seti:', Array.from(bookedSlotIds));
 
-      const allSlots = (data || []).map(slot => {
-        const isBooked = bookedSlotIds.has(slot.id);
-        console.log(`Slot ${slot.start_time} (${slot.id}): ${isBooked ? 'DOLU' : 'BOŞ'}`);
-        return {
-          ...slot,
-          isBooked
-        };
-      });
-
-      console.log('SONUÇ - İşlenmiş slotlar:', allSlots);
+      const allSlots = (data || []).map(slot => ({
+        ...slot,
+        isBooked: bookedSlotIds.has(slot.id)
+      }));
 
       setTimeSlots(allSlots);
       setSelectedTime(null);
     } catch (err) {
-      console.error('HATA:', err);
+      console.error('Error loading slots:', err);
     }
   };
 
