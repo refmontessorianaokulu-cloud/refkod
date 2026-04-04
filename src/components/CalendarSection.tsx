@@ -13,6 +13,16 @@ interface CalendarEvent {
   updated_at: string;
 }
 
+interface Appointment {
+  id: string;
+  parent_id: string;
+  subject: string;
+  appointment_date: string;
+  status: string;
+  parent_name?: string;
+  child_name?: string;
+}
+
 interface CalendarSectionProps {
   userId: string;
   userRole: 'admin' | 'teacher' | 'parent';
@@ -20,6 +30,7 @@ interface CalendarSectionProps {
 
 export default function CalendarSection({ userId, userRole }: CalendarSectionProps) {
   const [events, setEvents] = useState<CalendarEvent[]>([]);
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [showModal, setShowModal] = useState(false);
   const [showEventDetail, setShowEventDetail] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
@@ -35,7 +46,10 @@ export default function CalendarSection({ userId, userRole }: CalendarSectionPro
 
   useEffect(() => {
     loadEvents();
-  }, []);
+    if (userRole === 'admin') {
+      loadAppointments();
+    }
+  }, [userRole]);
 
   const loadEvents = async () => {
     setLoading(true);
@@ -49,6 +63,51 @@ export default function CalendarSection({ userId, userRole }: CalendarSectionPro
       console.error('Error loading events:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadAppointments = async () => {
+    try {
+      const { data } = await supabase
+        .from('appointments')
+        .select('*')
+        .eq('status', 'approved')
+        .not('appointment_date', 'is', null)
+        .order('appointment_date', { ascending: true });
+
+      if (data) {
+        const enrichedAppointments = await Promise.all(
+          data.map(async (apt) => {
+            const { data: parentData } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', apt.parent_id)
+              .maybeSingle();
+
+            let childName = '';
+            if (apt.child_id) {
+              const { data: childData } = await supabase
+                .from('children')
+                .select('first_name, last_name')
+                .eq('id', apt.child_id)
+                .maybeSingle();
+              if (childData) {
+                childName = `${childData.first_name} ${childData.last_name}`;
+              }
+            }
+
+            return {
+              ...apt,
+              parent_name: parentData?.full_name || 'Bilinmeyen Veli',
+              child_name: childName,
+            };
+          })
+        );
+
+        setAppointments(enrichedAppointments);
+      }
+    } catch (error) {
+      console.error('Error loading appointments:', error);
     }
   };
 
@@ -160,6 +219,16 @@ export default function CalendarSection({ userId, userRole }: CalendarSectionPro
     return events.filter((event) => event.event_date === dateString);
   };
 
+  const getAppointmentsForDate = (date: Date) => {
+    if (!appointments.length) return [];
+    const dateString = date.toISOString().split('T')[0];
+    return appointments.filter((apt) => {
+      if (!apt.appointment_date) return false;
+      const aptDate = new Date(apt.appointment_date).toISOString().split('T')[0];
+      return aptDate === dateString;
+    });
+  };
+
   const isCurrentMonth = (date: Date) => {
     return date.getMonth() === currentDate.getMonth() && date.getFullYear() === currentDate.getFullYear();
   };
@@ -253,6 +322,7 @@ export default function CalendarSection({ userId, userRole }: CalendarSectionPro
             <div className="grid grid-cols-7">
               {days.map((day, index) => {
                 const dayEvents = getEventsForDate(day);
+                const dayAppointments = userRole === 'admin' ? getAppointmentsForDate(day) : [];
                 const isCurrent = isCurrentMonth(day);
                 const isTodayDate = isToday(day);
 
@@ -298,6 +368,15 @@ export default function CalendarSection({ userId, userRole }: CalendarSectionPro
                           title={event.title}
                         >
                           {event.title}
+                        </div>
+                      ))}
+                      {dayAppointments.map((apt) => (
+                        <div
+                          key={apt.id}
+                          className="text-xs px-2 py-1 rounded bg-amber-100 text-amber-800 cursor-pointer hover:opacity-80 transition-opacity truncate border border-amber-200"
+                          title={`Randevu: ${apt.parent_name} - ${apt.subject}`}
+                        >
+                          🕒 {apt.parent_name}
                         </div>
                       ))}
                     </div>
