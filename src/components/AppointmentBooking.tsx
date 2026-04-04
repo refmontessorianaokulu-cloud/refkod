@@ -124,7 +124,8 @@ export default function AppointmentBooking() {
         .from('appointment_bookings')
         .select('appointment_date, slot_id')
         .gte('appointment_date', firstDayStr)
-        .lte('appointment_date', lastDayStr);
+        .lte('appointment_date', lastDayStr)
+        .in('status', ['pending', 'approved']);
 
       const { data: slots } = await supabase
         .from('appointment_slots')
@@ -179,7 +180,8 @@ export default function AppointmentBooking() {
       const { data: bookings } = await supabase
         .from('appointment_bookings')
         .select('slot_id')
-        .eq('appointment_date', selectedDate);
+        .eq('appointment_date', selectedDate)
+        .in('status', ['pending', 'approved']);
 
       const bookedSlotIds = new Set(bookings?.map(b => b.slot_id) || []);
 
