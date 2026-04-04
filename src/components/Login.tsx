@@ -538,14 +538,6 @@ export default function Login() {
         </button>
 
         <button
-          onClick={() => setShowAppointmentBooking(true)}
-          className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5"
-          aria-label="Randevu Al"
-        >
-          <Calendar className="w-5 h-5" />
-        </button>
-
-        <button
           onClick={toggleMute}
           className="p-2 bg-black/50 hover:bg-black/70 rounded-full transition-all"
           title={isMuted ? 'Sesi Aç' : 'Sesi Kapat'}
@@ -643,6 +635,13 @@ export default function Login() {
 
           {/* Mobil - Sağ İkonlar */}
           <div className="md:hidden flex items-center gap-2">
+            <button
+              onClick={() => setShowAppointmentBooking(true)}
+              className="p-1 transition-all"
+              title="Randevu Al"
+            >
+              <Calendar className="w-5 h-5 text-white" />
+            </button>
             <button
               onClick={() => setShowTypewriterSearch(true)}
               className="p-1 transition-all"
