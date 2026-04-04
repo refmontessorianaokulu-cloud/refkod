@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Trash2, MessageSquare } from 'lucide-react';
+import { Calendar, Trash2, MessageSquare, MessageCircle, Send } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 interface Appointment {
@@ -38,6 +38,9 @@ export default function AppointmentManagement() {
   const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'postponed' | 'cancelled'>('pending');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [adminNotes, setAdminNotes] = useState('');
+  const [showReminderModal, setShowReminderModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
+  const [reminderMessage, setReminderMessage] = useState('');
 
   useEffect(() => {
     loadAppointments();
@@ -143,6 +146,52 @@ export default function AppointmentManagement() {
       default:
         return status;
     }
+  };
+
+  const handleSendWhatsAppReminder = (appointment: Appointment) => {
+    setSelectedAppointment(appointment);
+    const appointmentDate = new Date(appointment.appointment_date).toLocaleDateString('tr-TR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+      weekday: 'long'
+    });
+    const appointmentTime = slotTimes[appointment.slot_id]?.substring(0, 5) || '';
+
+    const defaultMessage = `Merhaba ${appointment.guest_name},
+
+Ref Montessori School olarak randevunuzu hatırlatmak isteriz.
+
+📅 Randevu Tarihi: ${appointmentDate}
+🕐 Randevu Saati: ${appointmentTime}
+👤 Çocuğunuz: ${appointment.child_name}
+📋 Randevu Konusu: ${SUBJECT_LABELS[appointment.appointment_subject]}
+
+Görüşmek üzere!
+
+Ref Montessori School
+📍 Adres: [Adresiniz]
+📞 Tel: [Telefon Numaranız]`;
+
+    setReminderMessage(defaultMessage);
+    setShowReminderModal(true);
+  };
+
+  const sendWhatsAppReminder = () => {
+    if (!selectedAppointment || !reminderMessage.trim()) {
+      alert('Lütfen mesaj yazın');
+      return;
+    }
+
+    const phoneNumber = selectedAppointment.guest_phone.replace(/\D/g, '').startsWith('0')
+      ? '90' + selectedAppointment.guest_phone.replace(/\D/g, '').substring(1)
+      : '90' + selectedAppointment.guest_phone.replace(/\D/g, '');
+
+    const whatsappLink = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(reminderMessage)}`;
+    window.open(whatsappLink, '_blank');
+    setShowReminderModal(false);
+    setReminderMessage('');
+    setSelectedAppointment(null);
   };
 
   if (loading) {
@@ -262,6 +311,13 @@ export default function AppointmentManagement() {
                             <MessageSquare className="w-4 h-4" />
                           </button>
                           <button
+                            onClick={() => handleSendWhatsAppReminder(appointment)}
+                            className="text-green-600 hover:text-green-700"
+                            title="WhatsApp Hatırlatma Gönder"
+                          >
+                            <MessageCircle className="w-4 h-4" />
+                          </button>
+                          <button
                             onClick={() => handleDelete(appointment.id)}
                             className="text-red-600 hover:text-red-700"
                             title="Sil"
@@ -295,6 +351,66 @@ export default function AppointmentManagement() {
           >
             Kapat
           </button>
+        </div>
+      )}
+
+      {showReminderModal && selectedAppointment && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">WhatsApp Randevu Hatırlatması</h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  {selectedAppointment.guest_name} - {selectedAppointment.guest_phone}
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowReminderModal(false);
+                  setSelectedAppointment(null);
+                  setReminderMessage('');
+                }}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <span className="text-2xl">&times;</span>
+              </button>
+            </div>
+
+            <div className="p-6">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Mesajınızı düzenleyin:
+                </label>
+                <textarea
+                  value={reminderMessage}
+                  onChange={(e) => setReminderMessage(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                  rows={12}
+                  placeholder="Randevu hatırlatma mesajınızı yazın..."
+                />
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => {
+                    setShowReminderModal(false);
+                    setSelectedAppointment(null);
+                    setReminderMessage('');
+                  }}
+                  className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold"
+                >
+                  İptal
+                </button>
+                <button
+                  onClick={sendWhatsAppReminder}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 font-semibold flex items-center justify-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>WhatsApp ile Gönder</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
