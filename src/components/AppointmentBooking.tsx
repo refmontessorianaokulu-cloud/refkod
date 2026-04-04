@@ -29,6 +29,7 @@ export default function AppointmentBooking() {
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState('');
   const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [bookedDates, setBookedDates] = useState<Set<string>>(new Set());
 
   const [formData, setFormData] = useState({
     guest_name: profile?.full_name || '',
@@ -94,10 +95,65 @@ export default function AppointmentBooking() {
   };
 
   useEffect(() => {
+    loadBookedDates();
+  }, [currentMonth]);
+
+  useEffect(() => {
     if (selectedDate) {
       loadTimeSlots();
     }
   }, [selectedDate]);
+
+  const loadBookedDates = async () => {
+    try {
+      const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+      const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+
+      const firstDayStr = firstDay.toISOString().split('T')[0];
+      const lastDayStr = lastDay.toISOString().split('T')[0];
+
+      const { data: bookings } = await supabase
+        .from('appointment_bookings')
+        .select('appointment_date, slot_id')
+        .gte('appointment_date', firstDayStr)
+        .lte('appointment_date', lastDayStr);
+
+      const { data: slots } = await supabase
+        .from('appointment_slots')
+        .select('id, day_of_week');
+
+      const slotsByDay: Record<number, string[]> = {};
+      slots?.forEach(slot => {
+        if (!slotsByDay[slot.day_of_week]) {
+          slotsByDay[slot.day_of_week] = [];
+        }
+        slotsByDay[slot.day_of_week].push(slot.id);
+      });
+
+      const bookingsByDate: Record<string, Set<string>> = {};
+      bookings?.forEach(booking => {
+        if (!bookingsByDate[booking.appointment_date]) {
+          bookingsByDate[booking.appointment_date] = new Set();
+        }
+        bookingsByDate[booking.appointment_date].add(booking.slot_id);
+      });
+
+      const fullyBookedDates = new Set<string>();
+      Object.entries(bookingsByDate).forEach(([date, bookedSlots]) => {
+        const dateObj = new Date(date);
+        const dayOfWeek = dateObj.getDay() === 0 ? 6 : dateObj.getDay() - 1;
+        const totalSlots = slotsByDay[dayOfWeek]?.length || 0;
+
+        if (totalSlots > 0 && bookedSlots.size >= totalSlots) {
+          fullyBookedDates.add(date);
+        }
+      });
+
+      setBookedDates(fullyBookedDates);
+    } catch (err) {
+      console.error('Error loading booked dates:', err);
+    }
+  };
 
   const loadTimeSlots = async () => {
     try {
@@ -247,30 +303,34 @@ export default function AppointmentBooking() {
                 const isSelected = selectedDate === dateStr;
                 const isPast = date < today && date.toDateString() !== today.toDateString();
                 const isToday = date.toDateString() === today.toDateString();
+                const isFullyBooked = bookedDates.has(dateStr);
 
                 return (
                   <button
                     key={index}
                     onClick={() => {
-                      if (!isPast && isCurrentMonth) {
+                      if (!isPast && isCurrentMonth && !isFullyBooked) {
                         setSelectedDate(dateStr);
                         setStep(2);
                       }
                     }}
-                    disabled={isPast || !isCurrentMonth}
-                    className={`aspect-square p-2 rounded-xl transition-all text-center font-semibold ${
+                    disabled={isPast || !isCurrentMonth || isFullyBooked}
+                    className={`aspect-square p-2 rounded-xl transition-all text-center font-semibold relative ${
                       isSelected
                         ? 'bg-gradient-to-br from-green-500 to-lime-500 text-white shadow-md scale-105'
-                        : isPast || !isCurrentMonth
-                        ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
+                        : isPast || !isCurrentMonth || isFullyBooked
+                        ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                         : isToday
                         ? 'bg-gradient-to-br from-green-100 to-lime-100 text-green-900 border-2 border-green-400 hover:from-green-200 hover:to-lime-200'
                         : 'bg-gradient-to-br from-green-50 to-lime-50 text-gray-800 hover:from-green-100 hover:to-lime-100 hover:shadow-md'
                     }`}
                   >
-                    <div className={`text-sm ${isCurrentMonth && !isPast ? '' : 'opacity-40'}`}>
+                    <div className={`text-sm ${isCurrentMonth && !isPast && !isFullyBooked ? '' : 'opacity-40'}`}>
                       {date.getDate()}
                     </div>
+                    {isFullyBooked && isCurrentMonth && !isPast && (
+                      <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-gray-500 rounded-full"></div>
+                    )}
                   </button>
                 );
               })}
