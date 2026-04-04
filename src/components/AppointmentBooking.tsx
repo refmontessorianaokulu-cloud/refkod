@@ -109,8 +109,15 @@ export default function AppointmentBooking() {
       const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
       const lastDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
 
-      const firstDayStr = firstDay.toISOString().split('T')[0];
-      const lastDayStr = lastDay.toISOString().split('T')[0];
+      const formatDateStr = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const firstDayStr = formatDateStr(firstDay);
+      const lastDayStr = formatDateStr(lastDay);
 
       const { data: bookings } = await supabase
         .from('appointment_bookings')
@@ -299,7 +306,10 @@ export default function AppointmentBooking() {
             {/* Takvim Günleri */}
             <div className="grid grid-cols-7 gap-2">
               {monthDays.map(({ date, isCurrentMonth }, index) => {
-                const dateStr = date.toISOString().split('T')[0];
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                const dateStr = `${year}-${month}-${day}`;
                 const isSelected = selectedDate === dateStr;
                 const isPast = date < today && date.toDateString() !== today.toDateString();
                 const isToday = date.toDateString() === today.toDateString();
