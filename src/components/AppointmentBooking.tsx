@@ -184,16 +184,13 @@ export default function AppointmentBooking() {
   const displayMonth = currentMonth.toLocaleString('tr-TR', { month: 'long', year: 'numeric' });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-cyan-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-lime-50 to-emerald-50">
       <div className="p-6 max-w-4xl mx-auto">
-        {/* Başlık */}
+        {/* Karşılama Başlığı */}
         <div className="text-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">Randevu Takvimi</h1>
-
-          {/* Karşılama Başlığı */}
           <div className="flex items-center justify-center gap-2">
             <span className="text-2xl">🌍</span>
-            <h2 className="text-lg md:text-xl font-semibold text-gray-700">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-800">
               Ref Montessori School
             </h2>
             <span className="text-2xl">🇹🇷</span>
@@ -217,18 +214,18 @@ export default function AppointmentBooking() {
             <div className="flex items-center justify-between mb-6 px-4">
               <button
                 onClick={goToPreviousMonth}
-                className="p-2 hover:bg-gradient-to-br hover:from-teal-100 hover:to-cyan-100 rounded-full transition-all"
+                className="p-2 hover:bg-gradient-to-br hover:from-green-100 hover:to-lime-100 rounded-full transition-all"
               >
                 <ChevronLeft className="w-6 h-6 text-gray-700" />
               </button>
 
-              <h3 className="text-xl font-bold bg-gradient-to-r from-teal-600 to-cyan-600 bg-clip-text text-transparent capitalize">
+              <h3 className="text-xl font-bold bg-gradient-to-r from-green-600 to-lime-600 bg-clip-text text-transparent capitalize">
                 {displayMonth}
               </h3>
 
               <button
                 onClick={goToNextMonth}
-                className="p-2 hover:bg-gradient-to-br hover:from-teal-100 hover:to-cyan-100 rounded-full transition-all"
+                className="p-2 hover:bg-gradient-to-br hover:from-green-100 hover:to-lime-100 rounded-full transition-all"
               >
                 <ChevronRight className="w-6 h-6 text-gray-700" />
               </button>
@@ -263,12 +260,12 @@ export default function AppointmentBooking() {
                     disabled={isPast || !isCurrentMonth}
                     className={`aspect-square p-2 rounded-xl transition-all text-center font-semibold ${
                       isSelected
-                        ? 'bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-md scale-105'
+                        ? 'bg-gradient-to-br from-green-500 to-lime-500 text-white shadow-md scale-105'
                         : isPast || !isCurrentMonth
                         ? 'bg-gray-50 text-gray-300 cursor-not-allowed'
                         : isToday
-                        ? 'bg-gradient-to-br from-teal-100 to-cyan-100 text-teal-900 border-2 border-teal-400 hover:from-teal-200 hover:to-cyan-200'
-                        : 'bg-gradient-to-br from-teal-50 to-cyan-50 text-gray-800 hover:from-teal-100 hover:to-cyan-100 hover:shadow-md'
+                        ? 'bg-gradient-to-br from-green-100 to-lime-100 text-green-900 border-2 border-green-400 hover:from-green-200 hover:to-lime-200'
+                        : 'bg-gradient-to-br from-green-50 to-lime-50 text-gray-800 hover:from-green-100 hover:to-lime-100 hover:shadow-md'
                     }`}
                   >
                     <div className={`text-sm ${isCurrentMonth && !isPast ? '' : 'opacity-40'}`}>
@@ -284,7 +281,7 @@ export default function AppointmentBooking() {
           <div className="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200">
             <button
               onClick={() => setStep(1)}
-              className="text-teal-600 hover:text-teal-700 font-semibold"
+              className="text-green-600 hover:text-green-700 font-semibold"
             >
               Tarih Değiştir
             </button>
@@ -308,8 +305,8 @@ export default function AppointmentBooking() {
                 onClick={() => setSelectedTime(slot.id)}
                 className={`p-3 rounded-xl text-sm font-semibold transition-all ${
                   selectedTime === slot.id
-                    ? 'bg-gradient-to-br from-teal-500 to-cyan-500 text-white shadow-md'
-                    : 'bg-gradient-to-br from-teal-50 to-cyan-50 text-gray-700 hover:from-teal-100 hover:to-cyan-100 hover:shadow'
+                    ? 'bg-gradient-to-br from-green-500 to-lime-500 text-white shadow-md'
+                    : 'bg-gradient-to-br from-green-50 to-lime-50 text-gray-700 hover:from-green-100 hover:to-lime-100 hover:shadow'
                 }`}
               >
                 {slot.start_time.substring(0, 5)}
@@ -331,7 +328,7 @@ export default function AppointmentBooking() {
                   required
                   value={formData.guest_name}
                   onChange={(e) => setFormData({ ...formData, guest_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Adınız Soyadınız"
                 />
               </div>
@@ -345,7 +342,7 @@ export default function AppointmentBooking() {
                   required
                   value={formData.guest_phone}
                   onChange={(e) => setFormData({ ...formData, guest_phone: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="+90 5XX XXX XX XX"
                 />
               </div>
@@ -359,7 +356,7 @@ export default function AppointmentBooking() {
                 type="email"
                 value={formData.guest_email}
                 onChange={(e) => setFormData({ ...formData, guest_email: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="ornek@email.com"
               />
             </div>
@@ -374,7 +371,7 @@ export default function AppointmentBooking() {
                   required
                   value={formData.child_name}
                   onChange={(e) => setFormData({ ...formData, child_name: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                   placeholder="Çocuğunuzun Adı Soyadı"
                 />
               </div>
@@ -388,7 +385,7 @@ export default function AppointmentBooking() {
                   required
                   value={formData.child_birth_date}
                   onChange={(e) => setFormData({ ...formData, child_birth_date: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 />
               </div>
             </div>
@@ -401,7 +398,7 @@ export default function AppointmentBooking() {
                 required
                 value={formData.appointment_subject}
                 onChange={(e) => setFormData({ ...formData, appointment_subject: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
               >
                 {APPOINTMENT_SUBJECTS.map((subject) => (
                   <option key={subject.value} value={subject.value}>
@@ -418,7 +415,7 @@ export default function AppointmentBooking() {
               <textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 placeholder="Eklemek istediğiniz notlar..."
                 rows={3}
               />
@@ -439,7 +436,7 @@ export default function AppointmentBooking() {
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white rounded-lg hover:from-teal-600 hover:to-cyan-600 disabled:opacity-50 font-semibold transition-all shadow-md hover:shadow-lg"
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-green-500 to-lime-500 text-white rounded-lg hover:from-green-600 hover:to-lime-600 disabled:opacity-50 font-semibold transition-all shadow-md hover:shadow-lg"
               >
                 {loading ? 'Gönderiliyor...' : 'Randevu Oluştur'}
               </button>
