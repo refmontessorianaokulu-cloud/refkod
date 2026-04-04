@@ -31,6 +31,7 @@ export default function AppointmentBooking() {
   const [error, setError] = useState('');
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [bookedDates, setBookedDates] = useState<Set<string>>(new Set());
+  const [approvedBookings, setApprovedBookings] = useState<Array<{ date: string; time: string; name: string }>>([]);
 
   const [formData, setFormData] = useState({
     guest_name: profile?.full_name || '',
@@ -122,30 +123,44 @@ export default function AppointmentBooking() {
 
       const { data: bookings } = await supabase
         .from('appointment_bookings')
-        .select('appointment_date, slot_id')
+        .select('appointment_date, slot_id, guest_name')
         .gte('appointment_date', firstDayStr)
         .lte('appointment_date', lastDayStr)
         .in('status', ['pending', 'approved']);
 
       const { data: slots } = await supabase
         .from('appointment_slots')
-        .select('id, day_of_week');
+        .select('id, day_of_week, start_time');
 
       const slotsByDay: Record<number, string[]> = {};
+      const slotTimeById: Record<string, string> = {};
       slots?.forEach(slot => {
         if (!slotsByDay[slot.day_of_week]) {
           slotsByDay[slot.day_of_week] = [];
         }
         slotsByDay[slot.day_of_week].push(slot.id);
+        slotTimeById[slot.id] = slot.start_time;
       });
 
       const bookingsByDate: Record<string, Set<string>> = {};
+      const approvedBookingsList: Array<{ date: string; time: string; name: string }> = [];
+
       bookings?.forEach(booking => {
         if (!bookingsByDate[booking.appointment_date]) {
           bookingsByDate[booking.appointment_date] = new Set();
         }
         bookingsByDate[booking.appointment_date].add(booking.slot_id);
+
+        if (booking.guest_name) {
+          approvedBookingsList.push({
+            date: booking.appointment_date,
+            time: slotTimeById[booking.slot_id]?.substring(0, 5) || '',
+            name: booking.guest_name
+          });
+        }
       });
+
+      setApprovedBookings(approvedBookingsList);
 
       const fullyBookedDates = new Set<string>();
       Object.entries(bookingsByDate).forEach(([date, bookedSlots]) => {
@@ -332,6 +347,7 @@ export default function AppointmentBooking() {
                 const isPast = date < today && date.toDateString() !== today.toDateString();
                 const isToday = date.toDateString() === today.toDateString();
                 const isFullyBooked = bookedDates.has(dateStr);
+                const hasAppointments = approvedBookings.filter(b => b.date === dateStr).length > 0;
 
                 return (
                   <button
@@ -356,13 +372,53 @@ export default function AppointmentBooking() {
                     <div className={`text-sm ${isCurrentMonth && !isPast && !isFullyBooked ? '' : 'opacity-40'}`}>
                       {date.getDate()}
                     </div>
+                    {hasAppointments && isCurrentMonth && (
+                      <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 flex gap-0.5">
+                        {approvedBookings.filter(b => b.date === dateStr).slice(0, 3).map((_, i) => (
+                          <div key={i} className="w-1 h-1 bg-green-500 rounded-full"></div>
+                        ))}
+                      </div>
+                    )}
                     {isFullyBooked && isCurrentMonth && !isPast && (
-                      <div className="absolute bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-gray-500 rounded-full"></div>
+                      <div className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-red-500 rounded-full"></div>
                     )}
                   </button>
                 );
               })}
             </div>
+
+            {/* Randevu Listesi */}
+            {approvedBookings.length > 0 && (
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
+                  <Calendar className="w-4 h-4 text-green-600" />
+                  Bu Ay İçindeki Randevular
+                </h3>
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {approvedBookings
+                    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
+                    .map((booking, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-center justify-between p-2 bg-gradient-to-r from-green-50 to-lime-50 rounded-lg text-sm"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="text-green-600 font-semibold">
+                            {new Date(booking.date).toLocaleDateString('tr-TR', {
+                              day: 'numeric',
+                              month: 'short'
+                            })}
+                          </div>
+                          <div className="text-gray-600">{booking.time}</div>
+                        </div>
+                        <div className="text-gray-700 font-medium truncate max-w-[150px]">
+                          {booking.name}
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
       ) : (
         <div className="bg-white rounded-2xl shadow-lg p-6">
