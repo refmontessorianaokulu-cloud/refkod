@@ -7,12 +7,13 @@ import ContactPage from './ContactPage';
 import RefAtolyeLogin from './RefAtolyeLogin';
 import CartView from './CartView';
 import { supabase } from '../lib/supabase';
-import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX, MessageCircle, ShoppingBag, CircleUser as UserCircle, Bot } from 'lucide-react';
+import { ChevronDown, Search as SearchIcon, Menu, X, Phone, Mail, MapPin, Globe, Volume2, VolumeX, MessageCircle, ShoppingBag, CircleUser as UserCircle, Bot, Calendar } from 'lucide-react';
 import LanguageToggle from './LanguageToggle';
 import SearchModal from './SearchModal';
 import TypewriterSearchModal from './TypewriterSearchModal';
 import RefAssistantModal from './RefAssistantModal';
 import AnnouncementBanner from './AnnouncementBanner';
+import AppointmentBooking from './AppointmentBooking';
 
 interface AboutSection {
   id: string;
@@ -74,6 +75,7 @@ export default function Login() {
   const [showTypewriterSearch, setShowTypewriterSearch] = useState(false);
   const [showRefAssistant, setShowRefAssistant] = useState(false);
   const [showCart, setShowCart] = useState(false);
+  const [showAppointmentBooking, setShowAppointmentBooking] = useState(false);
   const { signIn, signInAsGuest } = useAuth();
   const { t } = useLanguage();
 
@@ -533,6 +535,14 @@ export default function Login() {
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center font-bold animate-pulse">
             !
           </span>
+        </button>
+
+        <button
+          onClick={() => setShowAppointmentBooking(true)}
+          className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full shadow-xl hover:shadow-2xl transition-all group relative p-2.5"
+          aria-label="Randevu Al"
+        >
+          <Calendar className="w-5 h-5" />
         </button>
 
         <button
@@ -1597,6 +1607,25 @@ export default function Login() {
                   signInAsGuest('ref_atolye');
                 }}
               />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showAppointmentBooking && (
+        <div className="fixed inset-0 bg-black/50 z-[100] flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-800">Randevu Al</h2>
+              <button
+                onClick={() => setShowAppointmentBooking(false)}
+                className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              >
+                <X className="w-6 h-6 text-gray-700" />
+              </button>
+            </div>
+            <div>
+              <AppointmentBooking />
             </div>
           </div>
         </div>

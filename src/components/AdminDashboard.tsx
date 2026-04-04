@@ -34,6 +34,7 @@ import RefEvaluationAnalytics from './RefEvaluationAnalytics';
 import RefEvaluationManagement from './RefEvaluationManagement';
 import OrderManagement from './OrderManagement';
 import AnnouncementBannerManagement from './AnnouncementBannerManagement';
+import AppointmentManagement from './AppointmentManagement';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
@@ -1242,6 +1243,12 @@ export default function AdminDashboard() {
             {activeTab === 'appointments' && (
               <div>
                 <AppointmentsSection userId={profile?.id || ''} userRole="admin" />
+              </div>
+            )}
+
+            {activeTab === 'appointment_bookings' && (
+              <div>
+                <AppointmentManagement />
               </div>
             )}
 

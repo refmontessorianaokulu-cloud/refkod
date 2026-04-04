@@ -63,6 +63,7 @@ export type MenuTab =
   | 'calendar'
   | 'fees'
   | 'appointments'
+  | 'appointment_bookings'
   | 'tasks'
   | 'menu'
   | 'duty'
@@ -167,6 +168,7 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
     items: [
       { id: 'fees', label: t('menu.fees'), icon: CreditCard },
       { id: 'appointments', label: t('menu.appointments'), icon: CalendarCheck },
+      { id: 'appointment_bookings', label: 'Randevu Takvimi', icon: Calendar },
     ],
   },
   {
