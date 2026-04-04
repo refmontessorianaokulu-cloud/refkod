@@ -450,13 +450,18 @@ export default function AppointmentBooking() {
                 disabled={slot.isBooked}
                 className={`p-3 rounded-xl text-sm font-semibold transition-all ${
                   slot.isBooked
-                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-60 line-through'
                     : selectedTime === slot.id
                     ? 'bg-gradient-to-br from-green-500 to-lime-500 text-white shadow-md'
                     : 'bg-gradient-to-br from-green-50 to-lime-50 text-gray-700 hover:from-green-100 hover:to-lime-100 hover:shadow'
                 }`}
               >
-                {slot.start_time.substring(0, 5)}
+                <div className="flex flex-col items-center">
+                  <span>{slot.start_time.substring(0, 5)}</span>
+                  {slot.isBooked && (
+                    <span className="text-xs text-red-600 font-bold mt-1">DOLU</span>
+                  )}
+                </div>
               </button>
             ))}
           </div>
