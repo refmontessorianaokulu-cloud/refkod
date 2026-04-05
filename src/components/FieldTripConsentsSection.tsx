@@ -136,10 +136,15 @@ export default function FieldTripConsentsSection() {
     setSaving(key);
 
     try {
+      if (!user?.id) {
+        throw new Error('Kullanıcı girişi yapılmamış');
+      }
+
       const { error } = await supabase
         .from('field_trip_consents')
         .upsert({
           field_trip_id: tripId,
+          parent_id: user.id,
           child_id: childId,
           consent_type: consentType,
         }, {
