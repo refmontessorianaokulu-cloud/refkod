@@ -15,6 +15,7 @@ import DutyScheduleSection from './DutyScheduleSection';
 import AdminServiceManagement from './AdminServiceManagement';
 import CleaningRequestsSection from './CleaningRequestsSection';
 import AllServicesLocationSection from './AllServicesLocationSection';
+import AdminFieldTripsManagement from './AdminFieldTripsManagement';
 import BranchCourseReportsSection from './BranchCourseReportsSection';
 import InquiryFormsSection from './InquiryFormsSection';
 import MaterialRequestsSection from './MaterialRequestsSection';
