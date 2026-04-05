@@ -44,6 +44,7 @@ import {
   BarChart3,
   ShoppingCart,
   Heart,
+  FileCheck,
 } from 'lucide-react';
 
 export type MenuTab =
@@ -86,7 +87,9 @@ export type MenuTab =
   | 'ref_atolye_cart'
   | 'ref_evaluation'
   | 'evaluation_analytics'
-  | 'evaluation_management';
+  | 'evaluation_management'
+  | 'field_trips_management'
+  | 'field_trip_consents';
 
 export interface MenuItem {
   id: MenuTab;
@@ -178,6 +181,7 @@ const getDefaultAdminMenuCategories = (t: (key: string) => string): MenuCategory
       { id: 'tasks', label: t('menu.tasks'), icon: ClipboardList },
       { id: 'menu', label: t('menu.menu'), icon: UtensilsCrossed },
       { id: 'duty', label: t('menu.duty'), icon: UserCheck },
+      { id: 'field_trips_management', label: 'Gezi ve Ziyaret Yönetimi', icon: FileCheck },
     ],
   },
   {
