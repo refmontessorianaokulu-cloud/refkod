@@ -10,7 +10,7 @@ interface FieldTrip {
   trip_date: string;
   trip_time: string;
   description: string;
-  consent_deadline: string;
+  deadline: string;
 }
 
 interface Child {
@@ -46,7 +46,7 @@ export default function FieldTripConsentsSection() {
           .from('field_trips')
           .select('*')
           .eq('is_active', true)
-          .gte('consent_deadline', new Date().toISOString().split('T')[0])
+          .gte('deadline', new Date().toISOString())
           .order('trip_date', { ascending: true }),
 
         supabase
@@ -202,7 +202,7 @@ export default function FieldTripConsentsSection() {
             )}
             <div className="mt-3 p-3 bg-amber-50 rounded-lg">
               <p className="text-sm font-medium text-amber-800">
-                Son Onay Tarihi: {new Date(trip.consent_deadline).toLocaleDateString('tr-TR')}
+                Son Onay Tarihi: {new Date(trip.deadline).toLocaleDateString('tr-TR')}
               </p>
             </div>
           </div>
