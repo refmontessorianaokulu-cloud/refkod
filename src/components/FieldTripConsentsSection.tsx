@@ -32,15 +32,24 @@ export default function FieldTripConsentsSection() {
   const [consents, setConsents] = useState<Record<string, Consent>>({});
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    console.log('Profile changed:', profile);
     if (profile?.id) {
+      console.log('Profile ID exists, fetching data...');
       fetchData();
+    } else {
+      console.log('No profile ID, skipping fetch');
     }
   }, [profile?.id]);
 
   async function fetchData() {
     try {
+      console.log('Fetching field trips and children...');
+      console.log('Parent ID:', profile?.id);
+      console.log('Current timestamp:', new Date().toISOString());
+
       const [tripsRes, childrenRes] = await Promise.all([
         supabase
           .from('field_trips')
@@ -55,12 +64,24 @@ export default function FieldTripConsentsSection() {
           .eq('parent_id', profile?.id)
       ]);
 
-      if (tripsRes.error) throw tripsRes.error;
-      if (childrenRes.error) throw childrenRes.error;
+      console.log('Trips response:', tripsRes);
+      console.log('Children response:', childrenRes);
+
+      if (tripsRes.error) {
+        console.error('Trips error:', tripsRes.error);
+        throw tripsRes.error;
+      }
+      if (childrenRes.error) {
+        console.error('Children error:', childrenRes.error);
+        throw childrenRes.error;
+      }
 
       const formattedChildren = (childrenRes.data || [])
         .map((pc: any) => pc.children)
         .filter(Boolean);
+
+      console.log('Formatted children:', formattedChildren);
+      console.log('Trips data:', tripsRes.data);
 
       setTrips(tripsRes.data || []);
       setChildren(formattedChildren);
@@ -73,6 +94,7 @@ export default function FieldTripConsentsSection() {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      setError(error instanceof Error ? error.message : 'Veri yüklenirken bir hata oluştu');
     } finally {
       setLoading(false);
     }
@@ -140,6 +162,28 @@ export default function FieldTripConsentsSection() {
     return (
       <div className="flex justify-center items-center h-64">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center py-12">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 max-w-2xl mx-auto">
+          <XCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+          <h3 className="text-lg font-semibold text-red-900 mb-2">Hata Oluştu</h3>
+          <p className="text-red-700 mb-4">{error}</p>
+          <button
+            onClick={() => {
+              setError(null);
+              setLoading(true);
+              fetchData();
+            }}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            Tekrar Dene
+          </button>
+        </div>
       </div>
     );
   }
