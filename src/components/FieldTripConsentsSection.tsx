@@ -24,7 +24,7 @@ interface Child {
 
 interface Consent {
   child_id: string;
-  consent_type: 'participate' | 'stay_at_school';
+  consent_type: 'approved' | 'stay_at_school';
 }
 
 export default function FieldTripConsentsSection() {
@@ -130,7 +130,7 @@ export default function FieldTripConsentsSection() {
   async function handleConsentChange(
     tripId: string,
     childId: string,
-    consentType: 'participate' | 'stay_at_school'
+    consentType: 'approved' | 'stay_at_school'
   ) {
     const key = `${tripId}-${childId}`;
     setSaving(key);
@@ -278,7 +278,7 @@ export default function FieldTripConsentsSection() {
                     </div>
                     {consent && (
                       <div className="flex items-center gap-2 text-sm">
-                        {consent.consent_type === 'participate' ? (
+                        {consent.consent_type === 'approved' ? (
                           <span className="flex items-center gap-1 text-green-700 bg-green-100 px-3 py-1 rounded-full">
                             <CheckCircle className="w-4 h-4" />
                             Katılacak
@@ -298,8 +298,8 @@ export default function FieldTripConsentsSection() {
                       <input
                         type="radio"
                         name={`consent-${key}`}
-                        checked={consent?.consent_type === 'participate'}
-                        onChange={() => handleConsentChange(trip.id, child.id, 'participate')}
+                        checked={consent?.consent_type === 'approved'}
+                        onChange={() => handleConsentChange(trip.id, child.id, 'approved')}
                         disabled={isSaving}
                         className="mt-1 w-4 h-4 text-teal-600 focus:ring-teal-500"
                       />
