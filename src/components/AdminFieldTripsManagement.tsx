@@ -9,7 +9,8 @@ interface FieldTrip {
   trip_date: string;
   trip_time: string;
   description: string;
-  consent_deadline: string;
+  class_name: string;
+  deadline: string;
   is_active: boolean;
   created_at: string;
 }
@@ -37,7 +38,8 @@ export default function AdminFieldTripsManagement() {
     trip_date: '',
     trip_time: '',
     description: '',
-    consent_deadline: '',
+    class_name: '',
+    deadline: '',
     is_active: true,
   });
 
@@ -105,17 +107,28 @@ export default function AdminFieldTripsManagement() {
     e.preventDefault();
 
     try {
+      const tripData = {
+        title: formData.title,
+        location: formData.location,
+        trip_date: formData.trip_date,
+        trip_time: formData.trip_time,
+        description: formData.description,
+        class_name: formData.class_name,
+        deadline: new Date(`${formData.deadline}T23:59:59`).toISOString(),
+        is_active: formData.is_active,
+      };
+
       if (editingTrip) {
         const { error } = await supabase
           .from('field_trips')
-          .update(formData)
+          .update(tripData)
           .eq('id', editingTrip.id);
 
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('field_trips')
-          .insert([formData]);
+          .insert([tripData]);
 
         if (error) throw error;
       }
@@ -147,13 +160,17 @@ export default function AdminFieldTripsManagement() {
 
   function handleEdit(trip: FieldTrip) {
     setEditingTrip(trip);
+    const deadlineDate = new Date(trip.deadline);
+    const formattedDeadline = deadlineDate.toISOString().split('T')[0];
+
     setFormData({
       title: trip.title,
       location: trip.location,
       trip_date: trip.trip_date,
       trip_time: trip.trip_time,
       description: trip.description,
-      consent_deadline: trip.consent_deadline,
+      class_name: trip.class_name,
+      deadline: formattedDeadline,
       is_active: trip.is_active,
     });
     setShowForm(true);
@@ -166,7 +183,8 @@ export default function AdminFieldTripsManagement() {
       trip_date: '',
       trip_time: '',
       description: '',
-      consent_deadline: '',
+      class_name: '',
+      deadline: '',
       is_active: true,
     });
     setEditingTrip(null);
@@ -263,13 +281,31 @@ export default function AdminFieldTripsManagement() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Sınıf *
+                </label>
+                <select
+                  required
+                  value={formData.class_name}
+                  onChange={(e) => setFormData({ ...formData, class_name: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+                >
+                  <option value="">Sınıf Seçin</option>
+                  <option value="3 Yaş Sınıfı">3 Yaş Sınıfı</option>
+                  <option value="3 Yaş Yarım Gün Sınıfı">3 Yaş Yarım Gün Sınıfı</option>
+                  <option value="4 Yaş Sınıfı">4 Yaş Sınıfı</option>
+                  <option value="5 Yaş Sınıfı">5 Yaş Sınıfı</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Onay Son Tarihi *
                 </label>
                 <input
                   type="date"
                   required
-                  value={formData.consent_deadline}
-                  onChange={(e) => setFormData({ ...formData, consent_deadline: e.target.value })}
+                  value={formData.deadline}
+                  onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 />
               </div>
@@ -431,7 +467,11 @@ export default function AdminFieldTripsManagement() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Users className="w-4 h-4" />
-                    <span>Son Onay: {new Date(trip.consent_deadline).toLocaleDateString('tr-TR')}</span>
+                    <span>Sınıf: {trip.class_name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>Son Onay: {new Date(trip.deadline).toLocaleDateString('tr-TR')}</span>
                   </div>
                 </div>
                 {trip.description && (
