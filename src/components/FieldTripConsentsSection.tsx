@@ -28,7 +28,7 @@ interface Consent {
 }
 
 export default function FieldTripConsentsSection() {
-  const { profile } = useAuth();
+  const { profile, user } = useAuth();
   const [trips, setTrips] = useState<FieldTrip[]>([]);
   const [children, setChildren] = useState<Child[]>([]);
   const [consents, setConsents] = useState<Record<string, Consent>>({});
