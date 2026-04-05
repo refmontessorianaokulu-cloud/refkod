@@ -10,7 +10,9 @@ interface FieldTrip {
   trip_date: string;
   trip_time: string;
   description: string;
+  class_name: string;
   deadline: string;
+  is_active: boolean;
 }
 
 interface Child {
