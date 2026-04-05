@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Calendar, Plus, Edit2, Trash2, Save, X, CheckCircle, Clock, Eye, FileText, TrendingUp, Download, Filter, Users, GraduationCap, AlertCircle, CheckSquare, Square } from 'lucide-react';
-import jsPDF from 'jspdf';
+import { Calendar, Plus, CreditCard as Edit2, Trash2, Save, X, CheckCircle, Clock, Eye, FileText, TrendingUp, Download, Filter, Users, GraduationCap, AlertCircle, CheckSquare, Square } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
 interface AcademicPeriod {
   id: string;

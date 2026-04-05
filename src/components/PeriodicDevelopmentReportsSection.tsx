@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { useLanguage } from '../contexts/LanguageContext';
-import { BookOpen, Plus, Edit2, Trash2, Save, X, Calendar, FileText, CheckCircle, Clock, Eye, AlertCircle, User, Download } from 'lucide-react';
-import jsPDF from 'jspdf';
+import { BookOpen, Plus, CreditCard as Edit2, Trash2, Save, X, Calendar, FileText, CheckCircle, Clock, Eye, AlertCircle, User, Download } from 'lucide-react';
+import { jsPDF } from 'jspdf';
 
 interface Child {
   id: string;

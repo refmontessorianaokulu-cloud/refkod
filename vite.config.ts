@@ -29,17 +29,26 @@ export default defineConfig({
             return 'vendor';
           }
 
-          if (id.includes('AdminDashboard') || id.includes('AdminService') || id.includes('AdminPeriodic')) {
+          if (id.includes('AdminDashboard')) {
+            return 'admin-dashboard';
+          }
+          if (id.includes('AdminService') || id.includes('AdminPeriodic') || id.includes('AdminFieldTrips')) {
             return 'admin-features';
           }
           if (id.includes('RefAtolye') || id.includes('RefEvaluation') || id.includes('RefSections')) {
             return 'ref-atolye-features';
           }
-          if (id.includes('Product') || id.includes('Order') || id.includes('Shopping') || id.includes('Cart')) {
-            return 'ecommerce-features';
+          if (id.includes('Product') || id.includes('Order')) {
+            return 'ecommerce-products';
+          }
+          if (id.includes('Shopping') || id.includes('Cart')) {
+            return 'ecommerce-cart';
           }
           if (id.includes('PlayGroup')) {
             return 'playgroup-features';
+          }
+          if (id.includes('PeriodicDevelopment') || id.includes('PeriodicReports')) {
+            return 'periodic-reports';
           }
         },
       },
@@ -47,5 +56,7 @@ export default defineConfig({
     chunkSizeWarningLimit: 1500,
     sourcemap: false,
     minify: 'esbuild',
+    target: 'es2015',
+    cssCodeSplit: true,
   },
 });
