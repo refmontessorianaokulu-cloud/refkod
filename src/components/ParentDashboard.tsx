@@ -83,11 +83,12 @@ const parentMenuCategories: MenuCategory[] = [
   },
   {
     id: 'operations',
-    label: 'Operasyonel',
+    label: 'Operasyonel Yönetim',
     items: [
       { id: 'menu', label: 'Yemek Menüsü', icon: UtensilsCrossed },
       { id: 'duty', label: 'Nöbetçi Öğretmen', icon: UserCheck },
       { id: 'service', label: 'Servis Takibi', icon: Car },
+      { id: 'field_trip_consents', label: 'Onay Formları', icon: FileCheck },
     ],
   },
 ];
@@ -643,6 +644,12 @@ export default function ParentDashboard() {
         {activeTab === 'duty' && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <DutyScheduleSection userId={profile?.id || ''} userRole="parent" />
+          </div>
+        )}
+
+        {activeTab === 'field_trip_consents' && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <FieldTripConsentsSection />
           </div>
         )}
 

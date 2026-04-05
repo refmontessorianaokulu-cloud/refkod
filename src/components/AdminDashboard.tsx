@@ -1270,6 +1270,12 @@ export default function AdminDashboard() {
               </div>
             )}
 
+            {activeTab === 'field_trips_management' && (
+              <div>
+                <AdminFieldTripsManagement />
+              </div>
+            )}
+
             {activeTab === 'services' && (
               <div className="space-y-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
