@@ -290,6 +290,7 @@ export default function AdminFieldTripsManagement() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
                 >
                   <option value="">Sınıf Seçin</option>
+                  <option value="Tüm Sınıflar">Tüm Sınıflar</option>
                   <option value="3 Yaş Sınıfı">3 Yaş Sınıfı</option>
                   <option value="3 Yaş Yarım Gün Sınıfı">3 Yaş Yarım Gün Sınıfı</option>
                   <option value="4 Yaş Sınıfı">4 Yaş Sınıfı</option>
