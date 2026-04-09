@@ -391,38 +391,6 @@ export default function AppointmentBooking() {
               })}
             </div>
 
-            {/* Randevu Listesi */}
-            {approvedBookings.length > 0 && (
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <h3 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-green-600" />
-                  Bu Ay İçindeki Randevular
-                </h3>
-                <div className="space-y-2 max-h-48 overflow-y-auto">
-                  {approvedBookings
-                    .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time))
-                    .map((booking, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center justify-between p-2 bg-gradient-to-r from-green-50 to-lime-50 rounded-lg text-sm"
-                      >
-                        <div className="flex items-center gap-2">
-                          <div className="text-green-600 font-semibold">
-                            {new Date(booking.date).toLocaleDateString('tr-TR', {
-                              day: 'numeric',
-                              month: 'short'
-                            })}
-                          </div>
-                          <div className="text-gray-600">{booking.time}</div>
-                        </div>
-                        <div className="text-gray-700 font-medium truncate max-w-[150px]">
-                          {booking.name}
-                        </div>
-                      </div>
-                    ))}
-                </div>
-              </div>
-            )}
           </div>
       ) : (
         <div className="bg-white rounded-2xl shadow-lg p-6">
