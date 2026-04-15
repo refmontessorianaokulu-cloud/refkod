@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { ShoppingCart, Package, Palette, Settings, Users, Calendar as CalendarIcon, Heart, ClipboardList, User, Home, Search } from 'lucide-react';
+import { ShoppingCart, Package, Palette, Settings, Users, Heart, ClipboardList, User, Home, Search, File as FileEdit, Save, RefreshCw } from 'lucide-react';
 import ProductCatalog from './ProductCatalog';
 import PlayGroupCalendar from './PlayGroupCalendar';
 import CartView from './CartView';
@@ -34,7 +34,7 @@ const SECTION_LABELS = {
 };
 
 type RefAtolyeTab = 'home' | 'products' | 'courses' | 'play_groups' | 'cart' | 'favorites' | 'orders' | 'admin' | 'account';
-type RefDanismanlikTab = 'content' | 'applications';
+type RefDanismanlikTab = 'content' | 'applications' | 'form_settings';
 
 export default function RefSectionsView({ sectionType, isAtolyeUser = false }: RefSectionsViewProps) {
   const { profile } = useAuth();
@@ -48,6 +48,9 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
   const [referenceApplications, setReferenceApplications] = useState<any[]>([]);
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [showAtolyeLogin, setShowAtolyeLogin] = useState(false);
+  const [formSettings, setFormSettings] = useState({ deadline: '', requirements: '' });
+  const [formSettingsSaving, setFormSettingsSaving] = useState(false);
+  const [formSettingsSaved, setFormSettingsSaved] = useState(false);
 
   const isAdmin = profile?.role === 'admin';
   const showDanismanlikTabs = sectionType === 'ref_danismanlik' && isAdmin;
@@ -57,6 +60,7 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
     loadSection();
     if (sectionType === 'ref_danismanlik' && isAdmin) {
       loadReferenceApplications();
+      loadFormSettings();
     }
   }, [sectionType]);
 
@@ -104,6 +108,41 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       setReferenceApplications(data || []);
     } catch (error) {
       console.error('Error loading reference applications:', error);
+    }
+  };
+
+  const loadFormSettings = async () => {
+    try {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('key, value')
+        .in('key', ['ref_form_deadline', 'ref_form_requirements']);
+      if (data) {
+        const deadline = data.find((r: any) => r.key === 'ref_form_deadline')?.value || '23 OCAK';
+        const requirements = data.find((r: any) => r.key === 'ref_form_requirements')?.value || '';
+        setFormSettings({ deadline, requirements });
+      }
+    } catch (error) {
+      console.error('Error loading form settings:', error);
+    }
+  };
+
+  const saveFormSettings = async () => {
+    setFormSettingsSaving(true);
+    setFormSettingsSaved(false);
+    try {
+      await supabase
+        .from('app_settings')
+        .upsert([
+          { key: 'ref_form_deadline', value: formSettings.deadline, description: 'Referans Öğretmen Programı son başvuru tarihi' },
+          { key: 'ref_form_requirements', value: formSettings.requirements, description: 'Referans Öğretmen Programı başvuru şartları metni' },
+        ], { onConflict: 'key' });
+      setFormSettingsSaved(true);
+      setTimeout(() => setFormSettingsSaved(false), 3000);
+    } catch (error) {
+      console.error('Error saving form settings:', error);
+    } finally {
+      setFormSettingsSaving(false);
     }
   };
 
@@ -174,6 +213,7 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       account: 'Hesabım',
       content: 'İçerik',
       applications: 'Referans Öğretmen Başvuruları',
+      form_settings: 'Form Ayarları',
     };
     return labels[tab] || tab;
   };
@@ -204,33 +244,44 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
       {showDanismanlikTabs && (
         <>
           {/* Mobile Card Menu */}
-          <div className="md:hidden grid grid-cols-2 gap-3 mb-6 mt-6">
+          <div className="md:hidden grid grid-cols-3 gap-3 mb-6 mt-6">
             <button
               onClick={() => setActiveTab('content')}
-              className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all ${
+              className={`flex flex-col items-center justify-center p-5 rounded-xl transition-all ${
                 activeTab === 'content'
                   ? 'bg-emerald-600 text-white shadow-lg scale-105'
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <Package className="w-8 h-8 mb-2" />
-              <span className="text-sm font-medium text-center">İçerik</span>
+              <Package className="w-7 h-7 mb-2" />
+              <span className="text-xs font-medium text-center">İçerik</span>
             </button>
             <button
               onClick={() => setActiveTab('applications')}
-              className={`flex flex-col items-center justify-center p-6 rounded-xl transition-all relative ${
+              className={`flex flex-col items-center justify-center p-5 rounded-xl transition-all relative ${
                 activeTab === 'applications'
                   ? 'bg-emerald-600 text-white shadow-lg scale-105'
                   : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <ClipboardList className="w-8 h-8 mb-2" />
-              <span className="text-sm font-medium text-center">Başvurular</span>
+              <ClipboardList className="w-7 h-7 mb-2" />
+              <span className="text-xs font-medium text-center">Başvurular</span>
               {referenceApplications.length > 0 && (
                 <span className="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
                   {referenceApplications.length}
                 </span>
               )}
+            </button>
+            <button
+              onClick={() => setActiveTab('form_settings')}
+              className={`flex flex-col items-center justify-center p-5 rounded-xl transition-all ${
+                activeTab === 'form_settings'
+                  ? 'bg-emerald-600 text-white shadow-lg scale-105'
+                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <FileEdit className="w-7 h-7 mb-2" />
+              <span className="text-xs font-medium text-center">Form Ayarları</span>
             </button>
           </div>
 
@@ -261,6 +312,17 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
                     {referenceApplications.length}
                   </span>
                 )}
+              </button>
+              <button
+                onClick={() => setActiveTab('form_settings')}
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors flex items-center gap-2 ${
+                  activeTab === 'form_settings'
+                    ? 'border-emerald-600 text-emerald-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                <FileEdit className="w-4 h-4" />
+                Form Ayarları
               </button>
             </div>
           </div>
@@ -827,6 +889,84 @@ export default function RefSectionsView({ sectionType, isAtolyeUser = false }: R
               ))}
             </div>
           )}
+        </div>
+      )}
+
+      {activeTab === 'form_settings' && showDanismanlikTabs && (
+        <div className="space-y-6">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-emerald-100 rounded-lg">
+              <FileEdit className="w-5 h-5 text-emerald-700" />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800">Başvuru Formu Ayarları</h3>
+              <p className="text-sm text-gray-500">Referans Öğretmen Programı formunun içeriğini düzenleyin</p>
+            </div>
+          </div>
+
+          <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-sm text-emerald-800">
+            Bu ayarlar, kamuya açık başvuru formunun başlık bölümünde görüntülenir. Değişiklikler anında yansır.
+          </div>
+
+          <div className="space-y-5">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Son Başvuru Tarihi
+              </label>
+              <input
+                type="text"
+                value={formSettings.deadline}
+                onChange={(e) => setFormSettings({ ...formSettings, deadline: e.target.value })}
+                placeholder="Örn: 23 OCAK"
+                className="w-full md:w-80 px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-800"
+              />
+              <p className="text-xs text-gray-500 mt-1">Formda "SON BAŞVURU TARİHİ: ..." şeklinde gösterilir</p>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+                Başvuru Şartları
+              </label>
+              <textarea
+                value={formSettings.requirements}
+                onChange={(e) => setFormSettings({ ...formSettings, requirements: e.target.value })}
+                rows={4}
+                placeholder="Başvuru şartlarını buraya yazın..."
+                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-transparent text-gray-800 resize-none"
+              />
+              <p className="text-xs text-gray-500 mt-1">Formun üst kısmında bilgilendirme metni olarak gösterilir</p>
+            </div>
+
+            <div className="pt-2 flex items-center gap-3">
+              <button
+                onClick={saveFormSettings}
+                disabled={formSettingsSaving}
+                className="flex items-center gap-2 px-6 py-2.5 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors font-medium disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {formSettingsSaving ? (
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Save className="w-4 h-4" />
+                )}
+                {formSettingsSaving ? 'Kaydediliyor...' : 'Kaydet'}
+              </button>
+              {formSettingsSaved && (
+                <span className="text-sm text-emerald-700 font-medium">Ayarlar kaydedildi.</span>
+              )}
+            </div>
+          </div>
+
+          <div className="border-t border-gray-200 pt-6">
+            <h4 className="text-sm font-semibold text-gray-700 mb-3">Canlı Önizleme</h4>
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-5 rounded-xl max-w-2xl">
+              <p className="font-semibold text-white text-base mb-2">
+                SON BAŞVURU TARİHİ: {formSettings.deadline || '—'}
+              </p>
+              <p className="text-white/90 text-sm font-medium">
+                {formSettings.requirements || '—'}
+              </p>
+            </div>
+          </div>
         </div>
       )}
 

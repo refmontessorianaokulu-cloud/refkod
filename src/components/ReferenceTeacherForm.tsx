@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { Upload, X, FileText, AlertCircle, CheckCircle } from 'lucide-react';
 
@@ -8,6 +8,28 @@ export default function ReferenceTeacherForm() {
   const [error, setError] = useState('');
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+  const [formConfig, setFormConfig] = useState({
+    deadline: '23 OCAK',
+    requirements: 'BAŞVURU ŞARTLARI: OKUL ÖNCESİ ÖĞRETMENLİĞİ VEYA ÇOCUK GELİŞİMİ EĞİTİMİ LİSANS MEZUNU VEYA SON SINIF ÖĞRENCİSİ OLMAK',
+  });
+
+  useEffect(() => {
+    const loadConfig = async () => {
+      const { data } = await supabase
+        .from('app_settings')
+        .select('key, value')
+        .in('key', ['ref_form_deadline', 'ref_form_requirements']);
+      if (data && data.length > 0) {
+        const deadline = data.find((r: any) => r.key === 'ref_form_deadline')?.value;
+        const requirements = data.find((r: any) => r.key === 'ref_form_requirements')?.value;
+        setFormConfig({
+          deadline: deadline || '23 OCAK',
+          requirements: requirements || formConfig.requirements,
+        });
+      }
+    };
+    loadConfig();
+  }, []);
 
   const [formData, setFormData] = useState({
     full_name: '',
@@ -129,11 +151,8 @@ export default function ReferenceTeacherForm() {
               <h1 className="text-3xl font-bold text-white">Referans Öğretmen Programı</h1>
             </div>
             <div className="bg-white/20 backdrop-blur-sm rounded-lg p-4 text-white">
-              <p className="font-semibold text-lg mb-2">SON BAŞVURU TARİHİ: 23 OCAK</p>
-              <p className="text-sm font-medium">
-                BAŞVURU ŞARTLARI: OKUL ÖNCESİ ÖĞRETMENLİĞİ VEYA ÇOCUK GELİŞİMİ EĞİTİMİ
-                LİSANS MEZUNU VEYA SON SINIF ÖĞRENCİSİ OLMAK
-              </p>
+              <p className="font-semibold text-lg mb-2">SON BAŞVURU TARİHİ: {formConfig.deadline}</p>
+              <p className="text-sm font-medium">{formConfig.requirements}</p>
             </div>
           </div>
 
