@@ -40,6 +40,19 @@ export default function RefEvaluationSystem() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [availableCategories, setAvailableCategories] = useState<EvaluationCategory[]>([]);
+  const [selectedPeriod, setSelectedPeriod] = useState<string>(new Date().toISOString().substring(0, 7));
+
+  const availablePeriods = (() => {
+    const periods = [];
+    const now = new Date();
+    for (let i = 0; i < 24; i++) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const value = d.toISOString().substring(0, 7);
+      const label = d.toLocaleDateString('tr-TR', { year: 'numeric', month: 'long' });
+      periods.push({ value, label });
+    }
+    return periods;
+  })();
 
   useEffect(() => {
     loadCategories();
@@ -226,13 +239,11 @@ export default function RefEvaluationSystem() {
     try {
       setSubmitting(true);
 
-      const currentPeriod = new Date().toISOString().substring(0, 7);
-
       const evaluationData = {
         evaluator_id: profile?.id,
         evaluated_category: selectedCategory,
         evaluated_user_id: selectedUser || null,
-        evaluation_period: currentPeriod,
+        evaluation_period: selectedPeriod,
         scores: scores,
         comments: comments || null,
       };
@@ -357,6 +368,23 @@ export default function RefEvaluationSystem() {
         <div className="p-6">
           {activeTab === 'evaluate' && (
             <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Değerlendirme Dönemi
+            </label>
+            <select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+            >
+              {availablePeriods.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}{p.value === new Date().toISOString().substring(0, 7) ? ' (Bu Ay)' : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Değerlendirme Kategorisi Seçin
