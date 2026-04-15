@@ -36,6 +36,7 @@ import RefEvaluationManagement from './RefEvaluationManagement';
 import OrderManagement from './OrderManagement';
 import AnnouncementBannerManagement from './AnnouncementBannerManagement';
 import AppointmentManagement from './AppointmentManagement';
+import RefTeacherApplicationsManagement from './RefTeacherApplicationsManagement';
 
 export default function AdminDashboard() {
   const { signOut, profile } = useAuth();
@@ -1356,7 +1357,14 @@ export default function AdminDashboard() {
             )}
 
             {activeTab === 'ref_akademi' && <RefSectionsView sectionType="ref_akademi" />}
-            {activeTab === 'ref_danismanlik' && <RefSectionsView sectionType="ref_danismanlik" />}
+            {activeTab === 'ref_danismanlik' && (
+              <div className="space-y-8">
+                <RefSectionsView sectionType="ref_danismanlik" />
+                <div className="border-t border-gray-200 pt-8">
+                  <RefTeacherApplicationsManagement />
+                </div>
+              </div>
+            )}
             {activeTab === 'ref_atolye' && <RefSectionsView sectionType="ref_atolye" />}
               </div>
             </div>
