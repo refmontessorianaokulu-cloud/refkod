@@ -95,22 +95,28 @@ export default function AdminFieldTripsManagement() {
       if (forParent) {
         const { data, error } = await supabase
           .from('field_trip_consents')
-          .select(`
-            id,
-            consent_type,
-            updated_at,
-            parent_id,
-            profiles!field_trip_consents_parent_id_fkey (
-              full_name
-            )
-          `)
+          .select('id, consent_type, updated_at, parent_id')
           .eq('field_trip_id', tripId);
 
         if (error) throw error;
 
+        const parentIds = [...new Set((data || []).map((c: any) => c.parent_id).filter(Boolean))];
+        let profileMap: Record<string, string> = {};
+
+        if (parentIds.length > 0) {
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('id, full_name')
+            .in('id', parentIds);
+
+          (profilesData || []).forEach((p: any) => {
+            profileMap[p.id] = p.full_name;
+          });
+        }
+
         const formatted: ConsentWithDetails[] = (data || []).map((consent: any) => ({
           id: consent.id,
-          parent_name: consent.profiles?.full_name || 'Bilinmiyor',
+          parent_name: profileMap[consent.parent_id] || 'Bilinmiyor',
           child_name: '-',
           class_name: '-',
           consent_type: consent.consent_type,
@@ -259,7 +265,7 @@ export default function AdminFieldTripsManagement() {
     if (forParent) {
       return consentType === 'will_attend' ? 'Katılacağım' : 'Katılamayacağım';
     }
-    return consentType === 'participate' ? 'Katılacak' : 'Okulda Kalacak';
+    return consentType === 'approved' ? 'Katılacak' : 'Okulda Kalacak';
   };
 
   const getConsentColor = (consentType: string, forParent: boolean) => {
@@ -268,7 +274,7 @@ export default function AdminFieldTripsManagement() {
         ? 'bg-green-100 text-green-800'
         : 'bg-red-100 text-red-800';
     }
-    return consentType === 'participate'
+    return consentType === 'approved'
       ? 'bg-green-100 text-green-800'
       : 'bg-orange-100 text-orange-800';
   };
@@ -277,7 +283,7 @@ export default function AdminFieldTripsManagement() {
     total: consents.length,
     positive: viewingTrip.for_parent
       ? consents.filter(c => c.consent_type === 'will_attend').length
-      : consents.filter(c => c.consent_type === 'participate').length,
+      : consents.filter(c => c.consent_type === 'approved').length,
     negative: viewingTrip.for_parent
       ? consents.filter(c => c.consent_type === 'will_not_attend').length
       : consents.filter(c => c.consent_type === 'stay_at_school').length,
